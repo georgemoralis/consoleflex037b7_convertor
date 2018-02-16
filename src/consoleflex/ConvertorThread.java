@@ -16,14 +16,10 @@ along with Arcadeflex.  If not, see <http://www.gnu.org/licenses/>.
  */
 package consoleflex;
 
-
-public class Consoleflex {
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        new ConvertorThread().run();
-    }
+public class ConvertorThread extends Thread{
+     @Override
+    public void run() {
+         new Convertor();
+     }
     
 }
