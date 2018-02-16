@@ -36,9 +36,7 @@ typedef struct {
 }	ATARI_PIA;
 extern ATARI_PIA atari_pia;
 
-extern void a400_init_machine(void);
-extern void a800_init_machine(void);
-
+extern extern 
 extern int a800_floppy_init(int id);
 extern void a800_floppy_exit(int id);
 
@@ -46,17 +44,14 @@ extern int a800_id_rom(int id);
 extern int a800_rom_init(int id);
 extern void a800_rom_exit(int id);
 
-extern void a800xl_init_machine(void);
-extern int a800xl_load_rom(int id);
+extern extern int a800xl_load_rom(int id);
 extern int a800xl_id_rom(int id);
 
-extern void a5200_init_machine(void);
-extern int a5200_id_rom(int id);
+extern extern int a5200_id_rom(int id);
 extern int a5200_rom_init(int id);
 extern void a5200_rom_exit(int id);
 
-extern void a800_close_floppy(void);
-
+extern 
 extern READ_HANDLER ( MRA_GTIA );
 extern READ_HANDLER ( MRA_PIA );
 extern READ_HANDLER ( MRA_ANTIC );
@@ -69,7 +64,5 @@ extern READ_HANDLER ( atari_serin_r );
 extern WRITE_HANDLER ( atari_serout_w );
 extern void atari_interrupt_cb(int mask);
 
-extern void a800_handle_keyboard(void);
-extern void a5200_handle_keypads(void);
-
+extern extern 
 #endif

@@ -71,7 +71,7 @@ public class newgenes
 	char *	vdp_pattern_scroll_a=	0;
 	char *	vdp_pattern_window	=	0;
 	char *	vdp_pattern_scroll_b=	0;
-	unsigned char *	vdp_pattern_sprite	=	0;
+	UBytePtr 	vdp_pattern_sprite	=	0;
 	int	vdp_background_colour 	=	0;
 	int	vdp_background_palette	=	0;
 	int	vdp_h_interrupt_reg		=	0;
@@ -120,21 +120,21 @@ public class newgenes
 	                        		0,161,162,163,163,165,166,167,168,169,170,171,172,173,174,175,
 	                        		0,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,
 	              			  };
-	unsigned char * current_dma_src = 0;
-	unsigned char * current_dma_dest = 0;
-	unsigned char * current_dma_end = 0;
+	UBytePtr  current_dma_src = 0;
+	UBytePtr  current_dma_dest = 0;
+	UBytePtr  current_dma_end = 0;
 	int current_dma_vram_dest = 0;
 	int current_dma_increment = 0;
 	int current_dma_id = 0;
 	
 	unsigned short *Pen;
-	unsigned char *scroll_a;
-	unsigned char *scroll_b;
+	UBytePtr scroll_a;
+	UBytePtr scroll_b;
 	//struct osd_bitmap *bitmap_vram;
 	//struct osd_bitmap *bitmap_sprite;
 	
 	
-	unsigned char *spritelayer;
+	UBytePtr spritelayer;
 	
 	unsigned short colours[256];
 	
@@ -166,13 +166,13 @@ public class newgenes
 	
 	
 	
-	void genesis_vh_convert_color_prom (unsigned char *palette, unsigned char *colortable,const unsigned char *color_prom)
+	void genesis_vh_convert_color_prom (UBytePtr palette, UBytePtr colortable,const UBytePtr color_prom)
 	{
 		int i;
 	
 		/* the palette will be initialized by the game. We just set it to some */
 		/* pre-cooked values so the startup copyright notice can be displayed. */
-		for (i = 0;i < Machine->drv->total_colors;i++)
+		for (i = 0;i < Machine.drv.total_colors;i++)
 		{
 			*(palette++) = ((i & 1) >> 0) * 0xff;
 			*(palette++) = ((i & 2) >> 1) * 0xff;
@@ -183,7 +183,7 @@ public class newgenes
 	
 	void genesis_videoram1_w (int offset, int data)
 	{
-		if (errorlog) fprintf(errorlog, "what is this doing? %x, %x\n", offset, data);
+		if (errorlog != 0) fprintf(errorlog, "what is this doing? %x, %x\n", offset, data);
 		offset = data;
 	}
 	
@@ -213,7 +213,7 @@ public class newgenes
 	
 		a <<=1;
 	
-		if (sprite) sprite = 3;
+		if (sprite != 0) sprite = 3;
 	
 		for (pixel = 0; pixel < 8; pixel++)
 		{
@@ -226,14 +226,14 @@ public class newgenes
 	
 	}
 	
-	int genesis_vh_start (void)
+	public static VhStartPtr genesis_vh_start = new VhStartPtr() { public int handler() 
 	{
 		unsigned int a,b;
 		int entry;
 		if (generic_vh_start() != 0)
 			return 1;
 	
-		Pen = &Machine->pens[0];
+		Pen = &Machine.pens[0];
 	
 		memset(zbuffera, 0, 1024*128);
 		memset(zbufferb, 0, 1024*128);
@@ -250,7 +250,7 @@ public class newgenes
 				table[entry+4]=	generate_priority_entry(a, b, 0, 1);
 				table[entry+5]=	generate_priority_entry(a, b, 1, 1);
 				table[entry+6]=	generate_priority_entry(a, b, 2, 1);
-				if (errorlog) fprintf(errorlog, "%x %x %x\t%x %x %x\n",
+				if (errorlog != 0) fprintf(errorlog, "%x %x %x\t%x %x %x\n",
 				table[entry], table[entry+1], table[entry+2], table[entry+4], table[entry+5], table[entry+6]);
 			}
 		}
@@ -343,8 +343,8 @@ public class newgenes
 	
 		/* some standard startup values */
 	
-	  //	scroll_a->width = scroll_b->width = 512;
-	  //	scroll_a->height = scroll_b->height =	512;
+	  //	scroll_a.width = scroll_b.width = 512;
+	  //	scroll_a.height = scroll_b.height =	512;
 	
 	
 		vdp_ctrl_status			=	2;
@@ -387,10 +387,10 @@ public class newgenes
 	
 	
 		return 0;
-	}
+	} };
 	
 	
-	void genesis_vh_stop (void)
+	public static VhStopPtr genesis_vh_stop = new VhStopPtr() { public void handler() 
 	{
 		/* Free everything */
 	 //	osd_free_bitmap(scroll_a);
@@ -402,9 +402,9 @@ public class newgenes
 		free(tile_changed_2);
 	
 		generic_vh_stop ();
-	}
+	} };
 	
-	unsigned char *get_dma_dest_address(int id)
+	UBytePtr get_dma_dest_address(int id)
 	{
 		switch (id)
 		{
@@ -416,15 +416,15 @@ public class newgenes
 			case MODE_CRAM_READ:
 			case MODE_CRAM_WRITE:
 			case MODE_CRAM_WRITE_DMA:
-				return (unsigned char *)&vdp_cram[0];
+				return (UBytePtr )&vdp_cram[0];
 				break;
 			case MODE_VSRAM_READ:
 			case MODE_VSRAM_WRITE:
 			case MODE_VSRAM_WRITE_DMA:
-				return (unsigned char *)&vdp_vsram[0];
+				return (UBytePtr )&vdp_vsram[0];
 				break;
 			default:
-				if (errorlog) fprintf(errorlog, "Unknown get_dma_dest_address id %x!!\n", id);
+				if (errorlog != 0) fprintf(errorlog, "Unknown get_dma_dest_address id %x!!\n", id);
 		}
 		return NULL;
 	}
@@ -433,7 +433,7 @@ public class newgenes
 	{
 		int data = 0;		 /* don't worry about this for now, really doesn't happen */
 	
-	   	if (errorlog) fprintf(errorlog, "reading from... %x\n", (((vdp_address & 0xfffffffe)+ (int)&vdp_vram[0])) );
+	   	if (errorlog != 0) fprintf(errorlog, "reading from... %x\n", (((vdp_address & 0xfffffffe)+ (int)&vdp_vram[0])) );
 	
 		switch (vdp_id)
 		{
@@ -447,7 +447,7 @@ public class newgenes
 				data = /*ENDIANISE*/(*(short *)(((vdp_address & 0xfffffffe)+ vdp_cram) ));
 				break;
 			default:
-				if (errorlog) fprintf(errorlog,"unknown vdp port read type %x\n", vdp_id);
+				if (errorlog != 0) fprintf(errorlog,"unknown vdp port read type %x\n", vdp_id);
 		}
 	
 	   /*	if ((offset == 1) || (offset == 3))	  */
@@ -460,7 +460,7 @@ public class newgenes
 	{
 	  	int tempsource = 0;
 	  	int temp_vdp_address = vdp_address;
-		/*if (errorlog) fprintf(errorlog, "vdp data w offset = %x\n", offset);*/
+		/*if (errorlog != 0) fprintf(errorlog, "vdp data w offset = %x\n", offset);*/
 	
 		/* need a special case for byte writes...? */
 	
@@ -471,7 +471,7 @@ public class newgenes
 	
 			 vdp_vram_fill = COMBINE_WORD(vdp_vram_fill, data);
 				temp_vdp_address = vdp_address;
-	//			if (errorlog) fprintf(errorlog,"DMA VRAM FILL, dest %x, fill %x, length %x, real dest %x, id %x, inc %x\n", vdp_address, vdp_vram_fill, vdp_dma_length, get_dma_dest_address(vdp_id)+vdp_address, vdp_id, vdp_auto_increment);
+	//			if (errorlog != 0) fprintf(errorlog,"DMA VRAM FILL, dest %x, fill %x, length %x, real dest %x, id %x, inc %x\n", vdp_address, vdp_vram_fill, vdp_dma_length, get_dma_dest_address(vdp_id)+vdp_address, vdp_id, vdp_auto_increment);
 				/* now do the rest of the DMA fill */
 	
 				for (tempsource = 0; tempsource < (vdp_dma_length*2); tempsource++)
@@ -489,7 +489,7 @@ public class newgenes
 	
 				if (vdp_id == MODE_CRAM_WRITE_DMA)
 				{
-					 if (errorlog) fprintf(errorlog, "*** %x-%x\n", temp_vdp_address, vdp_dma_length*2);
+					 if (errorlog != 0) fprintf(errorlog, "*** %x-%x\n", temp_vdp_address, vdp_dma_length*2);
 					memset(dirty_colour + (temp_vdp_address), 1, (vdp_dma_length*2));
 				}
 	
@@ -507,14 +507,14 @@ public class newgenes
 						if ( ((tempsource & 1) == 0)  )
 						{
 	
-						      	//bitmap_vram->line[sy][sx]     = (vdp_vram_fill >> 12) & 0x0f;
-							//bitmap_vram->line[sy][sx + 1] = (vdp_vram_fill >>  8) & 0x0f;
+						      	//bitmap_vram.line[sy][sx]     = (vdp_vram_fill >> 12) & 0x0f;
+							//bitmap_vram.line[sy][sx + 1] = (vdp_vram_fill >>  8) & 0x0f;
 						  	tile_changed_1[sy >> BLOCK_SHIFT] = tile_changed_2[sy >> BLOCK_SHIFT] = 1;
 						}
 						else
 						{
-							//bitmap_vram->line[sy][sx]     = (vdp_vram_fill >> 4) & 0x0f;
-							//bitmap_vram->line[sy][sx + 1] = (vdp_vram_fill     ) & 0x0f;
+							//bitmap_vram.line[sy][sx]     = (vdp_vram_fill >> 4) & 0x0f;
+							//bitmap_vram.line[sy][sx + 1] = (vdp_vram_fill     ) & 0x0f;
 						  	tile_changed_1[sy >> BLOCK_SHIFT] = tile_changed_2[sy >> BLOCK_SHIFT] = 1;
 	
 	
@@ -526,11 +526,11 @@ public class newgenes
 			}
 			return;
 		}
-		  /*	if (errorlog) fprintf(errorlog,"%x",vdp_vram_fill);*/
+		  /*	if (errorlog != 0) fprintf(errorlog,"%x",vdp_vram_fill);*/
 	
 		/*  if (first_access && (offset == 1 || offset == 3))
-			if (errorlog) fprintf(errorlog, "misaligned\n"); */
-			 /*  	if (errorlog) fprintf(errorlog,"would write %x to... %x\n", data, ((vdp_address+ 0*//*(int)&vdp_vram[0]*//*) +(  (offset & 0x01))) );*/
+			if (errorlog != 0) fprintf(errorlog, "misaligned\n"); */
+			 /*  	if (errorlog != 0) fprintf(errorlog,"would write %x to... %x\n", data, ((vdp_address+ 0*//*(int)&vdp_vram[0]*//*) +(  (offset & 0x01))) );*/
 		if ((vdp_address & 1) && errorlog) fprintf(errorlog, "!");
 	
 		switch (vdp_id)
@@ -543,10 +543,10 @@ public class newgenes
 				sx = ((vdp_address+(offset & 1))<<1) & 7;
 			  	COMBINE_WORD_MEM(vdp_address+(int)vdp_vram, data);
 	
-		 		//bitmap_vram->line[sy][sx]     = (data >> 12) & 0x0f;
-		 		//bitmap_vram->line[sy][sx + 1] = (data >>  8) & 0x0f;
-				//bitmap_vram->line[sy][sx + 2] = (data >>  4) & 0x0f;
-		 		//bitmap_vram->line[sy][sx + 3] = (data      ) & 0x0f;
+		 		//bitmap_vram.line[sy][sx]     = (data >> 12) & 0x0f;
+		 		//bitmap_vram.line[sy][sx + 1] = (data >>  8) & 0x0f;
+				//bitmap_vram.line[sy][sx + 2] = (data >>  4) & 0x0f;
+		 		//bitmap_vram.line[sy][sx + 3] = (data      ) & 0x0f;
 				tile_changed_1[sy >> BLOCK_SHIFT] = tile_changed_2[sy >> BLOCK_SHIFT] = 1;
 	
 				}
@@ -558,11 +558,11 @@ public class newgenes
 			case MODE_CRAM_WRITE:
 				COMBINE_WORD_MEM(vdp_address+(int)vdp_cram, data);
 				dirty_colour[vdp_address>>1] = 1;
-				//if (errorlog) fprintf(errorlog, "%x\n", vdp_address);
+				//if (errorlog != 0) fprintf(errorlog, "%x\n", vdp_address);
 				break;
 	
 			default:
-				if (errorlog) fprintf(errorlog,"unknown vdp port write type %x\n", vdp_id);
+				if (errorlog != 0) fprintf(errorlog,"unknown vdp port write type %x\n", vdp_id);
 		}
 	
 	   //	if ((offset == 1 || offset == 3) /*|| (data_width == 1)*/)
@@ -586,7 +586,7 @@ public class newgenes
 					 //	cpu_cause_interrupt(0,6);
 	
 					   //	cpu_halt(0,0);
-					//	if (errorlog) fprintf(errorlog, "vdp ctrl status offset = %x\n", offset);
+					//	if (errorlog != 0) fprintf(errorlog, "vdp ctrl status offset = %x\n", offset);
 		return vdp_ctrl_status;
 	}
 	
@@ -600,7 +600,7 @@ public class newgenes
 		{
 			case 0:
 		  	case 2:
-		  	  	 /* if (errorlog) fprintf(errorlog, "genesis_vdp_ctrl_w %x, %x, %x, %x\n", offset, data, vdp_data, data >>16);*/
+		  	  	 /* if (errorlog != 0) fprintf(errorlog, "genesis_vdp_ctrl_w %x, %x, %x, %x\n", offset, data, vdp_data, data >>16);*/
 	
 	
 	
@@ -609,7 +609,7 @@ public class newgenes
 					first_read = 1;
 					vdp_register = (vdp_data >> 8) & 0x1f;
 				  	vdp_data = full_vdp_data & 0xff;
-					/*if (errorlog) fprintf(errorlog,"register %d writing %x\n", vdp_register, vdp_data);*/
+					/*if (errorlog != 0) fprintf(errorlog,"register %d writing %x\n", vdp_register, vdp_data);*/
 					switch (vdp_register)
 					{
 						case 0:	/* register 0, interrupt enable etc */
@@ -626,24 +626,24 @@ public class newgenes
 							break;
 						case 2:	/* pattern name table address, scroll A */
 							vdp_pattern_scroll_a= (char *)(&vdp_vram[0]+(vdp_data << 10));
-	//						if (errorlog) fprintf(errorlog, "scrolla = %x\n", vdp_pattern_scroll_a-(int)&vdp_vram[0]);
-	//						if (errorlog) fprintf(errorlog, "VRAM is %x\n", &vdp_vram[0]);
+	//						if (errorlog != 0) fprintf(errorlog, "scrolla = %x\n", vdp_pattern_scroll_a-(int)&vdp_vram[0]);
+	//						if (errorlog != 0) fprintf(errorlog, "VRAM is %x\n", &vdp_vram[0]);
 						   //	memset(dirty_attribute_a, -1, (128*128)*sizeof(short));
 							break;
 						case 3:	/* pattern name table address, window */
 							vdp_pattern_window	= (char *)(&vdp_vram[0]+(vdp_data <<10));
-	//						if (errorlog) fprintf(errorlog, "window = %x\n", vdp_pattern_window-(int)&vdp_vram[0]);
+	//						if (errorlog != 0) fprintf(errorlog, "window = %x\n", vdp_pattern_window-(int)&vdp_vram[0]);
 	
 							break;
 						case 4:	/* pattern name table address, scroll B */
 							vdp_pattern_scroll_b= (char *)(&vdp_vram[0]+(vdp_data <<13));
 						  //	memset(dirty_attribute_b, -1, (128*128)*sizeof(short));
 	
-	//						if (errorlog) fprintf(errorlog, "scrollb = %x\n", vdp_pattern_scroll_b-(int)&vdp_vram[0]);
+	//						if (errorlog != 0) fprintf(errorlog, "scrollb = %x\n", vdp_pattern_scroll_b-(int)&vdp_vram[0]);
 							break;
 						case 5:	/* pattern name table address, sprite */
-							vdp_pattern_sprite	= (unsigned char *)(&vdp_vram[0]+(vdp_data <<9));
-	//						if (errorlog) fprintf(errorlog, "sprite = %x\n", vdp_pattern_sprite-(int)&vdp_vram[0]);
+							vdp_pattern_sprite	= (UBytePtr )(&vdp_vram[0]+(vdp_data <<9));
+	//						if (errorlog != 0) fprintf(errorlog, "sprite = %x\n", vdp_pattern_sprite-(int)&vdp_vram[0]);
 							break;
 						case 6: /* nothing */
 							break;
@@ -660,13 +660,13 @@ public class newgenes
 							vdp_scrollmode		= vdp_data;
 							vdp_h_scrollmode	= (vdp_data & 3);
 							vdp_v_scrollmode	= (vdp_data >> 2) & 1;
-							if (errorlog) fprintf(errorlog, "scroll modes %x, %x\n", vdp_h_scrollmode, vdp_v_scrollmode);
+							if (errorlog != 0) fprintf(errorlog, "scroll modes %x, %x\n", vdp_h_scrollmode, vdp_v_scrollmode);
 							break;
 						case 12: /* character mode, interlace etc */
 							vdp_screenmode		= vdp_data;
 							vdp_h_width = ((vdp_data & 1) ? 320 : 256);
 							vdp_interlace = (vdp_data >> 1) & 3;
-							if (errorlog) fprintf(errorlog, "screen width, interlace flag = %d, %d\n", vdp_h_width, vdp_interlace);
+							if (errorlog != 0) fprintf(errorlog, "screen width, interlace flag = %d, %d\n", vdp_h_width, vdp_interlace);
 							break;
 						case 13: /* H scroll data address */
 							vdp_h_scroll_addr	= (char *)(&vdp_vram[0]+(vdp_data<<10));
@@ -679,7 +679,7 @@ public class newgenes
 						case 16: /* scroll size */
 							vdp_h_scrollsize	= (vdp_data & 3);
 							vdp_v_scrollsize	= ((vdp_data >> 4) & 3);
-							if (errorlog) fprintf(errorlog, "initial h scrollsize = %x\n", vdp_h_scrollsize);
+							if (errorlog != 0) fprintf(errorlog, "initial h scrollsize = %x\n", vdp_h_scrollsize);
 							switch (vdp_h_scrollsize)
 							{
 								case 0: vdp_h_scrollsize = 32; break;
@@ -696,10 +696,10 @@ public class newgenes
 								case 3: vdp_v_scrollsize = 128; break;
 							}
 							vdp_scroll_height = vdp_v_scrollsize << 3;
-							if (errorlog) fprintf(errorlog, "scrollsizes are %d, %d\n", vdp_h_scrollsize, vdp_v_scrollsize);
+							if (errorlog != 0) fprintf(errorlog, "scrollsizes are %d, %d\n", vdp_h_scrollsize, vdp_v_scrollsize);
 	
-						  //	scroll_a->width = scroll_b->width = vdp_h_scrollsize << 3;
-						  //	scroll_a->height = scroll_b->height = vdp_scroll_height;
+						  //	scroll_a.width = scroll_b.width = vdp_h_scrollsize << 3;
+						  //	scroll_a.height = scroll_b.height = vdp_scroll_height;
 	
 							break;
 						case 17: /* window H position */
@@ -710,11 +710,11 @@ public class newgenes
 							break;
 						case 19: /* DMA length counter low */
 							vdp_dma_length		= (vdp_dma_length & 0xff00) | vdp_data;
-							if (errorlog) fprintf(errorlog,"DMA length low.. length is %x\n", vdp_dma_length);
+							if (errorlog != 0) fprintf(errorlog,"DMA length low.. length is %x\n", vdp_dma_length);
 							break;
 						case 20: /* DMA length counter high */
 							vdp_dma_length		= (vdp_dma_length & 0xff) | (vdp_data << 8);
-							if (errorlog) fprintf(errorlog,"DMA length high.. length is %x\n", vdp_dma_length);
+							if (errorlog != 0) fprintf(errorlog,"DMA length high.. length is %x\n", vdp_dma_length);
 							break;
 						case 21: /* DMA source low  (total is SA1-SA22, thus the extra shift */
 							vdp_dma_source		= (vdp_dma_source & 0x7ffe00) | (vdp_data << 1);
@@ -726,28 +726,28 @@ public class newgenes
 							vdp_dma_source		= (vdp_dma_source & 0x01fffe) | ((vdp_data & 0x7f) << 17) ;
 	
 							vdp_dma_mode		= (vdp_data >> 6) & 0x03;
-							if (errorlog) fprintf(errorlog,"23:%x, %x\n",vdp_dma_mode, vdp_dma_source);
+							if (errorlog != 0) fprintf(errorlog,"23:%x, %x\n",vdp_dma_mode, vdp_dma_source);
 							break;
 					}
 				}
 				else
 				{
-					if (first_read)
+					if (first_read != 0)
 					{
-						/* if (errorlog) fprintf(errorlog,"vdp data on first read is %x\n", vdp_data); */
+						/* if (errorlog != 0) fprintf(errorlog,"vdp data on first read is %x\n", vdp_data); */
 						vdp_address = (vdp_data & 0x3fff);
 						vdp_id		= (vdp_data & 0xc000) >> 14;
 						first_read	= 0;
 					}
 					else
 					{
-					   /*	 if (errorlog) fprintf(errorlog,"vdp data on second read is %x\n", vdp_data); */
+					   /*	 if (errorlog != 0) fprintf(errorlog,"vdp data on second read is %x\n", vdp_data); */
 						vdp_address |= ((vdp_data & 0x03) << 14);
 						vdp_id |= ( (vdp_data & 0xf0) >> 2);
 						first_read	= 1;
-						if (errorlog) fprintf(errorlog,"vdp id is %x\n", vdp_id);
+						if (errorlog != 0) fprintf(errorlog,"vdp id is %x\n", vdp_id);
 	
-						if (errorlog) fprintf(errorlog,"address set, %x\n", vdp_address);
+						if (errorlog != 0) fprintf(errorlog,"address set, %x\n", vdp_address);
 	
 						if (vdp_dma_enable && (vdp_id & 0x20))
 						{
@@ -757,14 +757,14 @@ public class newgenes
 							{
 	/*#if 0*/
 								case DMA_ROM_VRAM:
-	//								if (errorlog) fprintf(errorlog,"DMA ROM->VRAM, src %x dest %x, length %x, real dest %x, id %x, inc %x\n",  vdp_dma_source, vdp_address, vdp_dma_length, get_dma_dest_address(vdp_id)+vdp_address, vdp_id, vdp_auto_increment);
+	//								if (errorlog != 0) fprintf(errorlog,"DMA ROM.VRAM, src %x dest %x, length %x, real dest %x, id %x, inc %x\n",  vdp_dma_source, vdp_address, vdp_dma_length, get_dma_dest_address(vdp_id)+vdp_address, vdp_id, vdp_auto_increment);
 	
 								  	genesis_initialise_dma(&memory_region(REGION_CPU1)[vdp_dma_source & 0x3fffff], vdp_address,	vdp_dma_length * 2, vdp_id, vdp_auto_increment);
 	
 	/*#endif*/
 									break;
 								case DMA_RAM_VRAM:
-	//								if (errorlog) fprintf(errorlog,"DMA RAM->VRAM, src %x dest %x, length %x, real dest %x, id %x, inc %x\n",  vdp_dma_source, vdp_address, vdp_dma_length, get_dma_dest_address(vdp_id)+vdp_address, vdp_id, vdp_auto_increment);
+	//								if (errorlog != 0) fprintf(errorlog,"DMA RAM.VRAM, src %x dest %x, length %x, real dest %x, id %x, inc %x\n",  vdp_dma_source, vdp_address, vdp_dma_length, get_dma_dest_address(vdp_id)+vdp_address, vdp_id, vdp_auto_increment);
 	
 									/*	if (vdp_address+(vdp_dma_length*vdp_auto_increment) > 0xffff) printf("error! sdil: %x %x %x %x\n", vdp_dma_source, vdp_address, vdp_auto_increment, vdp_dma_length);*/
 	
@@ -772,10 +772,10 @@ public class newgenes
 	
 									break;
 								case DMA_VRAM_FILL: /* handled at other port :-) */
-									if (errorlog) fprintf(errorlog, "VRAM FILL pending, awaiting fill data set\n");
+									if (errorlog != 0) fprintf(errorlog, "VRAM FILL pending, awaiting fill data set\n");
 									break;
 								case DMA_VRAM_COPY:
-	//								if (errorlog) fprintf(errorlog,"DMA VRAM COPY, src %x dest %x, length %x, real dest %x, id %x, inc %x\n",  vdp_dma_source, vdp_address, vdp_dma_length, get_dma_dest_address(vdp_id)+vdp_address, vdp_id, vdp_auto_increment);
+	//								if (errorlog != 0) fprintf(errorlog,"DMA VRAM COPY, src %x dest %x, length %x, real dest %x, id %x, inc %x\n",  vdp_dma_source, vdp_address, vdp_dma_length, get_dma_dest_address(vdp_id)+vdp_address, vdp_id, vdp_auto_increment);
 									/*	tempdest = vdp_vram+vdp_address;
 									for (tempsource = 0; tempsource < (vdp_dma_length); tempsource++)
 									{
@@ -785,7 +785,7 @@ public class newgenes
 									*/
 									break;
 								default:
-									if (errorlog) fprintf(errorlog,"unknown vdp dma mode type %x\n", vdp_dma_mode);
+									if (errorlog != 0) fprintf(errorlog,"unknown vdp dma mode type %x\n", vdp_dma_mode);
 									break;
 							}
 						}
@@ -808,10 +808,10 @@ public class newgenes
 		int indx = 0, counter = 0;
 	//	char *old_current_dma_dest = current_dma_dest;
 	
-		if (vdp_dma_busy)
+		if (vdp_dma_busy != 0)
 		{
 		//cpu_yield();
-			if (errorlog) fprintf(errorlog, "poll: src %p, end %p, id %x, vram dest %x, inc %x\n", current_dma_src, current_dma_end, current_dma_id, current_dma_vram_dest, current_dma_increment);
+			if (errorlog != 0) fprintf(errorlog, "poll: src %p, end %p, id %x, vram dest %x, inc %x\n", current_dma_src, current_dma_end, current_dma_id, current_dma_vram_dest, current_dma_increment);
 	
 			while (indx < amount && current_dma_src < current_dma_end)
 			{
@@ -835,7 +835,7 @@ public class newgenes
 	
 			if (vdp_id == MODE_CRAM_WRITE_DMA)
 				{
-					if (errorlog) fprintf(errorlog, "%x-%x\n", current_dma_vram_dest, counter);
+					if (errorlog != 0) fprintf(errorlog, "%x-%x\n", current_dma_vram_dest, counter);
 					memset(dirty_colour + (current_dma_vram_dest), 1, counter);
 				}
 	
@@ -858,25 +858,25 @@ public class newgenes
 	
 					#ifdef LSB_FIRST
 	
-					//bitmap_vram->line[sy][sx + 2] = ((*old_current_dma_dest) >> 4) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 3] = (*old_current_dma_dest++) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 0] = ((*old_current_dma_dest) >> 4) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 1] = (*old_current_dma_dest++) & 0x0f;
-					//bitmap_vram->line[sy][sx + 6] = ((*old_current_dma_dest) >> 4) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 7] = (*old_current_dma_dest++) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 4] = ((*old_current_dma_dest) >> 4) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 5] = (*old_current_dma_dest++) & 0x0f;
+					//bitmap_vram.line[sy][sx + 2] = ((*old_current_dma_dest) >> 4) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 3] = (*old_current_dma_dest++) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 0] = ((*old_current_dma_dest) >> 4) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 1] = (*old_current_dma_dest++) & 0x0f;
+					//bitmap_vram.line[sy][sx + 6] = ((*old_current_dma_dest) >> 4) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 7] = (*old_current_dma_dest++) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 4] = ((*old_current_dma_dest) >> 4) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 5] = (*old_current_dma_dest++) & 0x0f;
 	
 					#else
 	
-					//bitmap_vram->line[sy][sx + 0] = ((*old_current_dma_dest) >> 4) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 1] = (*old_current_dma_dest++) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 2] = ((*old_current_dma_dest) >> 4) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 3] = (*old_current_dma_dest++) & 0x0f;
-					//bitmap_vram->line[sy][sx + 4] = ((*old_current_dma_dest) >> 4) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 5] = (*old_current_dma_dest++) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 6] = ((*old_current_dma_dest) >> 4) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 7] = (*old_current_dma_dest++) & 0x0f;
+					//bitmap_vram.line[sy][sx + 0] = ((*old_current_dma_dest) >> 4) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 1] = (*old_current_dma_dest++) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 2] = ((*old_current_dma_dest) >> 4) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 3] = (*old_current_dma_dest++) & 0x0f;
+					//bitmap_vram.line[sy][sx + 4] = ((*old_current_dma_dest) >> 4) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 5] = (*old_current_dma_dest++) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 6] = ((*old_current_dma_dest) >> 4) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 7] = (*old_current_dma_dest++) & 0x0f;
 	
 					#endif
 	
@@ -902,7 +902,7 @@ public class newgenes
 	}
 	
 	
-	void genesis_initialise_dma (unsigned char *src, int dest, int length, int id, int increment)
+	void genesis_initialise_dma (UBytePtr src, int dest, int length, int id, int increment)
 	{
 		current_dma_src = src;
 		current_dma_dest = get_dma_dest_address (vdp_id)+dest;
@@ -934,22 +934,22 @@ public class newgenes
 		0x041230
 	};
 	
-	inline void genesis_plot_layer_tile(unsigned char *dest, unsigned int attribute, unsigned int sx, unsigned int sy)
+	inline void genesis_plot_layer_tile(UBytePtr dest, unsigned int attribute, unsigned int sx, unsigned int sy)
 	{
 		/* Bugger! If only I could plot 4 pixels at a time... would it be faster on macs if I
 		packed reads into a 32-bit word and wrote that? */
 	
 		//unsigned char code = (attribute & 0x8000) ? 0xff : 0x00;
 		unsigned int code;
-		unsigned char *bm;
-		unsigned char *c;
+		UBytePtr bm;
+		UBytePtr c;
 		int tilenum;
 		int line;
 		//int position = ((sy>>3)<<7)+ (sx>>3);
 		int flips = (attribute & 0x1800);
 		unsigned int firsthalf, secondhalf;
 		unsigned char zb;
-		unsigned char *zbuffer = (dest == scroll_a) ? zbuffera : zbufferb;
+		UBytePtr zbuffer = (dest == scroll_a) ? zbuffera : zbufferb;
 		//mask[position]=code;
 		#ifdef LSB_FIRST
 		#define OF0 1
@@ -1010,7 +1010,7 @@ public class newgenes
 	
 			for (line = 0; line < 8; line++)
 			{
-				//	c  = &bitmap_vram->line[(tilenum<<3)+line][0];
+				//	c  = &bitmap_vram.line[(tilenum<<3)+line][0];
 			  	 /*   bm[0]=(c[OF0]>>4)  | code;
 				    bm[1]=(c[OF0]&0xf) | code;
 				    bm[2]=(c[OF1]>>4)  | code;
@@ -1036,7 +1036,7 @@ public class newgenes
 			for (line = 0; line < 8; line++)
 			{
 				bm = dest+((sy+line)<<10)+sx;
-			//	c  = &bitmap_vram->line[(tilenum<<3)+line][0];
+			//	c  = &bitmap_vram.line[(tilenum<<3)+line][0];
 	
 			   if !(		bm[1]=(c[OF3]>>4)  ;
 			   if !(		bm[0]=(c[OF3]&0xf) ;
@@ -1057,7 +1057,7 @@ public class newgenes
 			for (line = 0; line < 8; line++)
 			{
 				bm = dest+((sy+line)<<10)+sx;
-			//	c  = &bitmap_vram->line[(tilenum<<3)+(7-line)][0];
+			//	c  = &bitmap_vram.line[(tilenum<<3)+(7-line)][0];
 	
 			   if !(		bm[0]=(c[OF0]>>4)  ;
 			   if !(		bm[1]=(c[OF0]&0xf) ;
@@ -1079,7 +1079,7 @@ public class newgenes
 			for (line = 0; line < 8; line++)
 			{
 				bm = dest+((sy+line)<<10)+sx;
-			//	c  = &bitmap_vram->line[(tilenum<<3)+(7-line)][0];
+			//	c  = &bitmap_vram.line[(tilenum<<3)+(7-line)][0];
 	
 			   if !(	bm[1]=(c[OF3]>>4)  ;
 			   if !(	bm[0]=(c[OF3]&0xf) ;
@@ -1114,12 +1114,12 @@ public class newgenes
 		int h_mask = (vdp_h_scrollsize << 3)-1;
 		unsigned int priority = 0;
 		unsigned char a_shift, b_shift;
-		unsigned char *shift;
+		UBytePtr shift;
 		int indx, increment;
-		unsigned char *sprite_ptr, *output_ptr;
-	     //	unsigned char *scroll_a_pixel_addr = 0, *scroll_b_pixel_addr = 0;
-		unsigned char *scroll_pixel_addr = 0;
-		unsigned char *scroll_a_pixel, *scroll_b_pixel;
+		UBytePtr sprite_ptr, *output_ptr;
+	     //	UBytePtr scroll_a_pixel_addr = 0, *scroll_b_pixel_addr = 0;
+		UBytePtr scroll_pixel_addr = 0;
+		UBytePtr scroll_a_pixel, *scroll_b_pixel;
 		unsigned char sprite_pixel = 0;
 		int scroll_a_attribute=0, scroll_b_attribute=0;
 		unsigned int scroll_a_x = 0, scroll_a_y = 0, scroll_b_x = 0, scroll_b_y = 0;
@@ -1138,7 +1138,7 @@ public class newgenes
 	
 	    debug_a_y=0;
 	
-	   //	if (errorlog)
+	   //	if (errorlog != 0)
 	   //		for (offs = 0; offs < (1024*128); offs++)
 	   //			fprintf(errorlog, "%x %x\n", zbuffera[offs], zbufferb[offs]);
 	
@@ -1181,7 +1181,7 @@ public class newgenes
 	
 		 sx+=8;
 		}
-		if (errorlog) fprintf(errorlog, "tiles redrawn = %d\n", debug_a_y);
+		if (errorlog != 0) fprintf(errorlog, "tiles redrawn = %d\n", debug_a_y);
 		/* swap the tile changed buffers around */
 	
 	 // 	temp_ptr = tile_changed_1;
@@ -1262,7 +1262,7 @@ public class newgenes
 			  	  /* the sprite layer position is about to be set too */
 	
 	   		   	sprite_ptr = spritelayer +(y<<9)+x;
-				output_ptr = &dest->line[y][x];
+				output_ptr = &dest.line[y][x];
 	
 			  	scroll_a_pixel = scroll_a+(scroll_a_y<<10);
 			  	scroll_b_pixel = scroll_b+(scroll_b_y<<10);
@@ -1284,7 +1284,7 @@ public class newgenes
 								 |     (zbufferb[(scroll_b_y<<7)+(((scroll_b_x+8)&h_mask )>>3)])    )
 									 >>  (8-(scroll_b_x & 3 ))) & 0xff)     );
 	
-				 /* 	if (errorlog)
+				 /* 	if (errorlog != 0)
 				  	{
 				  		fprintf(errorlog, "ax,bx,ay,by,table offset %d, %d, %d, %d, %x, %x\n", scroll_a_x, scroll_b_x,
 				  																			   scroll_a_y, scroll_b_y,
@@ -1309,7 +1309,7 @@ public class newgenes
 						zzb= priority_table[1 + sprite_priority] >> (priority_loop)&3;
 					   	zzs= priority_table[2 + sprite_priority] >> (priority_loop)&3;
 					   //	 zzs=rand();
-					   /*	if (errorlog)
+					   /*	if (errorlog != 0)
 						{
 							if (((zza&3)==0) && table_offset != 0xffff) fprintf(errorlog, "zza==0 table_offset,val=%x %x %x %x\n", table_offset, priority_table[0], priority_table[1], priority_loop);
 							if (((zzb&3)==0) && table_offset != 0xffff) fprintf(errorlog, "zzb==0 table_offset,val=%x %x %x %x\n", table_offset, priority_table[0], priority_table[1], priority_loop);
@@ -1391,8 +1391,8 @@ public class newgenes
 	
 		unsigned char code = ((attribute >> 9) & 0x30) | ((attribute & 0x8000) >> 8);
 		int line;
-		unsigned char *bm;
-		unsigned char *c;
+		UBytePtr bm;
+		UBytePtr c;
 	
 	
 		int flips = (attribute & 0x1800);
@@ -1418,7 +1418,7 @@ public class newgenes
 	
 			for (line = 0; line < 8; line++)
 			{
-			//	c  = &bitmap_vram->line[(tilenum<<3)+line][0];
+			//	c  = &bitmap_vram.line[(tilenum<<3)+line][0];
 			  		if (!(bm[0]&0x0f)) bm[0]=(c[OF0]>>4) | code;
 					if (!(bm[1]&0x0f)) bm[1]=(c[OF0]&0xf) | code;
 					if (!(bm[2]&0x0f)) bm[2]=(c[OF1]>>4) | code;
@@ -1440,7 +1440,7 @@ public class newgenes
 			for (line = 0; line < 8; line++)
 			{
 	
-			//	c  = &bitmap_vram->line[(tilenum<<3)+line][0];
+			//	c  = &bitmap_vram.line[(tilenum<<3)+line][0];
 	
 			   		if (!(bm[1]&0x0f)) bm[1]=(c[OF3]>>4) | code;
 					if (!(bm[0]&0x0f)) bm[0]=(c[OF3]&0xf) | code;
@@ -1464,7 +1464,7 @@ public class newgenes
 			for (line = 0; line < 8; line++)
 			{
 	
-			//	c  = &bitmap_vram->line[(tilenum<<3)+(7-line)][0];
+			//	c  = &bitmap_vram.line[(tilenum<<3)+(7-line)][0];
 	
 					if (!(bm[0]&0x0f)) bm[0]=(c[OF0]>>4) | code;
 					if (!(bm[1]&0x0f)) bm[1]=(c[OF0]&0xf) | code;
@@ -1486,7 +1486,7 @@ public class newgenes
 			bm = spritelayer+((sy+7)<<9)+sx;
 			for (line = 0; line < 8; line++)
 			{
-				//	c  = &bitmap_vram->line[(tilenum<<3)+(7-line)][0];
+				//	c  = &bitmap_vram.line[(tilenum<<3)+(7-line)][0];
 	
 			   		if (!(bm[1]&0x0f)) bm[1]=(c[OF3]>>4) | code;
 					if (!(bm[0]&0x0f)) bm[0]=(c[OF3]&0xf) | code;
@@ -1516,7 +1516,7 @@ public class newgenes
 		#define NEXT 3
 		#endif
 	
-		unsigned char *current_sprite;
+		UBytePtr current_sprite;
 	
 		current_sprite = vdp_pattern_sprite;
 		while(1)
@@ -1536,8 +1536,8 @@ public class newgenes
 				size = *(current_sprite+SIZE);
 				blocks_x = ((size >> 2) & 3)+1;
 				blocks_y = (size & 3)+1;
-				//bitmap_sprite->width  =	blocks_x << 3;
-				//bitmap_sprite->height = blocks_y << 3;
+				//bitmap_sprite.width  =	blocks_x << 3;
+				//bitmap_sprite.height = blocks_y << 3;
 	
 	
 				y = ((*(short *) current_sprite   )&0x3ff)-0x80;
@@ -1595,7 +1595,7 @@ public class newgenes
 	
 	
 	
-		   /*	if (errorlog) fprintf(errorlog, "addr = %x, sprcount %x\n", current_sprite, numberofsprites);  */
+		   /*	if (errorlog != 0) fprintf(errorlog, "addr = %x, sprcount %x\n", current_sprite, numberofsprites);  */
 			if (*(current_sprite + NEXT) == 0) break;
 			current_sprite = (vdp_pattern_sprite + (*(current_sprite + NEXT)<<3) );
 	
@@ -1610,15 +1610,15 @@ public class newgenes
 	  the main emulation engine.
 	
 	***************************************************************************/
-	//void genesis_vh_screenrefresh (struct osd_bitmap *bitmap, int full_refresh)
+	//public static VhUpdatePtr genesis_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	//{
 	//
 	//genesis_modify_display(0);
 	////copybitmap(bitmap, bitmap2, 0, 0, 0, 0, 0, 0, 0);
 	//copybitmap(bitmap, bitmap2, 0, 0, 0, 0, 0, 0, 0);
 	//
-	//}
-	void genesis_vh_screenrefresh (struct osd_bitmap *bitmap, int full_refresh)
+	//} };
+	public static VhUpdatePtr genesis_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	//void genesis_modify_display(int inter)
 	{
 	
@@ -1651,18 +1651,18 @@ public class newgenes
 	   //cpu_halt(1,0);
 	   if (!vdp_v_interrupt || !vdp_display_enable) return;
 	
-	 //  if (z80running)
+	 //  if (z80running != 0)
 	 //  {
 	 //  		cpu_cause_interrupt(1,Z80_NMI_INT);
-	 //		if (errorlog) fprintf(errorlog, "Allowing Z80 interrupt\n");
+	 //		if (errorlog != 0) fprintf(errorlog, "Allowing Z80 interrupt\n");
 	 //  }
 	
 		/* Setup the non-constant fields */
 		//scroll_element.gfxdata = bitmap_vram;
 		visiblearea.max_x = (vdp_h_scrollsize<<3)-1;
 		visiblearea.max_y = vdp_scroll_height-1;
-	  //	spritelayer->width = visiblearea.max_x + 256;
-	  //	spritelayer->height = visiblearea.max_y + 256;
+	  //	spritelayer.width = visiblearea.max_x + 256;
+	  //	spritelayer.height = visiblearea.max_y + 256;
 		//scroll_element.colortable = &colours[0];
 	
 	      /*	genesis_dma_poll(200); */
@@ -1722,6 +1722,6 @@ public class newgenes
 		combinelayers3(bitmap,0,vdp_display_height);
 	
 	
-	}
+	} };
 	
 }

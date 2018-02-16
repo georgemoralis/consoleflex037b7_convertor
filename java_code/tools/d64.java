@@ -186,14 +186,14 @@ public class d64
 		return ((track - 1)*20*2 + sector )* 256;
 	}
 	
-	static void cbm_filename_to_cstring(unsigned char *cbmstring, int size, unsigned char* cstring)
+	static void cbm_filename_to_cstring(UBytePtr cbmstring, int size, UBytePtr  cstring)
 	{
 		int i;
 		for (i=0; (i<size)&&(cbmstring[i]!=0xa0); i++) cstring[i]=cbmstring[i];
 		cstring[i]=0;
 	}
 	
-	int cbm_compareNames (const unsigned char *left, const unsigned char *right)
+	int cbm_compareNames (const UBytePtr left, const UBytePtr right)
 	{
 		int i;
 	
@@ -233,8 +233,8 @@ public class d64
 		int crc; // crc data at the end of file
 		int size;
 		int modified;
-		unsigned char *realimage; //inclusive x64 header
-		unsigned char *data; // pointer to start of d64 image
+		UBytePtr realimage; //inclusive x64 header
+		UBytePtr data; // pointer to start of d64 image
 	} d64_image;
 	
 	typedef struct {
@@ -249,7 +249,7 @@ public class d64
 		static int tracks[35];
 		int i, j;
 		D64_HEADER *header=(D64_HEADER*)
-			(image->data+image->get_offset(image->directory.track,image->directory.sector));
+			(image.data+image.get_offset(image.directory.track,image.directory.sector));
 	
 		// this contains the tracks for the search strategy for free sectors
 		for (i=0,j=17; i<35; i+=2,j--) tracks[i]=j;
@@ -258,13 +258,13 @@ public class d64
 	
 		for (i=0; i<35; i++) {
 			*track=tracks[i];
-			if (header->bam[*track-1].free) {
+			if (header.bam[*track-1].free) {
 				for (j=0,*sector=0;j<3; j++) {
 					int mask=1;
 					for (; mask<=0x80; mask<<=1, (*sector)++) {
-						if (header->bam[*track-1].map[j]&mask) {
-							header->bam[*track-1].map[j]&=~mask;
-							header->bam[*track-1].free--;
+						if (header.bam[*track-1].map[j]&mask) {
+							header.bam[*track-1].map[j]&=~mask;
+							header.bam[*track-1].free--;
 							return;
 						}
 					}
@@ -276,11 +276,11 @@ public class d64
 	static void d64_free_sector(struct _d64_image *image, int track, int sector)
 	{
 		D64_HEADER *header=(D64_HEADER*)
-			(image->data+image->get_offset(image->directory.track,image->directory.sector));
+			(image.data+image.get_offset(image.directory.track,image.directory.sector));
 		int i=sector>>3;
 		int mask=1<<(sector&7);
-		header->bam[track-1].free++;
-		header->bam[track-1].map[i]|=mask;
+		header.bam[track-1].free++;
+		header.bam[track-1].map[i]|=mask;
 	}
 	
 	static void d71_alloc_sector(struct _d64_image *image, int *track, int *sector)
@@ -288,9 +288,9 @@ public class d64
 		static int tracks[70];
 		int i, j;
 		D64_HEADER *header=(D64_HEADER*)
-			(image->data+image->get_offset(image->directory.track,image->directory.sector));
+			(image.data+image.get_offset(image.directory.track,image.directory.sector));
 		D71_HEADER *header2=(D71_HEADER*)
-			(image->data+image->get_offset(image->directory.track+35,image->directory.sector));
+			(image.data+image.get_offset(image.directory.track+35,image.directory.sector));
 	
 		// this contains the tracks for the search strategy for free sectors
 		for (i=0,j=17; i<35; i+=4,j--) { tracks[i]=j; tracks[i+1]=j+35; }
@@ -300,26 +300,26 @@ public class d64
 		for (i=0; i<35; i++) {
 			*track=tracks[i];
 			if (*tracks<=35) {
-				if (header->bam[*track-1].free) {
+				if (header.bam[*track-1].free) {
 					for (j=0,*sector=0;j<3; j++) {
 						int mask=1;
 						for (; mask<=0x80; mask<<=1, (*sector)++) {
-							if (header->bam[*track-1].map[j]&mask) {
-								header->bam[*track-1].map[j]&=~mask;
-								header->bam[*track-1].free--;
+							if (header.bam[*track-1].map[j]&mask) {
+								header.bam[*track-1].map[j]&=~mask;
+								header.bam[*track-1].free--;
 								return;
 							}
 						}
 					}
 				}
 			} else {
-				if (header->free2[*track-36]) {
+				if (header.free2[*track-36]) {
 					for (j=0,*sector=0;j<3; j++) {
 						int mask=1;
 						for (; mask<=0x80; mask<<=1, (*sector)++) {
-							if (header2->bam2[*track-36].map2[j]&mask) {
-								header2->bam2[*track-36].map2[j]&=~mask;
-								header->free2[*track-36]--;
+							if (header2.bam2[*track-36].map2[j]&mask) {
+								header2.bam2[*track-36].map2[j]&=~mask;
+								header.free2[*track-36]--;
 								return;
 							}
 						}
@@ -332,17 +332,17 @@ public class d64
 	static void d71_free_sector(struct _d64_image *image, int track, int sector)
 	{
 		D64_HEADER *header=(D64_HEADER*)
-			(image->data+image->get_offset(image->directory.track,image->directory.sector));
+			(image.data+image.get_offset(image.directory.track,image.directory.sector));
 		D71_HEADER *header2=(D71_HEADER*)
-			(image->data+image->get_offset(image->directory.track+35,image->directory.sector));
+			(image.data+image.get_offset(image.directory.track+35,image.directory.sector));
 		int i=sector>>3;
 		int mask=1<<(sector&7);
 		if (track<=35) {
-			header->bam[track-1].free++;
-			header->bam[track-1].map[i]|=mask;
+			header.bam[track-1].free++;
+			header.bam[track-1].map[i]|=mask;
 		} else {
-			header->free2[track-36]++;
-			header2->bam2[track-36].map2[i]|=mask;
+			header.free2[track-36]++;
+			header2.bam2[track-36].map2[i]|=mask;
 		}
 	}
 	
@@ -351,26 +351,26 @@ public class d64
 		static int tracks[80];
 		int i, j;
 		D81_BAM *bam[2];
-		bam[0] = (D81_BAM*) (image->data + image->get_offset(image->directory.track, image->directory.sector+1)),
-		bam[1] = (D81_BAM*) (image->data + image->get_offset(image->directory.track, image->directory.sector+1));
+		bam[0] = (D81_BAM*) (image.data + image.get_offset(image.directory.track, image.directory.sector+1)),
+		bam[1] = (D81_BAM*) (image.data + image.get_offset(image.directory.track, image.directory.sector+1));
 		
 		/* this contains the tracks for the search strategy for free sectors */
-		for (i=0,j=image->directory.track-1; j>0; i++,j--) tracks[i]=j;
-		for (j=image->directory.track+1;j<80;i++,j++) tracks[i]=j;
-		tracks[i]=image->directory.track;
+		for (i=0,j=image.directory.track-1; j>0; i++,j--) tracks[i]=j;
+		for (j=image.directory.track+1;j<80;i++,j++) tracks[i]=j;
+		tracks[i]=image.directory.track;
 	
 		for (i=0; i<80; i++) {
 			D81_BAM *b;
 			*track=tracks[i];
 			if (*track<=40) b=bam[0];
 			else b=bam[1];
-			if (b->bam[*track-1].free) {
+			if (b.bam[*track-1].free) {
 				for (j=0,*sector=0;j<6; j++) {
 					int mask=0;
 					for (; mask<=0x80; mask<<=1, (*sector)++) {
-						if (b->bam[*track-1].map[j]&mask) {
-							b->bam[*track-1].map[j]&=~mask;
-							b->bam[*track-1].free--;
+						if (b.bam[*track-1].map[j]&mask) {
+							b.bam[*track-1].map[j]&=~mask;
+							b.bam[*track-1].free--;
 							return;
 						}
 					}
@@ -387,60 +387,60 @@ public class d64
 	
 		if (track<=40) {
 			bam=(D81_BAM*)
-				(image->data
-				 +image->get_offset(image->directory.track,
-									image->directory.sector+1));
+				(image.data
+				 +image.get_offset(image.directory.track,
+									image.directory.sector+1));
 		} else {
 			track-=40;
 			bam=(D81_BAM*)
-				(image->data
-				 +image->get_offset(image->directory.track,
-									image->directory.sector+2));
+				(image.data
+				 +image.get_offset(image.directory.track,
+									image.directory.sector+2));
 		}
 		
-		bam->bam[track-1].free++;
-		bam->bam[track-1].map[i]|=mask;
+		bam.bam[track-1].free++;
+		bam.bam[track-1].map[i]|=mask;
 	}
 	
 	int d64_getcrc(d64_image *image, int track, int sector)
 	{
 		int pos=d64_tracksector2offset(track, sector)>>8;
-		if (!image->crc) return 0;
-		return image->data[d64_tracksector2offset(image->tracks+1,0)+pos];
+		if (!image.crc) return 0;
+		return image.data[d64_tracksector2offset(image.tracks+1,0)+pos];
 	}
 	
 	static D64_ENTRY *d64_get_free_entry(d64_image *image)
 	{
 		D64_HEADER *header;
 		D64_DIRECTORY *dir = (D64_DIRECTORY*)
-			(image->data+image->get_offset (image->directory.track, image->directory.sector));
+			(image.data+image.get_offset (image.directory.track, image.directory.sector));
 	
 		int i, mask, s;
 	
-		while ((dir->linkage.track >= 1) && (dir->linkage.track <= image->tracks))
+		while ((dir.linkage.track >= 1) && (dir.linkage.track <= image.tracks))
 		{
 			dir=(D64_DIRECTORY*)
-				(image->data+image->get_offset(dir->linkage.track, dir->linkage.sector));
+				(image.data+image.get_offset(dir.linkage.track, dir.linkage.sector));
 			for (i = 0; i < 8; i ++)
 			{
-				if (!(dir->entry[i].type & 0x80))
-					return dir->entry + i;
+				if (!(dir.entry[i].type & 0x80))
+					return dir.entry + i;
 			}
 		}
 	
 		// add new sector to directory
 	    header = (D64_HEADER*)
-			(image->data+image->get_offset (image->directory.track, image->directory.sector));
+			(image.data+image.get_offset (image.directory.track, image.directory.sector));
 	
-		if (header->bam[image->directory.track-1].free) {
-			for (i=0, s=0; i<image->bam_bytes_dir_track; i++) {
+		if (header.bam[image.directory.track-1].free) {
+			for (i=0, s=0; i<image.bam_bytes_dir_track; i++) {
 				for (mask=0x80; mask>0; mask>>=1, s++) {
-					if (header->bam[image->directory.track-1].map[i]&mask) {
-						header->bam[image->directory.track-1].free--;
-						header->bam[image->directory.track-1].map[i]&=~mask;
-						dir->linkage.track=image->directory.track-1;
-						dir->linkage.sector=s;
-						return (D64_ENTRY*)(image->data+image->get_offset(image->directory.track, s));
+					if (header.bam[image.directory.track-1].map[i]&mask) {
+						header.bam[image.directory.track-1].free--;
+						header.bam[image.directory.track-1].map[i]&=~mask;
+						dir.linkage.track=image.directory.track-1;
+						dir.linkage.sector=s;
+						return (D64_ENTRY*)(image.data+image.get_offset(image.directory.track, s));
 					}
 				}
 			}
@@ -450,25 +450,25 @@ public class d64
 	}
 	
 	/* searches program with given name in directory */
-	static D64_ENTRY *d64_image_findfile (d64_image *image, const unsigned char *name)
+	static D64_ENTRY *d64_image_findfile (d64_image *image, const UBytePtr name)
 	{
 		int i;
 	
 		D64_DIRECTORY *dir = (D64_DIRECTORY*)
-			(image->data+image->get_offset (image->directory.track, image->directory.sector));
+			(image.data+image.get_offset (image.directory.track, image.directory.sector));
 	
-		while ((dir->linkage.track >= 1) && (dir->linkage.track <= image->tracks))
+		while ((dir.linkage.track >= 1) && (dir.linkage.track <= image.tracks))
 		{
 			dir=(D64_DIRECTORY*)
-				(image->data+image->get_offset(dir->linkage.track, dir->linkage.sector));
+				(image.data+image.get_offset(dir.linkage.track, dir.linkage.sector));
 			for (i = 0; i < 8; i ++)
 			{
-				if (dir->entry[i].type & 0x80)
+				if (dir.entry[i].type & 0x80)
 				{
 					if (stricmp ((char *) name, (char *) "*") == 0)
-						return dir->entry + i;
-					if (cbm_compareNames (name, dir->entry[i].name))
-						return dir->entry + i;
+						return dir.entry + i;
+					if (cbm_compareNames (name, dir.entry[i].name))
+						return dir.entry + i;
 				}
 			}
 		}
@@ -479,14 +479,14 @@ public class d64
 	static int d64_filesize(d64_image *image, D64_ENTRY *entry)
 	{
 		int size = 0;
-		int i=image->get_offset(entry->track, entry->sector);
+		int i=image.get_offset(entry.track, entry.sector);
 		
-		while (image->data[i] != 0)
+		while (image.data[i] != 0)
 		{
 			size += 254;
-			i = image->get_offset (image->data[i], image->data[i + 1]);
+			i = image.get_offset (image.data[i], image.data[i + 1]);
 		}
-		size += image->data[i + 1]-1;
+		size += image.data[i + 1]-1;
 		return size;
 	}
 	#endif
@@ -627,31 +627,31 @@ public class d64
 		if (!image) return IMGTOOLERR_OUTOFMEMORY;
 	
 		memset(image, 0, sizeof(d64_image));
-		image->base.module = &imgmod_d64;
-		image->size=stream_size(f);
-		image->file_handle=f;
-		image->get_offset=d64_tracksector2offset;
-		image->alloc_sector=d64_alloc_sector;
-		image->free_sector=d64_free_sector;
-		image->directory.track=18;image->directory.sector=0;
-		image->bam_bytes_dir_track=3;
-		image->d64=1;
+		image.base.module = &imgmod_d64;
+		image.size=stream_size(f);
+		image.file_handle=f;
+		image.get_offset=d64_tracksector2offset;
+		image.alloc_sector=d64_alloc_sector;
+		image.free_sector=d64_free_sector;
+		image.directory.track=18;image.directory.sector=0;
+		image.bam_bytes_dir_track=3;
+		image.d64=1;
 	
-		switch (image->size) {
-		case 174848: image->tracks=35;break;
-		case 175531: image->tracks=35;image->crc=1;break;
-		case 196608: image->tracks=40;break;
-		case 197376: image->tracks=40;image->crc=1;break;
+		switch (image.size) {
+		case 174848: image.tracks=35;break;
+		case 175531: image.tracks=35;image.crc=1;break;
+		case 196608: image.tracks=40;break;
+		case 197376: image.tracks=40;image.crc=1;break;
 		default:
 			free(image);
 			*outimg=NULL;
 			return IMGTOOLERR_CORRUPTIMAGE;
 		}
 	
-		image->realimage = (unsigned char *) malloc(image->size);
-		image->data = image->realimage;
-		if ( (!image->data)
-			 ||(stream_read(f, image->data, image->size)!=image->size) ) {
+		image.realimage = (UBytePtr ) malloc(image.size);
+		image.data = image.realimage;
+		if ( (!image.data)
+			 ||(stream_read(f, image.data, image.size)!=image.size) ) {
 			free(image);
 			*outimg=NULL;
 			return IMGTOOLERR_OUTOFMEMORY;
@@ -669,30 +669,30 @@ public class d64
 		if (!image) return IMGTOOLERR_OUTOFMEMORY;
 	
 		memset(image, 0, sizeof(d64_image));
-		image->base.module = &imgmod_x64;
-		image->size=stream_size(f);
-		image->file_handle=f;
-		image->get_offset=d64_tracksector2offset;
-		image->alloc_sector=d64_alloc_sector;
-		image->free_sector=d64_free_sector;
-		image->directory.track=18;image->directory.sector=0;
-		image->bam_bytes_dir_track=3;
-		image->x64=1;
-		switch (image->size) {
-		case 174848+0x40: image->tracks=35;break;
-		case 175531+0x40: image->tracks=35;image->crc=1;break;
-		case 196608+0x40: image->tracks=40;break;
-		case 197376+0x40: image->tracks=40;image->crc=1;break;
+		image.base.module = &imgmod_x64;
+		image.size=stream_size(f);
+		image.file_handle=f;
+		image.get_offset=d64_tracksector2offset;
+		image.alloc_sector=d64_alloc_sector;
+		image.free_sector=d64_free_sector;
+		image.directory.track=18;image.directory.sector=0;
+		image.bam_bytes_dir_track=3;
+		image.x64=1;
+		switch (image.size) {
+		case 174848+0x40: image.tracks=35;break;
+		case 175531+0x40: image.tracks=35;image.crc=1;break;
+		case 196608+0x40: image.tracks=40;break;
+		case 197376+0x40: image.tracks=40;image.crc=1;break;
 		default:
 			free(image);
 			*outimg=NULL;
 			return IMGTOOLERR_CORRUPTIMAGE;
 		}
 	
-		image->realimage = (unsigned char *) malloc(image->size);
-		image->data = image->realimage+0x40;
-		if ( (!image->realimage)
-			 ||(stream_read(f, image->realimage, image->size)!=image->size) ) {
+		image.realimage = (UBytePtr ) malloc(image.size);
+		image.data = image.realimage+0x40;
+		if ( (!image.realimage)
+			 ||(stream_read(f, image.realimage, image.size)!=image.size) ) {
 			free(image);
 			*outimg=NULL;
 			return IMGTOOLERR_OUTOFMEMORY;
@@ -710,20 +710,20 @@ public class d64
 		if (!image) return IMGTOOLERR_OUTOFMEMORY;
 	
 		memset(image, 0, sizeof(d64_image));
-		image->base.module = &imgmod_d71;
-		image->size=stream_size(f);
-		image->file_handle=f;
-		image->get_offset=d71_tracksector2offset;
-		image->alloc_sector=d71_alloc_sector;
-		image->free_sector=d71_free_sector;
-		image->directory.track=18;image->directory.sector=0;
-		image->d71=1;
-		image->tracks=70;
+		image.base.module = &imgmod_d71;
+		image.size=stream_size(f);
+		image.file_handle=f;
+		image.get_offset=d71_tracksector2offset;
+		image.alloc_sector=d71_alloc_sector;
+		image.free_sector=d71_free_sector;
+		image.directory.track=18;image.directory.sector=0;
+		image.d71=1;
+		image.tracks=70;
 	
-		image->realimage = (unsigned char *) malloc(image->size);
-		image->data = image->realimage;
-		if ( (!image->data)
-			 ||(stream_read(f, image->data, image->size)!=image->size) ) {
+		image.realimage = (UBytePtr ) malloc(image.size);
+		image.data = image.realimage;
+		if ( (!image.data)
+			 ||(stream_read(f, image.data, image.size)!=image.size) ) {
 			free(image);
 			*outimg=NULL;
 			return IMGTOOLERR_OUTOFMEMORY;
@@ -741,21 +741,21 @@ public class d64
 		if (!image) return IMGTOOLERR_OUTOFMEMORY;
 	
 		memset(image, 0, sizeof(d64_image));
-		image->base.module = &imgmod_d81;
-		image->size=stream_size(f);
-		image->get_offset=d81_tracksector2offset;
-		image->alloc_sector=d81_alloc_sector;
-		image->free_sector=d81_free_sector;
-		image->directory.track=40;image->directory.sector=0;
-		image->d81=1;
-		image->tracks=80;
-		image->bam_bytes_dir_track=6;
-		image->file_handle=f;
+		image.base.module = &imgmod_d81;
+		image.size=stream_size(f);
+		image.get_offset=d81_tracksector2offset;
+		image.alloc_sector=d81_alloc_sector;
+		image.free_sector=d81_free_sector;
+		image.directory.track=40;image.directory.sector=0;
+		image.d81=1;
+		image.tracks=80;
+		image.bam_bytes_dir_track=6;
+		image.file_handle=f;
 	
-		image->realimage = (unsigned char *) malloc(image->size);
-		image->data = image->realimage;
-		if ( (!image->data)
-			 ||(stream_read(f, image->data, image->size)!=image->size) ) {
+		image.realimage = (UBytePtr ) malloc(image.size);
+		image.data = image.realimage;
+		if ( (!image.data)
+			 ||(stream_read(f, image.data, image.size)!=image.size) ) {
 			free(image);
 			*outimg=NULL;
 			return IMGTOOLERR_OUTOFMEMORY;
@@ -767,12 +767,12 @@ public class d64
 	static void d64_image_exit(IMAGE *img)
 	{
 		d64_image *image=(d64_image*)img;
-		if (image->modified) {
-			stream_seek(image->file_handle, 0, SEEK_SET);
-			stream_write(image->file_handle, image->realimage, image->size);
+		if (image.modified) {
+			stream_seek(image.file_handle, 0, SEEK_SET);
+			stream_write(image.file_handle, image.realimage, image.size);
 		}
-		stream_close(image->file_handle);
-		free(image->realimage);
+		stream_close(image.file_handle);
+		free(image.realimage);
 		free(image);
 	}
 	
@@ -781,21 +781,21 @@ public class d64
 		d64_image *image=(d64_image*)img;
 		char name[17]={ 0 };
 	
-		int pos=image->get_offset(image->directory.track,image->directory.sector);
+		int pos=image.get_offset(image.directory.track,image.directory.sector);
 	
-		cbm_filename_to_cstring((unsigned char *)image->data+pos+0x90, 16,
-			(unsigned char*)name);
-		if ((image->d64)||(image->x64)) {
+		cbm_filename_to_cstring((UBytePtr )image.data+pos+0x90, 16,
+			(UBytePtr )name);
+		if ((image.d64)||(image.x64)) {
 			sprintf(string, "%d tracks%s\n%-16s %c%c %c%c",
-					image->tracks, image->crc?" with crc":"",
+					image.tracks, image.crc?" with crc":"",
 					name,
-					image->data[pos + 162], image->data[pos + 163],
-					image->data[pos + 165], image->data[pos + 166] );
+					image.data[pos + 162], image.data[pos + 163],
+					image.data[pos + 165], image.data[pos + 166] );
 		} else {
 			sprintf(string, "%-16s %c%c %c%c",
 					name,
-					image->data[pos + 162], image->data[pos + 163],
-					image->data[pos + 165], image->data[pos + 166] );
+					image.data[pos + 162], image.data[pos + 163],
+					image.data[pos + 165], image.data[pos + 166] );
 		}
 	}
 	
@@ -804,15 +804,15 @@ public class d64
 		d64_image *image=(d64_image*)img;
 		char name[17]={ 0 };
 	
-		int pos=image->get_offset(image->directory.track,image->directory.sector);
+		int pos=image.get_offset(image.directory.track,image.directory.sector);
 	
-		cbm_filename_to_cstring((unsigned char *)image->data+pos+4, 16,
-			(unsigned char *)name);
+		cbm_filename_to_cstring((UBytePtr )image.data+pos+4, 16,
+			(UBytePtr )name);
 		sprintf(string, "%d tracks%s\n%-16s %c%c %c%c",
-				image->tracks, image->crc?" with crc":"",
+				image.tracks, image.crc?" with crc":"",
 				name,
-				image->data[pos + 22], image->data[pos + 23],
-				image->data[pos + 25], image->data[pos + 26] );
+				image.data[pos + 22], image.data[pos + 23],
+				image.data[pos + 25], image.data[pos + 26] );
 	}
 	
 	static int d64_image_beginenum(IMAGE *img, IMAGEENUM **outenum)
@@ -824,13 +824,13 @@ public class d64
 		iter=*(d64_iterator**)outenum = (d64_iterator *) malloc(sizeof(d64_iterator));
 		if (!iter) return IMGTOOLERR_OUTOFMEMORY;
 	
-		iter->base.module =image->base.module;
+		iter.base.module =image.base.module;
 	
-		iter->image=image;
-		pos = image->get_offset (image->directory.track, image->directory.sector);
-		iter->track = iter->image->data[pos];
-		iter->sector = iter->image->data[pos + 1];
-		iter->offset = 2;
+		iter.image=image;
+		pos = image.get_offset (image.directory.track, image.directory.sector);
+		iter.track = iter.image.data[pos];
+		iter.sector = iter.image.data[pos + 1];
+		iter.offset = 2;
 		return 0;
 	}
 	
@@ -839,44 +839,44 @@ public class d64
 		d64_iterator *iter=(d64_iterator*)enumeration;
 		int pos;
 	
-		ent->corrupt=0;
-		ent->eof=0;
+		ent.corrupt=0;
+		ent.eof=0;
 		
-		while ((iter->track >= 1) && (iter->track <= iter->image->tracks)) //safer
-	//	while (iter->track != 0)
+		while ((iter.track >= 1) && (iter.track <= iter.image.tracks)) //safer
+	//	while (iter.track != 0)
 		{
-			pos = iter->image->get_offset(iter->track, iter->sector);
-			for (; iter->offset<256; iter->offset += 32)
+			pos = iter.image.get_offset(iter.track, iter.sector);
+			for (; iter.offset<256; iter.offset += 32)
 			{
-				if (iter->image->data[pos + iter->offset] & 0x80)
+				if (iter.image.data[pos + iter.offset] & 0x80)
 				{
 					cbm_filename_to_cstring(
-						(unsigned char*)iter->image->data+pos+iter->offset+3,
-						16, (unsigned char *)ent->fname);
+						(UBytePtr )iter.image.data+pos+iter.offset+3,
+						16, (UBytePtr )ent.fname);
 	
-					ent->filesize=iter->image->data[pos+iter->offset+28]
-						+(iter->image->data[pos+iter->offset+29]<<8); // in blocks
+					ent.filesize=iter.image.data[pos+iter.offset+28]
+						+(iter.image.data[pos+iter.offset+29]<<8); // in blocks
 	
-					if (ent->attr) {
-						switch (iter->image->data[pos+iter->offset]&FILE_TYPE_MASK) {
-						case FILE_TYPE_DEL: sprintf(ent->attr,"DEL");break;
-						case FILE_TYPE_SEQ: sprintf(ent->attr,"SEQ");break;
-						case FILE_TYPE_PRG: sprintf(ent->attr,"PRG");break;
-						case FILE_TYPE_USR: sprintf(ent->attr,"USR");break;
-						case FILE_TYPE_REL: sprintf(ent->attr,"REL");break;
-						default: sprintf(ent->attr,"unknown!");break;
+					if (ent.attr) {
+						switch (iter.image.data[pos+iter.offset]&FILE_TYPE_MASK) {
+						case FILE_TYPE_DEL: sprintf(ent.attr,"DEL");break;
+						case FILE_TYPE_SEQ: sprintf(ent.attr,"SEQ");break;
+						case FILE_TYPE_PRG: sprintf(ent.attr,"PRG");break;
+						case FILE_TYPE_USR: sprintf(ent.attr,"USR");break;
+						case FILE_TYPE_REL: sprintf(ent.attr,"REL");break;
+						default: sprintf(ent.attr,"unknown!");break;
 						}
 					}
-					iter->offset+=32;
+					iter.offset+=32;
 					return 0;
 				}
 			}
-			iter->track = iter->image->data[pos];
-			iter->sector = iter->image->data[pos + 1];
-			iter->offset = 2;
+			iter.track = iter.image.data[pos];
+			iter.sector = iter.image.data[pos + 1];
+			iter.offset = 2;
 		}
 	
-		ent->eof=1;
+		ent.eof=1;
 		return 0;
 	}
 	
@@ -891,11 +891,11 @@ public class d64
 		int i, j, pos;
 		size_t blocksfree = 0;
 	
-		pos = image->get_offset(image->directory.track, image->directory.sector);
+		pos = image.get_offset(image.directory.track, image.directory.sector);
 		blocksfree = 0;
 		for (j = 1, i = 4; j <= 35; j++, i += 4) // no more room for BAM!
 		{
-			blocksfree += image->data[pos + i];
+			blocksfree += image.data[pos + i];
 		}
 	
 		return blocksfree;
@@ -907,15 +907,15 @@ public class d64
 		int i, j, pos;
 		size_t blocksfree = 0;
 	
-		pos = image->get_offset(image->directory.track, image->directory.sector);
+		pos = image.get_offset(image.directory.track, image.directory.sector);
 		blocksfree = 0;
 		for (j = 1, i = 4; j <= 35; j++, i += 4)
 		{
-			blocksfree += image->data[pos + i];
+			blocksfree += image.data[pos + i];
 		}
 		for (i = 221; j <= 70; j++, i ++)
 		{
-			blocksfree += image->data[pos + i];
+			blocksfree += image.data[pos + i];
 		}
 	
 		return blocksfree;
@@ -928,10 +928,10 @@ public class d64
 		size_t blocksfree = 0;
 	
 		for (k=1; k<=2; k++) {
-			D81_BAM *bam=(D81_BAM*)(image->data+image->get_offset(40,k));
+			D81_BAM *bam=(D81_BAM*)(image.data+image.get_offset(40,k));
 			for (j = 1; j <= 40; j++)
 			{
-				blocksfree += bam->bam[j-1].free;
+				blocksfree += bam.bam[j-1].free;
 			}
 		}
 	
@@ -944,19 +944,19 @@ public class d64
 		int pos;
 		D64_ENTRY *entry;
 	
-		if ((entry=d64_image_findfile(image, (const unsigned char *)fname))==NULL )
+		if ((entry=d64_image_findfile(image, (const UBytePtr )fname))==NULL )
 			return IMGTOOLERR_MODULENOTFOUND;
 	
-		pos = image->get_offset(entry->track, entry->sector);
+		pos = image.get_offset(entry.track, entry.sector);
 	
-		while (image->data[pos]!=0) {
-			if (stream_write(destf, image->data+pos+2, 254)!=254)
+		while (image.data[pos]!=0) {
+			if (stream_write(destf, image.data+pos+2, 254)!=254)
 				return IMGTOOLERR_WRITEERROR;
 			
-			pos = image->get_offset (image->data[pos + 0], image->data[pos + 1]);
+			pos = image.get_offset (image.data[pos + 0], image.data[pos + 1]);
 		}
-		if (image->data[pos+1]-1>0) {
-			if (stream_write(destf, image->data+pos+2, image->data[pos+1]-1)!=image->data[pos+1]-1)
+		if (image.data[pos+1]-1>0) {
+			if (stream_write(destf, image.data+pos+2, image.data[pos+1]-1)!=image.data[pos+1]-1)
 				return IMGTOOLERR_WRITEERROR;
 		}
 	
@@ -971,55 +971,55 @@ public class d64
 		D64_ENTRY *entry;
 	
 		fsize=stream_size(sourcef)+1;
-		if ((entry=d64_image_findfile(image, (const unsigned char *)fname))!=NULL ) {
+		if ((entry=d64_image_findfile(image, (const UBytePtr )fname))!=NULL ) {
 			/* overriding */
-			if ((img->module->freespace(img)+GET_UWORD(entry->blocks))*254<fsize) 
+			if ((img.module.freespace(img)+GET_UWORD(entry.blocks))*254<fsize) 
 				return IMGTOOLERR_NOSPACE;
-			track=entry->track;
-			sector=entry->sector;
+			track=entry.track;
+			sector=entry.sector;
 			
 			while (track!=0) {
-				image->free_sector(image, track, sector);
-				pos = image->get_offset(track, sector);
-				track=image->data[pos];
-				sector=image->data[pos+1];
+				image.free_sector(image, track, sector);
+				pos = image.get_offset(track, sector);
+				track=image.data[pos];
+				sector=image.data[pos+1];
 			}
 		} else {
-			if (img->module->freespace(img)*254<fsize) return IMGTOOLERR_NOSPACE;
+			if (img.module.freespace(img)*254<fsize) return IMGTOOLERR_NOSPACE;
 			// search free entry
 			entry=d64_get_free_entry(image);
 		}
 	
-		entry->type=FILE_TYPE_PRG|0x80;
-		memset(entry->name, 0xa0, sizeof(entry->name));
-		memcpy(entry->name, fname, strlen(fname));
+		entry.type=FILE_TYPE_PRG|0x80;
+		memset(entry.name, 0xa0, sizeof(entry.name));
+		memcpy(entry.name, fname, strlen(fname));
 	
-		image->alloc_sector(image, &track, &sector);
-		entry->track=track; 
-		entry->sector=sector;
-		pos = image->get_offset(track, sector);
+		image.alloc_sector(image, &track, &sector);
+		entry.track=track; 
+		entry.sector=sector;
+		pos = image.get_offset(track, sector);
 	
 		for (i = 0, b=0; i + 254 < fsize; i += 254, b++)
 		{
-			if (stream_read(sourcef, image->data+pos+2, 254)!=254)
+			if (stream_read(sourcef, image.data+pos+2, 254)!=254)
 				return IMGTOOLERR_READERROR;
 			
-			image->alloc_sector(image, &track, &sector);
-			image->data[pos]=track; 
-			image->data[pos+1]=sector;
-			pos = image->get_offset (track, sector);
+			image.alloc_sector(image, &track, &sector);
+			image.data[pos]=track; 
+			image.data[pos+1]=sector;
+			pos = image.get_offset (track, sector);
 		}
 		b++;
-		image->data[pos]=0;
-		image->data[pos+1]=fsize-i;
+		image.data[pos]=0;
+		image.data[pos+1]=fsize-i;
 		if (fsize-i-1>0) {
-			if (stream_read(sourcef, image->data+pos+2, fsize-i-1)!=fsize-i-1)
+			if (stream_read(sourcef, image.data+pos+2, fsize-i-1)!=fsize-i-1)
 				return IMGTOOLERR_READERROR;
 		}
-		image->data[pos+2+fsize-i]=0;
+		image.data[pos+2+fsize-i]=0;
 		
-		SET_UWORD(entry->blocks, b);
-		image->modified=1;
+		SET_UWORD(entry.blocks, b);
+		image.modified=1;
 	
 		return 0;
 	}
@@ -1031,20 +1031,20 @@ public class d64
 		int sector, track;
 		D64_ENTRY *entry;
 	
-		if ((entry=d64_image_findfile(image, (const unsigned char *)fname))==NULL )
+		if ((entry=d64_image_findfile(image, (const UBytePtr )fname))==NULL )
 			return IMGTOOLERR_MODULENOTFOUND;
 	
-		track=entry->track;
-		sector=entry->sector;
+		track=entry.track;
+		sector=entry.sector;
 	
 		while (track!=0) {
-			image->free_sector(image, track, sector);
-			pos = image->get_offset(track, sector);
-			track=image->data[pos];
-			sector=image->data[pos+1];
+			image.free_sector(image, track, sector);
+			pos = image.get_offset(track, sector);
+			track=image.data[pos];
+			sector=image.data[pos+1];
 		}
 	
-		image->modified=1;
+		image.modified=1;
 		return 0;
 	}
 	
@@ -1057,9 +1057,9 @@ public class d64
 		if (*size<0x100) *buffer=realloc(*buffer,0x100);
 		if (!*buffer) return IMGTOOLERR_OUTOFMEMORY;
 	
-		pos=image->get_offset(track, sector);
+		pos=image.get_offset(track, sector);
 	
-		memcpy(*buffer, image->data+pos, 0x100);
+		memcpy(*buffer, image.data+pos, 0x100);
 		*size=0x100;
 		
 		return 0;
@@ -1073,9 +1073,9 @@ public class d64
 	
 		if (size!=0x100) ; //problem
 	
-		pos=image->get_offset(track, sector);
-		memcpy(image->data+pos, buffer, size);
-		image->modified=1;
+		pos=image.get_offset(track, sector);
+		memcpy(image.data+pos, buffer, size);
+		image.modified=1;
 		
 		return 0;
 	}
@@ -1115,7 +1115,7 @@ public class d64
 				}
 			}
 		}
-		if (crc) {
+		if (crc != 0) {
 			for (t=1; t<=tracks; t++) {
 				if (stream_write(f, &d64_header, d64_sectors_per_track[t-1]) 
 					!= d64_sectors_per_track[t-1]) 

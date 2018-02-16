@@ -120,7 +120,7 @@ public class kaypro
 		},
 	};
 	
-	void init_kaypro(void)
+	public static InitDriverPtr init_kaypro = new InitDriverPtr() { public void handler() 
 	{
 		UINT8 * gfx = memory_region(REGION_GFX1);
 		int i;
@@ -133,15 +133,15 @@ public class kaypro
 		/* copy font inverted */
 		for( i = 0; i < 0x2000; i++ )
 			gfx[0x2000 + i] = gfx[i] ^ 0xff;
-	}
+	} };
 	
-	void kaypro_init_machine(void)
+	public static InitMachinePtr kaypro_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		/* disable CapsLock LED initially */
 		osd_led_w(1, 1);
 		osd_led_w(1, 0);
 		cpm_init(4, disk_ids);
-	}
+	} };
 	
 	void kaypro_stop_machine(void)
 	{
@@ -160,7 +160,7 @@ public class kaypro
 	 * also drives keyboard LEDs and
 	 * and handles autorepeating keys
 	 ******************************************************/
-	int kaypro_interrupt(void)
+	public static InterruptPtr kaypro_interrupt = new InterruptPtr() { public int handler() 
 	{
 		int mod, row, col, chg, new;
 		static int lastrow = 0, mask = 0x00, key = 0x00, repeat = 0, repeater = 0;
@@ -168,13 +168,13 @@ public class kaypro
 		if( setup_active() || onscrd_active() )
 			return ignore_interrupt();
 	
-		if( repeat )
+		if (repeat != 0)
 		{
 			if( !--repeat )
 				repeater = 4;
 		}
 		else
-		if( repeater )
+		if (repeater != 0)
 		{
 			repeat = repeater;
 		}
@@ -204,7 +204,7 @@ public class kaypro
 			if( row == 3 && chg == 0x80 )
 				osd_led_w(1, (keyrows[3] & 0x80) ? 0 : 1);
 	
-			if (new & chg)	/* key(s) pressed ? */
+			if ((new & chg) != 0)	/* key(s) pressed ? */
 			{
 				mod = 0;
 	
@@ -224,7 +224,7 @@ public class kaypro
 				mask = 0x01;
 				for (col = 0; col < 8; col ++)
 				{
-					if (chg & mask)
+					if ((chg & mask) != 0)
 					{
 						new &= mask;
 						key = keyboard[mod][row][col];
@@ -232,7 +232,7 @@ public class kaypro
 					}
 					mask <<= 1;
 				}
-				if( key )	/* normal key */
+				if (key != 0)	/* normal key */
 				{
 					repeater = 30;
 					kaypro_conin_w(0, key);
@@ -254,6 +254,6 @@ public class kaypro
 			kaypro_conin_w(0, key);
 		}
 		return ignore_interrupt();
-	}
+	} };
 	
 }

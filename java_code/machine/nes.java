@@ -63,11 +63,9 @@ public class nes
 	void nes_ppu_w (int offset, int data);
 	
 	/* local prototypes */
-	static void init_nes_core (void);
-	void ppu_reset (struct ppu_struct *ppu_);
-	static void Write_PPU (int data);
+	static void ppu_reset (struct ppu_struct *ppu_);
 	
-	static void init_nes_core (void)
+	static public static InitDriverPtr init_nes_core = new InitDriverPtr() { public void handler() 
 	{
 		/* We set these here in case they weren't set in the cart loader */
 		nes.rom = memory_region(REGION_CPU1);
@@ -154,21 +152,21 @@ public class nes
 		/* everything is ready, so we can just copy over the data */
 		/* we loaded before. */
 		memcpy (battery_ram, battery_data, BATTERY_SIZE);
-	}
+	} };
 	
-	void init_nes (void)
+	public static InitDriverPtr init_nes = new InitDriverPtr() { public void handler() 
 	{
 		ppu_scanlines_per_frame = NTSC_SCANLINES_PER_FRAME;
 		init_nes_core ();
-	}
+	} };
 	
-	void init_nespal (void)
+	public static InitDriverPtr init_nespal = new InitDriverPtr() { public void handler() 
 	{
 		ppu_scanlines_per_frame = PAL_SCANLINES_PER_FRAME;
 		init_nes_core ();
-	}
+	} };
 	
-	void nes_init_machine (void)
+	public static InitMachinePtr nes_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		current_scanline = 0;
 	
@@ -183,7 +181,7 @@ public class nes
 		/* Reset the serial input ports */
 		in_0_shift = 0;
 		in_1_shift = 0;
-	}
+	} };
 	
 	void nes_stop_machine (void)
 	{
@@ -193,7 +191,7 @@ public class nes
 			void *f;
 	
 			f = osd_fopen(battery_name,0,OSD_FILETYPE_NVRAM,1);
-			if (f)
+			if (f != 0)
 			{
 				osd_fwrite(f,battery_ram,BATTERY_SIZE);
 				osd_fclose (f);
@@ -216,15 +214,15 @@ public class nes
 	
 		/* Reset mirroring */
 	#ifdef NO_MIRRORING
-		if (1)
+		if (1 != 0)
 	#else
 		if (nes.four_screen_vram)
 	#endif
 		{
-			ppu_page[0] = &(videoram[0x2000]);
-			ppu_page[1] = &(videoram[0x2400]);
-			ppu_page[2] = &(videoram[0x2800]);
-			ppu_page[3] = &(videoram[0x2c00]);
+			ppu_page[0] = &(videoram.read(0x2000));
+			ppu_page[1] = &(videoram.read(0x2400));
+			ppu_page[2] = &(videoram.read(0x2800));
+			ppu_page[3] = &(videoram.read(0x2c00));
 		}
 		else switch (nes.hard_mirroring)
 		{
@@ -258,9 +256,9 @@ public class nes
 					retVal |= ((in_0[0] & 0x01) << 4);
 	
 					/* Look at the screen and see if the cursor is over a bright pixel */
-					pix = Machine->scrbitmap->line[in_0[2]][in_0[1]];
-					if ((pix == Machine->pens[0x20]) || (pix == Machine->pens[0x30]) ||
-						(pix == Machine->pens[0x33]) || (pix == Machine->pens[0x34]))
+					pix = Machine.scrbitmap.line[in_0[2]][in_0[1]];
+					if ((pix == Machine.pens[0x20]) || (pix == Machine.pens[0x30]) ||
+						(pix == Machine.pens[0x33]) || (pix == Machine.pens[0x34]))
 					{
 						retVal &= ~0x08; /* sprite hit */
 					}
@@ -306,9 +304,9 @@ public class nes
 					retVal |= ((in_1[0] & 0x01) << 4);
 	
 					/* Look at the screen and see if the cursor is over a bright pixel */
-					pix = Machine->scrbitmap->line[in_1[2]][in_1[1]];
-					if ((pix == Machine->pens[0x20]) || (pix == Machine->pens[0x30]) ||
-						(pix == Machine->pens[0x33]) || (pix == Machine->pens[0x34]))
+					pix = Machine.scrbitmap.line[in_1[2]][in_1[1]];
+					if ((pix == Machine.pens[0x20]) || (pix == Machine.pens[0x30]) ||
+						(pix == Machine.pens[0x33]) || (pix == Machine.pens[0x34]))
 					{
 						retVal &= ~0x08; /* sprite hit */
 					}
@@ -340,7 +338,7 @@ public class nes
 	{
 		int dip;
 	
-		if (data & 0x01) return;
+		if ((data & 0x01) != 0) return;
 	#ifdef LOG_JOY
 		logerror ("joy 0 bits read: %d\n", in_0_shift);
 	#endif
@@ -376,7 +374,7 @@ public class nes
 		switch (dip & 0xf0)
 		{
 			case 0x10: /* zapper */
-				if (dip & 0x01)
+				if ((dip & 0x01) != 0)
 				{
 					/* zapper is also on port 1, use 2nd player analog inputs */
 					in_1[1] = readinputport (5); /* x-axis */
@@ -414,7 +412,7 @@ public class nes
 		return;
 	}
 	
-	int nes_interrupt (void)
+	public static InterruptPtr nes_interrupt = new InterruptPtr() { public int handler() 
 	{
 		static int vblank_started = 0;
 		int ret;
@@ -427,7 +425,7 @@ public class nes
 		if (current_scanline <= BOTTOM_VISIBLE_SCANLINE)
 		{
 			/* If background or sprites are enabled, copy the ppu address latch */
-			if (PPU_Control1 & 0x18)
+			if ((PPU_Control1 & 0x18) != 0)
 			{
 				/* Copy only the scroll x-coarse and the x-overflow bit */
 				PPU_refresh_data &= ~0x041f;
@@ -438,7 +436,7 @@ public class nes
 			/* If we're not rendering this frame, fake the sprite hit */
 			if (osd_skip_this_frame())
 	#endif
-				if ((current_scanline == spriteram[0] + 7) && (PPU_Control1 & 0x10))
+				if ((current_scanline == spriteram.read(0)+ 7) && (PPU_Control1 & 0x10))
 				{
 					PPU_Status |= PPU_status_sprite0_hit;
 	#ifdef LOG_PPU
@@ -467,7 +465,7 @@ public class nes
 		else if (current_scanline == NMI_SCANLINE)
 		{
 			/* Check if NMIs are enabled on vblank */
-			if (PPU_Control0 & PPU_c0_NMI) ret = M6502_INT_NMI;
+			if ((PPU_Control0 & PPU_c0_NMI) != 0) ret = M6502_INT_NMI;
 		}
 	
 		/* Increment the scanline pointer & check to see if it's rolled */
@@ -481,10 +479,10 @@ public class nes
 			PPU_Status &= ~(PPU_status_vblank | PPU_status_sprite0_hit);
 	
 			/* If background or sprites are enabled, copy the ppu address latch */
-			if (PPU_Control1 & 0x18)
+			if ((PPU_Control1 & 0x18) != 0)
 				PPU_refresh_data = PPU_refresh_latch;
 	
-	//if (PPU_refresh_data & 0x400) Debugger ();
+	//if ((PPU_refresh_data & 0x400) != 0) Debugger ();
 	
 	   		logerror("** New frame\n");
 	
@@ -498,7 +496,7 @@ public class nes
 				for (i = 0; i < 0x200; i ++)
 					if (dirtychar[i])
 					{
-						decodechar(Machine->gfx[1], i, nes.vram, Machine->drv->gfxdecodeinfo[1].gfxlayout);
+						decodechar(Machine.gfx[1], i, nes.vram, Machine.drv.gfxdecodeinfo[1].gfxlayout);
 						dirtychar[i] = 0;
 						use_vram[i] = 1;
 					}
@@ -514,7 +512,7 @@ public class nes
 	    }
 	
 		return ret;
-	}
+	} };
 	
 	data_t nes_ppu_r (int offset)
 	{
@@ -550,7 +548,7 @@ public class nes
 				break;
 	
 			case 4:
-				retVal = spriteram[PPU_Sprite_Addr];
+				retVal = spriteram.read(PPU_Sprite_Addr);
 	#ifdef LOG_PPU
 	//	logerror("PPU read (%02x), data: %02x, pc: %04x\n", offset, retVal, cpu_get_pc ());
 	#endif
@@ -564,7 +562,7 @@ public class nes
 				if ((PPU_address >= 0x2000) && (PPU_address <= 0x3fef))
 					PPU_data_latch = ppu_page[(PPU_address & 0xc00) >> 10][PPU_address & 0x3ff];
 				else
-					PPU_data_latch = videoram[PPU_address & 0x3fff];
+					PPU_data_latch = videoram.read(PPU_address & 0x3fff);
 	
 				/* TODO: this is a bit of a hack, needed to get Argus, ASO, etc to work */
 				/* but, B-Wings, submath (j) seem to use this location differently... */
@@ -630,7 +628,7 @@ public class nes
 				PPU_tile_page = (PPU_Control0 & PPU_c0_chr_select) >> 2;
 				PPU_sprite_page = (PPU_Control0 & PPU_c0_spr_select) >> 1;
 	
-				if (PPU_Control0 & PPU_c0_inc)
+				if ((PPU_Control0 & PPU_c0_inc) != 0)
 					PPU_add = 32;
 				else
 					PPU_add = 1;
@@ -678,9 +676,9 @@ public class nes
 	
 					for (i = 0; i <= 0x1f; i ++)
 					{
-						UINT8 oldColor = videoram[i+0x3f00];
+						UINT8 oldColor = videoram.read(i+0x3f00);
 	
-						Machine->gfx[0]->colortable[i] = Machine->pens[oldColor + (data & 0xe0)*2];
+						Machine.gfx[0].colortable[i] = Machine.pens[oldColor + (data & 0xe0)*2];
 					}
 	#else
 	#if 0
@@ -720,13 +718,13 @@ public class nes
 				PPU_Sprite_Addr = data;
 				break;
 			case 4: /* PPU Sprite Data */
-				spriteram[PPU_Sprite_Addr] = data;
+				spriteram.write(PPU_Sprite_Addr,data);
 				PPU_Sprite_Addr ++;
 				PPU_Sprite_Addr &= 0xff;
 				break;
 	
 			case 5:
-				if (PPU_toggle)
+				if (PPU_toggle != 0)
 				/* (second write) */
 				{
 					PPU_refresh_latch &= ~0x03e0;
@@ -754,7 +752,7 @@ public class nes
 	
 			case 6: /* PPU Address Register */
 				/* PPU Memory Adress */
-				if (PPU_toggle)
+				if (PPU_toggle != 0)
 				{
 	#ifdef LOG_PPU
 	//if (current_scanline <= BOTTOM_VISIBLE_SCANLINE)
@@ -806,10 +804,10 @@ public class nes
 		return;
 	#endif
 	
-		ppu_page[0] = &(videoram[0x2000]);
-		ppu_page[1] = &(videoram[0x2000]);
-		ppu_page[2] = &(videoram[0x2400]);
-		ppu_page[3] = &(videoram[0x2400]);
+		ppu_page[0] = &(videoram.read(0x2000));
+		ppu_page[1] = &(videoram.read(0x2000));
+		ppu_page[2] = &(videoram.read(0x2400));
+		ppu_page[3] = &(videoram.read(0x2400));
 	}
 	
 	void ppu_mirror_v (void)
@@ -824,10 +822,10 @@ public class nes
 		return;
 	#endif
 	
-		ppu_page[0] = &(videoram[0x2000]);
-		ppu_page[1] = &(videoram[0x2400]);
-		ppu_page[2] = &(videoram[0x2000]);
-		ppu_page[3] = &(videoram[0x2400]);
+		ppu_page[0] = &(videoram.read(0x2000));
+		ppu_page[1] = &(videoram.read(0x2400));
+		ppu_page[2] = &(videoram.read(0x2000));
+		ppu_page[3] = &(videoram.read(0x2400));
 	}
 	
 	void ppu_mirror_low (void)
@@ -842,10 +840,10 @@ public class nes
 		return;
 	#endif
 	
-		ppu_page[0] = &(videoram[0x2000]);
-		ppu_page[1] = &(videoram[0x2000]);
-		ppu_page[2] = &(videoram[0x2000]);
-		ppu_page[3] = &(videoram[0x2000]);
+		ppu_page[0] = &(videoram.read(0x2000));
+		ppu_page[1] = &(videoram.read(0x2000));
+		ppu_page[2] = &(videoram.read(0x2000));
+		ppu_page[3] = &(videoram.read(0x2000));
 	}
 	
 	void ppu_mirror_high (void)
@@ -860,10 +858,10 @@ public class nes
 		return;
 	#endif
 	
-		ppu_page[0] = &(videoram[0x2400]);
-		ppu_page[1] = &(videoram[0x2400]);
-		ppu_page[2] = &(videoram[0x2400]);
-		ppu_page[3] = &(videoram[0x2400]);
+		ppu_page[0] = &(videoram.read(0x2400));
+		ppu_page[1] = &(videoram.read(0x2400));
+		ppu_page[2] = &(videoram.read(0x2400));
+		ppu_page[3] = &(videoram.read(0x2400));
 	}
 	
 	void ppu_mirror_custom (int page, int address)
@@ -880,7 +878,7 @@ public class nes
 		return;
 	#endif
 	
-		ppu_page[page] = &(videoram[address]);
+		ppu_page[page] = &(videoram.read(address));
 	}
 	
 	void ppu_mirror_custom_vrom (int page, int address)
@@ -907,13 +905,13 @@ public class nes
 			if (PPU_address < 0x23c0)
 			{
 				/* videoram 1 */
-				if (videoram[PPU_address] != data)
+				if (videoram.read(PPU_address)!= data)
 					dirtybuffer[PPU_address & 0x3ff] = 1;
 			}
 			else if (PPU_address < 0x2400)
 			{
 				/* color table 1 */
-				if (videoram[PPU_address] != data)
+				if (videoram.read(PPU_address)!= data)
 				{
 					int x, y, i;
 	
@@ -931,13 +929,13 @@ public class nes
 			}
 			else if (PPU_address < 0x27c0)
 			{
-				if (videoram[PPU_address] != data)
+				if (videoram.read(PPU_address)!= data)
 					dirtybuffer2[PPU_address & 0x3ff] = 1;
 			}
 			else if (PPU_address < 0x2800)
 			{
 				/* color table 2 */
-				if (videoram[PPU_address] != data)
+				if (videoram.read(PPU_address)!= data)
 				{
 					int x, y, i;
 	
@@ -955,13 +953,13 @@ public class nes
 			}
 			else if (PPU_address < 0x2bc0)
 			{
-				if (videoram[PPU_address] != data)
+				if (videoram.read(PPU_address)!= data)
 					dirtybuffer3[PPU_address & 0x3ff] = 1;
 			}
 			else if (PPU_address < 0x2c00)
 			{
 				/* color table 3 */
-				if (videoram[PPU_address] != data)
+				if (videoram.read(PPU_address)!= data)
 				{
 					int x, y, i;
 	
@@ -979,13 +977,13 @@ public class nes
 			}
 			else if (PPU_address < 0x2fc0)
 			{
-				if (videoram[PPU_address] != data)
+				if (videoram.read(PPU_address)!= data)
 					dirtybuffer4[PPU_address & 0x3ff] = 1;
 			}
 			else
 			{
 				/* color table 4 */
-				if (videoram[PPU_address] != data)
+				if (videoram.read(PPU_address)!= data)
 				{
 					int x, y, i;
 	
@@ -1002,7 +1000,7 @@ public class nes
 				}
 			}
 		}
-		videoram[PPU_address] = data;
+		videoram.write(PPU_address,data);
 	}
 	#endif
 	
@@ -1020,7 +1018,7 @@ public class nes
 			/* This ROM writes to the character gen portion of VRAM */
 			dirtychar[tempAddr >> 4] = 1;
 			nes.vram[tempAddr] = data;
-			videoram[tempAddr] = data;
+			videoram.write(tempAddr,data);
 	
 			if (nes.chr_chunks != 0)
 				logerror("****** PPU write to vram with CHR_ROM - %04x:%02x!\n", tempAddr, data);
@@ -1032,17 +1030,17 @@ public class nes
 		/* As usual, some games attempt to write values > the number of colors so we must mask the data. */
 		if (tempAddr >= 0x3f00)
 		{
-			videoram[tempAddr] = data;
+			videoram.write(tempAddr,data);
 			data &= 0x3f;
 	
-			if (tempAddr & 0x03)
+			if ((tempAddr & 0x03) != 0)
 			{
 	#ifdef COLOR_INTENSITY
-				Machine->gfx[0]->colortable[tempAddr & 0x1f] = Machine->pens[data + (PPU_Control1 & 0xe0)*2];
-				colortable_mono[tempAddr & 0x1f] = Machine->pens[(data & 0xf0) + (PPU_Control1 & 0xe0)*2];
+				Machine.gfx[0].colortable[tempAddr & 0x1f] = Machine.pens[data + (PPU_Control1 & 0xe0)*2];
+				colortable_mono[tempAddr & 0x1f] = Machine.pens[(data & 0xf0) + (PPU_Control1 & 0xe0)*2];
 	#else
-				Machine->gfx[0]->colortable[tempAddr & 0x1f] = Machine->pens[data];
-				colortable_mono[tempAddr & 0x1f] = Machine->pens[data & 0xf0];
+				Machine.gfx[0].colortable[tempAddr & 0x1f] = Machine.pens[data];
+				colortable_mono[tempAddr & 0x1f] = Machine.pens[data & 0xf0];
 	#endif
 			}
 	
@@ -1054,11 +1052,11 @@ public class nes
 				for (i = 0; i < 0x20; i += 0x04)
 				{
 	#ifdef COLOR_INTENSITY
-					Machine->gfx[0]->colortable[i] = Machine->pens[data + (PPU_Control1 & 0xe0)*2];
-					colortable_mono[i] = Machine->pens[(data & 0xf0) + (PPU_Control1 & 0xe0)*2];
+					Machine.gfx[0].colortable[i] = Machine.pens[data + (PPU_Control1 & 0xe0)*2];
+					colortable_mono[i] = Machine.pens[(data & 0xf0) + (PPU_Control1 & 0xe0)*2];
 	#else
-					Machine->gfx[0]->colortable[i] = Machine->pens[data];
-					colortable_mono[i] = Machine->pens[data & 0xf0];
+					Machine.gfx[0].colortable[i] = Machine.pens[data];
+					colortable_mono[i] = Machine.pens[data & 0xf0];
 	#endif
 				}
 			}
@@ -1131,7 +1129,7 @@ public class nes
 			goto bad;
 	
 		mapinfo = device_extrainfo(IO_CARTSLOT,id);
-		if (mapinfo)
+		if (mapinfo != 0)
 		{
 			if (4 == sscanf(mapinfo,"%d %d %d %d",&mapint1,&mapint2,&mapint3,&mapint4))
 			{
@@ -1237,7 +1235,7 @@ public class nes
 		{
 			sprintf (outname, "%s.p%d", battery_name, i);
 			prgout = fopen (outname, "wb");
-			if (prgout)
+			if (prgout != 0)
 			{
 				fwrite (&nes.rom[0x10000 + 0x4000 * i], 1, 0x4000, prgout);
 				fclose (prgout);
@@ -1284,7 +1282,7 @@ public class nes
 			void *f;
 	
 			f = osd_fopen (battery_name, 0, OSD_FILETYPE_NVRAM, 0);
-			if (f)
+			if (f != 0)
 			{
 				osd_fread (f, battery_data, BATTERY_SIZE);
 				osd_fclose (f);
@@ -1302,9 +1300,9 @@ public class nes
 		return 1;
 	}
 	
-	// extern unsigned int crc32 (unsigned int crc, const unsigned char *buf, unsigned int len);
+	// extern unsigned int crc32 (unsigned int crc, const UBytePtr buf, unsigned int len);
 	
-	UINT32 nes_partialcrc(const unsigned char *buf,unsigned int size)
+	UINT32 nes_partialcrc(const UBytePtr buf,unsigned int size)
 	{
 	UINT32 crc;
 	if (size < 17) return 0;
@@ -1390,7 +1388,7 @@ public class nes
 	
 	//bad:
 		logerror("BAD section hit during disk load.\n");
-		if (diskfile) osd_fclose (diskfile);
+		if (diskfile != 0) osd_fclose (diskfile);
 		return 1;
 	}
 	

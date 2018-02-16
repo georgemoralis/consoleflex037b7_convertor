@@ -38,17 +38,17 @@ public class oric
 	
 	unsigned char inverse_attrs[] = { 7,6,5,4,3,2,1,0 };
 	
-	int oric_vh_start(void)
+	public static VhStartPtr oric_vh_start = new VhStartPtr() { public int handler() 
 	{
 	        oric_init_char_attrs();
 	        _ORIC.hires = 0;
 	        return 0;
-	}
+	} };
 	
-	void oric_vh_stop(void)
+	public static VhStopPtr oric_vh_stop = new VhStopPtr() { public void handler() 
 	{
 		return;
-	}
+	} };
 	
 	void oric_set_powerscreen_mode(int mode)
 	{
@@ -90,7 +90,7 @@ public class oric
 	/***************************************************************************
 	  oric_vh_screenrefresh
 	***************************************************************************/
-	void oric_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr oric_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 	
 	/**** TODO ... HIRES ... how do the hires attr's set HIRES mode?? ****/
@@ -105,17 +105,17 @@ public class oric
 	        int paper_colour;
 	        unsigned short o1,o2,o3;
 	        unsigned short *cdst[8];
-		unsigned char *text_ram;
-	        unsigned char *hires_ram;
-	        unsigned char *char_ram;
-	        unsigned char *achar_ram;
-	        unsigned char *hchar_ram;
-	        unsigned char *hachar_ram;
-	        unsigned char *tchar_ram;
-	        unsigned char *tachar_ram;
+		UBytePtr text_ram;
+	        UBytePtr hires_ram;
+	        UBytePtr char_ram;
+	        UBytePtr achar_ram;
+	        UBytePtr hchar_ram;
+	        UBytePtr hachar_ram;
+	        UBytePtr tchar_ram;
+	        UBytePtr tachar_ram;
 	        unsigned char c,b;
 	        unsigned char d, hires_c;
-	        unsigned char *RAM = memory_region(REGION_CPU1);
+	        UBytePtr RAM = memory_region(REGION_CPU1);
 	        text_ram    = &RAM[0xBB80] ;
 	        hires_ram   = &RAM[0xA000] ;
 	        char_ram    = &RAM[0xB400] ;
@@ -231,7 +231,7 @@ public class oric
 	                   if ( yy == 20 && xx >= 8  ) c = 1;
 	                   if ( yy == 26 && xx >= 24 ) c = 1;
 	                }
-	                for (i=0;i<8;i++) cdst[i]=(unsigned short *)bitmap->line[(y)+i];
+	                for (i=0;i<8;i++) cdst[i]=(unsigned short *)bitmap.line[(y)+i];
 	                for (i=0;i<8;i++) {
 	                        _ORIC.inverse = 0;
 	                        if ( d > 0x7f ) _ORIC.inverse = 1;
@@ -279,37 +279,37 @@ public class oric
 	                           if (_ORIC_HIRES[i+1].attr == 1) b = 0;
 	                        }
 	                        #ifdef LSB_FIRST
-								if (b & 32) o1 += Machine->pens[ink_colour];
-							    else        o1 += Machine->pens[paper_colour];
-							    if (b & 16) o1 += ( Machine->pens[ink_colour] *	0x100 );
-							    else        o1 += ( Machine->pens[paper_colour] * 0x100 );
-							    if (b & 8 ) o2 += Machine->pens[ink_colour];
-							    else        o2 += Machine->pens[paper_colour];
-								if (b & 4 ) o2 += ( Machine->pens[ink_colour] * 0x100 );
-								else        o2 += ( Machine->pens[paper_colour] * 0x100 );
-								if (b & 2 ) o3 += Machine->pens[ink_colour];
-								else        o3 += Machine->pens[paper_colour];
-							    if (b & 1 ) o3 += ( Machine->pens[ink_colour] * 0x100 );
-							    else        o3 += ( Machine->pens[paper_colour] * 0x100 );
+								if ((b & 32) != 0) o1 += Machine.pens[ink_colour];
+							    else        o1 += Machine.pens[paper_colour];
+							    if ((b & 16) != 0) o1 += ( Machine.pens[ink_colour] *	0x100 );
+							    else        o1 += ( Machine.pens[paper_colour] * 0x100 );
+							    if ((b & 8) != 0) o2 += Machine.pens[ink_colour];
+							    else        o2 += Machine.pens[paper_colour];
+								if ((b & 4) != 0) o2 += ( Machine.pens[ink_colour] * 0x100 );
+								else        o2 += ( Machine.pens[paper_colour] * 0x100 );
+								if ((b & 2) != 0) o3 += Machine.pens[ink_colour];
+								else        o3 += Machine.pens[paper_colour];
+							    if ((b & 1) != 0) o3 += ( Machine.pens[ink_colour] * 0x100 );
+							    else        o3 += ( Machine.pens[paper_colour] * 0x100 );
 							#else
-								if (b & 32) o1 += Machine->pens[ink_colour] * 0x100;
-								else        o1 += Machine->pens[paper_colour] * 0x100;
-								if (b & 16) o1 += Machine->pens[ink_colour];
-								else        o1 += Machine->pens[paper_colour];
-								if (b & 8 ) o2 += Machine->pens[ink_colour] * 0x100;
-								else        o2 += Machine->pens[paper_colour] * 0x100;
-								if (b & 4 ) o2 += Machine->pens[ink_colour];
-								else        o2 += Machine->pens[paper_colour];
-								if (b & 2 ) o3 += Machine->pens[ink_colour] * 0x100;
-								else        o3 += Machine->pens[paper_colour] * 0x100;
-								if (b & 1 ) o3 += Machine->pens[ink_colour];
-								else        o3 += Machine->pens[paper_colour];
+								if ((b & 32) != 0) o1 += Machine.pens[ink_colour] * 0x100;
+								else        o1 += Machine.pens[paper_colour] * 0x100;
+								if ((b & 16) != 0) o1 += Machine.pens[ink_colour];
+								else        o1 += Machine.pens[paper_colour];
+								if ((b & 8) != 0) o2 += Machine.pens[ink_colour] * 0x100;
+								else        o2 += Machine.pens[paper_colour] * 0x100;
+								if ((b & 4) != 0) o2 += Machine.pens[ink_colour];
+								else        o2 += Machine.pens[paper_colour];
+								if ((b & 2) != 0) o3 += Machine.pens[ink_colour] * 0x100;
+								else        o3 += Machine.pens[paper_colour] * 0x100;
+								if ((b & 1) != 0) o3 += Machine.pens[ink_colour];
+								else        o3 += Machine.pens[paper_colour];
 							#endif
 	                        cdst[i][x+0] = o1;
 	                        cdst[i][x+1] = o2;
 	                        cdst[i][x+2] = o3;
 	                }
 	        }
-	}
+	} };
 	
 }

@@ -223,10 +223,10 @@ public class cbm
 	static const struct IODevice *cbm_rom_find_device(void)
 	{
 		int i;
-		for (i=0; (Machine->gamedrv->dev[i].count)
-				 &&(Machine->gamedrv->dev[i].type!=IO_CARTSLOT);
+		for (i=0; (Machine.gamedrv.dev[i].count)
+				 &&(Machine.gamedrv.dev[i].type!=IO_CARTSLOT);
 			 i++) ;
-		return Machine->gamedrv->dev[i].count!=0?Machine->gamedrv->dev+i:NULL;
+		return Machine.gamedrv.dev[i].count!=0?Machine.gamedrv.dev+i:NULL;
 	}
 	
 	int cbm_rom_init(int id)
@@ -246,7 +246,7 @@ public class cbm
 		if (i>=sizeof(cbm_rom)/sizeof(cbm_rom[0])) return INIT_FAILED;
 	
 		dev=cbm_rom_find_device();
-		if ( (dev->id!=NULL) && !dev->id(id) ) return INIT_FAILED;
+		if ( (dev.id!=NULL) && !dev.id(id) ) return INIT_FAILED;
 	
 		fp = (FILE*)image_fopen (IO_CARTSLOT, id, OSD_FILETYPE_IMAGE_R, 0);
 		if (!fp)

@@ -278,7 +278,7 @@ public class cbmb
 	{
 	}
 	
-	void cbmb_init_machine (void)
+	public static InitMachinePtr cbmb_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		sid6581_0_reset();
 		cia6526_reset ();
@@ -288,7 +288,7 @@ public class cbmb
 		cbm_drive_0_config (IEEE8ON ? IEEE : 0, 8);
 		cbm_drive_1_config (IEEE9ON ? IEEE : 0, 9);
 		cbmb_rom_load();
-	}
+	} };
 	
 	void cbmb_shutdown_machine (void)
 	{
@@ -312,282 +312,282 @@ public class cbmb
 	
 		tpi6525_0_irq0_level(level);
 		level=!level;
-		if (level) return ;
+		if (level != 0) return ;
 	
 		sid6581_update();
 		if (!quickload && QUICKLOAD) {
-			if (cbm500) cbm500_quick_open(0, 0, cbmb_memory);
+			if (cbm500 != 0) cbm500_quick_open(0, 0, cbmb_memory);
 			else cbmb_quick_open (0, 0, cbmb_memory);
 		}
 		quickload = QUICKLOAD;
 	
 		value = 0;
-		if (KEY_STOP)
+		if (KEY_STOP != 0)
 			value |= 0x80;
-		if (KEY_GRAPH)
+		if (KEY_GRAPH != 0)
 			value |= 0x40;
-		if (KEY_REVERSE)
+		if (KEY_REVERSE != 0)
 			value |= 0x20;
-		if (KEY_HOME)
+		if (KEY_HOME != 0)
 			value |= 0x10;
-		if (KEY_CURSOR_UP)
+		if (KEY_CURSOR_UP != 0)
 			value |= 8;
-		if (KEY_CURSOR_DOWN)
+		if (KEY_CURSOR_DOWN != 0)
 			value |= 4;
-		if (KEY_F10)
+		if (KEY_F10 != 0)
 			value |= 2;
-		if (KEY_F9)
+		if (KEY_F9 != 0)
 			value |= 1;
 		cbmb_keyline[0] = value;
 	
 		value = 0;
-		if (KEY_F8)
+		if (KEY_F8 != 0)
 			value |= 0x80;
-		if (KEY_F7)
+		if (KEY_F7 != 0)
 			value |= 0x40;
-		if (KEY_F6)
+		if (KEY_F6 != 0)
 			value |= 0x20;
-		if (KEY_F5)
+		if (KEY_F5 != 0)
 			value |= 0x10;
-		if (KEY_F4)
+		if (KEY_F4 != 0)
 			value |= 8;
-		if (KEY_F3)
+		if (KEY_F3 != 0)
 			value |= 4;
-		if (KEY_F2)
+		if (KEY_F2 != 0)
 			value |= 2;
-		if (KEY_F1)
+		if (KEY_F1 != 0)
 			value |= 1;
 		cbmb_keyline[1] = value;
 	
 		value = 0;
-		if (KEY_PAD_SLASH)
+		if (KEY_PAD_SLASH != 0)
 			value |= 0x80;
-		if (KEY_PAD_ASTERIX)
+		if (KEY_PAD_ASTERIX != 0)
 			value |= 0x40;
-		if (KEY_PAD_CE)
+		if (KEY_PAD_CE != 0)
 			value |= 0x20;
-		if (KEY_PAD_HELP)
+		if (KEY_PAD_HELP != 0)
 			value |= 0x10;
-		if (KEY_CURSOR_LEFT)
+		if (KEY_CURSOR_LEFT != 0)
 			value |= 8;
-		if (KEY_EQUALS)
+		if (KEY_EQUALS != 0)
 			value |= 4;
-		if (KEY_0)
+		if (KEY_0 != 0)
 			value |= 2;
-		if (KEY_9)
+		if (KEY_9 != 0)
 			value |= 1;
 		cbmb_keyline[2] = value;
 	
 		value = 0;
-		if (KEY_8)
+		if (KEY_8 != 0)
 			value |= 0x80;
-		if (KEY_7)
+		if (KEY_7 != 0)
 			value |= 0x40;
-		if (KEY_5)
+		if (KEY_5 != 0)
 			value |= 0x20;
-		if (KEY_4)
+		if (KEY_4 != 0)
 			value |= 0x10;
-		if (KEY_3)
+		if (KEY_3 != 0)
 			value |= 8;
-		if (KEY_2)
+		if (KEY_2 != 0)
 			value |= 4;
-		if (KEY_1)
+		if (KEY_1 != 0)
 			value |= 2;
-		if (KEY_ESC)
+		if (KEY_ESC != 0)
 			value |= 1;
 		cbmb_keyline[3] = value;
 	
 		value = 0;
-		if (KEY_PAD_MINUS)
+		if (KEY_PAD_MINUS != 0)
 			value |= 0x80;
-		if (KEY_PAD_9)
+		if (KEY_PAD_9 != 0)
 			value |= 0x40;
-		if (KEY_PAD_8)
+		if (KEY_PAD_8 != 0)
 			value |= 0x20;
-		if (KEY_PAD_7)
+		if (KEY_PAD_7 != 0)
 			value |= 0x10;
-		if (KEY_CURSOR_RIGHT)
+		if (KEY_CURSOR_RIGHT != 0)
 			value |= 8;
-		if (KEY_ARROW_LEFT)
+		if (KEY_ARROW_LEFT != 0)
 			value |= 4;
-		if (KEY_MINUS)
+		if (KEY_MINUS != 0)
 			value |= 2;
-		if (KEY_O)
+		if (KEY_O != 0)
 			value |= 1;
 		cbmb_keyline[4] = value;
 	
 		value = 0;
-		if (KEY_I)
+		if (KEY_I != 0)
 			value |= 0x80;
-		if (KEY_U)
+		if (KEY_U != 0)
 			value |= 0x40;
-		if (KEY_6)
+		if (KEY_6 != 0)
 			value |= 0x20;
-		if (KEY_R)
+		if (KEY_R != 0)
 			value |= 0x10;
-		if (KEY_E)
+		if (KEY_E != 0)
 			value |= 8;
-		if (KEY_W)
+		if (KEY_W != 0)
 			value |= 4;
-		if (KEY_Q)
+		if (KEY_Q != 0)
 			value |= 2;
-		if (KEY_TAB)
+		if (KEY_TAB != 0)
 			value |= 1;
 		cbmb_keyline[5] = value;
 	
 		value = 0;
-		if (KEY_PAD_PLUS)
+		if (KEY_PAD_PLUS != 0)
 			value |= 0x80;
-		if (KEY_PAD_6)
+		if (KEY_PAD_6 != 0)
 			value |= 0x40;
-		if (KEY_PAD_5)
+		if (KEY_PAD_5 != 0)
 			value |= 0x20;
-		if (KEY_PAD_4)
+		if (KEY_PAD_4 != 0)
 			value |= 0x10;
-		if (KEY_DEL)
+		if (KEY_DEL != 0)
 			value |= 8;
-		if (KEY_CLOSEBRACE)
+		if (KEY_CLOSEBRACE != 0)
 			value |= 4;
-		if (KEY_P)
+		if (KEY_P != 0)
 			value |= 2;
-		if (KEY_L)
+		if (KEY_L != 0)
 			value |= 1;
 		cbmb_keyline[6] = value;
 	
 		value = 0;
-		if (KEY_K)
+		if (KEY_K != 0)
 			value |= 0x80;
-		if (KEY_J)
+		if (KEY_J != 0)
 			value |= 0x40;
-		if (KEY_Y)
+		if (KEY_Y != 0)
 			value |= 0x20;
-		if (KEY_T)
+		if (KEY_T != 0)
 			value |= 0x10;
-		if (KEY_D)
+		if (KEY_D != 0)
 			value |= 8;
-		if (KEY_S)
+		if (KEY_S != 0)
 			value |= 4;
-		if (KEY_A)
+		if (KEY_A != 0)
 			value |= 2;
 		cbmb_keyline[7] = value;
 	
 		value = 0;
-		if (KEY_PAD_ENTER)
+		if (KEY_PAD_ENTER != 0)
 			value |= 0x80;
-		if (KEY_PAD_3)
+		if (KEY_PAD_3 != 0)
 			value |= 0x40;
-		if (KEY_PAD_2)
+		if (KEY_PAD_2 != 0)
 			value |= 0x20;
-		if (KEY_PAD_1)
+		if (KEY_PAD_1 != 0)
 			value |= 0x10;
-		if (KEY_CBM)
+		if (KEY_CBM != 0)
 			value |= 8;
-		if (KEY_RETURN)
+		if (KEY_RETURN != 0)
 			value |= 4;
-		if (KEY_OPENBRACE)
+		if (KEY_OPENBRACE != 0)
 			value |= 2;
-		if (KEY_SEMICOLON)
+		if (KEY_SEMICOLON != 0)
 			value |= 1;
 		cbmb_keyline[8] = value;
 	
 		value = 0;
-		if (KEY_COMMA)
+		if (KEY_COMMA != 0)
 			value |= 0x80;
-		if (KEY_M)
+		if (KEY_M != 0)
 			value |= 0x40;
-		if (KEY_H)
+		if (KEY_H != 0)
 			value |= 0x20;
-		if (KEY_G)
+		if (KEY_G != 0)
 			value |= 0x10;
-		if (KEY_F)
+		if (KEY_F != 0)
 			value |= 8;
-		if (KEY_X)
+		if (KEY_X != 0)
 			value |= 4;
-		if (KEY_Z)
+		if (KEY_Z != 0)
 			value |= 2;
-		if (KEY_SHIFT)
+		if (KEY_SHIFT != 0)
 			value |= 1;
 		cbmb_keyline[9] = value;
 	
 		value = 0;
-		if (KEY_PAD_00)
+		if (KEY_PAD_00 != 0)
 			value |= 0x40;
-		if (KEY_PAD_POINT)
+		if (KEY_PAD_POINT != 0)
 			value |= 0x20;
-		if (KEY_PAD_0)
+		if (KEY_PAD_0 != 0)
 			value |= 0x10;
-		if (KEY_PI)
+		if (KEY_PI != 0)
 			value |= 4;
-		if (KEY_APOSTROPH)
+		if (KEY_APOSTROPH != 0)
 			value |= 2;
-		if (KEY_SLASH)
+		if (KEY_SLASH != 0)
 			value |= 1;
 		cbmb_keyline[10] = value;
 	
 		value = 0;
-		if (KEY_POINT)
+		if (KEY_POINT != 0)
 			value |= 0x80;
-		if (KEY_SPACE)
+		if (KEY_SPACE != 0)
 			value |= 0x40;
-		if (KEY_N)
+		if (KEY_N != 0)
 			value |= 0x20;
-		if (KEY_B)
+		if (KEY_B != 0)
 			value |= 0x10;
-		if (KEY_V)
+		if (KEY_V != 0)
 			value |= 8;
-		if (KEY_C)
+		if (KEY_C != 0)
 			value |= 4;
-		if (KEY_CTRL)
+		if (KEY_CTRL != 0)
 			value |= 1;
 		cbmb_keyline[11] = value;
 	
 	#if 0
 		value = 0xff;
 		if (JOYSTICK1||JOYSTICK1_2BUTTON) {
-			if (JOYSTICK_1_BUTTON)
+			if (JOYSTICK_1_BUTTON != 0)
 				value &= ~0x10;
-			if (JOYSTICK_1_RIGHT)
+			if (JOYSTICK_1_RIGHT != 0)
 				value &= ~8;
-			if (JOYSTICK_1_LEFT)
+			if (JOYSTICK_1_LEFT != 0)
 				value &= ~4;
-			if (JOYSTICK_1_DOWN)
+			if (JOYSTICK_1_DOWN != 0)
 				value &= ~2;
-			if (JOYSTICK_1_UP)
+			if (JOYSTICK_1_UP != 0)
 				value &= ~1;
-		} else if (PADDLES12) {
-			if (PADDLE2_BUTTON)
+		} else if (PADDLES12 != 0) {
+			if (PADDLE2_BUTTON != 0)
 				value &= ~8;
-			if (PADDLE1_BUTTON)
+			if (PADDLE1_BUTTON != 0)
 				value &= ~4;
-		} else if (MOUSE1) {
-			if (JOYSTICK_1_BUTTON)
+		} else if (MOUSE1 != 0) {
+			if (JOYSTICK_1_BUTTON != 0)
 				value &= ~0x10;
-			if (JOYSTICK_1_BUTTON2)
+			if (JOYSTICK_1_BUTTON2 != 0)
 				value &= ~1;
 		}
 		cbmb_keyline[8] = value;
 	
 		value2 = 0xff;
 		if (JOYSTICK2||JOYSTICK2_2BUTTON) {
-			if (JOYSTICK_2_BUTTON)
+			if (JOYSTICK_2_BUTTON != 0)
 				value2 &= ~0x10;
-			if (JOYSTICK_2_RIGHT)
+			if (JOYSTICK_2_RIGHT != 0)
 				value2 &= ~8;
-			if (JOYSTICK_2_LEFT)
+			if (JOYSTICK_2_LEFT != 0)
 				value2 &= ~4;
-			if (JOYSTICK_2_DOWN)
+			if (JOYSTICK_2_DOWN != 0)
 				value2 &= ~2;
-			if (JOYSTICK_2_UP)
+			if (JOYSTICK_2_UP != 0)
 				value2 &= ~1;
-		} else if (PADDLES34) {
-			if (PADDLE4_BUTTON)
+		} else if (PADDLES34 != 0) {
+			if (PADDLE4_BUTTON != 0)
 				value2 &= ~8;
-			if (PADDLE3_BUTTON)
+			if (PADDLE3_BUTTON != 0)
 				value2 &= ~4;
-		} else if (MOUSE2) {
-			if (JOYSTICK_2_BUTTON)
+		} else if (MOUSE2 != 0) {
+			if (JOYSTICK_2_BUTTON != 0)
 				value2 &= ~0x10;
-			if (JOYSTICK_2_BUTTON2)
+			if (JOYSTICK_2_BUTTON2 != 0)
 				value2 &= ~1;
 		}
 		cbmb_keyline[9] = value2;
@@ -607,7 +607,7 @@ public class cbmb
 		int y;
 		char text[70];
 	
-		y = Machine->visible_area.max_y + 1 - Machine->uifont->height;
+		y = Machine.visible_area.max_y + 1 - Machine.uifont.height;
 	
 		snprintf(text, sizeof(text),
 				 "%.2x %.2x",

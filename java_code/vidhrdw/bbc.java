@@ -182,7 +182,7 @@ public class bbc
 		if (( videoULA_flash_colour_select==0) && (!VideoULA_CR)) videoULA_pallet_lookup=videoULA_pallet1;
 		if ((!videoULA_flash_colour_select==0) && ( VideoULA_CR)) videoULA_pallet_lookup=videoULA_pallet2;
 		if (( videoULA_flash_colour_select==0) && ( VideoULA_CR)) videoULA_pallet_lookup=videoULA_pallet3;
-		VideoULA_border_colour=VideoULA_CR?Machine->pens[0]:Machine->pens[7];
+		VideoULA_border_colour=VideoULA_CR?Machine.pens[0]:Machine.pens[7];
 	}
 	
 	
@@ -210,7 +210,7 @@ public class bbc
 			videoULA_flash_colour_select=    videoULA_Reg    &0x01;
 			videoULA_select_pallet();
 	
-			if (videoULA_teletext_normal_select)
+			if (videoULA_teletext_normal_select != 0)
 			{
 				emulation_pixels_per_character=18;
 				x_screen_offset=-154;
@@ -231,11 +231,11 @@ public class bbc
 		case 1:
 			tpal=(data>>4)&0x0f;
 			tcol=data&0x0f;
-			videoULA_pallet0[tpal]=Machine->pens[tcol];
-			videoULA_pallet1[tpal]=tcol>7?Machine->pens[tcol^7]:Machine->pens[tcol];
+			videoULA_pallet0[tpal]=Machine.pens[tcol];
+			videoULA_pallet1[tpal]=tcol>7?Machine.pens[tcol^7]:Machine.pens[tcol];
 	
-			videoULA_pallet2[tpal]=Machine->pens[tcol^7];
-			videoULA_pallet3[tpal]=tcol>7?Machine->pens[tcol^7^7]:Machine->pens[tcol^7];
+			videoULA_pallet2[tpal]=Machine.pens[tcol^7];
+			videoULA_pallet3[tpal]=tcol>7?Machine.pens[tcol^7^7]:Machine.pens[tcol^7];
 			break;
 		};
 	
@@ -273,8 +273,8 @@ public class bbc
 	static int BBC_DE=0;
 	
 	
-	static unsigned char *BBC_Video_RAM;
-	static unsigned char *BBC_display;
+	static UBytePtr BBC_Video_RAM;
+	static UBytePtr BBC_display;
 	static struct osd_bitmap *BBC_bitmap;
 	
 	static int x_screen_pos;
@@ -327,7 +327,7 @@ public class bbc
 		for(sc1=0;sc1<6;sc1++)
 		{
 			t1=teletext_characters[(60*i)+sc1+(6*(BBC_Character_Row/2))]?7:0;
-			pixel_temp=Machine->pens[7-t1];
+			pixel_temp=Machine.pens[7-t1];
 			BBC_display[c++]=pixel_temp;
 			BBC_display[c++]=pixel_temp;
 			BBC_display[c++]=pixel_temp;
@@ -337,7 +337,7 @@ public class bbc
 	void BBC_draw_screen_disabled(void)
 	{
 		int sc1;
-		if (video_refresh)
+		if (video_refresh != 0)
 		{
 			// if the display is not enable, just draw a blank area.
 			for(sc1=0;sc1<emulation_pixels_per_character;sc1++)
@@ -350,9 +350,9 @@ public class bbc
 	// Select the Function to draw the screen area
 	void BBC_Set_VideoULA_DE(void)
 	{
-		if (videoULA_teletext_normal_select)
+		if (videoULA_teletext_normal_select != 0)
 		{
-			if (BBC_DE)
+			if (BBC_DE != 0)
 			{
 				draw_function=*BBC_draw_teletext_enabled;
 			} else {
@@ -362,7 +362,7 @@ public class bbc
 			// This line is taking DEN and RA3 from the 6845 and making DISEN for the VideoULA
 			// as done by IC41 74LS02
 			VideoULA_DE=(BBC_DE) && (!(BBC_Character_Row&8));
-			if (VideoULA_DE)
+			if (VideoULA_DE != 0)
 			{
 				draw_function=*BBC_draw_hi_res_enabled;
 			} else {
@@ -391,7 +391,7 @@ public class bbc
 		{
 			y_screen_pos+=1;
 			x_screen_pos=x_screen_offset;
-			BBC_display=(BBC_bitmap->line[y_screen_pos])+x_screen_pos;
+			BBC_display=(BBC_bitmap.line[y_screen_pos])+x_screen_pos;
 		}
 	}
 	
@@ -402,7 +402,7 @@ public class bbc
 		if (!BBC_VSync)
 		{
 			y_screen_pos=y_screen_offset;
-			BBC_display=(BBC_bitmap->line[y_screen_pos])+x_screen_pos;
+			BBC_display=(BBC_bitmap.line[y_screen_pos])+x_screen_pos;
 		};
 	}
 	
@@ -416,7 +416,7 @@ public class bbc
 	// called when the 6845 changes the Cursor Enabled
 	void BBC_Set_CR(int offset, int data)
 	{
-		if (data) {
+		if (data != 0) {
 			VideoULA_CR_counter=width_of_cursor_set[videoULA_width_of_cursor];
 			VideoULA_CR=1;
 			// turn on the video refresh for the cursor area
@@ -486,7 +486,7 @@ public class bbc
 	 * resfresh the BBC video screen
 	 ************************************************************************/
 	
-	void bbc_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr bbc_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 		long c=0; // this is used to time out the screen redraw, in the case that the 6845 is in some way out state.
 	
@@ -498,7 +498,7 @@ public class bbc
 		// video_refresh is set if any of the 6845 or Video ULA registers are changed
 		// this then forces a full screen redraw
 	
-		if (full_refresh)
+		if (full_refresh != 0)
 		{
 			video_refresh=video_refresh|2;
 		}
@@ -539,7 +539,7 @@ public class bbc
 				BBC_display=BBC_display+emulation_pixels_per_character;
 	
 				// and check the cursor
-				if (VideoULA_CR) BBC_Clock_CR();
+				if (VideoULA_CR != 0) BBC_Clock_CR();
 	
 				// Clock the 6845
 				crtc6845_clock();
@@ -550,7 +550,7 @@ public class bbc
 		// redraw the screen so reset video_refresh
 		video_refresh=0;
 	
-	}
+	} };
 	
 	
 	/************************************************************************
@@ -558,7 +558,7 @@ public class bbc
 	 * Initialize the BBC video emulation
 	 ************************************************************************/
 	
-	int bbc_vh_starta(void)
+	public static VhStartPtr bbc_vh_starta = new VhStartPtr() { public int handler() 
 	{
 		set_pixel_lookup();
 		set_video_memory_lookups(16);
@@ -568,10 +568,10 @@ public class bbc
 		draw_function=*BBC_draw_screen_disabled;
 		return 0;
 	
-	}
+	} };
 	
 	
-	int bbc_vh_startb(void)
+	public static VhStartPtr bbc_vh_startb = new VhStartPtr() { public int handler() 
 	{
 		set_pixel_lookup();
 		set_video_memory_lookups(32);
@@ -581,16 +581,16 @@ public class bbc
 		draw_function=*BBC_draw_screen_disabled;
 		return 0;
 	
-	}
+	} };
 	
 	/************************************************************************
 	 * bbc_vh_stop
 	 * Shutdown the BBC video emulation
 	 ************************************************************************/
 	
-	void bbc_vh_stop(void)
+	public static VhStopPtr bbc_vh_stop = new VhStopPtr() { public void handler() 
 	{
 	
-	}
+	} };
 	
 }

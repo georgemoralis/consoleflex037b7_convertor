@@ -17,7 +17,6 @@
 #define SCC_PLUSCOMP	(1)	/* if emulating SCC+ in compatiblity mode */
 #define SCC_PLUSEXT	(2)	/* if emulating SCC+ in extended mode */
 
-int SCC_sh_start (const struct MachineSound *msound);
 void SCCSetClock (int chip, int clock);
 void SCCResetChip (int chip);
 void SCCWriteReg (int chip, int reg, int value, int type);

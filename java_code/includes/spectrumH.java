@@ -2,11 +2,8 @@ extern int  spectrum_rom_load(int id);
 extern void spectrum_rom_exit(int id);
 
 extern int  spectrum_rom_id(int id);
-extern int  load_snap(void);
-
-extern void spectrum_init_machine(void);
-extern void spectrum_shutdown_machine(void);
-
+extern 
+extern extern 
 extern int  spec_quick_init (int id);
 extern void spec_quick_exit (int id);
 extern int  spec_quick_open (int id, int mode, void *arg);
@@ -22,28 +19,16 @@ extern int spectrum_plus3_port_1ffd_data;
 extern int ts2068_port_ff_data;
 extern int ts2068_port_f4_data;
 extern int PreviousFE;
-extern unsigned char *spectrum_128_screen_location;
-extern unsigned char *ts2068_ram;
+extern UBytePtr spectrum_128_screen_location;
+extern UBytePtr ts2068_ram;
 
 
-extern void spectrum_128_update_memory(void);
-extern void spectrum_plus3_update_memory(void);
+extern extern 
 
-
-extern int  spectrum_vh_start(void);
-extern void spectrum_vh_stop(void);
-extern void spectrum_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh);
-extern void spectrum_eof_callback(void);
-
-extern int spectrum_128_vh_start(void);
-extern void spectrum_128_vh_stop(void);
-extern void spectrum_128_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh);
-
-extern void ts2068_eof_callback(void);
-extern void ts2068_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh);
-
-extern void tc2048_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh);
-
+extern extern extern extern 
+extern extern extern 
+extern extern 
+extern 
 extern WRITE_HANDLER ( spectrum_characterram_w );
 extern READ_HANDLER  ( spectrum_characterram_r );
 extern WRITE_HANDLER ( spectrum_colorram_w );

@@ -30,7 +30,7 @@ public class uk101
 	
 	static	int	uk101_ramsize = 2;	/* 40Kb */
 	
-	void uk101_init_machine(void)
+	public static InitMachinePtr uk101_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		logerror("uk101_init\r\n");
 	
@@ -61,19 +61,19 @@ public class uk101
 					break;
 			}
 		}
-	}
+	} };
 	
 	void uk101_stop_machine(void)
 	{
 	
 	}
 	
-	READ_HANDLER( uk101_acia0_casin )
+	public static ReadHandlerPtr uk101_acia0_casin  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		if (uk101_tape_image && (uk101_tape_index < uk101_tape_size))
 								return (uk101_tape_image[uk101_tape_index++]);
 		return (0);
-	}
+	} };
 	
 	READ_HANDLER (uk101_acia0_statin )
 	{
@@ -89,7 +89,7 @@ public class uk101
 		void	*file;
 	
 		file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-		if (file)
+		if (file != 0)
 		{
 			uk101_tape_size = osd_fsize(file);
 			uk101_tape_image = (UINT8 *)malloc(uk101_tape_size);
@@ -110,7 +110,7 @@ public class uk101
 	
 	void uk101_exit_cassette(int id)
 	{
-		if (uk101_tape_image)
+		if (uk101_tape_image != 0)
 		{
 			free(uk101_tape_image);
 			uk101_tape_image = NULL;

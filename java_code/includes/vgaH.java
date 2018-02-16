@@ -28,36 +28,20 @@ public class vgaH
 	
 	void vga_init(mem_read_handler read_dipswitch);
 	
-	void vga_reset(void);
 	
 	// include in port access list
-	READ_HANDLER( ega_port_03b0_r );
-	READ_HANDLER( ega_port_03c0_r );
-	READ_HANDLER( ega_port_03d0_r );
 	
-	READ_HANDLER( paradise_ega_03c0_r );
 	
-	READ_HANDLER( vga_port_03b0_r );
-	READ_HANDLER( vga_port_03c0_r );
-	READ_HANDLER( vga_port_03d0_r );
 	
-	WRITE_HANDLER( vga_port_03b0_w );
-	WRITE_HANDLER( vga_port_03c0_w );
-	WRITE_HANDLER( vga_port_03d0_w );
 	
-	int ega_vh_start(void);
-	int vga_vh_start(void);
 	
-	void vga_vh_stop(void);
 	
-	void ega_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh);
-	void vga_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh);
 	
 	/*
 	  pega notes (paradise)
 	  build in amstrad pc1640
 	
-	  ROM_LOAD("40100", 0xc0000, 0x8000, 0xd2d1f1ae)
+	  ROM_LOAD("40100", 0xc0000, 0x8000, 0xd2d1f1ae);
 	
 	  4 additional dipswitches
 	  seems to have emulation modes at register level
@@ -90,7 +74,7 @@ public class vgaH
 	  oak vga (oti 037 chip)
 	  (below bios patch needed for running)
 	
-	  ROM_LOAD("oakvga.bin", 0xc0000, 0x8000, 0x318c5f43)
+	  ROM_LOAD("oakvga.bin", 0xc0000, 0x8000, 0x318c5f43);
 	*/
 	#if 0
 	        int i; 

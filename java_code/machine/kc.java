@@ -21,15 +21,11 @@ public class kc
 	#define KC85_4_SCREEN_PIXEL_RAM_SIZE 0x04000
 	#define KC85_4_SCREEN_COLOUR_RAM_SIZE 0x04000
 	
-	static void kc85_4_update_0x0c000(void);
-	static void kc85_4_update_0x0e000(void);
-	static void kc85_4_update_0x08000(void);
-	//static void kc85_4_update_0x04000(void);
+	static static static //static 
+	UBytePtr kc85_ram;
 	
-	unsigned char *kc85_ram;
-	
-	unsigned char *kc85_4_display_video_ram;
-	unsigned char *kc85_4_video_ram;
+	UBytePtr kc85_4_display_video_ram;
+	UBytePtr kc85_4_video_ram;
 	
 	static int kc85_4_pio_data[4];
 	
@@ -152,10 +148,10 @@ public class kc
 	The timing comes from a base clock of 4 MHz that is divided
 	multiple times:
 	
-	4 MHz / 64 - 62.5 kHz -> used for filtered amplification
-	62.5 kHz / 64 - 976 Hz -> 1.024 ms
-	976 / 7 - 140 Hz -> 7.2 ms
-	976 / 5 - 195 Hz -> 5.1 ms
+	4 MHz / 64 - 62.5 kHz . used for filtered amplification
+	62.5 kHz / 64 - 976 Hz . 1.024 ms
+	976 / 7 - 140 Hz . 7.2 ms
+	976 / 5 - 195 Hz . 5.1 ms
 	
 	short - 5.12 ms - 1 bit
 	long - 7.168 ms - 0 bit
@@ -205,12 +201,12 @@ public class kc
 	{
 		void *file;
 	
-		file = osd_fopen(Machine->gamedrv->name, filename, OSD_FILETYPE_ROM,OSD_FOPEN_READ);
+		file = osd_fopen(Machine.gamedrv.name, filename, OSD_FILETYPE_ROM,OSD_FOPEN_READ);
 	
-		if (file)
+		if (file != 0)
 		{
 			int datasize;
-			unsigned char *data;
+			UBytePtr data;
 	
 			/* get file size */
 			datasize = osd_fsize(file);
@@ -259,7 +255,6 @@ public class kc
 	static int kc85_4_keycodes_head;
 	static int kc85_4_keycodes_tail;
 	
-	static void kc85_4_keyboard_update(int);
 	
 	
 	/* initialise keyboard queue */
@@ -347,7 +342,7 @@ public class kc
 			for (b=0; b<8; b++)
 			{
 				/* key changed? */
-				if (changed_keys & mask)
+				if ((changed_keys & mask) != 0)
 				{
 					/* yes */
 	
@@ -583,11 +578,11 @@ public class kc
 	
 	        {
 	                /* calculate address of video ram to display */
-	                unsigned char *video_ram;
+	                UBytePtr video_ram;
 	
 	                video_ram = kc85_4_video_ram;
 	
-	                if (data & 0x01)
+	                if ((data & 0x01) != 0)
 	                {
 	                        video_ram +=
 	                                   (KC85_4_SCREEN_PIXEL_RAM_SIZE +
@@ -620,7 +615,7 @@ public class kc
 	
 	static void kc85_4_update_0x08000(void)
 	{
-	        unsigned char *ram_page;
+	        UBytePtr ram_page;
 	
 	        if (kc85_4_pio_data[0] & 4)
 	        {
@@ -633,7 +628,7 @@ public class kc
 	
 	                {
 	
-	                        if (kc85_84_data & 0x04)
+	                        if ((kc85_84_data & 0x04) != 0)
 	                        {
 	                                logerror("access screen 1\r\n");
 	                        }
@@ -642,7 +637,7 @@ public class kc
 	                                logerror("access screen 0\r\n");
 	                        }
 	
-	                        if (kc85_84_data & 0x02)
+	                        if ((kc85_84_data & 0x02) != 0)
 	                        {
 	                                logerror("access colour\r\n");
 	                        }
@@ -653,14 +648,14 @@ public class kc
 	               }
 	
 	
-	                if (kc85_84_data & 0x04)
+	                if ((kc85_84_data & 0x04) != 0)
 	                {
 	                        /* access screen 1 */
 	                        ram_page += KC85_4_SCREEN_PIXEL_RAM_SIZE +
 	                                KC85_4_SCREEN_COLOUR_RAM_SIZE;
 	                }
 	
-	                if (kc85_84_data & 0x02)
+	                if ((kc85_84_data & 0x02) != 0)
 	                {
 	                        /* access colour information of selected screen */
 	                        ram_page += KC85_4_SCREEN_PIXEL_RAM_SIZE;
@@ -774,7 +769,7 @@ public class kc
 	/* update memory address 0x0c000-0x0e000 */
 	static void kc85_4_update_0x0c000(void)
 	{
-	        if (kc85_86_data & 0x080)
+	        if ((kc85_86_data & 0x080) != 0)
 		{
 			/* CAOS rom takes priority */
 	
@@ -843,7 +838,7 @@ public class kc
 	
 	}
 	
-	void kc85_4_init_machine(void)
+	public static InitMachinePtr kc85_4_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		z80pio_init(&kc85_4_pio_intf);
 		z80ctc_init(&kc85_4_ctc_intf);
@@ -868,42 +863,42 @@ public class kc
 		kc85_4_keyboard_init();
 	
 	
-	}
+	} };
 	
 	void kc85_4_shutdown_machine(void)
 	{
 	}
 	
 	
-	static struct IOReadPort readport_kc85_4[] =
+	static IOReadPort readport_kc85_4[] =
 	{
-		{0x084, 0x084, kc85_4_84_r},
-		{0x085, 0x085, kc85_4_84_r},
-		{0x086, 0x086, kc85_4_86_r},
-		{0x087, 0x087, kc85_4_86_r},
-	        {0x088, 0x089, kc85_4_pio_data_r},
-	        {0x08a, 0x08b, kc85_4_pio_control_r},
-		{0x08c, 0x08f, kc85_4_ctc_r},
-		{-1}							   /* end of table */
+		new IOReadPort(0x084, 0x084, kc85_4_84_r),
+		new IOReadPort(0x085, 0x085, kc85_4_84_r),
+		new IOReadPort(0x086, 0x086, kc85_4_86_r),
+		new IOReadPort(0x087, 0x087, kc85_4_86_r),
+	        new IOReadPort(0x088, 0x089, kc85_4_pio_data_r),
+	        new IOReadPort(0x08a, 0x08b, kc85_4_pio_control_r),
+		new IOReadPort(0x08c, 0x08f, kc85_4_ctc_r),
+		new IOReadPort(-1)							   /* end of table */
 	};
 	
-	static struct IOWritePort writeport_kc85_4[] =
+	static IOWritePort writeport_kc85_4[] =
 	{
 	        /* D05 decodes io ports on schematic */
 	
 	        /* D08,D09 on schematic handle these ports */
-		{0x084, 0x084, kc85_4_84_w},
-		{0x085, 0x085, kc85_4_84_w},
-		{0x086, 0x086, kc85_4_86_w},
-		{0x087, 0x087, kc85_4_86_w},
+		new IOWritePort(0x084, 0x084, kc85_4_84_w),
+		new IOWritePort(0x085, 0x085, kc85_4_84_w),
+		new IOWritePort(0x086, 0x086, kc85_4_86_w),
+		new IOWritePort(0x087, 0x087, kc85_4_86_w),
 	
 	        /* D06 on schematic handle these ports */
-	        {0x088, 0x089, kc85_4_pio_data_w},
-	        {0x08a, 0x08b, kc85_4_pio_control_w},
+	        new IOWritePort(0x088, 0x089, kc85_4_pio_data_w),
+	        new IOWritePort(0x08a, 0x08b, kc85_4_pio_control_w),
 	
 	        /* D07 on schematic handle these ports */
-	        {0x08c, 0x08f, kc85_4_ctc_w },
-		{-1}							   /* end of table */
+	        new IOWritePort(0x08c, 0x08f, kc85_4_ctc_w ),
+		new IOWritePort(-1)							   /* end of table */
 	};
 	
 	#define KC85_4_PALETTE_SIZE 24
@@ -946,131 +941,131 @@ public class kc
 	};
 	
 	/* Initialise the palette */
-	static void kc85_4_init_palette(unsigned char *sys_palette, unsigned short *sys_colortable, const unsigned char *color_prom)
+	static void kc85_4_init_palette(UBytePtr sys_palette, unsigned short *sys_colortable, const UBytePtr color_prom)
 	{
 		memcpy(sys_palette, kc85_4_palette, sizeof (kc85_4_palette));
 		memcpy(sys_colortable, kc85_4_colour_table, sizeof (kc85_4_colour_table));
 	}
 	
-	static struct MemoryReadAddress readmem_kc85_4[] =
+	static MemoryReadAddress readmem_kc85_4[] =
 	{
-	        {0x00000, 0x07fff, MRA_RAM},
+	        new MemoryReadAddress(0x00000, 0x07fff, MRA_RAM),
 	
-	        {0x08000, 0x0a7ff, MRA_BANK3},
-	        {0x0a800, 0x0bfff, MRA_RAM},
-	        {0x0c000, 0x0dfff, MRA_BANK1},
-		{0x0e000, 0x0ffff, MRA_BANK2},
-		{-1}							   /* end of table */
+	        new MemoryReadAddress(0x08000, 0x0a7ff, MRA_BANK3),
+	        new MemoryReadAddress(0x0a800, 0x0bfff, MRA_RAM),
+	        new MemoryReadAddress(0x0c000, 0x0dfff, MRA_BANK1),
+		new MemoryReadAddress(0x0e000, 0x0ffff, MRA_BANK2),
+		new MemoryReadAddress(-1)							   /* end of table */
 	};
 	
-	static struct MemoryWriteAddress writemem_kc85_4[] =
+	static MemoryWriteAddress writemem_kc85_4[] =
 	{
-	        {0x00000, 0x07fff, MWA_RAM},
-	        {0x08000, 0x0a7ff, MWA_BANK3},
-	        {0x0a800, 0x0bfff, MWA_RAM},
-	        {0x0c000, 0x0dfff, MWA_NOP},
-	        {0x0e000, 0x0ffff, MWA_NOP},
-	        {-1}							   /* end of table */
+	        new MemoryWriteAddress(0x00000, 0x07fff, MWA_RAM),
+	        new MemoryWriteAddress(0x08000, 0x0a7ff, MWA_BANK3),
+	        new MemoryWriteAddress(0x0a800, 0x0bfff, MWA_RAM),
+	        new MemoryWriteAddress(0x0c000, 0x0dfff, MWA_NOP),
+	        new MemoryWriteAddress(0x0e000, 0x0ffff, MWA_NOP),
+	        new MemoryWriteAddress(-1)							   /* end of table */
 	};
 	
 	
 	
 	/* this is a fake keyboard layout. The keys are converted into codes which are transmitted to the kc85/4 */
-	INPUT_PORTS_START( kc85_4 )
-	        PORT_START
-			PORT_BITX(0x01, IP_ACTIVE_HIGH, IPT_KEYBOARD, "A", KEYCODE_A, IP_JOY_NONE)
-			PORT_BITX(0x02, IP_ACTIVE_HIGH, IPT_KEYBOARD, "B", KEYCODE_B, IP_JOY_NONE)
-			PORT_BITX(0x04, IP_ACTIVE_HIGH, IPT_KEYBOARD, "C", KEYCODE_C, IP_JOY_NONE)
-			PORT_BITX(0x08, IP_ACTIVE_HIGH, IPT_KEYBOARD, "D", KEYCODE_D, IP_JOY_NONE)
-			PORT_BITX(0x010, IP_ACTIVE_HIGH, IPT_KEYBOARD, "E", KEYCODE_E, IP_JOY_NONE)
-			PORT_BITX(0x020, IP_ACTIVE_HIGH, IPT_KEYBOARD, "F", KEYCODE_F, IP_JOY_NONE)
-			PORT_BITX(0x040, IP_ACTIVE_HIGH, IPT_KEYBOARD, "G", KEYCODE_G, IP_JOY_NONE)
-			PORT_BITX(0x080, IP_ACTIVE_HIGH, IPT_KEYBOARD, "H", KEYCODE_H, IP_JOY_NONE)
-	        PORT_START
-			PORT_BITX(0x01, IP_ACTIVE_HIGH, IPT_KEYBOARD, "I", KEYCODE_I, IP_JOY_NONE)
-			PORT_BITX(0x02, IP_ACTIVE_HIGH, IPT_KEYBOARD, "J", KEYCODE_J, IP_JOY_NONE)
-			PORT_BITX(0x04, IP_ACTIVE_HIGH, IPT_KEYBOARD, "K", KEYCODE_K, IP_JOY_NONE)
-			PORT_BITX(0x08, IP_ACTIVE_HIGH, IPT_KEYBOARD, "L", KEYCODE_L, IP_JOY_NONE)
-			PORT_BITX(0x010, IP_ACTIVE_HIGH, IPT_KEYBOARD, "M",KEYCODE_M, IP_JOY_NONE)
-			PORT_BITX(0x020, IP_ACTIVE_HIGH, IPT_KEYBOARD, "N", KEYCODE_N, IP_JOY_NONE)
-			PORT_BITX(0x040, IP_ACTIVE_HIGH, IPT_KEYBOARD, "O", KEYCODE_O, IP_JOY_NONE)
-			PORT_BITX(0x080, IP_ACTIVE_HIGH, IPT_KEYBOARD, "P", KEYCODE_P, IP_JOY_NONE)
-	        PORT_START
-			PORT_BITX(0x01, IP_ACTIVE_HIGH, IPT_KEYBOARD, "Q", KEYCODE_Q, IP_JOY_NONE)
-			PORT_BITX(0x02, IP_ACTIVE_HIGH, IPT_KEYBOARD, "R", KEYCODE_R, IP_JOY_NONE)
-			PORT_BITX(0x04, IP_ACTIVE_HIGH, IPT_KEYBOARD, "S", KEYCODE_S, IP_JOY_NONE)
-			PORT_BITX(0x08, IP_ACTIVE_HIGH, IPT_KEYBOARD, "T", KEYCODE_T, IP_JOY_NONE)
-			PORT_BITX(0x010, IP_ACTIVE_HIGH, IPT_KEYBOARD, "U",KEYCODE_U, IP_JOY_NONE)
-			PORT_BITX(0x020, IP_ACTIVE_HIGH, IPT_KEYBOARD, "V", KEYCODE_V, IP_JOY_NONE)
-			PORT_BITX(0x040, IP_ACTIVE_HIGH, IPT_KEYBOARD, "W", KEYCODE_W, IP_JOY_NONE)
-			PORT_BITX(0x080, IP_ACTIVE_HIGH, IPT_KEYBOARD, "X", KEYCODE_X, IP_JOY_NONE)
-	        PORT_START
-			PORT_BITX(0x01, IP_ACTIVE_HIGH, IPT_KEYBOARD, "Y", KEYCODE_Y, IP_JOY_NONE)
-			PORT_BITX(0x02, IP_ACTIVE_HIGH, IPT_KEYBOARD, "Z", KEYCODE_Z, IP_JOY_NONE)
-			PORT_BITX(0x04, IP_ACTIVE_HIGH, IPT_KEYBOARD, "0 @", KEYCODE_0, IP_JOY_NONE)
-			PORT_BITX(0x08, IP_ACTIVE_HIGH, IPT_KEYBOARD, "1 !", KEYCODE_1, IP_JOY_NONE)
-			PORT_BITX(0x010, IP_ACTIVE_HIGH, IPT_KEYBOARD, "2 \"", KEYCODE_2, IP_JOY_NONE)
-			PORT_BITX(0x020, IP_ACTIVE_HIGH, IPT_KEYBOARD, "3 #", KEYCODE_3, IP_JOY_NONE)
-			PORT_BITX(0x040, IP_ACTIVE_HIGH, IPT_KEYBOARD, "4 $", KEYCODE_4, IP_JOY_NONE)
-			PORT_BITX(0x080, IP_ACTIVE_HIGH, IPT_KEYBOARD, "5 %", KEYCODE_5, IP_JOY_NONE)
-	        PORT_START
-			PORT_BITX(0x01, IP_ACTIVE_HIGH, IPT_KEYBOARD, "6 &", KEYCODE_6, IP_JOY_NONE)
-			PORT_BITX(0x02, IP_ACTIVE_HIGH, IPT_KEYBOARD, "7 *", KEYCODE_7, IP_JOY_NONE)
-			PORT_BITX(0x04, IP_ACTIVE_HIGH, IPT_KEYBOARD, "8 (", KEYCODE_8, IP_JOY_NONE)
-			PORT_BITX(0x08, IP_ACTIVE_HIGH, IPT_KEYBOARD, "9 )", KEYCODE_9, IP_JOY_NONE)
-			PORT_BITX(0x010, IP_ACTIVE_HIGH, IPT_KEYBOARD, "F1", KEYCODE_F1, IP_JOY_NONE)
-			PORT_BITX(0x020, IP_ACTIVE_HIGH, IPT_KEYBOARD, "F2", KEYCODE_F2, IP_JOY_NONE)
-			PORT_BITX(0x040, IP_ACTIVE_HIGH, IPT_KEYBOARD, "F3", KEYCODE_F3, IP_JOY_NONE)
-			PORT_BITX(0x080, IP_ACTIVE_HIGH, IPT_KEYBOARD, "F4", KEYCODE_F4, IP_JOY_NONE)
-			PORT_START
-			PORT_BITX(0x01, IP_ACTIVE_HIGH, IPT_KEYBOARD, "F5", KEYCODE_F5, IP_JOY_NONE)
-			PORT_BITX(0x02, IP_ACTIVE_HIGH, IPT_KEYBOARD, "F6", KEYCODE_F6, IP_JOY_NONE)
-			PORT_BITX(0x04, IP_ACTIVE_HIGH, IPT_KEYBOARD, "BRK", KEYCODE_F7, IP_JOY_NONE)
-			PORT_BITX(0x08, IP_ACTIVE_HIGH, IPT_KEYBOARD, "STOP", KEYCODE_F8, IP_JOY_NONE)
-			PORT_BITX(0x010, IP_ACTIVE_HIGH, IPT_KEYBOARD, "INS", KEYCODE_F9, IP_JOY_NONE)
-			PORT_BITX(0x020, IP_ACTIVE_HIGH, IPT_KEYBOARD, "DEL", KEYCODE_F10, IP_JOY_NONE)
-			PORT_BITX(0x020, IP_ACTIVE_HIGH, IPT_KEYBOARD, "DEL", KEYCODE_DEL, IP_JOY_NONE)
-			PORT_BITX(0x040, IP_ACTIVE_HIGH, IPT_KEYBOARD, "CLR", KEYCODE_F11, IP_JOY_NONE)
-			PORT_BITX(0x080, IP_ACTIVE_HIGH, IPT_KEYBOARD, "HOME", KEYCODE_F12, IP_JOY_NONE)
-			PORT_START
-			PORT_BITX(0x01, IP_ACTIVE_HIGH, IPT_KEYBOARD, "CURSOR UP", KEYCODE_UP, IP_JOY_NONE)
-			PORT_BITX(0x02, IP_ACTIVE_HIGH, IPT_KEYBOARD, "CURSOR DOWN", KEYCODE_DOWN, IP_JOY_NONE)
-			PORT_BITX(0x04, IP_ACTIVE_HIGH, IPT_KEYBOARD, "CURSOR LEFT", KEYCODE_LEFT, IP_JOY_NONE)
-			PORT_BITX(0x08, IP_ACTIVE_HIGH, IPT_KEYBOARD, "CURSOR RIGHT", KEYCODE_RIGHT, IP_JOY_NONE)
-			PORT_BITX(0x010, IP_ACTIVE_HIGH, IPT_KEYBOARD, "RETURN/ENTER", KEYCODE_ENTER, IP_JOY_NONE)
-			PORT_BITX(0x020, IP_ACTIVE_HIGH, IPT_KEYBOARD, "SPACE", KEYCODE_SPACE, IP_JOY_NONE)
-			PORT_BITX(0x040, IP_ACTIVE_HIGH, IPT_KEYBOARD, ", <", KEYCODE_COMMA, IP_JOY_NONE)
-			PORT_BITX(0x080, IP_ACTIVE_HIGH, IPT_KEYBOARD, ". >", KEYCODE_STOP, IP_JOY_NONE)
+	static InputPortPtr input_ports_kc85_4 = new InputPortPtr(){ public void handler() { 
+	        PORT_START(); 
+			PORT_BITX(0x01, IP_ACTIVE_HIGH, IPT_KEYBOARD, "A", KEYCODE_A, IP_JOY_NONE);
+			PORT_BITX(0x02, IP_ACTIVE_HIGH, IPT_KEYBOARD, "B", KEYCODE_B, IP_JOY_NONE);
+			PORT_BITX(0x04, IP_ACTIVE_HIGH, IPT_KEYBOARD, "C", KEYCODE_C, IP_JOY_NONE);
+			PORT_BITX(0x08, IP_ACTIVE_HIGH, IPT_KEYBOARD, "D", KEYCODE_D, IP_JOY_NONE);
+			PORT_BITX(0x010, IP_ACTIVE_HIGH, IPT_KEYBOARD, "E", KEYCODE_E, IP_JOY_NONE);
+			PORT_BITX(0x020, IP_ACTIVE_HIGH, IPT_KEYBOARD, "F", KEYCODE_F, IP_JOY_NONE);
+			PORT_BITX(0x040, IP_ACTIVE_HIGH, IPT_KEYBOARD, "G", KEYCODE_G, IP_JOY_NONE);
+			PORT_BITX(0x080, IP_ACTIVE_HIGH, IPT_KEYBOARD, "H", KEYCODE_H, IP_JOY_NONE);
+	        PORT_START(); 
+			PORT_BITX(0x01, IP_ACTIVE_HIGH, IPT_KEYBOARD, "I", KEYCODE_I, IP_JOY_NONE);
+			PORT_BITX(0x02, IP_ACTIVE_HIGH, IPT_KEYBOARD, "J", KEYCODE_J, IP_JOY_NONE);
+			PORT_BITX(0x04, IP_ACTIVE_HIGH, IPT_KEYBOARD, "K", KEYCODE_K, IP_JOY_NONE);
+			PORT_BITX(0x08, IP_ACTIVE_HIGH, IPT_KEYBOARD, "L", KEYCODE_L, IP_JOY_NONE);
+			PORT_BITX(0x010, IP_ACTIVE_HIGH, IPT_KEYBOARD, "M",KEYCODE_M, IP_JOY_NONE);
+			PORT_BITX(0x020, IP_ACTIVE_HIGH, IPT_KEYBOARD, "N", KEYCODE_N, IP_JOY_NONE);
+			PORT_BITX(0x040, IP_ACTIVE_HIGH, IPT_KEYBOARD, "O", KEYCODE_O, IP_JOY_NONE);
+			PORT_BITX(0x080, IP_ACTIVE_HIGH, IPT_KEYBOARD, "P", KEYCODE_P, IP_JOY_NONE);
+	        PORT_START(); 
+			PORT_BITX(0x01, IP_ACTIVE_HIGH, IPT_KEYBOARD, "Q", KEYCODE_Q, IP_JOY_NONE);
+			PORT_BITX(0x02, IP_ACTIVE_HIGH, IPT_KEYBOARD, "R", KEYCODE_R, IP_JOY_NONE);
+			PORT_BITX(0x04, IP_ACTIVE_HIGH, IPT_KEYBOARD, "S", KEYCODE_S, IP_JOY_NONE);
+			PORT_BITX(0x08, IP_ACTIVE_HIGH, IPT_KEYBOARD, "T", KEYCODE_T, IP_JOY_NONE);
+			PORT_BITX(0x010, IP_ACTIVE_HIGH, IPT_KEYBOARD, "U",KEYCODE_U, IP_JOY_NONE);
+			PORT_BITX(0x020, IP_ACTIVE_HIGH, IPT_KEYBOARD, "V", KEYCODE_V, IP_JOY_NONE);
+			PORT_BITX(0x040, IP_ACTIVE_HIGH, IPT_KEYBOARD, "W", KEYCODE_W, IP_JOY_NONE);
+			PORT_BITX(0x080, IP_ACTIVE_HIGH, IPT_KEYBOARD, "X", KEYCODE_X, IP_JOY_NONE);
+	        PORT_START(); 
+			PORT_BITX(0x01, IP_ACTIVE_HIGH, IPT_KEYBOARD, "Y", KEYCODE_Y, IP_JOY_NONE);
+			PORT_BITX(0x02, IP_ACTIVE_HIGH, IPT_KEYBOARD, "Z", KEYCODE_Z, IP_JOY_NONE);
+			PORT_BITX(0x04, IP_ACTIVE_HIGH, IPT_KEYBOARD, "0 @", KEYCODE_0, IP_JOY_NONE);
+			PORT_BITX(0x08, IP_ACTIVE_HIGH, IPT_KEYBOARD, "1 !", KEYCODE_1, IP_JOY_NONE);
+			PORT_BITX(0x010, IP_ACTIVE_HIGH, IPT_KEYBOARD, "2 \"", KEYCODE_2, IP_JOY_NONE);
+			PORT_BITX(0x020, IP_ACTIVE_HIGH, IPT_KEYBOARD, "3 #", KEYCODE_3, IP_JOY_NONE);
+			PORT_BITX(0x040, IP_ACTIVE_HIGH, IPT_KEYBOARD, "4 $", KEYCODE_4, IP_JOY_NONE);
+			PORT_BITX(0x080, IP_ACTIVE_HIGH, IPT_KEYBOARD, "5 %", KEYCODE_5, IP_JOY_NONE);
+	        PORT_START(); 
+			PORT_BITX(0x01, IP_ACTIVE_HIGH, IPT_KEYBOARD, "6 &", KEYCODE_6, IP_JOY_NONE);
+			PORT_BITX(0x02, IP_ACTIVE_HIGH, IPT_KEYBOARD, "7 *", KEYCODE_7, IP_JOY_NONE);
+			PORT_BITX(0x04, IP_ACTIVE_HIGH, IPT_KEYBOARD, "8 (", KEYCODE_8, IP_JOY_NONE);
+			PORT_BITX(0x08, IP_ACTIVE_HIGH, IPT_KEYBOARD, "9 );, KEYCODE_9, IP_JOY_NONE)
+			PORT_BITX(0x010, IP_ACTIVE_HIGH, IPT_KEYBOARD, "F1", KEYCODE_F1, IP_JOY_NONE);
+			PORT_BITX(0x020, IP_ACTIVE_HIGH, IPT_KEYBOARD, "F2", KEYCODE_F2, IP_JOY_NONE);
+			PORT_BITX(0x040, IP_ACTIVE_HIGH, IPT_KEYBOARD, "F3", KEYCODE_F3, IP_JOY_NONE);
+			PORT_BITX(0x080, IP_ACTIVE_HIGH, IPT_KEYBOARD, "F4", KEYCODE_F4, IP_JOY_NONE);
+			PORT_START(); 
+			PORT_BITX(0x01, IP_ACTIVE_HIGH, IPT_KEYBOARD, "F5", KEYCODE_F5, IP_JOY_NONE);
+			PORT_BITX(0x02, IP_ACTIVE_HIGH, IPT_KEYBOARD, "F6", KEYCODE_F6, IP_JOY_NONE);
+			PORT_BITX(0x04, IP_ACTIVE_HIGH, IPT_KEYBOARD, "BRK", KEYCODE_F7, IP_JOY_NONE);
+			PORT_BITX(0x08, IP_ACTIVE_HIGH, IPT_KEYBOARD, "STOP", KEYCODE_F8, IP_JOY_NONE);
+			PORT_BITX(0x010, IP_ACTIVE_HIGH, IPT_KEYBOARD, "INS", KEYCODE_F9, IP_JOY_NONE);
+			PORT_BITX(0x020, IP_ACTIVE_HIGH, IPT_KEYBOARD, "DEL", KEYCODE_F10, IP_JOY_NONE);
+			PORT_BITX(0x020, IP_ACTIVE_HIGH, IPT_KEYBOARD, "DEL", KEYCODE_DEL, IP_JOY_NONE);
+			PORT_BITX(0x040, IP_ACTIVE_HIGH, IPT_KEYBOARD, "CLR", KEYCODE_F11, IP_JOY_NONE);
+			PORT_BITX(0x080, IP_ACTIVE_HIGH, IPT_KEYBOARD, "HOME", KEYCODE_F12, IP_JOY_NONE);
+			PORT_START(); 
+			PORT_BITX(0x01, IP_ACTIVE_HIGH, IPT_KEYBOARD, "CURSOR UP", KEYCODE_UP, IP_JOY_NONE);
+			PORT_BITX(0x02, IP_ACTIVE_HIGH, IPT_KEYBOARD, "CURSOR DOWN", KEYCODE_DOWN, IP_JOY_NONE);
+			PORT_BITX(0x04, IP_ACTIVE_HIGH, IPT_KEYBOARD, "CURSOR LEFT", KEYCODE_LEFT, IP_JOY_NONE);
+			PORT_BITX(0x08, IP_ACTIVE_HIGH, IPT_KEYBOARD, "CURSOR RIGHT", KEYCODE_RIGHT, IP_JOY_NONE);
+			PORT_BITX(0x010, IP_ACTIVE_HIGH, IPT_KEYBOARD, "RETURN/ENTER", KEYCODE_ENTER, IP_JOY_NONE);
+			PORT_BITX(0x020, IP_ACTIVE_HIGH, IPT_KEYBOARD, "SPACE", KEYCODE_SPACE, IP_JOY_NONE);
+			PORT_BITX(0x040, IP_ACTIVE_HIGH, IPT_KEYBOARD, ", <", KEYCODE_COMMA, IP_JOY_NONE);
+			PORT_BITX(0x080, IP_ACTIVE_HIGH, IPT_KEYBOARD, ". >", KEYCODE_STOP, IP_JOY_NONE);
 	
-			PORT_START
-			PORT_BITX(0x01, IP_ACTIVE_HIGH, IPT_KEYBOARD, ": *", KEYCODE_COLON, IP_JOY_NONE)
-			PORT_BITX(0x02, IP_ACTIVE_HIGH, IPT_KEYBOARD, "- = ", KEYCODE_EQUALS, IP_JOY_NONE)
+			PORT_START(); 
+			PORT_BITX(0x01, IP_ACTIVE_HIGH, IPT_KEYBOARD, ": *", KEYCODE_COLON, IP_JOY_NONE);
+			PORT_BITX(0x02, IP_ACTIVE_HIGH, IPT_KEYBOARD, "- = ", KEYCODE_EQUALS, IP_JOY_NONE);
 	
-			PORT_START
+			PORT_START(); 
 			/* has a single shift key. Mapped here to left and right shift */
-			PORT_BITX(0x01, IP_ACTIVE_HIGH, IPT_KEYBOARD, "SHIFT", KEYCODE_LSHIFT, IP_JOY_NONE)
-			PORT_BITX(0x02, IP_ACTIVE_HIGH, IPT_KEYBOARD, "SHIFT", KEYCODE_RSHIFT, IP_JOY_NONE)
-	INPUT_PORTS_END
+			PORT_BITX(0x01, IP_ACTIVE_HIGH, IPT_KEYBOARD, "SHIFT", KEYCODE_LSHIFT, IP_JOY_NONE);
+			PORT_BITX(0x02, IP_ACTIVE_HIGH, IPT_KEYBOARD, "SHIFT", KEYCODE_RSHIFT, IP_JOY_NONE);
+	INPUT_PORTS_END(); }}; 
 	
 	
 	
-	static struct MachineDriver machine_driver_kc85_4 =
-	{
+	static MachineDriver machine_driver_kc85_4 = new MachineDriver
+	(
 			/* basic machine hardware */
-		{
+		new MachineCPU[] {
 				/* MachineCPU */
-			{
+			new MachineCPU(
 				CPU_Z80,  /* type */
 				4000000,
 				readmem_kc85_4,		   /* MemoryReadAddress */
 				writemem_kc85_4,		   /* MemoryWriteAddress */
 				readport_kc85_4,		   /* IOReadPort */
 				writeport_kc85_4,		   /* IOWritePort */
-				0,		/* VBlank  Interrupt */
-				0,				   /* vblanks per frame */
-				0, 0,	/* every scanline */
+				null,		/* VBlank  Interrupt */
+				null,				   /* vblanks per frame */
+				null, null,	/* every scanline */
 	                        kc85_4_daisy_chain
-	                },
+	                ),
 		},
 		50,								   /* frames per second */
 		DEFAULT_60HZ_VBLANK_DURATION,	   /* vblank duration */
@@ -1080,15 +1075,15 @@ public class kc
 		/* video hardware */
 		KC85_4_SCREEN_WIDTH,			   /* screen width */
 		KC85_4_SCREEN_HEIGHT,			   /* screen height */
-		{0, (KC85_4_SCREEN_WIDTH - 1), 0, (KC85_4_SCREEN_HEIGHT - 1)},	/* rectangle: visible_area */
-		0,								   /* graphics decode info */
+		new rectangle(0, (KC85_4_SCREEN_WIDTH - 1), 0, (KC85_4_SCREEN_HEIGHT - 1)),	/* rectangle: visible_area */
+		null,								   /* graphics decode info */
 		KC85_4_PALETTE_SIZE,								   /* total colours
 										    */
 		KC85_4_PALETTE_SIZE,								   /* color table len */
 		kc85_4_init_palette,			   /* init palette */
 	
 		VIDEO_TYPE_RASTER,				   /* video attributes */
-		0,								   /* MachineLayer */
+		null,								   /* MachineLayer */
 		kc85_4_vh_start,
 		kc85_4_vh_stop,
 		kc85_4_vh_screenrefresh,
@@ -1098,18 +1093,18 @@ public class kc
 		0,								   /* sh start */
 		0,								   /* sh stop */
 		0,								   /* sh update */
-	};
+	);
 	
 	
 	
 	
-	ROM_START(kc85_4)
-		ROM_REGION(0x016000, REGION_CPU1)
+	static RomLoadPtr rom_kc85_4 = new RomLoadPtr(){ public void handler(){ 
+		ROM_REGION(0x016000, REGION_CPU1);
 	
-	        ROM_LOAD("basic_c0.rom", 0x10000, 0x2000, 0x0dfe34b08)
-	        ROM_LOAD("caos__c0.rom", 0x12000, 0x1000, 0x057d9ab02)
-	        ROM_LOAD("caos__e0.rom", 0x14000, 0x2000, 0x0d64cd50b)
-	ROM_END
+	        ROM_LOAD("basic_c0.rom", 0x10000, 0x2000, 0x0dfe34b08);
+	        ROM_LOAD("caos__c0.rom", 0x12000, 0x1000, 0x057d9ab02);
+	        ROM_LOAD("caos__e0.rom", 0x14000, 0x2000, 0x0d64cd50b);
+	ROM_END(); }}; 
 	
 	static const struct IODevice io_kc85_4[] =
 	{

@@ -94,21 +94,14 @@ extern READ_HANDLER  ( amiga_cia_r );
 extern WRITE_HANDLER ( amiga_cia_w );
 extern READ_HANDLER  ( amiga_custom_r );
 extern WRITE_HANDLER ( amiga_custom_w );
-extern void amiga_init_machine( void );
-extern int amiga_vblank_irq( void );
-extern int amiga_fdc_init( int id );
+extern extern extern int amiga_fdc_init( int id );
 
 /* from vidhrdw/amiga.c */
-extern void amiga_vh_screenrefresh( struct osd_bitmap *bitmap, int full_refresh );
-extern int amiga_vh_start( void );
-extern void amiga_vh_stop( void );
-extern void amiga_init_palette(unsigned char *palette, unsigned short *colortable,const unsigned char *color_prom);
-
+extern extern extern extern 
 
 /* from vidhrdw */
 extern void copper_setpc( unsigned long pc );
-extern void copper_enable( void );
-
+extern 
 /* required prototype */
 /*void amiga_custom_w( int offs, int data );*/
 

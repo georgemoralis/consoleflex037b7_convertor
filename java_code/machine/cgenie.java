@@ -124,8 +124,7 @@ public class cgenie
 	static int get_cycles = 0;
 	
 	/* a prototype to be called from cgenie_stop_machine */
-	static void tape_put_close(void);
-	
+	static 
 	
 	static OPBASE_HANDLER (opbaseoverride)
 	{
@@ -159,7 +158,7 @@ public class cgenie
 					if( memcmp(s, TAPE_HEADER, sizeof(TAPE_HEADER)-1) == 0 )
 					{
 						s = memchr(s, 26, size);
-						if( s )
+						if (s != 0)
 						{
 							*s++ = '\n';
 							*s++ = '\0';
@@ -235,7 +234,7 @@ public class cgenie
 		return address;
 	}
 	
-	void init_cgenie(void)
+	public static InitDriverPtr init_cgenie = new InitDriverPtr() { public void handler() 
 	{
 		UINT8 *gfx = memory_region(REGION_GFX2);
 		int i;
@@ -248,9 +247,9 @@ public class cgenie
 	    /* Initialize some patterns to be displayed in graphics mode */
 	    for( i = 0; i < 256; i++ )
 	        memset(gfx + i * 8, i, 8);
-	}
+	} };
 	
-	void cgenie_init_machine(void)
+	public static InitMachinePtr cgenie_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		UINT8 *ROM = memory_region(REGION_CPU1);
 		osd_fdc_init();
@@ -353,7 +352,7 @@ public class cgenie
 	
 	    cgenie_load_cas = 1;
 		cpu_setOPbaseoverride(0, opbaseoverride);
-	}
+	} };
 	
 	void cgenie_stop_machine(void)
 	{
@@ -383,16 +382,16 @@ public class cgenie
 		memset(&ROM[0x4000], 0xff, 0xc000);
 	
 		filename = "newe000.rom";
-		rom = osd_fopen(Machine->gamedrv->name, filename, OSD_FILETYPE_IMAGE_R, 0);
-		if( rom )
+		rom = osd_fopen(Machine.gamedrv.name, filename, OSD_FILETYPE_IMAGE_R, 0);
+		if (rom != 0)
 		{
-			logerror("%s found '%s' ROM\n", Machine->gamedrv->name, filename);
+			logerror("%s found '%s' ROM\n", Machine.gamedrv.name, filename);
 			osd_fread(rom, &ROM[0x12000], 0x1000);
 			osd_fclose(rom);
 		}
 		else
 		{
-			logerror("%s optional ROM image '%s' not found\n", Machine->gamedrv->name, filename);
+			logerror("%s optional ROM image '%s' not found\n", Machine.gamedrv.name, filename);
 		}
 	
 		return result;
@@ -433,18 +432,18 @@ public class cgenie
 					sprintf(tape_name, "%-6.6s.cas", tape_buffer + 2);
 				else
 					strcpy(tape_name, "unknown.cas");
-				osd_fopen(Machine->gamedrv->name, tape_name, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_WRITE);
-				if( tape_put_file )
+				osd_fopen(Machine.gamedrv.name, tape_name, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_WRITE);
+				if (tape_put_file != 0)
 					osd_fwrite(tape_put_file, tape_buffer, 9);
 	        }
 		}
 		else
 		{
 			tape_count++;
-			if( tape_put_file )
+			if (tape_put_file != 0)
 				osd_fwrite(tape_put_file, &value, 1);
 		}
-		if( tape_put_file )
+		if (tape_put_file != 0)
 		{
 			cgenie_frame_time = 30;
 			sprintf(cgenie_frame_message, "Tape write '%s' $%04X bytes", tape_name, tape_count);
@@ -459,9 +458,9 @@ public class cgenie
 	static void tape_put_close(void)
 	{
 		/* file open ? */
-		if( tape_put_file )
+		if (tape_put_file != 0)
 		{
-			if( put_bit_count )
+			if (put_bit_count != 0)
 			{
 				UINT8 value;
 				while( put_bit_count < 16 )
@@ -470,21 +469,21 @@ public class cgenie
 					put_bit_count++;
 				}
 				value = 0;
-				if( tape_bits & 0x8000 )
+				if ((tape_bits & 0x8000) != 0)
 					value |= 0x80;
-				if( tape_bits & 0x2000 )
+				if ((tape_bits & 0x2000) != 0)
 					value |= 0x40;
-				if( tape_bits & 0x0800 )
+				if ((tape_bits & 0x0800) != 0)
 					value |= 0x20;
-				if( tape_bits & 0x0200 )
+				if ((tape_bits & 0x0200) != 0)
 					value |= 0x10;
-				if( tape_bits & 0x0080 )
+				if ((tape_bits & 0x0080) != 0)
 					value |= 0x08;
-				if( tape_bits & 0x0020 )
+				if ((tape_bits & 0x0020) != 0)
 					value |= 0x04;
-				if( tape_bits & 0x0008 )
+				if ((tape_bits & 0x0008) != 0)
 					value |= 0x02;
-				if( tape_bits & 0x0002 )
+				if ((tape_bits & 0x0002) != 0)
 					value |= 0x01;
 				tape_put_byte(value);
 			}
@@ -578,21 +577,21 @@ public class cgenie
 			{
 				/* extract data bits to value */
 				value = 0;
-				if( tape_bits & 0x8000 )
+				if ((tape_bits & 0x8000) != 0)
 					value |= 0x80;
-				if( tape_bits & 0x2000 )
+				if ((tape_bits & 0x2000) != 0)
 					value |= 0x40;
-				if( tape_bits & 0x0800 )
+				if ((tape_bits & 0x0800) != 0)
 					value |= 0x20;
-				if( tape_bits & 0x0200 )
+				if ((tape_bits & 0x0200) != 0)
 					value |= 0x10;
-				if( tape_bits & 0x0080 )
+				if ((tape_bits & 0x0080) != 0)
 					value |= 0x08;
-				if( tape_bits & 0x0020 )
+				if ((tape_bits & 0x0020) != 0)
 					value |= 0x04;
-				if( tape_bits & 0x0008 )
+				if ((tape_bits & 0x0008) != 0)
 					value |= 0x02;
-				if( tape_bits & 0x0002 )
+				if ((tape_bits & 0x0002) != 0)
 					value |= 0x01;
 				put_bit_count -= 16;
 				tape_bits = 0;
@@ -612,7 +611,7 @@ public class cgenie
 	{
 		UINT8 value;
 	
-		if( tape_get_file )
+		if (tape_get_file != 0)
 		{
 			if( tape_count < 32 )
 			{
@@ -627,21 +626,21 @@ public class cgenie
 	            osd_fread(tape_get_file, &value, 1);
 			}
 			tape_bits |= 0xaaaa;
-			if( value & 0x80 )
+			if ((value & 0x80) != 0)
 				tape_bits ^= 0x4000;
-			if( value & 0x40 )
+			if ((value & 0x40) != 0)
 				tape_bits ^= 0x1000;
-			if( value & 0x20 )
+			if ((value & 0x20) != 0)
 				tape_bits ^= 0x0400;
-			if( value & 0x10 )
+			if ((value & 0x10) != 0)
 				tape_bits ^= 0x0100;
-			if( value & 0x08 )
+			if ((value & 0x08) != 0)
 				tape_bits ^= 0x0040;
-			if( value & 0x04 )
+			if ((value & 0x04) != 0)
 				tape_bits ^= 0x0010;
-			if( value & 0x02 )
+			if ((value & 0x02) != 0)
 				tape_bits ^= 0x0004;
-			if( value & 0x01 )
+			if ((value & 0x01) != 0)
 				tape_bits ^= 0x0001;
 			get_bit_count = 16;
 			tape_count++;
@@ -664,12 +663,12 @@ public class cgenie
 	
 			sprintf(tape_name, "%-6.6s", ram + 0x41e8);
 			p = strchr(tape_name, ' ');
-			if( p ) *p = '\0';
+			if (p != 0) *p = '\0';
 			strcat(tape_name, ".cas");
 	
 	        logerror("tape_get_open '%s'\n", tape_name);
-			tape_get_file = osd_fopen(Machine->gamedrv->name, tape_name, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-			if( tape_get_file )
+			tape_get_file = osd_fopen(Machine.gamedrv.name, tape_name, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
+			if (tape_get_file != 0)
 			{
 				cgenie_frame_time = 30;
 				sprintf(cgenie_frame_message, "Tape load '%s'", tape_name);
@@ -702,7 +701,7 @@ public class cgenie
 		/* overrun since last read ? */
 		if( diff >= 4000 )
 		{
-			if( tape_get_file )
+			if (tape_get_file != 0)
 			{
 	            osd_fclose(tape_get_file);
 				tape_get_file = NULL;
@@ -730,7 +729,7 @@ public class cgenie
 				}
 				/* shift next sync or data bit to bit 16 */
 				tape_bits <<= 1;
-				if( tape_bits & 0x10000 )
+				if ((tape_bits & 0x10000) != 0)
 					port_ff ^= 1;
 			}
 		}
@@ -759,7 +758,7 @@ public class cgenie
 	{
 		int port_ff_changed = port_ff ^ data;
 	
-		if( port_ff_changed & FF_CAS )	/* casette port changed ? */
+		if ((port_ff_changed & FF_CAS) != 0)	/* casette port changed ? */
 		{
 			/* virtual tape ? */
 			if( readinputport(0) & 0x08 )
@@ -769,11 +768,11 @@ public class cgenie
 		}
 	
 		/* background bits changed ? */
-		if( port_ff_changed & FF_BGD )
+		if ((port_ff_changed & FF_BGD) != 0)
 		{
 			unsigned char r, g, b;
 	
-			if( data & FF_BGD0 )
+			if ((data & FF_BGD0) != 0)
 			{
 				r = 112;
 				g = 0;
@@ -815,11 +814,11 @@ public class cgenie
 				}
 			}
 			osd_modify_pen(0, r, g, b);
-			osd_modify_pen(Machine->pens[0], r, g, b);
+			osd_modify_pen(Machine.pens[0], r, g, b);
 		}
 	
 		/* character mode changed ? */
-		if( port_ff_changed & FF_CHR )
+		if ((port_ff_changed & FF_CHR) != 0)
 		{
 			cgenie_font_offset[2] = (data & FF_CHR0) ? 0x00 : 0x80;
 			cgenie_font_offset[3] = (data & FF_CHR1) ? 0x00 : 0x80;
@@ -833,7 +832,7 @@ public class cgenie
 		}
 	
 		/* graphics mode changed ? */
-		if( port_ff_changed & FF_FGR )
+		if ((port_ff_changed & FF_FGR) != 0)
 		{
 			cgenie_invalidate_range(0x00, 0xff);
 			cgenie_mode_select(data & FF_FGR);
@@ -990,7 +989,7 @@ public class cgenie
 		return result;
 	}
 	
-	int cgenie_timer_interrupt(void)
+	public static InterruptPtr cgenie_timer_interrupt = new InterruptPtr() { public int handler() 
 	{
 		if( (irq_status & IRQ_TIMER) == 0 )
 		{
@@ -999,9 +998,9 @@ public class cgenie
 			return 0;
 		}
 		return ignore_interrupt();
-	}
+	} };
 	
-	int cgenie_fdc_interrupt(void)
+	public static InterruptPtr cgenie_fdc_interrupt = new InterruptPtr() { public int handler() 
 	{
 		if( (irq_status & IRQ_FDC) == 0 )
 		{
@@ -1010,7 +1009,7 @@ public class cgenie
 			return 0;
 		}
 		return ignore_interrupt();
-	}
+	} };
 	
 	void cgenie_fdc_callback(int event)
 	{
@@ -1032,13 +1031,13 @@ public class cgenie
 	
 		logerror("cgenie motor_w $%02X\n", data);
 	
-		if( data & 1 )
+		if ((data & 1) != 0)
 			drive = 0;
-		if( data & 2 )
+		if ((data & 2) != 0)
 			drive = 1;
-		if( data & 4 )
+		if ((data & 4) != 0)
 			drive = 2;
-		if( data & 8 )
+		if ((data & 8) != 0)
 			drive = 3;
 	
 		if( drive > 3 )
@@ -1071,11 +1070,11 @@ public class cgenie
 			{
 				/* copy them and set new geometry */
 				memcpy(&pdrive[drive], pd, sizeof(PDRIVE));
-				tracks[drive] = pd->TRK;
-				heads[drive] = (pd->SPT > 18) ? 2 : 1;
-				s_p_t[drive] = pd->SPT / heads[drive];
-				dir_sector[drive] = pd->DDSL * pd->GATM * pd->GPL + pd->SPT;
-				dir_length[drive] = pd->DDGA * pd->GPL;
+				tracks[drive] = pd.TRK;
+				heads[drive] = (pd.SPT > 18) ? 2 : 1;
+				s_p_t[drive] = pd.SPT / heads[drive];
+				dir_sector[drive] = pd.DDSL * pd.GATM * pd.GPL + pd.SPT;
+				dir_length[drive] = pd.DDGA * pd.GPL;
 				wd179x_set_geometry(drive, tracks[drive], heads[drive], s_p_t[drive], 256, dir_sector[drive], dir_length[drive], 0);
 	        }
 			return;
@@ -1136,21 +1135,21 @@ public class cgenie
 		if( setup_active() || onscrd_active() )
 			return result;
 	
-		if( offset & 0x01 )
+		if ((offset & 0x01) != 0)
 			result |= input_port_1_r(0);
-		if( offset & 0x02 )
+		if ((offset & 0x02) != 0)
 			result |= input_port_2_r(0);
-		if( offset & 0x04 )
+		if ((offset & 0x04) != 0)
 			result |= input_port_3_r(0);
-		if( offset & 0x08 )
+		if ((offset & 0x08) != 0)
 			result |= input_port_4_r(0);
-		if( offset & 0x10 )
+		if ((offset & 0x10) != 0)
 			result |= input_port_5_r(0);
-		if( offset & 0x20 )
+		if ((offset & 0x20) != 0)
 			result |= input_port_6_r(0);
-		if( offset & 0x40 )
+		if ((offset & 0x40) != 0)
 			result |= input_port_7_r(0);
-		if( offset & 0x80 )
+		if ((offset & 0x80) != 0)
 			result |= input_port_8_r(0);
 	
 		return result;
@@ -1162,21 +1161,21 @@ public class cgenie
 	
 	int cgenie_videoram_r(int offset)
 	{
-		return videoram[offset];
+		return videoram.read(offset);
 	}
 	
 	void cgenie_videoram_w(int offset, int data)
 	{
 		/* write to video RAM */
-		if( data == videoram[offset] )
+		if( data == videoram.read(offset))
 			return;				   /* no change */
-		videoram[offset] = data;
+		videoram.write(offset,data);
 		dirtybuffer[offset] = 1;
 	}
 	
 	int cgenie_colorram_r(int offset)
 	{
-		return colorram[offset] | 0xf0;
+		return colorram.read(offset)| 0xf0;
 	}
 	
 	void cgenie_colorram_w(int offset, int data)
@@ -1186,11 +1185,11 @@ public class cgenie
 		/* only bits 0 to 3 */
 		data &= 15;
 		/* nothing changed ? */
-		if( data == colorram[offset] )
+		if( data == colorram.read(offset))
 			return;
 	
 	/* set new value */
-		colorram[offset] = data;
+		colorram.write(offset,data);
 	/* make offset relative to video frame buffer offset */
 		offset = (offset + (cgenie_get_register(12) << 8) + cgenie_get_register(13)) & 0x3ff;
 	/* mark every 1k of the frame buffer dirty */
@@ -1215,7 +1214,7 @@ public class cgenie
 		cgenie_fontram[offset] = data;
 	
 		/* convert eight pixels */
-		dp = &Machine->gfx[0]->gfxdata[(256 * 8 + offset) * Machine->gfx[0]->width];
+		dp = &Machine.gfx[0].gfxdata[(256 * 8 + offset) * Machine.gfx[0].width];
 		dp[0] = (data & 0x80) ? 1 : 0;
 		dp[1] = (data & 0x40) ? 1 : 0;
 		dp[2] = (data & 0x20) ? 1 : 0;
@@ -1236,7 +1235,7 @@ public class cgenie
 	 *
 	 *************************************/
 	
-	int cgenie_frame_interrupt(void)
+	public static InterruptPtr cgenie_frame_interrupt = new InterruptPtr() { public int handler() 
 	{
 		if( cgenie_tv_mode != (readinputport(0) & 0x10) )
 		{
@@ -1247,14 +1246,14 @@ public class cgenie
 			cgenie_port_ff_w(0, port_ff ^ FF_BGD0);
 	    }
 	
-		if( motor_count )
+		if (motor_count != 0)
 		{
 			if( !-motor_count )
 				wd179x_stop_drive();
 		}
 	
 		return 0;
-	}
+	} };
 	
 	void cgenie_nmi_generate(int param)
 	{

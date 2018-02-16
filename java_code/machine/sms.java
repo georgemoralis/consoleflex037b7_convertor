@@ -45,7 +45,7 @@ public class sms
 	
 	WRITE_HANDLER ( sms_mapper_w )
 	{
-	    unsigned char *RAM = memory_region(REGION_CPU1);
+	    UBytePtr RAM = memory_region(REGION_CPU1);
 	
 	    offset &= 3;
 	    data %= sms_page_count;
@@ -78,7 +78,7 @@ public class sms
 	
 	WRITE_HANDLER ( sms_ram_w )
 	{
-	    unsigned char *RAM = memory_region(REGION_CPU1);
+	    UBytePtr RAM = memory_region(REGION_CPU1);
 	    RAM[0xC000 + (offset & 0x1FFF)] = data;
 	    RAM[0xE000 + (offset & 0x1FFF)] = data;
 	}
@@ -151,7 +151,7 @@ public class sms
 	{
 	    int size, ret;
 	    FILE *handle;
-	    unsigned char *RAM;
+	    UBytePtr RAM;
 	
 	    /* Ensure filename was specified */
 	    if(device_filename(IO_CARTSLOT,id) == NULL)
@@ -182,7 +182,7 @@ public class sms
 	    ret = new_memory_region(REGION_CPU1, size);
 	
 	    /* Oops.. couldn't do it */
-	    if(ret)
+	    if (ret != 0)
 	    {
 	        printf("Error allocating %d bytes.\n", size);
 	        return INIT_FAILED;
@@ -208,10 +208,10 @@ public class sms
 	    return (INIT_OK);
 	}
 	
-	void sms_init_machine (void)
+	public static InitMachinePtr sms_init_machine = new InitMachinePtr() { public void handler() 
 	{
 	    sms_fm_detect = 0;
-	}
+	} };
 	
 	int sms_id_rom (int id)
 	{

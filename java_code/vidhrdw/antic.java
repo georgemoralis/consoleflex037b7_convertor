@@ -18,7 +18,7 @@ public class antic
 	#define VERBOSE 0
 	
 	#if VERBOSE
-	#define LOG(x)	if( errorlog ) fprintf x
+	#define LOG(x)	if (errorlog != 0) fprintf x
 	#else
 	#define LOG(x)	/* x */
 	#endif
@@ -260,7 +260,7 @@ public class antic
 	/*************	ANTIC mode 02: *********************************
 	 * character mode 8x8:2 (32/40/48 byte per line)
 	 ***************************************************************/
-	#define MODE2(s) COPY4(dst, antic.pf_21[video->data[s]])
+	#define MODE2(s) COPY4(dst, antic.pf_21[video.data[s]])
 	
 	void antic_mode_2_32(VIDEO *video)
 	{
@@ -284,7 +284,7 @@ public class antic
 	/*************	ANTIC mode 03: *********************************
 	 * character mode 8x10:2 (32/40/48 byte per line)
 	 ***************************************************************/
-	#define MODE3(s) COPY4(dst, antic.pf_21[video->data[s]])
+	#define MODE3(s) COPY4(dst, antic.pf_21[video.data[s]])
 	
 	void antic_mode_3_32(VIDEO *video)
 	{
@@ -308,7 +308,7 @@ public class antic
 	/*************  ANTIC mode 04: *********************************
 	 * character mode 8x8:4 multi color (32/40/48 byte per line)
 	 ***************************************************************/
-	#define MODE4(s) COPY4(dst, antic.pf_x10b[video->data[s]])
+	#define MODE4(s) COPY4(dst, antic.pf_x10b[video.data[s]])
 	
 	void antic_mode_4_32(VIDEO *video)
 	{
@@ -332,7 +332,7 @@ public class antic
 	/*************  ANTIC mode 05: *********************************
 	 * character mode 8x16:4 multi color (32/40/48 byte per line)
 	 ***************************************************************/
-	#define MODE5(s) COPY4(dst, antic.pf_x10b[video->data[s]])
+	#define MODE5(s) COPY4(dst, antic.pf_x10b[video.data[s]])
 	
 	void antic_mode_5_32(VIDEO *video)
 	{
@@ -356,7 +356,7 @@ public class antic
 	/*************  ANTIC mode 06: *********************************
 	 * character mode 16x8:5 single color (16/20/24 byte per line)
 	 ***************************************************************/
-	#define MODE6(s) COPY8(dst, antic.pf_3210b2[video->data[s]], antic.pf_3210b2[video->data[s]+1])
+	#define MODE6(s) COPY8(dst, antic.pf_3210b2[video.data[s]], antic.pf_3210b2[video.data[s]+1])
 	
 	void antic_mode_6_32(VIDEO *video)
 	{
@@ -380,7 +380,7 @@ public class antic
 	/*************  ANTIC mode 07: *********************************
 	 * character mode 16x16:5 single color (16/20/24 byte per line)
 	 ***************************************************************/
-	#define MODE7(s) COPY8(dst, antic.pf_3210b2[video->data[s]], antic.pf_3210b2[video->data[s]+1])
+	#define MODE7(s) COPY8(dst, antic.pf_3210b2[video.data[s]], antic.pf_3210b2[video.data[s]+1])
 	
 	void antic_mode_7_32(VIDEO *video)
 	{
@@ -404,7 +404,7 @@ public class antic
 	/*************  ANTIC mode 08: *********************************
 	 * graphics mode 8x8:4 (8/10/12 byte per line)
 	 ***************************************************************/
-	#define MODE8(s) COPY16(dst, antic.pf_210b4[video->data[s]],antic.pf_210b4[video->data[s]+1],antic.pf_210b4[video->data[s]+2],antic.pf_210b4[video->data[s]+3])
+	#define MODE8(s) COPY16(dst, antic.pf_210b4[video.data[s]],antic.pf_210b4[video.data[s]+1],antic.pf_210b4[video.data[s]+2],antic.pf_210b4[video.data[s]+3])
 	
 	void antic_mode_8_32(VIDEO *video)
 	{
@@ -428,7 +428,7 @@ public class antic
 	/*************  ANTIC mode 09: *********************************
 	 * graphics mode 4x4:2 (8/10/12 byte per line)
 	 ***************************************************************/
-	#define MODE9(s) COPY8(dst, antic.pf_3210b2[video->data[s]], antic.pf_3210b2[video->data[s]+1])
+	#define MODE9(s) COPY8(dst, antic.pf_3210b2[video.data[s]], antic.pf_3210b2[video.data[s]+1])
 	
 	void antic_mode_9_32(VIDEO *video)
 	{
@@ -452,7 +452,7 @@ public class antic
 	/*************  ANTIC mode 0A: *********************************
 	 * graphics mode 4x4:4 (16/20/24 byte per line)
 	 ***************************************************************/
-	#define MODEA(s) COPY8(dst, antic.pf_210b2[video->data[s]], antic.pf_210b2[video->data[s]+1])
+	#define MODEA(s) COPY8(dst, antic.pf_210b2[video.data[s]], antic.pf_210b2[video.data[s]+1])
 	
 	void antic_mode_a_32(VIDEO *video)
 	{
@@ -476,7 +476,7 @@ public class antic
 	/*************  ANTIC mode 0B: *********************************
 	 * graphics mode 2x2:2 (16/20/24 byte per line)
 	 ***************************************************************/
-	#define MODEB(s) COPY8(dst, antic.pf_3210b2[video->data[s]], antic.pf_3210b2[video->data[s]+1])
+	#define MODEB(s) COPY8(dst, antic.pf_3210b2[video.data[s]], antic.pf_3210b2[video.data[s]+1])
 	
 	void antic_mode_b_32(VIDEO *video)
 	{
@@ -500,7 +500,7 @@ public class antic
 	/*************  ANTIC mode 0C: *********************************
 	 * graphics mode 2x1:2 (16/20/24 byte per line)
 	 ***************************************************************/
-	#define MODEC(s) COPY8(dst, antic.pf_3210b2[video->data[s]], antic.pf_3210b2[video->data[s]+1])
+	#define MODEC(s) COPY8(dst, antic.pf_3210b2[video.data[s]], antic.pf_3210b2[video.data[s]+1])
 	
 	void antic_mode_c_32(VIDEO *video)
 	{
@@ -524,7 +524,7 @@ public class antic
 	/*************  ANTIC mode 0D: *********************************
 	 * graphics mode 2x2:4 (32/40/48 byte per line)
 	 ***************************************************************/
-	#define MODED(s) COPY4(dst, antic.pf_x10b[video->data[s]])
+	#define MODED(s) COPY4(dst, antic.pf_x10b[video.data[s]])
 	
 	void antic_mode_d_32(VIDEO *video)
 	{
@@ -548,7 +548,7 @@ public class antic
 	/*************  ANTIC mode 0E: *********************************
 	 * graphics mode 2x1:4 (32/40/48 byte per line)
 	 ***************************************************************/
-	#define MODEE(s) COPY4(dst, antic.pf_x10b[video->data[s]])
+	#define MODEE(s) COPY4(dst, antic.pf_x10b[video.data[s]])
 	
 	void antic_mode_e_32(VIDEO *video)
 	{
@@ -572,7 +572,7 @@ public class antic
 	/*************  ANTIC mode 0F: *********************************
 	 * graphics mode 1x1:2 (32/40/48 byte per line)
 	 ***************************************************************/
-	#define MODEF(s) COPY4(dst, antic.pf_1b[video->data[s]])
+	#define MODEF(s) COPY4(dst, antic.pf_1b[video.data[s]])
 	
 	void antic_mode_f_32(VIDEO *video)
 	{

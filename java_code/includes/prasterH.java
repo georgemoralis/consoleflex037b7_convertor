@@ -20,12 +20,7 @@ extern "C" {
 #endif
 
 /* insert following into the Machine structure */
-extern int praster_vh_start (void);
-extern void praster_vh_stop (void);
-extern void praster_vh_screenrefresh (struct osd_bitmap *bitmap, int full_refresh);
-int praster_raster_irq (void);
-int praster_vretrace_irq (void);
-
+extern extern extern 
 
 typedef enum {
 	PRASTER_MONOTEXT, PRASTER_TEXT, PRASTER_GRAPHIC,
@@ -103,14 +98,8 @@ typedef struct _PRASTER {
 
 extern PRASTER raster1, raster2;
 
-extern void praster_1_init (void);
-extern void praster_2_init (void);
-
-extern void praster_1_update(void);
-extern void praster_2_update(void);
-extern void praster_1_cursor_update(void);
-extern void praster_2_cursor_update(void);
-
+extern extern 
+extern extern extern extern 
 extern WRITE_HANDLER ( praster_1_videoram_w );
 extern WRITE_HANDLER ( praster_2_videoram_w );
 extern READ_HANDLER  ( praster_1_videoram_r );

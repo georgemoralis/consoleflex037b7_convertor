@@ -22,7 +22,7 @@ public class pdp1
 	 *
 	 */
 	
-	static unsigned char *ROM;
+	static UBytePtr ROM;
 	
 	int pdp1_iot(int *io, int md);
 	int pdp1_load_rom (int id);
@@ -37,7 +37,7 @@ public class pdp1
 		int i;
 	
 		/* The spacewar! is mandatory for now. */
-		if (!(romfile = osd_fopen (Machine->gamedrv->name, "spacewar.bin",OSD_FILETYPE_IMAGE_R, 0)))
+		if (!(romfile = osd_fopen (Machine.gamedrv.name, "spacewar.bin",OSD_FILETYPE_IMAGE_R, 0)))
 		{
 			logerror("PDP1: can't find SPACEWAR.BIN\n");
 			return 1;
@@ -100,12 +100,12 @@ public class pdp1
 		return -1;
 	}
 	
-	void pdp1_init_machine(void)
+	public static InitMachinePtr pdp1_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		/* init pdp1 cpu */
 		extern_iot=pdp1_iot;
 		cpu_setOPbaseoverride(0,setOPbasefunc);
-	}
+	} };
 	
 	int pdp1_read_mem(int offset)
 	{
@@ -114,7 +114,7 @@ public class pdp1
 	
 	void pdp1_write_mem(int offset, int data)
 	{
-		if (pdp1_memory)
+		if (pdp1_memory != 0)
 			pdp1_memory[offset]=data;
 	}
 	/* these are the key-bits specified in driver\pdp1.c */
@@ -258,14 +258,14 @@ public class pdp1
 	   int key_state=readinputport(0);
 	   etime=10; /* probably heaps more */
 	   *io=0;
-	   if (key_state&FIRE_PLAYER2)         *io |= 040000;
-	   if (key_state&THRUST_PLAYER2)       *io |= 0100000;
-	   if (key_state&ROTATE_LEFT_PLAYER2)  *io |= 0200000;
-	   if (key_state&ROTATE_RIGHT_PLAYER2) *io |= 0400000;
-	   if (key_state&FIRE_PLAYER1)         *io |= 01;
-	   if (key_state&THRUST_PLAYER1)       *io |= 02;
-	   if (key_state&ROTATE_LEFT_PLAYER1)  *io |= 04;
-	   if (key_state&ROTATE_RIGHT_PLAYER1) *io |= 010;
+	   if ((key_state & FIRE_PLAYER2) != 0)         *io |= 040000;
+	   if ((key_state & THRUST_PLAYER2) != 0)       *io |= 0100000;
+	   if ((key_state & ROTATE_LEFT_PLAYER2) != 0)  *io |= 0200000;
+	   if ((key_state & ROTATE_RIGHT_PLAYER2) != 0) *io |= 0400000;
+	   if ((key_state & FIRE_PLAYER1) != 0)         *io |= 01;
+	   if ((key_state & THRUST_PLAYER1) != 0)       *io |= 02;
+	   if ((key_state & ROTATE_LEFT_PLAYER1) != 0)  *io |= 04;
+	   if ((key_state & ROTATE_RIGHT_PLAYER1) != 0) *io |= 010;
 	   break;
 	  }
 	  case 030: /* RRB */

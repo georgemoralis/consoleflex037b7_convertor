@@ -1,5 +1,5 @@
 /***************************************************************************
-HAD to change the PORT_ANALOG defs in this file...  please check ;-)
+HAD to change the efs in this file...  please check ;-);
 
 Colour Genie memory map
 
@@ -42,9 +42,7 @@ public class cgenie
 	extern int cgenie_rom_load(int id);
 	extern int cgenie_rom_id(int id);
 	
-	extern int cgenie_vh_start(void);
-	extern void cgenie_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh);
-	
+	extern extern 
 	extern void cgenie_sh_sound_init(const char * gamename);
 	extern WRITE_HANDLER ( cgenie_sh_control_port_w );
 	extern WRITE_HANDLER ( cgenie_sh_data_port_w );
@@ -56,10 +54,7 @@ public class cgenie
 	extern WRITE_HANDLER ( cgenie_psg_port_a_w );
 	extern WRITE_HANDLER ( cgenie_psg_port_b_w );
 	
-	extern void init_cgenie(void);
-	extern void cgenie_init_machine(void);
-	extern void cgenie_stop_machine(void);
-	
+	extern extern extern 
 	extern READ_HANDLER ( cgenie_colorram_r );
 	extern READ_HANDLER ( cgenie_fontram_r );
 	
@@ -72,9 +67,7 @@ public class cgenie
 	extern READ_HANDLER ( cgenie_port_ff_r );
 	extern int cgenie_port_xx_r(int offset);
 	
-	extern int cgenie_timer_interrupt(void);
-	extern int cgenie_frame_interrupt(void);
-	
+	extern extern 
 	extern READ_HANDLER ( cgenie_status_r );
 	extern READ_HANDLER ( cgenie_track_r );
 	extern READ_HANDLER ( cgenie_sector_r );
@@ -93,90 +86,90 @@ public class cgenie
 	extern int cgenie_videoram_r(int offset);
 	extern WRITE_HANDLER ( cgenie_videoram_w );
 	
-	static struct MemoryReadAddress readmem[] =
+	static MemoryReadAddress readmem[] =
 	{
-		{ 0x0000, 0x3fff, MRA_ROM },
-		{ 0x4000, 0x7fff, MRA_RAM },
-	//	{ 0x8000, 0xbfff, MRA_RAM },	// only if 32K RAM is enabled
-	//	{ 0xc000, 0xdfff, MRA_ROM },	// installed in cgenie_init_machine
-	//	{ 0xe000, 0xefff, MRA_ROM },	// installed in cgenie_init_machine
-		{ 0xf000, 0xf3ff, cgenie_colorram_r },
-		{ 0xf400, 0xf7ff, cgenie_fontram_r  },
-		{ 0xf800, 0xf8ff, cgenie_keyboard_r },
-		{ 0xf900, 0xffdf, MRA_NOP },
-		{ 0xffe0, 0xffe3, cgenie_irq_status_r },
-		{ 0xffe4, 0xffeb, MRA_NOP },
-		{ 0xffec, 0xffec, cgenie_status_r },
-		{ 0xffe4, 0xffeb, MRA_NOP },
-		{ 0xffed, 0xffed, cgenie_track_r },
-		{ 0xffee, 0xffee, cgenie_sector_r },
-		{ 0xffef, 0xffef, cgenie_data_r },
-		{ 0xfff0, 0xffff, MRA_NOP },
-		{ -1 }  /* end of table */
+		new MemoryReadAddress( 0x0000, 0x3fff, MRA_ROM ),
+		new MemoryReadAddress( 0x4000, 0x7fff, MRA_RAM ),
+	//	new MemoryReadAddress( 0x8000, 0xbfff, MRA_RAM ),	// only if 32K RAM is enabled
+	//	new MemoryReadAddress( 0xc000, 0xdfff, MRA_ROM ),	// installed in cgenie_init_machine
+	//	new MemoryReadAddress( 0xe000, 0xefff, MRA_ROM ),	// installed in cgenie_init_machine
+		new MemoryReadAddress( 0xf000, 0xf3ff, cgenie_colorram_r ),
+		new MemoryReadAddress( 0xf400, 0xf7ff, cgenie_fontram_r  ),
+		new MemoryReadAddress( 0xf800, 0xf8ff, cgenie_keyboard_r ),
+		new MemoryReadAddress( 0xf900, 0xffdf, MRA_NOP ),
+		new MemoryReadAddress( 0xffe0, 0xffe3, cgenie_irq_status_r ),
+		new MemoryReadAddress( 0xffe4, 0xffeb, MRA_NOP ),
+		new MemoryReadAddress( 0xffec, 0xffec, cgenie_status_r ),
+		new MemoryReadAddress( 0xffe4, 0xffeb, MRA_NOP ),
+		new MemoryReadAddress( 0xffed, 0xffed, cgenie_track_r ),
+		new MemoryReadAddress( 0xffee, 0xffee, cgenie_sector_r ),
+		new MemoryReadAddress( 0xffef, 0xffef, cgenie_data_r ),
+		new MemoryReadAddress( 0xfff0, 0xffff, MRA_NOP ),
+		new MemoryReadAddress( -1 )  /* end of table */
 	};
 	
-	static struct MemoryWriteAddress writemem[] =
+	static MemoryWriteAddress writemem[] =
 	{
-		{ 0x0000, 0x3fff, MWA_ROM },
-		{ 0x4000, 0x7fff, cgenie_videoram_w, &videoram },
-	//	{ 0x8000, 0xbfff, MWA_RAM },	// only if 32K RAM is enabled
-	//	{ 0xc000, 0xdfff, MWA_ROM },	// installed in cgenie_init_machine
-	//	{ 0xe000, 0xefff, MWA_ROM },	// installed in cgenie_init_machine
-		{ 0xf000, 0xf3ff, cgenie_colorram_w, &colorram },
-		{ 0xf400, 0xf7ff, cgenie_fontram_w, &cgenie_fontram },
-		{ 0xf800, 0xf8ff, MWA_NOP },
-		{ 0xf900, 0xffdf, MWA_NOP },
-		{ 0xffe0, 0xffe3, cgenie_motor_w },
-		{ 0xffe4, 0xffeb, MWA_NOP },
-		{ 0xffec, 0xffec, cgenie_command_w },
-		{ 0xffed, 0xffed, cgenie_track_w },
-		{ 0xffee, 0xffee, cgenie_sector_w },
-		{ 0xffef, 0xffef, cgenie_data_w },
-		{ 0xfff0, 0xffff, MWA_NOP },
-		{ -1 }  /* end of table */
+		new MemoryWriteAddress( 0x0000, 0x3fff, MWA_ROM ),
+		new MemoryWriteAddress( 0x4000, 0x7fff, cgenie_videoram_w, videoram ),
+	//	new MemoryWriteAddress( 0x8000, 0xbfff, MWA_RAM ),	// only if 32K RAM is enabled
+	//	new MemoryWriteAddress( 0xc000, 0xdfff, MWA_ROM ),	// installed in cgenie_init_machine
+	//	new MemoryWriteAddress( 0xe000, 0xefff, MWA_ROM ),	// installed in cgenie_init_machine
+		new MemoryWriteAddress( 0xf000, 0xf3ff, cgenie_colorram_w, colorram ),
+		new MemoryWriteAddress( 0xf400, 0xf7ff, cgenie_fontram_w, cgenie_fontram ),
+		new MemoryWriteAddress( 0xf800, 0xf8ff, MWA_NOP ),
+		new MemoryWriteAddress( 0xf900, 0xffdf, MWA_NOP ),
+		new MemoryWriteAddress( 0xffe0, 0xffe3, cgenie_motor_w ),
+		new MemoryWriteAddress( 0xffe4, 0xffeb, MWA_NOP ),
+		new MemoryWriteAddress( 0xffec, 0xffec, cgenie_command_w ),
+		new MemoryWriteAddress( 0xffed, 0xffed, cgenie_track_w ),
+		new MemoryWriteAddress( 0xffee, 0xffee, cgenie_sector_w ),
+		new MemoryWriteAddress( 0xffef, 0xffef, cgenie_data_w ),
+		new MemoryWriteAddress( 0xfff0, 0xffff, MWA_NOP ),
+		new MemoryWriteAddress( -1 )  /* end of table */
 	};
 	
-	static struct IOReadPort readport[] =
+	static IOReadPort readport[] =
 	{
-		{ 0xf8, 0xf8, cgenie_sh_control_port_r },
-		{ 0xf9, 0xf9, cgenie_sh_data_port_r },
-		{ 0xfa, 0xfa, cgenie_index_r },
-		{ 0xfb, 0xfb, cgenie_register_r },
-		{ 0xff, 0xff, cgenie_port_ff_r },
-		{ -1 }
+		new IOReadPort( 0xf8, 0xf8, cgenie_sh_control_port_r ),
+		new IOReadPort( 0xf9, 0xf9, cgenie_sh_data_port_r ),
+		new IOReadPort( 0xfa, 0xfa, cgenie_index_r ),
+		new IOReadPort( 0xfb, 0xfb, cgenie_register_r ),
+		new IOReadPort( 0xff, 0xff, cgenie_port_ff_r ),
+		new IOReadPort( -1 )
 	};
 	
-	static struct IOWritePort writeport[] =
+	static IOWritePort writeport[] =
 	{
-		{ 0xf8, 0xf8, cgenie_sh_control_port_w },
-		{ 0xf9, 0xf9, cgenie_sh_data_port_w },
-		{ 0xfa, 0xfa, cgenie_index_w },
-		{ 0xfb, 0xfb, cgenie_register_w },
-		{ 0xff, 0xff, cgenie_port_ff_w },
-		{ -1 }
+		new IOWritePort( 0xf8, 0xf8, cgenie_sh_control_port_w ),
+		new IOWritePort( 0xf9, 0xf9, cgenie_sh_data_port_w ),
+		new IOWritePort( 0xfa, 0xfa, cgenie_index_w ),
+		new IOWritePort( 0xfb, 0xfb, cgenie_register_w ),
+		new IOWritePort( 0xff, 0xff, cgenie_port_ff_w ),
+		new IOWritePort( -1 )
 	};
 	
-	INPUT_PORTS_START( cgenie )
-		PORT_START /* IN0 */
-		PORT_BITX(	  0x80, 0x80, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Floppy Disc Drives", IP_KEY_NONE, IP_JOY_NONE )
-		PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
-		PORT_DIPSETTING(    0x80, DEF_STR( On ) )
-		PORT_BITX(	  0x40, 0x40, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "CG-DOS ROM C000-DFFF", IP_KEY_NONE, IP_JOY_NONE )
-	    PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
-	    PORT_DIPSETTING(    0x40, DEF_STR( On ) )
-		PORT_BITX(	  0x20, 0x00, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Extension  E000-EFFF", IP_KEY_NONE, IP_JOY_NONE )
-	    PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
-	    PORT_DIPSETTING(    0x20, DEF_STR( On ) )
-	    PORT_BITX(    0x10, 0x10, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Video Display accuracy", KEYCODE_F5, IP_JOY_NONE )
-		PORT_DIPSETTING(	0x10, "TV set" )
-		PORT_DIPSETTING(	0x00, "RGB monitor" )
-		PORT_BITX(	  0x08, 0x08, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Virtual tape support", KEYCODE_F6, IP_JOY_NONE )
-		PORT_DIPSETTING(	0x00, DEF_STR( Off ) )
-		PORT_DIPSETTING(	0x08, DEF_STR( On ) )
-		PORT_BITX(	  0x04, 0x04, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Memory Size", IP_KEY_NONE, IP_JOY_NONE )
-		PORT_DIPSETTING(	0x04, "32K" )
-		PORT_DIPSETTING(	0x00, "16K" )
-	    PORT_BIT(0x07, 0x07, IPT_UNUSED)
+	static InputPortPtr input_ports_cgenie = new InputPortPtr(){ public void handler() { 
+		PORT_START();  /* IN0 */
+		PORT_BITX(	  0x80, 0x80, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Floppy Disc Drives", IP_KEY_NONE, IP_JOY_NONE );
+		PORT_DIPSETTING(    0x00, DEF_STR( "Off") );
+		PORT_DIPSETTING(    0x80, DEF_STR( "On") );
+		PORT_BITX(	  0x40, 0x40, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "CG-DOS ROM C000-DFFF", IP_KEY_NONE, IP_JOY_NONE );
+	    PORT_DIPSETTING(    0x00, DEF_STR( "Off") );
+	    PORT_DIPSETTING(    0x40, DEF_STR( "On") );
+		PORT_BITX(	  0x20, 0x00, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Extension  E000-EFFF", IP_KEY_NONE, IP_JOY_NONE );
+	    PORT_DIPSETTING(    0x00, DEF_STR( "Off") );
+	    PORT_DIPSETTING(    0x20, DEF_STR( "On") );
+	    PORT_BITX(    0x10, 0x10, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Video Display accuracy", KEYCODE_F5, IP_JOY_NONE );
+		PORT_DIPSETTING(	0x10, "TV set" );
+		PORT_DIPSETTING(	0x00, "RGB monitor" );
+		PORT_BITX(	  0x08, 0x08, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Virtual tape support", KEYCODE_F6, IP_JOY_NONE );
+		PORT_DIPSETTING(	0x00, DEF_STR( "Off") );
+		PORT_DIPSETTING(	0x08, DEF_STR( "On") );
+		PORT_BITX(	  0x04, 0x04, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Memory Size", IP_KEY_NONE, IP_JOY_NONE );
+		PORT_DIPSETTING(	0x04, "32K" );
+		PORT_DIPSETTING(	0x00, "16K" );
+	    PORT_BIT(0x07, 0x07, IPT_UNUSED);
 	
 	/**************************************************************************
 	   +-------------------------------+     +-------------------------------+
@@ -200,102 +193,102 @@ public class cgenie
 	+--+---+---+---+---+---+---+---+---+  +--+---+---+---+---+---+---+---+---+
 	***************************************************************************/
 	
-		PORT_START /* IN1 KEY ROW 0 */
-			PORT_BITX(0x01, 0x00, IPT_KEYBOARD, "0.0: @   ",   IP_KEY_NONE,         IP_JOY_NONE )
-			PORT_BITX(0x02, 0x00, IPT_KEYBOARD, "0.1: A  a",   KEYCODE_A,           IP_JOY_NONE )
-			PORT_BITX(0x04, 0x00, IPT_KEYBOARD, "0.2: B  b",   KEYCODE_B,           IP_JOY_NONE )
-			PORT_BITX(0x08, 0x00, IPT_KEYBOARD, "0.3: C  c",   KEYCODE_C,           IP_JOY_NONE )
-			PORT_BITX(0x10, 0x00, IPT_KEYBOARD, "0.4: D  d",   KEYCODE_D,           IP_JOY_NONE )
-			PORT_BITX(0x20, 0x00, IPT_KEYBOARD, "0.5: E  e",   KEYCODE_E,           IP_JOY_NONE )
-			PORT_BITX(0x40, 0x00, IPT_KEYBOARD, "0.6: F  f",   KEYCODE_F,           IP_JOY_NONE )
-			PORT_BITX(0x80, 0x00, IPT_KEYBOARD, "0.7: G  g",   KEYCODE_G,           IP_JOY_NONE )
+		PORT_START();  /* IN1 KEY ROW 0 */
+			PORT_BITX(0x01, 0x00, IPT_KEYBOARD, "0.0: @   ",   IP_KEY_NONE,         IP_JOY_NONE );
+			PORT_BITX(0x02, 0x00, IPT_KEYBOARD, "0.1: A  a",   KEYCODE_A,           IP_JOY_NONE );
+			PORT_BITX(0x04, 0x00, IPT_KEYBOARD, "0.2: B  b",   KEYCODE_B,           IP_JOY_NONE );
+			PORT_BITX(0x08, 0x00, IPT_KEYBOARD, "0.3: C  c",   KEYCODE_C,           IP_JOY_NONE );
+			PORT_BITX(0x10, 0x00, IPT_KEYBOARD, "0.4: D  d",   KEYCODE_D,           IP_JOY_NONE );
+			PORT_BITX(0x20, 0x00, IPT_KEYBOARD, "0.5: E  e",   KEYCODE_E,           IP_JOY_NONE );
+			PORT_BITX(0x40, 0x00, IPT_KEYBOARD, "0.6: F  f",   KEYCODE_F,           IP_JOY_NONE );
+			PORT_BITX(0x80, 0x00, IPT_KEYBOARD, "0.7: G  g",   KEYCODE_G,           IP_JOY_NONE );
 	
-		PORT_START /* IN2 KEY ROW 1 */
-			PORT_BITX(0x01, 0x00, IPT_KEYBOARD, "1.0: H  h",   KEYCODE_H,           IP_JOY_NONE )
-			PORT_BITX(0x02, 0x00, IPT_KEYBOARD, "1.1: I  i",   KEYCODE_I,           IP_JOY_NONE )
-			PORT_BITX(0x04, 0x00, IPT_KEYBOARD, "1.2: J  j",   KEYCODE_J,           IP_JOY_NONE )
-			PORT_BITX(0x08, 0x00, IPT_KEYBOARD, "1.3: K  k",   KEYCODE_K,           IP_JOY_NONE )
-			PORT_BITX(0x10, 0x00, IPT_KEYBOARD, "1.4: L  l",   KEYCODE_L,           IP_JOY_NONE )
-			PORT_BITX(0x20, 0x00, IPT_KEYBOARD, "1.5: M  m",   KEYCODE_M,           IP_JOY_NONE )
-			PORT_BITX(0x40, 0x00, IPT_KEYBOARD, "1.6: N  n",   KEYCODE_N,           IP_JOY_NONE )
-			PORT_BITX(0x80, 0x00, IPT_KEYBOARD, "1.7: O  o",   KEYCODE_O,           IP_JOY_NONE )
+		PORT_START();  /* IN2 KEY ROW 1 */
+			PORT_BITX(0x01, 0x00, IPT_KEYBOARD, "1.0: H  h",   KEYCODE_H,           IP_JOY_NONE );
+			PORT_BITX(0x02, 0x00, IPT_KEYBOARD, "1.1: I  i",   KEYCODE_I,           IP_JOY_NONE );
+			PORT_BITX(0x04, 0x00, IPT_KEYBOARD, "1.2: J  j",   KEYCODE_J,           IP_JOY_NONE );
+			PORT_BITX(0x08, 0x00, IPT_KEYBOARD, "1.3: K  k",   KEYCODE_K,           IP_JOY_NONE );
+			PORT_BITX(0x10, 0x00, IPT_KEYBOARD, "1.4: L  l",   KEYCODE_L,           IP_JOY_NONE );
+			PORT_BITX(0x20, 0x00, IPT_KEYBOARD, "1.5: M  m",   KEYCODE_M,           IP_JOY_NONE );
+			PORT_BITX(0x40, 0x00, IPT_KEYBOARD, "1.6: N  n",   KEYCODE_N,           IP_JOY_NONE );
+			PORT_BITX(0x80, 0x00, IPT_KEYBOARD, "1.7: O  o",   KEYCODE_O,           IP_JOY_NONE );
 	
-		PORT_START /* IN3 KEY ROW 2 */
-			PORT_BITX(0x01, 0x00, IPT_KEYBOARD, "2.0: P  p",   KEYCODE_P,           IP_JOY_NONE )
-			PORT_BITX(0x02, 0x00, IPT_KEYBOARD, "2.1: Q  q",   KEYCODE_Q,           IP_JOY_NONE )
-			PORT_BITX(0x04, 0x00, IPT_KEYBOARD, "2.2: R  r",   KEYCODE_R,           IP_JOY_NONE )
-			PORT_BITX(0x08, 0x00, IPT_KEYBOARD, "2.3: S  s",   KEYCODE_S,           IP_JOY_NONE )
-			PORT_BITX(0x10, 0x00, IPT_KEYBOARD, "2.4: T  t",   KEYCODE_T,           IP_JOY_NONE )
-			PORT_BITX(0x20, 0x00, IPT_KEYBOARD, "2.5: U  u",   KEYCODE_U,           IP_JOY_NONE )
-			PORT_BITX(0x40, 0x00, IPT_KEYBOARD, "2.6: V  v",   KEYCODE_V,           IP_JOY_NONE )
-			PORT_BITX(0x80, 0x00, IPT_KEYBOARD, "2.7: W  w",   KEYCODE_W,           IP_JOY_NONE )
+		PORT_START();  /* IN3 KEY ROW 2 */
+			PORT_BITX(0x01, 0x00, IPT_KEYBOARD, "2.0: P  p",   KEYCODE_P,           IP_JOY_NONE );
+			PORT_BITX(0x02, 0x00, IPT_KEYBOARD, "2.1: Q  q",   KEYCODE_Q,           IP_JOY_NONE );
+			PORT_BITX(0x04, 0x00, IPT_KEYBOARD, "2.2: R  r",   KEYCODE_R,           IP_JOY_NONE );
+			PORT_BITX(0x08, 0x00, IPT_KEYBOARD, "2.3: S  s",   KEYCODE_S,           IP_JOY_NONE );
+			PORT_BITX(0x10, 0x00, IPT_KEYBOARD, "2.4: T  t",   KEYCODE_T,           IP_JOY_NONE );
+			PORT_BITX(0x20, 0x00, IPT_KEYBOARD, "2.5: U  u",   KEYCODE_U,           IP_JOY_NONE );
+			PORT_BITX(0x40, 0x00, IPT_KEYBOARD, "2.6: V  v",   KEYCODE_V,           IP_JOY_NONE );
+			PORT_BITX(0x80, 0x00, IPT_KEYBOARD, "2.7: W  w",   KEYCODE_W,           IP_JOY_NONE );
 	
-		PORT_START /* IN4 KEY ROW 3 */
-			PORT_BITX(0x01, 0x00, IPT_KEYBOARD, "3.0: X  x",   KEYCODE_X,           IP_JOY_NONE )
-			PORT_BITX(0x02, 0x00, IPT_KEYBOARD, "3.1: Y  y",   KEYCODE_Y,           IP_JOY_NONE )
-			PORT_BITX(0x04, 0x00, IPT_KEYBOARD, "3.2: Z  z",   KEYCODE_Z,           IP_JOY_NONE )
-			PORT_BITX(0x08, 0x00, IPT_KEYBOARD, "3.3: [  {",   KEYCODE_OPENBRACE,   IP_JOY_NONE )
-			PORT_BITX(0x10, 0x00, IPT_KEYBOARD, "3.4: F1 F5",  KEYCODE_F1,          IP_JOY_NONE )
-			PORT_BITX(0x20, 0x00, IPT_KEYBOARD, "3.5: F2 F6",  KEYCODE_F2,          IP_JOY_NONE )
-			PORT_BITX(0x40, 0x00, IPT_KEYBOARD, "3.6: F3 F7",  KEYCODE_F3,          IP_JOY_NONE )
-			PORT_BITX(0x80, 0x00, IPT_KEYBOARD, "3.7: F4 F8",  KEYCODE_F4,          IP_JOY_NONE )
-			PORT_BITX(0x10, 0x00, IPT_KEYBOARD, "3.4: \\  |",  KEYCODE_ASTERISK,    IP_JOY_NONE )
-			PORT_BITX(0x20, 0x00, IPT_KEYBOARD, "3.5: ]  }",   KEYCODE_CLOSEBRACE,  IP_JOY_NONE )
-			PORT_BITX(0x40, 0x00, IPT_KEYBOARD, "3.6: ^  ~",   KEYCODE_TILDE,       IP_JOY_NONE )
-			PORT_BITX(0x80, 0x00, IPT_KEYBOARD, "3.7: _   ",   KEYCODE_EQUALS,      IP_JOY_NONE )
+		PORT_START();  /* IN4 KEY ROW 3 */
+			PORT_BITX(0x01, 0x00, IPT_KEYBOARD, "3.0: X  x",   KEYCODE_X,           IP_JOY_NONE );
+			PORT_BITX(0x02, 0x00, IPT_KEYBOARD, "3.1: Y  y",   KEYCODE_Y,           IP_JOY_NONE );
+			PORT_BITX(0x04, 0x00, IPT_KEYBOARD, "3.2: Z  z",   KEYCODE_Z,           IP_JOY_NONE );
+			PORT_BITX(0x08, 0x00, IPT_KEYBOARD, "3.3: [  {",   KEYCODE_OPENBRACE,   IP_JOY_NONE );
+			PORT_BITX(0x10, 0x00, IPT_KEYBOARD, "3.4: F1 F5",  KEYCODE_F1,          IP_JOY_NONE );
+			PORT_BITX(0x20, 0x00, IPT_KEYBOARD, "3.5: F2 F6",  KEYCODE_F2,          IP_JOY_NONE );
+			PORT_BITX(0x40, 0x00, IPT_KEYBOARD, "3.6: F3 F7",  KEYCODE_F3,          IP_JOY_NONE );
+			PORT_BITX(0x80, 0x00, IPT_KEYBOARD, "3.7: F4 F8",  KEYCODE_F4,          IP_JOY_NONE );
+			PORT_BITX(0x10, 0x00, IPT_KEYBOARD, "3.4: \\  |",  KEYCODE_ASTERISK,    IP_JOY_NONE );
+			PORT_BITX(0x20, 0x00, IPT_KEYBOARD, "3.5: ]  }",   KEYCODE_CLOSEBRACE,  IP_JOY_NONE );
+			PORT_BITX(0x40, 0x00, IPT_KEYBOARD, "3.6: ^  ~",   KEYCODE_TILDE,       IP_JOY_NONE );
+			PORT_BITX(0x80, 0x00, IPT_KEYBOARD, "3.7: _   ",   KEYCODE_EQUALS,      IP_JOY_NONE );
 	
-		PORT_START /* IN5 KEY ROW 4 */
-			PORT_BITX(0x01, 0x00, IPT_KEYBOARD, "4.0: 0   ",   KEYCODE_0,           IP_JOY_NONE )
-			PORT_BITX(0x02, 0x00, IPT_KEYBOARD, "4.1: 1  !",   KEYCODE_1,           IP_JOY_NONE )
-			PORT_BITX(0x04, 0x00, IPT_KEYBOARD, "4.2: 2  \"",  KEYCODE_2,           IP_JOY_NONE )
-			PORT_BITX(0x08, 0x00, IPT_KEYBOARD, "4.3: 3  #",   KEYCODE_3,           IP_JOY_NONE )
-			PORT_BITX(0x10, 0x00, IPT_KEYBOARD, "4.4: 4  $",   KEYCODE_4,           IP_JOY_NONE )
-			PORT_BITX(0x20, 0x00, IPT_KEYBOARD, "4.5: 5  %",   KEYCODE_5,           IP_JOY_NONE )
-			PORT_BITX(0x40, 0x00, IPT_KEYBOARD, "4.6: 6  &",   KEYCODE_6,           IP_JOY_NONE )
-			PORT_BITX(0x80, 0x00, IPT_KEYBOARD, "4.7: 7  '",   KEYCODE_7,           IP_JOY_NONE )
+		PORT_START();  /* IN5 KEY ROW 4 */
+			PORT_BITX(0x01, 0x00, IPT_KEYBOARD, "4.0: 0   ",   KEYCODE_0,           IP_JOY_NONE );
+			PORT_BITX(0x02, 0x00, IPT_KEYBOARD, "4.1: 1  !",   KEYCODE_1,           IP_JOY_NONE );
+			PORT_BITX(0x04, 0x00, IPT_KEYBOARD, "4.2: 2  \"",  KEYCODE_2,           IP_JOY_NONE );
+			PORT_BITX(0x08, 0x00, IPT_KEYBOARD, "4.3: 3  #",   KEYCODE_3,           IP_JOY_NONE );
+			PORT_BITX(0x10, 0x00, IPT_KEYBOARD, "4.4: 4  $",   KEYCODE_4,           IP_JOY_NONE );
+			PORT_BITX(0x20, 0x00, IPT_KEYBOARD, "4.5: 5  %",   KEYCODE_5,           IP_JOY_NONE );
+			PORT_BITX(0x40, 0x00, IPT_KEYBOARD, "4.6: 6  &",   KEYCODE_6,           IP_JOY_NONE );
+			PORT_BITX(0x80, 0x00, IPT_KEYBOARD, "4.7: 7  '",   KEYCODE_7,           IP_JOY_NONE );
 	
-	        PORT_START /* IN6 KEY ROW 5 */
-			PORT_BITX(0x01, 0x00, IPT_KEYBOARD, "5.0: 8  (",   KEYCODE_8,           IP_JOY_NONE )
-			PORT_BITX(0x02, 0x00, IPT_KEYBOARD, "5.1: 9  )",   KEYCODE_9,           IP_JOY_NONE )
-			PORT_BITX(0x04, 0x00, IPT_KEYBOARD, "5.2: :  +",   KEYCODE_COLON,       IP_JOY_NONE )
-			PORT_BITX(0x08, 0x00, IPT_KEYBOARD, "5.3: ;  *",   KEYCODE_QUOTE,       IP_JOY_NONE )
-			PORT_BITX(0x10, 0x00, IPT_KEYBOARD, "5.4: ,  <",   KEYCODE_COMMA,       IP_JOY_NONE )
-			PORT_BITX(0x20, 0x00, IPT_KEYBOARD, "5.5: -  =",   KEYCODE_MINUS,       IP_JOY_NONE )
-			PORT_BITX(0x40, 0x00, IPT_KEYBOARD, "5.6: .  >",   KEYCODE_STOP,        IP_JOY_NONE )
-			PORT_BITX(0x80, 0x00, IPT_KEYBOARD, "5.7: /  ?",   KEYCODE_SLASH,       IP_JOY_NONE )
+	        PORT_START();  /* IN6 KEY ROW 5 */
+			PORT_BITX(0x01, 0x00, IPT_KEYBOARD, "5.0: 8  (",   KEYCODE_8,           IP_JOY_NONE );
+			PORT_BITX(0x02, 0x00, IPT_KEYBOARD, "5.1: 9  );,   KEYCODE_9,           IP_JOY_NONE )
+			PORT_BITX(0x04, 0x00, IPT_KEYBOARD, "5.2: :  +",   KEYCODE_COLON,       IP_JOY_NONE );
+			PORT_BITX(0x08, 0x00, IPT_KEYBOARD, "5.3: ;  *",   KEYCODE_QUOTE,       IP_JOY_NONE );
+			PORT_BITX(0x10, 0x00, IPT_KEYBOARD, "5.4: ,  <",   KEYCODE_COMMA,       IP_JOY_NONE );
+			PORT_BITX(0x20, 0x00, IPT_KEYBOARD, "5.5: -  =",   KEYCODE_MINUS,       IP_JOY_NONE );
+			PORT_BITX(0x40, 0x00, IPT_KEYBOARD, "5.6: .  >",   KEYCODE_STOP,        IP_JOY_NONE );
+			PORT_BITX(0x80, 0x00, IPT_KEYBOARD, "5.7: /  ?",   KEYCODE_SLASH,       IP_JOY_NONE );
 	
-		PORT_START /* IN7 KEY ROW 6 */
-			PORT_BITX(0x01, 0x00, IPT_KEYBOARD, "6.0: ENTER",  KEYCODE_ENTER,       IP_JOY_NONE )
-			PORT_BITX(0x02, 0x00, IPT_KEYBOARD, "6.1: CLEAR",  KEYCODE_HOME,        IP_JOY_NONE )
-			PORT_BITX(0x04, 0x00, IPT_KEYBOARD, "6.2: BREAK",  KEYCODE_END,         IP_JOY_NONE )
-			PORT_BITX(0x08, 0x00, IPT_KEYBOARD, "6.3: UP",     KEYCODE_UP,          IP_JOY_NONE )
-			PORT_BITX(0x10, 0x00, IPT_KEYBOARD, "6.4: DOWN",   KEYCODE_DOWN,        IP_JOY_NONE )
-			PORT_BITX(0x20, 0x00, IPT_KEYBOARD, "6.5: LEFT",   KEYCODE_LEFT,        IP_JOY_NONE )
-			PORT_BITX(0x40, 0x00, IPT_KEYBOARD, "6.6: RIGHT",  KEYCODE_RIGHT,       IP_JOY_NONE )
-			PORT_BITX(0x80, 0x00, IPT_KEYBOARD, "6.7: SPACE",  KEYCODE_SPACE,       IP_JOY_NONE )
-			PORT_BITX(0x20, 0x00, IPT_KEYBOARD, "6.5: (BSP)",  KEYCODE_BACKSPACE,   IP_JOY_NONE )
+		PORT_START();  /* IN7 KEY ROW 6 */
+			PORT_BITX(0x01, 0x00, IPT_KEYBOARD, "6.0: ENTER",  KEYCODE_ENTER,       IP_JOY_NONE );
+			PORT_BITX(0x02, 0x00, IPT_KEYBOARD, "6.1: CLEAR",  KEYCODE_HOME,        IP_JOY_NONE );
+			PORT_BITX(0x04, 0x00, IPT_KEYBOARD, "6.2: BREAK",  KEYCODE_END,         IP_JOY_NONE );
+			PORT_BITX(0x08, 0x00, IPT_KEYBOARD, "6.3: UP",     KEYCODE_UP,          IP_JOY_NONE );
+			PORT_BITX(0x10, 0x00, IPT_KEYBOARD, "6.4: DOWN",   KEYCODE_DOWN,        IP_JOY_NONE );
+			PORT_BITX(0x20, 0x00, IPT_KEYBOARD, "6.5: LEFT",   KEYCODE_LEFT,        IP_JOY_NONE );
+			PORT_BITX(0x40, 0x00, IPT_KEYBOARD, "6.6: RIGHT",  KEYCODE_RIGHT,       IP_JOY_NONE );
+			PORT_BITX(0x80, 0x00, IPT_KEYBOARD, "6.7: SPACE",  KEYCODE_SPACE,       IP_JOY_NONE );
+			PORT_BITX(0x20, 0x00, IPT_KEYBOARD, "6.5: (BSP);,  KEYCODE_BACKSPACE,   IP_JOY_NONE )
 	
-		PORT_START /* IN8 KEY ROW 7 */
-			PORT_BITX(0x01, 0x00, IPT_KEYBOARD, "7.0: SHIFT",  KEYCODE_LSHIFT,      IP_JOY_NONE )
-			PORT_BITX(0x02, 0x00, IPT_KEYBOARD, "7.1: MODSEL", KEYCODE_LALT,        IP_JOY_NONE )
-			PORT_BITX(0x04, 0x00, IPT_KEYBOARD, "7.2: (PGUP)", KEYCODE_PGUP,        IP_JOY_NONE )
-			PORT_BITX(0x08, 0x00, IPT_KEYBOARD, "7.3: (PGDN)", KEYCODE_PGDN,        IP_JOY_NONE )
-			PORT_BITX(0x10, 0x00, IPT_KEYBOARD, "7.4: (INS)",  KEYCODE_INSERT,      IP_JOY_NONE )
-			PORT_BITX(0x20, 0x00, IPT_KEYBOARD, "7.5: (DEL)",  KEYCODE_DEL,         IP_JOY_NONE )
-			PORT_BITX(0x40, 0x00, IPT_KEYBOARD, "7.6: (CTRL)", KEYCODE_LCONTROL,    IP_JOY_NONE )
-			PORT_BITX(0x80, 0x00, IPT_KEYBOARD, "7.7: (ALTGR)",KEYCODE_RALT,        IP_JOY_NONE )
+		PORT_START();  /* IN8 KEY ROW 7 */
+			PORT_BITX(0x01, 0x00, IPT_KEYBOARD, "7.0: SHIFT",  KEYCODE_LSHIFT,      IP_JOY_NONE );
+			PORT_BITX(0x02, 0x00, IPT_KEYBOARD, "7.1: MODSEL", KEYCODE_LALT,        IP_JOY_NONE );
+			PORT_BITX(0x04, 0x00, IPT_KEYBOARD, "7.2: (PGUP);, KEYCODE_PGUP,        IP_JOY_NONE )
+			PORT_BITX(0x08, 0x00, IPT_KEYBOARD, "7.3: (PGDN);, KEYCODE_PGDN,        IP_JOY_NONE )
+			PORT_BITX(0x10, 0x00, IPT_KEYBOARD, "7.4: (INS);,  KEYCODE_INSERT,      IP_JOY_NONE )
+			PORT_BITX(0x20, 0x00, IPT_KEYBOARD, "7.5: (DEL);,  KEYCODE_DEL,         IP_JOY_NONE )
+			PORT_BITX(0x40, 0x00, IPT_KEYBOARD, "7.6: (CTRL);, KEYCODE_LCONTROL,    IP_JOY_NONE )
+			PORT_BITX(0x80, 0x00, IPT_KEYBOARD, "7.7: (ALTGR);,KEYCODE_RALT,        IP_JOY_NONE )
 	
-		PORT_START /* IN9 */
-		PORT_ANALOG( 0xff, 0x60, IPT_AD_STICK_X | IPF_PLAYER1,	40, 0, 0x00, 0xcf )
+		PORT_START();  /* IN9 */
+		PORT_ANALOG( 0xff, 0x60, IPT_AD_STICK_X | IPF_PLAYER1,	40, 0, 0x00, 0xcf );
 	
-		PORT_START /* IN10 */
-		PORT_ANALOG( 0xff, 0x60, IPT_AD_STICK_Y | IPF_REVERSE | IPF_PLAYER1,  40, 0, 0x00, 0xcf )
+		PORT_START();  /* IN10 */
+		PORT_ANALOG( 0xff, 0x60, IPT_AD_STICK_Y | IPF_REVERSE | IPF_PLAYER1,  40, 0, 0x00, 0xcf );
 	
-		PORT_START /* IN11 */
-		PORT_ANALOG( 0xff, 0x60, IPT_AD_STICK_X | IPF_PLAYER2,	40, 0, 0x00, 0xcf )
+		PORT_START();  /* IN11 */
+		PORT_ANALOG( 0xff, 0x60, IPT_AD_STICK_X | IPF_PLAYER2,	40, 0, 0x00, 0xcf );
 	
-		PORT_START /* IN12 */
-		PORT_ANALOG( 0xff, 0x60, IPT_AD_STICK_Y | IPF_REVERSE | IPF_PLAYER2,  40, 0, 0x00, 0xcf )
+		PORT_START();  /* IN12 */
+		PORT_ANALOG( 0xff, 0x60, IPT_AD_STICK_Y | IPF_REVERSE | IPF_PLAYER2,  40, 0, 0x00, 0xcf );
 	
 		/* Joystick Keypad */
 		/* keypads were organized a 3 x 4 matrix and it looked     */
@@ -309,64 +302,64 @@ public class cgenie
 		/* FD/EF  1  [2] [5] [8] [0]  */
 		/* FB/DF  2  [1] [4] [7] [*]  */
 	
-		PORT_START /* IN13 */
-		PORT_BITX(0x01, 0x00, IPT_UNKNOWN, "Joy 1 [3]", KEYCODE_3_PAD,     JOYCODE_1_BUTTON3  )
-		PORT_BITX(0x02, 0x00, IPT_UNKNOWN, "Joy 1 [6]", KEYCODE_6_PAD,     JOYCODE_1_BUTTON6  )
-		PORT_BITX(0x04, 0x00, IPT_UNKNOWN, "Joy 1 [9]", KEYCODE_9_PAD,     JOYCODE_OTHER      )
-		PORT_BITX(0x08, 0x00, IPT_BUTTON2, "Joy 1 [#]", KEYCODE_SLASH_PAD, JOYCODE_1_BUTTON1  )
-		PORT_BITX(0x10, 0x00, IPT_UNKNOWN, "Joy 1 [2]", KEYCODE_2_PAD,     JOYCODE_1_BUTTON2  )
-		PORT_BITX(0x20, 0x00, IPT_UNKNOWN, "Joy 1 [5]", KEYCODE_5_PAD,     JOYCODE_1_BUTTON5  )
-		PORT_BITX(0x40, 0x00, IPT_UNKNOWN, "Joy 1 [8]", KEYCODE_8_PAD,     JOYCODE_OTHER      )
-		PORT_BITX(0x80, 0x00, IPT_UNKNOWN, "Joy 1 [0]", KEYCODE_0_PAD,     JOYCODE_OTHER      )
+		PORT_START();  /* IN13 */
+		PORT_BITX(0x01, 0x00, IPT_UNKNOWN, "Joy 1 [3]", KEYCODE_3_PAD,     JOYCODE_1_BUTTON3  );
+		PORT_BITX(0x02, 0x00, IPT_UNKNOWN, "Joy 1 [6]", KEYCODE_6_PAD,     JOYCODE_1_BUTTON6  );
+		PORT_BITX(0x04, 0x00, IPT_UNKNOWN, "Joy 1 [9]", KEYCODE_9_PAD,     JOYCODE_OTHER      );
+		PORT_BITX(0x08, 0x00, IPT_BUTTON2, "Joy 1 [#]", KEYCODE_SLASH_PAD, JOYCODE_1_BUTTON1  );
+		PORT_BITX(0x10, 0x00, IPT_UNKNOWN, "Joy 1 [2]", KEYCODE_2_PAD,     JOYCODE_1_BUTTON2  );
+		PORT_BITX(0x20, 0x00, IPT_UNKNOWN, "Joy 1 [5]", KEYCODE_5_PAD,     JOYCODE_1_BUTTON5  );
+		PORT_BITX(0x40, 0x00, IPT_UNKNOWN, "Joy 1 [8]", KEYCODE_8_PAD,     JOYCODE_OTHER      );
+		PORT_BITX(0x80, 0x00, IPT_UNKNOWN, "Joy 1 [0]", KEYCODE_0_PAD,     JOYCODE_OTHER      );
 	
-		PORT_START /* IN14 */
-		PORT_BITX(0x01, 0x00, IPT_UNKNOWN, "Joy 1 [1]", KEYCODE_1_PAD,     JOYCODE_1_BUTTON3  )
-		PORT_BITX(0x02, 0x00, IPT_UNKNOWN, "Joy 1 [4]", KEYCODE_4_PAD,     JOYCODE_1_BUTTON6  )
-		PORT_BITX(0x04, 0x00, IPT_UNKNOWN, "Joy 1 [7]", KEYCODE_7_PAD,     JOYCODE_OTHER      )
-		PORT_BITX(0x08, 0x00, IPT_BUTTON1, "Joy 1 [*]", KEYCODE_ASTERISK,  JOYCODE_1_BUTTON1  )
-		PORT_BITX(0x10, 0x00, IPT_UNKNOWN, "Joy 2 [3]", 0,                 JOYCODE_2_BUTTON2  )
-		PORT_BITX(0x20, 0x00, IPT_UNKNOWN, "Joy 2 [6]", 0,                 JOYCODE_2_BUTTON5  )
-		PORT_BITX(0x40, 0x00, IPT_UNKNOWN, "Joy 2 [9]", 0,                 JOYCODE_OTHER      )
-		PORT_BITX(0x80, 0x00, IPT_UNKNOWN, "Joy 2 [#]", 0,                 JOYCODE_2_BUTTON1  )
+		PORT_START();  /* IN14 */
+		PORT_BITX(0x01, 0x00, IPT_UNKNOWN, "Joy 1 [1]", KEYCODE_1_PAD,     JOYCODE_1_BUTTON3  );
+		PORT_BITX(0x02, 0x00, IPT_UNKNOWN, "Joy 1 [4]", KEYCODE_4_PAD,     JOYCODE_1_BUTTON6  );
+		PORT_BITX(0x04, 0x00, IPT_UNKNOWN, "Joy 1 [7]", KEYCODE_7_PAD,     JOYCODE_OTHER      );
+		PORT_BITX(0x08, 0x00, IPT_BUTTON1, "Joy 1 [*]", KEYCODE_ASTERISK,  JOYCODE_1_BUTTON1  );
+		PORT_BITX(0x10, 0x00, IPT_UNKNOWN, "Joy 2 [3]", 0,                 JOYCODE_2_BUTTON2  );
+		PORT_BITX(0x20, 0x00, IPT_UNKNOWN, "Joy 2 [6]", 0,                 JOYCODE_2_BUTTON5  );
+		PORT_BITX(0x40, 0x00, IPT_UNKNOWN, "Joy 2 [9]", 0,                 JOYCODE_OTHER      );
+		PORT_BITX(0x80, 0x00, IPT_UNKNOWN, "Joy 2 [#]", 0,                 JOYCODE_2_BUTTON1  );
 	
-		PORT_START /* IN15 */
-		PORT_BITX(0x01, 0x00, IPT_UNKNOWN, "Joy 2 [2]", 0,                 JOYCODE_2_BUTTON2  )
-		PORT_BITX(0x02, 0x00, IPT_UNKNOWN, "Joy 2 [5]", 0,                 JOYCODE_2_BUTTON5  )
-		PORT_BITX(0x04, 0x00, IPT_UNKNOWN, "Joy 2 [8]", 0,                 JOYCODE_OTHER      )
-		PORT_BITX(0x08, 0x00, IPT_UNKNOWN, "Joy 2 [0]", 0,                 JOYCODE_OTHER      )
-		PORT_BITX(0x10, 0x00, IPT_UNKNOWN, "Joy 2 [1]", 0,                 JOYCODE_2_BUTTON1  )
-		PORT_BITX(0x20, 0x00, IPT_UNKNOWN, "Joy 2 [4]", 0,                 JOYCODE_2_BUTTON4  )
-		PORT_BITX(0x40, 0x00, IPT_UNKNOWN, "Joy 2 [7]", 0,                 JOYCODE_OTHER      )
-		PORT_BITX(0x80, 0x00, IPT_UNKNOWN, "Joy 2 [*]", 0,                 JOYCODE_2_BUTTON1  )
-	INPUT_PORTS_END
+		PORT_START();  /* IN15 */
+		PORT_BITX(0x01, 0x00, IPT_UNKNOWN, "Joy 2 [2]", 0,                 JOYCODE_2_BUTTON2  );
+		PORT_BITX(0x02, 0x00, IPT_UNKNOWN, "Joy 2 [5]", 0,                 JOYCODE_2_BUTTON5  );
+		PORT_BITX(0x04, 0x00, IPT_UNKNOWN, "Joy 2 [8]", 0,                 JOYCODE_OTHER      );
+		PORT_BITX(0x08, 0x00, IPT_UNKNOWN, "Joy 2 [0]", 0,                 JOYCODE_OTHER      );
+		PORT_BITX(0x10, 0x00, IPT_UNKNOWN, "Joy 2 [1]", 0,                 JOYCODE_2_BUTTON1  );
+		PORT_BITX(0x20, 0x00, IPT_UNKNOWN, "Joy 2 [4]", 0,                 JOYCODE_2_BUTTON4  );
+		PORT_BITX(0x40, 0x00, IPT_UNKNOWN, "Joy 2 [7]", 0,                 JOYCODE_OTHER      );
+		PORT_BITX(0x80, 0x00, IPT_UNKNOWN, "Joy 2 [*]", 0,                 JOYCODE_2_BUTTON1  );
+	INPUT_PORTS_END(); }}; 
 	
-	struct GfxLayout cgenie_charlayout =
-	{
+	static GfxLayout cgenie_charlayout = new GfxLayout
+	(
 		8,8,           /* 8*8 characters */
 		384,           /* 256 fixed + 128 defineable characters */
 		1,             /* 1 bits per pixel */
-		{ 0 },         /* no bitplanes; 1 bit per pixel */
-		{ 0, 1, 2, 3, 4, 5, 6, 7 },   /* x offsets */
-		{ 0*8,1*8,2*8,3*8,4*8,5*8,6*8,7*8 },
+		new int[] { 0 },         /* no bitplanes; 1 bit per pixel */
+		new int[] { 0, 1, 2, 3, 4, 5, 6, 7 },   /* x offsets */
+		new int[] { 0*8,1*8,2*8,3*8,4*8,5*8,6*8,7*8 },
 		8*8            /* every char takes 8 bytes */
-	};
+	);
 	
-	static struct GfxLayout cgenie_gfxlayout =
-	{
+	static GfxLayout cgenie_gfxlayout = new GfxLayout
+	(
 		8,8,            /* 4*8 characters */
 		256,            /* 256 graphics patterns */
 		2,              /* 2 bits per pixel */
-		{ 0, 1 },       /* two bitplanes; 2 bit per pixel */
-		{ 0, 0, 2, 2, 4, 4, 6, 6}, /* x offsets */
-		{ 0*8,1*8,2*8,3*8,4*8,5*8,6*8,7*8 },
+		new int[] { 0, 1 },       /* two bitplanes; 2 bit per pixel */
+		new int[] { 0, 0, 2, 2, 4, 4, 6, 6}, /* x offsets */
+		new int[] { 0*8,1*8,2*8,3*8,4*8,5*8,6*8,7*8 },
 		8*8             /* every char takes 8 bytes */
-	};
+	);
 	
-	static struct GfxDecodeInfo cgenie_gfxdecodeinfo[] =
+	static GfxDecodeInfo cgenie_gfxdecodeinfo[] =
 	{
-		{ REGION_GFX1, 0, &cgenie_charlayout,	  0, 3*16},
-		{ REGION_GFX2, 0, &cgenie_gfxlayout, 3*16*2, 3*4},
-		{ -1 } /* end of array */
+		new GfxDecodeInfo( REGION_GFX1, 0, cgenie_charlayout,	  0, 3*16),
+		new GfxDecodeInfo( REGION_GFX2, 0, cgenie_gfxlayout, 3*16*2, 3*4),
+		new GfxDecodeInfo( -1 ) /* end of array */
 	};
 	
 	static unsigned char palette[] = {
@@ -451,42 +444,42 @@ public class cgenie
 	};
 	
 	/* Initialise the palette */
-	static void cgenie_init_palette(unsigned char *sys_palette, unsigned short *sys_colortable,const unsigned char *color_prom)
+	static void cgenie_init_palette(UBytePtr sys_palette, unsigned short *sys_colortable,const UBytePtr color_prom)
 	{
 		memcpy(sys_palette,palette,sizeof(palette));
 		memcpy(sys_colortable,colortable,sizeof(colortable));
 	}
 	
 	
-	static struct AY8910interface ay8910_interface =
-	{
+	static AY8910interface ay8910_interface = new AY8910interface
+	(
 		1,						/* 1 chip */
 		2000000,				/* 2 MHz */
-		{ 75 }, 				/* mixing level */
-		{ cgenie_psg_port_a_r },
-		{ cgenie_psg_port_b_r },
-		{ cgenie_psg_port_a_w },
-		{ cgenie_psg_port_b_w }
-	};
+		new int[] { 75 }, 				/* mixing level */
+		new ReadHandlerPtr[] { cgenie_psg_port_a_r },
+		new ReadHandlerPtr[] { cgenie_psg_port_b_r },
+		new WriteHandlerPtr[] { cgenie_psg_port_a_w },
+		new WriteHandlerPtr[] { cgenie_psg_port_b_w }
+	);
 	
-	static struct DACinterface DAC_interface =
-	{
+	static DACinterface DAC_interface = new DACinterface
+	(
 		1, 			/* number of DACs */
-		{ 25 }		/* volume */
-	};
+		new int[] { 25 }		/* volume */
+	);
 	
-	static struct MachineDriver machine_driver_cgenie =
-	{
+	static MachineDriver machine_driver_cgenie = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_Z80,
 				2216800,		/* 2,2168 Mhz */
 				readmem,writemem,
 				readport,writeport,
 				cgenie_frame_interrupt,1,
 				cgenie_timer_interrupt,40
-			},
+			),
 		},
 		60, DEFAULT_60HZ_VBLANK_DURATION,       /* frames per second, vblank duration */
 		4,
@@ -496,31 +489,31 @@ public class cgenie
 		/* video hardware */
 		48*8,										/* screen width */
 		(32)*8, 									/* screen height */
-		{ 0*8, 48*8-1,0*8,32*8-1},					/* visible_area */
+		new rectangle( 0*8, 48*8-1,0*8,32*8-1),					/* visible_area */
 		cgenie_gfxdecodeinfo,						/* graphics decode info */
-		sizeof(palette) / sizeof(palette[0]) / 3,	/* palette */
-		sizeof(colortable) / sizeof(colortable[0]), /* colortable */
+		sizeof(palette) / sizeof(palette[null]) / 3,	/* palette */
+		sizeof(colortable) / sizeof(colortable[null]), /* colortable */
 		cgenie_init_palette,						/* init palette */
 	
 		VIDEO_TYPE_RASTER | VIDEO_SUPPORTS_DIRTY | VIDEO_MODIFIES_PALETTE,
-		0,
+		null,
 		cgenie_vh_start,
 		cgenie_vh_stop,
 		cgenie_vh_screenrefresh,
 	
 		/* sound hardware */
 		0,0,0,0,
-		{
-			{
+		new MachineSound[] {
+			new MachineSound(
 				SOUND_AY8910,
-				&ay8910_interface
-			},
-			{
+				ay8910_interface
+			),
+			new MachineSound(
 				SOUND_DAC,
-				&DAC_interface
-			}
+				DAC_interface
+			)
 		}
-	};
+	);
 	
 	/***************************************************************************
 	
@@ -529,17 +522,17 @@ public class cgenie
 	***************************************************************************/
 	
 	ROM_START (cgenie)
-		ROM_REGION(0x13000,REGION_CPU1)
-		ROM_LOAD ("cgenie.rom",  0x00000, 0x4000, 0xd359ead7)
-		ROM_LOAD ("cgdos.rom",   0x10000, 0x2000, 0x2a96cf74)
+		ROM_REGION(0x13000,REGION_CPU1);
+		ROM_LOAD ("cgenie.rom",  0x00000, 0x4000, 0xd359ead7);
+		ROM_LOAD ("cgdos.rom",   0x10000, 0x2000, 0x2a96cf74);
 	
-		ROM_REGION(0x0c00,REGION_GFX1)
-		ROM_LOAD ("cgenie1.fnt", 0x0000, 0x0800, 0x4fed774a)
+		ROM_REGION(0x0c00,REGION_GFX1);
+		ROM_LOAD ("cgenie1.fnt", 0x0000, 0x0800, 0x4fed774a);
 	
 		/* Empty memory region for the character generator */
-		ROM_REGION(0x0800,REGION_GFX2)
+		ROM_REGION(0x0800,REGION_GFX2);
 	
-	ROM_END
+	ROM_END(); }}; 
 	
 	static const struct IODevice io_cgenie[] = {
 		{

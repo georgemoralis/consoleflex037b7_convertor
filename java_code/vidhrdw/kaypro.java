@@ -133,21 +133,21 @@ public class kaypro
 			kaypro_conout_w(0, *src++);
 	}
 	
-	int kaypro_vh_start(void)
+	public static VhStartPtr kaypro_vh_start = new VhStartPtr() { public int handler() 
 	{
 		int i;
 	
 		scroll_lines = KAYPRO_SCREEN_H;
-		videoram_size = KAYPRO_SCREEN_W * KAYPRO_SCREEN_H;
+		videoram_size[0] = KAYPRO_SCREEN_W * KAYPRO_SCREEN_H;
 	
 		if (generic_vh_start())
 			return 1;
 	
-		video_buffer = malloc(videoram_size * sizeof(short));
+		video_buffer = malloc(videoram_size[0] * sizeof(short));
 		if (!video_buffer)
 			return 1;
 	
-		for (i = 0; i < videoram_size; i++)
+		for (i = 0; i < videoram_size[0]; i++)
 			video_buffer[i] = 0x20;
 	
 		kaypro_putstr(
@@ -190,16 +190,16 @@ public class kaypro
 			"\200\203\200\203\r\n" \
 			"\033C5"); /* end video mode */
 		return 0;
-	}
+	} };
 	
-	void kaypro_vh_stop(void)
+	public static VhStopPtr kaypro_vh_stop = new VhStopPtr() { public void handler() 
 	{
-		if (video_buffer)
+		if (video_buffer != 0)
 			free(video_buffer);
 		video_buffer = NULL;
 	
 		generic_vh_stop();
-	}
+	} };
 	
 	void kaypro_vh_screenrefresh(struct osd_bitmap * bitmap, int full_refresh)
 	{
@@ -210,7 +210,7 @@ public class kaypro
 		blink_count++;
 		if (!(blink_count & 15))
 		{
-			if (blink_count & 16)
+			if ((blink_count & 16) != 0)
 			{
 				palette_change_color(3, 0,240,	0);
 				palette_change_color(4, 0,120,	0);
@@ -223,19 +223,19 @@ public class kaypro
 		}
 	
 		palette_init_used_colors();
-		if (palette_used_colors)
+		if (palette_used_colors != 0)
 			memset(palette_used_colors, PALETTE_COLOR_USED, 4);
 	
 		if( palette_recalc() )
 			full_refresh = 1;
 	
 		cursor_count++;
-		if (cursor)
+		if (cursor != 0)
 			j = cur_y * KAYPRO_SCREEN_W + cur_x;
 	
-		if (full_refresh)
+		if (full_refresh != 0)
 		{
-			copybitmap(bitmap, tmpbitmap, 0, 0, 0, 0, &Machine->visible_area, TRANSPARENCY_NONE, 0);
+			copybitmap(bitmap, tmpbitmap, 0, 0, 0, 0, &Machine.visible_area, TRANSPARENCY_NONE, 0);
 		}
 	
 		for (i = 0; i < videoram_size; i++)
@@ -257,18 +257,18 @@ public class kaypro
 				code = video_buffer[i] & 0x3ff;
 				color = video_buffer[i] >> 10;
 	
-				drawgfx(tmpbitmap, Machine->gfx[0], code, color,
+				drawgfx(tmpbitmap, Machine.gfx[0], code, color,
 					0, 0, r.min_x, r.min_y, &r, TRANSPARENCY_NONE, 0);
-				drawgfx(bitmap, Machine->gfx[0], code, color,
+				drawgfx(bitmap, Machine.gfx[0], code, color,
 					0, 0, r.min_x, r.min_y, &r, TRANSPARENCY_NONE, 0);
 	
 				if ( i == j && (cursor_count & 16) )
 				{
 					/* toggle reverse */
 					code ^= 0x0200;
-					drawgfx(tmpbitmap, Machine->gfx[0], code, color,
+					drawgfx(tmpbitmap, Machine.gfx[0], code, color,
 						0, 0, r.min_x, r.min_y, &r, TRANSPARENCY_NONE, 0);
-					drawgfx(bitmap, Machine->gfx[0], code, color,
+					drawgfx(bitmap, Machine.gfx[0], code, color,
 						0, 0, r.min_x, r.min_y, &r, TRANSPARENCY_NONE, 0);
 					dirtybuffer[i] = 1;
 				}
@@ -322,7 +322,7 @@ public class kaypro
 	 ******************************************************/
 	WRITE_HANDLER ( kaypro_const_w )
 	{
-		if (data & 1)
+		if ((data & 1) != 0)
 			kbd_head = kbd_tail = 0;
 	}
 	
@@ -444,7 +444,7 @@ public class kaypro
 	{
 		while( count-- )
 		{
-			if( cur_x )
+			if (cur_x != 0)
 				cur_x--;
 		}
 	}
@@ -569,20 +569,20 @@ public class kaypro
 			return;
 	
 		/* reverse video (lower-left pixel) inverts all the other pixels */
-		if (attr & AT_REVERSE)
+		if ((attr & AT_REVERSE) != 0)
 			attr ^= 0x7f;
 	
 		/* get the bit mask for the pixel */
 		bits = attr_bits[y % 4][x % 2];
 	
 		/* set it ? */
-		if (set)
+		if (set != 0)
 			attr |= bits;
 		else
 			attr &= ~ bits;
 	
 		/* reverse video (lower-left pixel) inverts all the other pixels */
-		if (attr & AT_REVERSE)
+		if ((attr & AT_REVERSE) != 0)
 			attr ^= 0x7f;
 	
 		/* attributed character changed ? */
@@ -714,13 +714,13 @@ public class kaypro
 			default:
 				if( (attrib & AT_VIDEO) && (data & 0x80) )
 				{
-					if (gb1 & AT_VIDEO_GB1)
+					if ((gb1 & AT_VIDEO_GB1) != 0)
 					{
 						gb1 = (data & 1) ? AT_REVERSE : 0;
 					}
 					else
 					{
-						if (gb1)
+						if (gb1 != 0)
 							data ^= 0x7f;
 						kaypro_vgbout(cur_y * KAYPRO_SCREEN_W + cur_x, data, gb1 | attrib);
 						kaypro_advance();

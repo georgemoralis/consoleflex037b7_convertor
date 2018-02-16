@@ -124,36 +124,36 @@ public class keyboard
 	
 	static void scale(struct KEYLAYOUT *k, int *x, int *y, int *w, int *h)
 	{
-		*x = Machine->uixmin + Machine->uiwidth * k->x / XM;
-		*y = Machine->uiymin + Machine->uiwidth * k->y / XM +
-			(Machine->uiheight - Machine->uiwidth * YM / XM) / 2;
-		*w = Machine->uiwidth * k->w / XM;
-		*h = Machine->uiwidth * k->h / XM;
+		*x = Machine.uixmin + Machine.uiwidth * k.x / XM;
+		*y = Machine.uiymin + Machine.uiwidth * k.y / XM +
+			(Machine.uiheight - Machine.uiwidth * YM / XM) / 2;
+		*w = Machine.uiwidth * k.w / XM;
+		*h = Machine.uiwidth * k.h / XM;
 	}
 	
 	int displaykeyboard(int select)
 	{
 		struct KEYLAYOUT *k = keylayout;
-		int white = Machine->uifont->colortable[1];
+		int white = Machine.uifont.colortable[1];
 	
-		osd_clearbitmap(Machine->scrbitmap);
-	    while (k->code != KEYCODE_NONE)
+		osd_clearbitmap(Machine.scrbitmap);
+	    while (k.code != KEYCODE_NONE)
 		{
-			struct InputPortTiny *in = (struct InputPortTiny *)Machine->input_ports;
+			struct InputPortTiny *in = (struct InputPortTiny *)Machine.input_ports;
 			int i,x,y,w,h;
 	
 	        scale(k,&x,&y,&w,&h);
 	
-			while (in->type != IPT_END)
+			while (in.type != IPT_END)
 	        {
-				if( (in->type & ~IPF_MASK) == IPT_KEYBOARD )
+				if( (in.type & ~IPF_MASK) == IPT_KEYBOARD )
 	            {
-					const char *src = in->name;
+					const char *src = in.name;
 					in++;
-					if( in->mask == k->code )
+					if( in.mask == k.code )
 					{
 						char name[32+1];
-						int wt = w / Machine->uifontwidth;
+						int wt = w / Machine.uifontwidth;
 	
 	                    if (isdigit(src[0]) &&
 							src[1] == '.' &&
@@ -164,7 +164,7 @@ public class keyboard
 							strncpy(name, src, wt);
 						name[wt] = '\0';
 						wt = strlen(name);
-						ui_text(name, x + 1 + (w - wt * Machine->uifontwidth)/2, y + 1 + (h - Machine->uifontheight) / 2);
+						ui_text(name, x + 1 + (w - wt * Machine.uifontwidth)/2, y + 1 + (h - Machine.uifontheight) / 2);
 					}
 	            }
 	            in++;
@@ -172,14 +172,14 @@ public class keyboard
 	
 	        for (i = 1; i < w-1; i++)
 			{
-				plot_pixel(Machine->scrbitmap,x+i,y,white);
-				plot_pixel(Machine->scrbitmap,x+i,y+h-1,white);
+				plot_pixel(Machine.scrbitmap,x+i,y,white);
+				plot_pixel(Machine.scrbitmap,x+i,y+h-1,white);
 			}
 	
 	        for (i = 1; i < h-1; i++)
 			{
-				plot_pixel(Machine->scrbitmap,x,y+i,white);
-				plot_pixel(Machine->scrbitmap,x+w-1,y+i,white);
+				plot_pixel(Machine.scrbitmap,x,y+i,white);
+				plot_pixel(Machine.scrbitmap,x+w-1,y+i,white);
 	        }
 	
 	        k++;

@@ -19,16 +19,12 @@ public class mz700H
 {
 	
 	/* from src/mess/machine/mz700.c */
-	extern void init_mz700(void);
-	extern void mz700_init_machine(void);
-	extern void mz700_stop_machine(void);
-	
+	extern extern extern 
 	extern int mz700_cassette_id(int id);
 	extern int mz700_cassette_init(int id);
 	extern void mz700_cassette_exit(int id);
 	
-	extern int mz700_interrupt(void);
-	
+	extern 
 	extern READ_HANDLER ( mz700_mmio_r );
 	extern WRITE_HANDLER ( mz700_mmio_w );
 	extern WRITE_HANDLER ( mz700_bank_w );
@@ -38,41 +34,16 @@ public class mz700H
 	extern char mz700_frame_message[64+1];
 	extern int mz700_frame_time;
 	
-	extern void mz700_init_colors (unsigned char *palette, unsigned short *colortable, const unsigned char *color_prom);
-	extern int mz700_vh_start (void);
-	extern void mz700_vh_stop (void);
-	extern void mz700_vh_screenrefresh (struct osd_bitmap *bitmap, int full_refresh);
-	
+	extern extern extern extern 
 	/* from src/mess/sndhrdw/mz700.c */
-	extern int mz700_sh_start(const struct MachineSound *msound);
-	extern void mz700_sh_stop(void);
-	extern void mz700_sh_update(void);
-	extern void mz700_sh_set_clock(int clock);
+	extern extern extern extern void mz700_sh_set_clock(int clock);
 	
 	/******************************************************************************
 	 *	Sharp MZ800
 	 *
 	 ******************************************************************************/
-	extern READ_HANDLER( mz800_crtc_r );
-	extern READ_HANDLER( mz800_mmio_r );
-	extern READ_HANDLER( mz800_bank_r );
-	extern READ_HANDLER( mz800_ramdisk_r );
-	
-	extern WRITE_HANDLER( mz800_write_format_w );
-	extern WRITE_HANDLER( mz800_read_format_w );
-	extern WRITE_HANDLER( mz800_display_mode_w );
-	extern WRITE_HANDLER( mz800_scroll_border_w );
-	extern WRITE_HANDLER( mz800_mmio_w );
-	extern WRITE_HANDLER ( mz800_bank_w );
-	extern WRITE_HANDLER( mz800_ramdisk_w );
-	extern WRITE_HANDLER( mz800_ramaddr_w );
-	extern WRITE_HANDLER( mz800_palette_w );
-	
-	extern WRITE_HANDLER( videoram0_w );
-	extern WRITE_HANDLER( videoram1_w );
-	extern WRITE_HANDLER( videoram2_w );
-	extern WRITE_HANDLER( videoram3_w );
-	extern WRITE_HANDLER( pcgram_w );
-	
-	extern void init_mz800(void);
-}
+	extern extern extern extern 
+	extern extern extern extern extern extern WRITE_HANDLER ( mz800_bank_w );
+	extern extern extern 
+	extern extern extern extern extern 
+	extern }

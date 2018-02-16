@@ -38,7 +38,6 @@ public class apple2
 	
 	static int a2_speaker_state;
 	
-	static void mockingboard_init (int slot);
 	static int mockingboard_r (int offset);
 	static void mockingboard_w (int offset, int data);
 	static WRITE_HANDLER ( apple2_mainram_w );
@@ -47,9 +46,9 @@ public class apple2
 	/***************************************************************************
 	  apple2_init_machine
 	***************************************************************************/
-	void apple2e_init_machine(void)
+	public static InitMachinePtr apple2e_init_machine = new InitMachinePtr() { public void handler() 
 	{
-		unsigned char *RAM = memory_region(REGION_CPU1);
+		UBytePtr RAM = memory_region(REGION_CPU1);
 	
 		/* Init our language card banks to initially point to ROM */
 		cpu_setbankhandler_w (1, MWA_ROM);
@@ -77,7 +76,7 @@ public class apple2
 		/* TODO: add more initializers as we add more slots */
 		mockingboard_init (4);
 		apple2_slot6_init();
-	}
+	} };
 	
 	/***************************************************************************
 	  apple2_id_rom
@@ -133,7 +132,7 @@ public class apple2
 	/***************************************************************************
 	  apple2_interrupt
 	***************************************************************************/
-	int apple2_interrupt(void)
+	public static InterruptPtr apple2_interrupt = new InterruptPtr() { public int handler() 
 	{
 		int irq_freq = 1;
 	
@@ -152,19 +151,19 @@ public class apple2
 		}
 		else
 		{
-			if (irq_freq)
+			if (irq_freq != 0)
 				return interrupt ();
 			else
 				return 0;
 		}
-	}
+	} };
 	
 	/***************************************************************************
 	  apple2_LC_ram1_w
 	***************************************************************************/
 	WRITE_HANDLER ( apple2_LC_ram1_w )
 	{
-		unsigned char *RAM = memory_region(REGION_CPU1);
+		UBytePtr RAM = memory_region(REGION_CPU1);
 		/* If the aux switch is set, use the aux language card bank as well */
 		int aux_offset = a2.ALTZP ? 0x10000 : 0x0000;
 	
@@ -176,7 +175,7 @@ public class apple2
 	***************************************************************************/
 	WRITE_HANDLER ( apple2_LC_ram2_w )
 	{
-		unsigned char *RAM = memory_region(REGION_CPU1);
+		UBytePtr RAM = memory_region(REGION_CPU1);
 		/* If the aux switch is set, use the aux language card bank as well */
 		int aux_offset = a2.ALTZP ? 0x10000 : 0x0000;
 	
@@ -188,7 +187,7 @@ public class apple2
 	***************************************************************************/
 	WRITE_HANDLER ( apple2_LC_ram_w )
 	{
-		unsigned char *RAM = memory_region(REGION_CPU1);
+		UBytePtr RAM = memory_region(REGION_CPU1);
 		/* If the aux switch is set, use the aux language card bank as well */
 		int aux_offset = a2.ALTZP ? 0x10000 : 0x0000;
 	
@@ -200,7 +199,7 @@ public class apple2
 	***************************************************************************/
 	WRITE_HANDLER ( apple2_mainram_w )
 	{
-		unsigned char *RAM = memory_region(REGION_CPU1);
+		UBytePtr RAM = memory_region(REGION_CPU1);
 	
 		RAM[0x0200 + offset] = data;
 	}
@@ -210,7 +209,7 @@ public class apple2
 	***************************************************************************/
 	WRITE_HANDLER ( apple2_auxram_w )
 	{
-		unsigned char *RAM = memory_region(REGION_CPU1);
+		UBytePtr RAM = memory_region(REGION_CPU1);
 	
 		RAM[0x10200 + offset] = data;
 	}
@@ -234,7 +233,7 @@ public class apple2
 	***************************************************************************/
 	WRITE_HANDLER ( apple2_c00x_w )
 	{
-		unsigned char *RAM = memory_region(REGION_CPU1);
+		UBytePtr RAM = memory_region(REGION_CPU1);
 	
 		switch (offset)
 		{
@@ -904,7 +903,7 @@ public class apple2
 	***************************************************************************/
 	READ_HANDLER ( apple2_c08x_r )
 	{
-		unsigned char *RAM = memory_region(REGION_CPU1);
+		UBytePtr RAM = memory_region(REGION_CPU1);
 		/* If the aux switch is set, use the aux language card bank as well */
 		int aux_offset = a2.ALTZP ? 0x10000 : 0x0000;
 	
@@ -1111,7 +1110,7 @@ public class apple2
 	
 	READ_HANDLER ( apple2_slot4_r )
 	{
-		unsigned char *RAM = memory_region(REGION_CPU1);
+		UBytePtr RAM = memory_region(REGION_CPU1);
 	
 		if (a2.INTCXROM)
 			/* Read the built-in ROM */
@@ -1123,7 +1122,7 @@ public class apple2
 	
 	static void mockingboard_init (int slot)
 	{
-		unsigned char *RAM = memory_region(REGION_CPU1);
+		UBytePtr RAM = memory_region(REGION_CPU1);
 	
 		/* TODO: fix this */
 		/* What follows is pure filth. It abuses the core like an angry pimp on a bad hair day. */

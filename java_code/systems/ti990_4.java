@@ -34,23 +34,23 @@ public class ti990_4
 		cpu_set_nmi_line(0, CLEAR_LINE);
 	}
 	
-	static void ti990_4_init_machine(void)
+	static public static InitMachinePtr ti990_4_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		cpu_set_nmi_line(0, ASSERT_LINE);
 		timer = timer_set(TIME_IN_MSEC(100), 0, clear_load);
-	}
+	} };
 	
 	static void ti990_4_stop_machine(void)
 	{
 	
 	}
 	
-	static int ti990_4_vblank_interrupt(void)
+	public static InterruptPtr ti990_4_vblank_interrupt = new InterruptPtr() { public int handler() 
 	{
 	
 	
 		return ignore_interrupt();
-	}
+	} };
 	
 	/*
 	three panel types
@@ -113,31 +113,31 @@ public class ti990_4
 	*/
 	
 	
-	static void ti990_4_init_palette(unsigned char *palette, unsigned short *colortable, const unsigned char *dummy)
+	static void ti990_4_init_palette(UBytePtr palette, unsigned short *colortable, const UBytePtr dummy)
 	{
 	/*	memcpy(palette, & ti990_4_palette, sizeof(ti990_4_palette));
 		memcpy(colortable, & ti990_4_colortable, sizeof(ti990_4_colortable));*/
 	}
 	
-	static int ti990_4_vh_start(void)
+	static public static VhStartPtr ti990_4_vh_start = new VhStartPtr() { public int handler() 
 	{
 		return 0; /*generic_vh_start();*/
-	}
+	} };
 	
 	/*#define ti990_4_vh_stop generic_vh_stop*/
 	
-	static void ti990_4_vh_stop(void)
+	static public static VhStopPtr ti990_4_vh_stop = new VhStopPtr() { public void handler() 
 	{
-	}
+	} };
 	
 	static void ti990_4_vh_refresh(struct osd_bitmap *bitmap, int full_refresh)
 	{
 	
 	}
 	
-	static struct GfxDecodeInfo gfxdecodeinfo[] =
+	static GfxDecodeInfo gfxdecodeinfo[] =
 	{
-		{ -1 }	/* end of array */
+		new GfxDecodeInfo( -1 )	/* end of array */
 	};
 	
 	
@@ -145,22 +145,22 @@ public class ti990_4
 	  Memory map - see description above
 	*/
 	
-	static struct MemoryReadAddress ti990_4_readmem[] =
+	static MemoryReadAddress ti990_4_readmem[] =
 	{
-		{ 0x0000, 0x1fff, MRA_RAM },		/* dynamic RAM ? */
-		{ 0x2000, 0xf7ff, MRA_NOP },		/* reserved for expansion */
-		{ 0xf800, 0xfbff, MRA_RAM },		/* static RAM ? */
-		{ 0xfc00, 0xffff, MRA_ROM },		/* LOAD ROM */
-		{ -1 }	/* end of table */
+		new MemoryReadAddress( 0x0000, 0x1fff, MRA_RAM ),		/* dynamic RAM ? */
+		new MemoryReadAddress( 0x2000, 0xf7ff, MRA_NOP ),		/* reserved for expansion */
+		new MemoryReadAddress( 0xf800, 0xfbff, MRA_RAM ),		/* static RAM ? */
+		new MemoryReadAddress( 0xfc00, 0xffff, MRA_ROM ),		/* LOAD ROM */
+		new MemoryReadAddress( -1 )	/* end of table */
 	};
 	
-	static struct MemoryWriteAddress ti990_4_writemem[] =
+	static MemoryWriteAddress ti990_4_writemem[] =
 	{
-		{ 0x0000, 0x1fff, MWA_RAM },		/* dynamic RAM ? */
-		{ 0x2000, 0xf7ff, MWA_NOP },		/* reserved for expansion */
-		{ 0xf800, 0xfbff, MWA_RAM },		/* static RAM ? */
-		{ 0xfc00, 0xffff, MWA_ROM },		/* LOAD ROM */
-		{ -1 }	/* end of table */
+		new MemoryWriteAddress( 0x0000, 0x1fff, MWA_RAM ),		/* dynamic RAM ? */
+		new MemoryWriteAddress( 0x2000, 0xf7ff, MWA_NOP ),		/* reserved for expansion */
+		new MemoryWriteAddress( 0xf800, 0xfbff, MWA_RAM ),		/* static RAM ? */
+		new MemoryWriteAddress( 0xfc00, 0xffff, MWA_ROM ),		/* LOAD ROM */
+		new MemoryWriteAddress( -1 )	/* end of table */
 	};
 	
 	
@@ -168,30 +168,30 @@ public class ti990_4
 	  CRU map
 	*/
 	
-	static struct IOWritePort ti990_4_writeport[] =
+	static IOWritePort ti990_4_writeport[] =
 	{
-		{ 0xff0, 0xfff, ti990_4_panel_write },
-		{ -1 }	/* end of table */
+		new IOWritePort( 0xff0, 0xfff, ti990_4_panel_write ),
+		new IOWritePort( -1 )	/* end of table */
 	};
 	
-	static struct IOReadPort ti990_4_readport[] =
+	static IOReadPort ti990_4_readport[] =
 	{
-		{ 0x1fe, 0x1ff, ti990_4_panel_read },
-		{ -1 }	/* end of table */
+		new IOReadPort( 0x1fe, 0x1ff, ti990_4_panel_read ),
+		new IOReadPort( -1 )	/* end of table */
 	};
 	
-	static struct MachineDriver machine_driver_ti990_4 =
-	{
+	static MachineDriver machine_driver_ti990_4 = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_TMS9900,
 				3000000,	/* unknown */
 				ti990_4_readmem, ti990_4_writemem, ti990_4_readport, ti990_4_writeport,
 				ti990_4_vblank_interrupt, 1,
 				0, 0,
 				0
-			},
+			),
 		},
 		60, DEFAULT_REAL_60HZ_VBLANK_DURATION, /* frames per second, vblank duration */
 		1,
@@ -201,14 +201,14 @@ public class ti990_4
 		/* video hardware - no screen emulated */
 		200,						/* screen width */
 		200,						/* screen height */
-		{ 0, 200-1, 0, 200-1},		/* visible_area */
+		new rectangle( 0, 200-1, 0, 200-1),		/* visible_area */
 		gfxdecodeinfo,				/* graphics decode info (???)*/
-		0/*TI990_4_PALETTE_SIZE*/,		/* palette is 3*total_colors bytes long */
-		0/*TI990_4_COLORTABLE_SIZE*/,	/* length in shorts of the color lookup table */
+		null/*TI990_4_PALETTE_SIZE*/,		/* palette is 3*total_colors bytes long */
+		null/*TI990_4_COLORTABLE_SIZE*/,	/* length in shorts of the color lookup table */
 		ti990_4_init_palette,		/* palette init */
 	
 		VIDEO_TYPE_RASTER,
-		0,
+		null,
 		ti990_4_vh_start,
 		ti990_4_vh_stop,
 		ti990_4_vh_refresh,
@@ -218,81 +218,81 @@ public class ti990_4
 		0,0,0,
 	
 	#if 0
-		{ /* no sound ! */
+		new MachineSound[] { /* no sound ! */
 		}
 	#endif
-	};
+	);
 	
 	
 	/*
 	  ROM loading
 	*/
-	ROM_START(ti990_4)
+	static RomLoadPtr rom_ti990_4 = new RomLoadPtr(){ public void handler(){ 
 		/*CPU memory space*/
 	
 	#if 0
 	
 	#if 0
 	
-		ROM_REGION(0x10000, REGION_CPU1)
+		ROM_REGION(0x10000, REGION_CPU1);
 	
 		/* TI990/10 ROMs set 1 */
-		ROM_LOAD_EVEN("975383.31", 0xFC00, 0x100, 0x64fcd040)
-		ROM_LOAD_ODD("975383.32", 0xFC00, 0x100, 0x64277276)
-		ROM_LOAD_EVEN("975383.29", 0xFE00, 0x100, 0xaf92e7bf)
-		ROM_LOAD_ODD("975383.30", 0xFE00, 0x100, 0xb7b40cdc)
+		ROM_LOAD_EVEN("975383.31", 0xFC00, 0x100, 0x64fcd040);
+		ROM_LOAD_ODD("975383.32", 0xFC00, 0x100, 0x64277276);
+		ROM_LOAD_EVEN("975383.29", 0xFE00, 0x100, 0xaf92e7bf);
+		ROM_LOAD_ODD("975383.30", 0xFE00, 0x100, 0xb7b40cdc);
 	
 	#elif 1
 	
-		ROM_REGION(0x10000, REGION_CPU1)
+		ROM_REGION(0x10000, REGION_CPU1);
 	
 		/* TI990/10 ROMs set 2 */
-		ROM_LOAD_EVEN("975383.45", 0xFC00, 0x100, 0x391943c7)
-		ROM_LOAD_ODD("975383.46", 0xFC00, 0x100, 0xf40f7c18)
-		ROM_LOAD_EVEN("975383.47", 0xFE00, 0x100, 0x1ba571d8)
-		ROM_LOAD_ODD("975383.48", 0xFE00, 0x100, 0x8852b09e)
+		ROM_LOAD_EVEN("975383.45", 0xFC00, 0x100, 0x391943c7);
+		ROM_LOAD_ODD("975383.46", 0xFC00, 0x100, 0xf40f7c18);
+		ROM_LOAD_EVEN("975383.47", 0xFE00, 0x100, 0x1ba571d8);
+		ROM_LOAD_ODD("975383.48", 0xFE00, 0x100, 0x8852b09e);
 	
 	#else
 	
-		ROM_REGION(0x12000, REGION_CPU1)
+		ROM_REGION(0x12000, REGION_CPU1);
 	
 		/* TI990/12 ROMs - actually incompatible with TI990/4, but I just wanted to disassemble them. */
-		ROM_LOAD_EVEN("ti2025-7", 0xFC00, 0x1000, 0x4824f89c)
-		ROM_LOAD_ODD("ti2025-8", 0xFC00, 0x1000, 0x51fef543)
+		ROM_LOAD_EVEN("ti2025-7", 0xFC00, 0x1000, 0x4824f89c);
+		ROM_LOAD_ODD("ti2025-8", 0xFC00, 0x1000, 0x51fef543);
 		/* the other half of this ROM is not loaded - it makes no sense, anyway... */
 	
 	#endif
 	
 	#else
 	
-		ROM_REGION(0x10000, REGION_CPU1)
+		ROM_REGION(0x10000, REGION_CPU1);
 	
 	
-		ROM_REGION(0x800, REGION_USER1 | REGIONFLAG_DISPOSE)
+		ROM_REGION(0x800, REGION_USER1 | REGIONFLAG_DISPOSE);
 		/* boot ROMs */
 		/* since there is no support for nibble-wide ROMs on a 16-bit bus, we use a trick */
 	
 		/* test ROM */
-		ROM_LOAD("94519209.u39", 0x000, 0x100, 0x0a0b0c42)
-		ROM_LOAD("94519210.u55", 0x100, 0x100, 0xd078af61)
-		ROM_LOAD("94519211.u61", 0x200, 0x100, 0x6cf7d4a0)
-		ROM_LOAD("94519212.u78", 0x300, 0x100, 0xd9522458)
+		ROM_LOAD("94519209.u39", 0x000, 0x100, 0x0a0b0c42);
+		ROM_LOAD("94519210.u55", 0x100, 0x100, 0xd078af61);
+		ROM_LOAD("94519211.u61", 0x200, 0x100, 0x6cf7d4a0);
+		ROM_LOAD("94519212.u78", 0x300, 0x100, 0xd9522458);
 	
 		/* LOAD ROM */
-		ROM_LOAD("94519113.u3", 0x400, 0x100, 0x8719b04e)
-		ROM_LOAD("94519114.u4", 0x500, 0x100, 0x72a040e0)
-		ROM_LOAD("94519115.u6", 0x600, 0x100, 0x9ccf8cca)
-		ROM_LOAD("94519116.u7", 0x700, 0x100, 0xfa387bf3)
+		ROM_LOAD("94519113.u3", 0x400, 0x100, 0x8719b04e);
+		ROM_LOAD("94519114.u4", 0x500, 0x100, 0x72a040e0);
+		ROM_LOAD("94519115.u6", 0x600, 0x100, 0x9ccf8cca);
+		ROM_LOAD("94519116.u7", 0x700, 0x100, 0xfa387bf3);
 	
 	#endif
-	ROM_END
+	ROM_END(); }}; 
 	
 	static void ti990_4_load_rom(void)
 	{
 	#if 1
 		int i;
-		unsigned char *ROM = memory_region(REGION_CPU1);
-		unsigned char *src = memory_region(REGION_USER1);
+		UBytePtr ROM = memory_region(REGION_CPU1);
+		UBytePtr src = memory_region(REGION_USER1);
 	
 		for (i=0; i<256; i++)
 		{
@@ -306,10 +306,10 @@ public class ti990_4
 	#endif
 	}
 	
-	static void init_ti990_4(void)
+	static public static InitDriverPtr init_ti990_4 = new InitDriverPtr() { public void handler() 
 	{
 		ti990_4_load_rom();
-	}
+	} };
 	
 	static const struct IODevice io_ti990_4[] =
 	{
@@ -317,8 +317,8 @@ public class ti990_4
 		{ IO_END }
 	};
 	
-	INPUT_PORTS_START(ti990_4)
-	INPUT_PORTS_END
+	static InputPortPtr input_ports_ti990_4 = new InputPortPtr(){ public void handler() { 
+	INPUT_PORTS_END(); }}; 
 	
 	/*		YEAR				NAME			PARENT	MACHINE		INPUT	INIT	COMPANY	FULLNAME */
 	COMP( circa 1975,	ti990_4,	0,			ti990_4,	ti990_4,	ti990_4,	"Texas Instruments",	"TI990/4" )

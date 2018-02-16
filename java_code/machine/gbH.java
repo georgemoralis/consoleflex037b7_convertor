@@ -72,16 +72,10 @@ public class gbH
 	extern READ_HANDLER  ( gb_r_timer_cnt );
 	extern int gb_load_rom (int id);
 	extern int gb_id_rom (int id);
-	extern int gb_scanline_interrupt(void);
-	extern void gb_scanline_interrupt_set_mode2(int param);
+	extern extern void gb_scanline_interrupt_set_mode2(int param);
 	extern void gb_scanline_interrupt_set_mode3(int param);
-	extern int gb_vh_start(void);
-	extern void gb_vh_stop(void);
-	extern void gb_vh_screen_refresh(struct osd_bitmap *bitmap, int full_refresh);
-	extern void gb_init_machine(void);
-	
+	extern extern extern extern 
 	/* from vidhrdw/gb.c */
-	void gb_refresh_scanline(void);
 	
 	#endif
 }

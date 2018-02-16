@@ -36,7 +36,7 @@ public class msdos
 			return 1;
 		}
 	
-		if (type)
+		if (type != 0)
 		{
 			logerror("User specified %s for %s\n", device_typename(type), arg);
 			/* the user specified a device type */
@@ -48,22 +48,22 @@ public class msdos
 	
 		/* Look up the filename extension in the drivers device list */
 		ext = strrchr(arg, '.');
-		if (ext)
+		if (ext != 0)
 		{
-			const struct IODevice *dev = drv->dev;
+			const struct IODevice *dev = drv.dev;
 	
 			ext++;
-			while (dev->type != IO_END)
+			while (dev.type != IO_END)
 			{
-				const char *dst = dev->file_extensions;
+				const char *dst = dev.file_extensions;
 	
 				/* scan supported extensions for this device */
 				while (dst && *dst)
 				{
 					if (stricmp(dst, ext) == 0)
 					{
-						logerror("Extension match %s [%s] for %s\n", device_typename(dev->type), dst, arg);
-						options.image_files[options.image_count].type = dev->type;
+						logerror("Extension match %s [%s] for %s\n", device_typename(dev.type), dst, arg);
+						options.image_files[options.image_count].type = dev.type;
 						options.image_files[options.image_count].name = strdup(arg);
 						options.image_count++;
 						return 0;
@@ -89,11 +89,11 @@ public class msdos
 	/* Small check to see if system supports device */
 	int system_supports_device(int game_index, int type)
 	{
-	    const struct IODevice *dev = drivers[game_index]->dev;
+	    const struct IODevice *dev = drivers[game_index].dev;
 	
-		while(dev->type!=IO_END)
+		while(dev.type!=IO_END)
 		{
-			if(dev->type==type)
+			if(dev.type==type)
 				return 1;
 			dev++;
 		}
@@ -194,7 +194,7 @@ public class msdos
 	
 	int load_image(int argc, char **argv, int j, int game_index)
 	{
-		const char *driver = drivers[game_index]->name;
+		const char *driver = drivers[game_index].name;
 		int i, k;
 		int res = 0;
 		int type = IO_END;
@@ -278,7 +278,7 @@ public class msdos
 				}
 			}
 			/* If we had an error bail out now */
-			if (res)
+			if (res != 0)
 				return res;
 	
 		}
@@ -311,27 +311,27 @@ public class msdos
 	
 			while (drivers[i])
 			{
-				const struct IODevice *dev = drivers[i]->dev;
+				const struct IODevice *dev = drivers[i].dev;
 	
-				if (!strwildcmp(gamename, drivers[i]->name))
+				if (!strwildcmp(gamename, drivers[i].name))
 				{
 					int devcount = 1;
 	
-					printf("%-13s", drivers[i]->name);
+					printf("%-13s", drivers[i].name);
 	
 					/* if IODevice not used, print UNKNOWN */
-					if (dev->type == IO_END)
+					if (dev.type == IO_END)
 						printf("%-12s\n", "UNKNOWN");
 	
 					/* else cycle through Devices */
-					while (dev->type != IO_END)
+					while (dev.type != IO_END)
 					{
-						const char *src = dev->file_extensions;
+						const char *src = dev.file_extensions;
 	
 						if (devcount == 1)
-							printf("%-12s(%s)   ", device_typename(dev->type), briefdevice_typename(dev->type));
+							printf("%-12s(%s)   ", device_typename(dev.type), briefdevice_typename(dev.type));
 						else
-							printf("%-13s%-12s(%s)   ", "    ", device_typename(dev->type), briefdevice_typename(dev->type));
+							printf("%-13s%-12s(%s)   ", "    ", device_typename(dev.type), briefdevice_typename(dev.type));
 	
 						devcount++;
 	
@@ -454,13 +454,13 @@ public class msdos
 				while (drivers[i])
 				{
 	
-					if ((listclones || drivers[i]->clone_of == 0
-							|| (drivers[i]->clone_of->flags & NOT_A_DRIVER)
-							) && !strwildcmp(gamename, drivers[i]->name))
+					if ((listclones || drivers[i].clone_of == 0
+							|| (drivers[i].clone_of.flags & NOT_A_DRIVER)
+							) && !strwildcmp(gamename, drivers[i].name))
 					{
 						char name[200],name_ref[200];
 	
-						strcpy(name,drivers[i]->description);
+						strcpy(name,drivers[i].description);
 	
 						/* Move leading "The" to the end */
 						if (strstr(name," (")) *strstr(name," (") = 0;
@@ -472,31 +472,31 @@ public class msdos
 							sprintf(name_ref,"%s ",name);
 	
 						/* print the additional description only if we are listing clones */
-						if (listclones)
+						if (listclones != 0)
 						{
-							if (strchr(drivers[i]->description,'('))
-								strcat(name_ref,strchr(drivers[i]->description,'('));
+							if (strchr(drivers[i].description,'('))
+								strcat(name_ref,strchr(drivers[i].description,'('));
 						}
 	
 						//printf("| %-33.33s",name_ref);
 						printf("| %-40.40s",name_ref);
 	
-						if (drivers[i]->flags & GAME_NOT_WORKING)
+						if (drivers[i].flags & GAME_NOT_WORKING)
 						{
 							const struct GameDriver *maindrv;
 							int foundworking;
 	
-							if (drivers[i]->clone_of && !(drivers[i]->clone_of->flags & NOT_A_DRIVER))
-								maindrv = drivers[i]->clone_of;
+							if (drivers[i].clone_of && !(drivers[i].clone_of.flags & NOT_A_DRIVER))
+								maindrv = drivers[i].clone_of;
 							else maindrv = drivers[i];
 	
 							foundworking = 0;
 							j = 0;
 							while (drivers[j])
 							{
-								if (drivers[j] == maindrv || drivers[j]->clone_of == maindrv)
+								if (drivers[j] == maindrv || drivers[j].clone_of == maindrv)
 								{
-									if ((drivers[j]->flags & GAME_NOT_WORKING) == 0)
+									if ((drivers[j].flags & GAME_NOT_WORKING) == 0)
 									{
 										foundworking = 1;
 										break;
@@ -505,7 +505,7 @@ public class msdos
 								j++;
 							}
 	
-							if (foundworking)
+							if (foundworking != 0)
 								printf("| No(1) ");
 							else
 								printf("|   No  ");
@@ -513,42 +513,42 @@ public class msdos
 						else
 							printf("|  Yes  ");
 	
-						if (drivers[i]->flags & GAME_WRONG_COLORS)
+						if (drivers[i].flags & GAME_WRONG_COLORS)
 							printf("|   No  ");
-						else if (drivers[i]->flags & GAME_IMPERFECT_COLORS)
+						else if (drivers[i].flags & GAME_IMPERFECT_COLORS)
 							printf("| Close ");
 						else
 							printf("|  Yes  ");
 	
 						{
 							const char **samplenames = 0;
-							for (j = 0;drivers[i]->drv->sound[j].sound_type && j < MAX_SOUND; j++)
+							for (j = 0;drivers[i].drv.sound[j].sound_type && j < MAX_SOUND; j++)
 							{
-								if (drivers[i]->drv->sound[j].sound_type == SOUND_SAMPLES)
+								if (drivers[i].drv.sound[j].sound_type == SOUND_SAMPLES)
 								{
-									samplenames = ((struct Samplesinterface *)drivers[i]->drv->sound[j].sound_interface)->samplenames;
+									samplenames = ((struct Samplesinterface *)drivers[i].drv.sound[j].sound_interface).samplenames;
 									break;
 								}
 							}
-							if (drivers[i]->flags & GAME_NO_SOUND)
+							if (drivers[i].flags & GAME_NO_SOUND)
 								printf("|   No  ");
-							else if (drivers[i]->flags & GAME_IMPERFECT_SOUND)
+							else if (drivers[i].flags & GAME_IMPERFECT_SOUND)
 							{
-								if (samplenames)
+								if (samplenames != 0)
 									printf("|Part(2)");
 								else
 									printf("|Partial");
 							}
 							else
 							{
-								if (samplenames)
+								if (samplenames != 0)
 									printf("| Yes(2)");
 								else
 									printf("|  Yes  ");
 							}
 						}
 	
-						printf("| %-8s |\n",drivers[i]->name);
+						printf("| %-8s |\n",drivers[i].name);
 					}
 					i++;
 				}
@@ -647,7 +647,7 @@ public class msdos
 				while(drivers[d])
 				{
 					/* create the systems directory */
-					sprintf(buf,"%s %s\\%s","md",sys_rom_path,drivers[d]->name);
+					sprintf(buf,"%s %s\\%s","md",sys_rom_path,drivers[d].name);
 					printf("%s\n",buf);
 					system(buf);
 					d++;

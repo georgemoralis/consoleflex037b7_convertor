@@ -64,11 +64,11 @@ public class zip
 		if (!image) return IMGTOOLERR_OUTOFMEMORY;
 	
 		memset(image, 0, sizeof(zip_image));
-		image->base.module = &imgmod_zip;
+		image.base.module = &imgmod_zip;
 	
-		image->zip=openzip(name);
+		image.zip=openzip(name);
 	
-		if ( (!image->zip) ) {
+		if ( (!image.zip) ) {
 			free(image);
 			*outimg=NULL;
 			return IMGTOOLERR_FILENOTFOUND;
@@ -80,7 +80,7 @@ public class zip
 	static void zip_image_exit(IMAGE *img)
 	{
 		zip_image *image=(zip_image*)img;
-		closezip(image->zip);
+		closezip(image.zip);
 		free(image);
 	}
 	
@@ -101,10 +101,10 @@ public class zip
 		iter=*(zip_iterator**)outenum = (zip_iterator *) malloc(sizeof(zip_iterator));
 		if (!iter) return IMGTOOLERR_OUTOFMEMORY;
 	
-		iter->base.module = &imgmod_zip;
+		iter.base.module = &imgmod_zip;
 	
-		iter->image=image;
-		rewindzip(image->zip);
+		iter.image=image;
+		rewindzip(image.zip);
 		
 		return 0;
 	}
@@ -114,22 +114,22 @@ public class zip
 		zip_iterator *iter=(zip_iterator*)enumeration;
 		struct zipent *entry;
 		
-		ent->corrupt=0;
-		entry=readzip(iter->image->zip);
-		ent->eof=entry==NULL;
+		ent.corrupt=0;
+		entry=readzip(iter.image.zip);
+		ent.eof=entry==NULL;
 	
-		if (!ent->eof) {
-			strcpy(ent->fname, entry->name);
+		if (!ent.eof) {
+			strcpy(ent.fname, entry.name);
 	
 	#if 0
-			if (ent->attr)
-				sprintf(ent->attr,"start:%.4x end:%.4x type:%d file:%d",
-						GET_UWORD( ENTRY(iter->image,iter->index)->start_address),
-						GET_UWORD( ENTRY(iter->image,iter->index)->end_address),
-						ENTRY(iter->image,iter->index)->type,
-						ENTRY(iter->image,iter->index)->file_type );
+			if (ent.attr)
+				sprintf(ent.attr,"start:%.4x end:%.4x type:%d file:%d",
+						GET_UWORD( ENTRY(iter.image,iter.index).start_address),
+						GET_UWORD( ENTRY(iter.image,iter.index).end_address),
+						ENTRY(iter.image,iter.index).type,
+						ENTRY(iter.image,iter.index).file_type );
 	#endif
-			ent->filesize=entry->uncompressed_size;
+			ent.filesize=entry.uncompressed_size;
 		}
 		return 0;
 	}
@@ -147,7 +147,7 @@ public class zip
 		size_t s = 0;
 	
 		for (i = 0; i < GRANULE_COUNT; i++)
-			if (rsimg->granulemap[i] == 0xff)
+			if (rsimg.granulemap[i] == 0xff)
 				s += (9 * 256);
 		return s;
 	}
@@ -157,12 +157,12 @@ public class zip
 	{
 		struct zipent *entry;
 	
-		rewindzip(image->zip);
+		rewindzip(image.zip);
 	
-		entry=readzip(image->zip);
+		entry=readzip(image.zip);
 		while (entry) {
-			if (strcmp(entry->name, fname)==0 ) return entry;
-			entry=readzip(image->zip);
+			if (strcmp(entry.name, fname)==0 ) return entry;
+			entry=readzip(image.zip);
 		}
 		return NULL;
 	}
@@ -177,18 +177,18 @@ public class zip
 		if ((entry=zip_image_findfile(image, fname))==NULL ) 
 			return IMGTOOLERR_FILENOTFOUND;
 	
-		if ((buffer=malloc(entry->uncompressed_size))==NULL )
+		if ((buffer=malloc(entry.uncompressed_size))==NULL )
 			return IMGTOOLERR_OUTOFMEMORY;
 	
-		rc=readuncompresszip(image->zip, entry, buffer);
+		rc=readuncompresszip(image.zip, entry, buffer);
 	
 		if (rc<0) {
 			free(buffer);
 			return IMGTOOLERR_READERROR;
 		}
 	
-		if (stream_write(destf, buffer, entry->uncompressed_size)
-			!=entry->uncompressed_size) {
+		if (stream_write(destf, buffer, entry.uncompressed_size)
+			!=entry.uncompressed_size) {
 			free(buffer);
 			return IMGTOOLERR_WRITEERROR;
 		}
@@ -206,7 +206,7 @@ public class zip
 		int pos, i, t;
 	
 		fsize=stream_size(sourcef);
-		image->modified=1;
+		image.modified=1;
 	
 		return 0;
 	}
@@ -220,23 +220,23 @@ public class zip
 		if ((ind=t64_image_findfile(image, fname))==-1 ) {
 			return IMGTOOLERR_MODULENOTFOUND;
 		}
-		pos=GET_ULONG(ENTRY(image,ind)->offset);
-		image->modified=1;
+		pos=GET_ULONG(ENTRY(image,ind).offset);
+		image.modified=1;
 	
 		return 0;
 	}
 	
 	static int zip_image_create(STREAM *f, const geometry_options *options)
 	{
-		int entries=options->entries;
+		int entries=options.entries;
 		t64_header header={ "T64 Tape archiv created by MESS\x1a" };
 		t64_entry entry= { 0 };
 		int i;
 	
 		if (entries==0) entries=10;
 		SET_UWORD(header.version, 0x0101);
-		SET_UWORD(header.max_entries, options->entries);
-		if (options->label) strcpy(header.description, options->label);
+		SET_UWORD(header.max_entries, options.entries);
+		if (options.label) strcpy(header.description, options.label);
 		if (stream_write(f, &header, sizeof(t64_header)) != sizeof(t64_header)) 
 			return  IMGTOOLERR_WRITEERROR;
 		for (i=0; i<entries; i++) {

@@ -92,7 +92,7 @@ public class pc_t1t
 	
 		for (i = 0; i < size; i++)
 		{
-			if (videoram[offs+1] & 0x80)
+			if (videoram.read(offs+1)& 0x80)
 				dirtybuffer[offs+1] = 1;
 			if( (offs += 2) == videoram_size )
 				offs = 0;
@@ -106,16 +106,16 @@ public class pc_t1t
 		}
 	}
 	
-	int pc_t1t_vh_start(void)
+	public static VhStartPtr pc_t1t_vh_start = new VhStartPtr() { public int handler() 
 	{
-		videoram_size = 0x8000;
+		videoram_size[0] = 0x8000;
 	    return generic_vh_start();
-	}
+	} };
 	
-	void pc_t1t_vh_stop(void)
+	public static VhStopPtr pc_t1t_vh_stop = new VhStopPtr() { public void handler() 
 	{
 	    generic_vh_stop();
-	}
+	} };
 	
 	WRITE_HANDLER ( pc_t1t_videoram_w )
 	{
@@ -123,15 +123,15 @@ public class pc_t1t
 			return;
 		if( videoram[offset] == data )
 			return;
-		videoram[offset] = data;
+		videoram.write(offset,data);
 		dirtybuffer[offset] = 1;
 	}
 	
 	READ_HANDLER ( pc_t1t_videoram_r )
 	{
 		int data = 0xff;
-		if( videoram )
-			data = videoram[offset];
+		if (videoram != 0)
+			data = videoram.read(offset);
 		return data;
 	}
 	
@@ -393,7 +393,7 @@ public class pc_t1t
 			b = (T1T_border & 0x01) ? 0x7f : 0;
 			g = (T1T_border & 0x02) ? 0x7f : 0;
 			r = (T1T_border & 0x04) ? 0x7f : 0;
-			if( T1T_border & 0x08 )
+			if ((T1T_border & 0x08) != 0)
 			{
 				r <<= 1;
 				g <<= 1;
@@ -401,7 +401,7 @@ public class pc_t1t
 			}
 	#if 0
 			osd_modify_pen(16, r, g, b);
-	//		osd_modify_pen(Machine->pens[16], r, g, b);
+	//		osd_modify_pen(Machine.pens[16], r, g, b);
 	#else
 			palette_change_color(16,r,g,b);
 	#endif
@@ -490,7 +490,7 @@ public class pc_t1t
 				r = (data & 4) ? 0x7f : 0;
 				g = (data & 2) ? 0x7f : 0;
 				b = (data & 1) ? 0x7f : 0;
-				if (data & 8)
+				if ((data & 8) != 0)
 				{
 					r <<= 1;
 					g <<= 1;
@@ -661,15 +661,15 @@ public class pc_t1t
 	
 	INLINE int DOCLIP(struct rectangle *r1)
 	{
-	    const struct rectangle *r2 = &Machine->visible_area;
-	    if (r1->min_x > r2->max_x) return 0;
-	    if (r1->max_x < r2->min_x) return 0;
-	    if (r1->min_y > r2->max_y) return 0;
-	    if (r1->max_y < r2->min_y) return 0;
-	    if (r1->min_x < r2->min_x) r1->min_x = r2->min_x;
-	    if (r1->max_x > r2->max_x) r1->max_x = r2->max_x;
-	    if (r1->min_y < r2->min_y) r1->min_y = r2->min_y;
-	    if (r1->max_y > r2->max_y) r1->max_y = r2->max_y;
+	    const struct rectangle *r2 = &Machine.visible_area;
+	    if (r1.min_x > r2.max_x) return 0;
+	    if (r1.max_x < r2.min_x) return 0;
+	    if (r1.min_y > r2.max_y) return 0;
+	    if (r1.max_y < r2.min_y) return 0;
+	    if (r1.min_x < r2.min_x) r1.min_x = r2.min_x;
+	    if (r1.max_x > r2.max_x) r1.max_x = r2.max_x;
+	    if (r1.min_y < r2.min_y) r1.min_y = r2.min_y;
+	    if (r1.max_y > r2.max_y) r1.max_y = r2.max_y;
 	    return 1;
 	}
 	
@@ -703,7 +703,7 @@ public class pc_t1t
 				if( DOCLIP(&r) )
 				{
 					/* draw the character */
-					drawgfx(bitmap, Machine->gfx[1], code, attr, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
+					drawgfx(bitmap, Machine.gfx[1], code, attr, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
 					if( offs == T1T_cursor && T1T_curmode != 0x20 )
 					{
 						if( T1T_curmode == 0x60 || (pc_framecnt & 32) )
@@ -714,7 +714,7 @@ public class pc_t1t
 	                            r.min_y = r.max_y;
 	                        if( sy + T1T_curmaxy < r.max_y )
 								r.max_y = sy + T1T_curmaxy;
-							drawgfx(bitmap,Machine->gfx[1],219,7,0,0,sx,sy,&r,TRANSPARENCY_NONE,0);
+							drawgfx(bitmap,Machine.gfx[1],219,7,0,0,sx,sy,&r,TRANSPARENCY_NONE,0);
 	                    }
 	                    dirtybuffer[offs] = 1;
 	                }
@@ -759,7 +759,7 @@ public class pc_t1t
 				if( DOCLIP(&r) )
 				{
 					/* draw the character */
-					drawgfx(bitmap, Machine->gfx[0], code, attr, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
+					drawgfx(bitmap, Machine.gfx[0], code, attr, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
 	                if( offs == T1T_cursor && T1T_curmode != 0x20 )
 					{
 						if( T1T_curmode == 0x60 || (pc_framecnt & 32) )
@@ -770,7 +770,7 @@ public class pc_t1t
 	                            r.min_y = r.max_y;
 	                        if( sy + T1T_curmaxy < r.max_y )
 								r.max_y = sy + T1T_curmaxy;
-							drawgfx(bitmap,Machine->gfx[0],219,7,0,0,sx,sy,&r,TRANSPARENCY_NONE, 0);
+							drawgfx(bitmap,Machine.gfx[0],219,7,0,0,sx,sy,&r,TRANSPARENCY_NONE, 0);
 	                    }
 	                    dirtybuffer[offs] = 1;
 					}
@@ -808,9 +808,9 @@ public class pc_t1t
 	            dirtybuffer[offs] = 0;
 	            dirtybuffer[offs+1] = 0;
 	
-				if( attr & 0x80 )	/* blinking ? */
+				if ((attr & 0x80) != 0)	/* blinking ? */
 				{
-					if( pc_blink )
+					if (pc_blink != 0)
 						attr = (attr & 0x70) | ((attr & 0x70) >> 4);
 					else
 						attr = attr & 0x7f;
@@ -823,7 +823,7 @@ public class pc_t1t
 				if( DOCLIP(&r) )
 				{
 					/* draw the character */
-					drawgfx(bitmap, Machine->gfx[1], code, attr, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
+					drawgfx(bitmap, Machine.gfx[1], code, attr, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
 					if( offs == T1T_cursor && T1T_curmode != 0x20 )
 					{
 						if( T1T_curmode == 0x60 || (pc_framecnt & 32) )
@@ -834,7 +834,7 @@ public class pc_t1t
 	                            r.min_y = r.max_y;
 	                        if( sy + T1T_curmaxy < r.max_y )
 								r.max_y = sy + T1T_curmaxy;
-							drawgfx(bitmap,Machine->gfx[1],219,7,0,0,sx,sy,&r,TRANSPARENCY_NONE, 0);
+							drawgfx(bitmap,Machine.gfx[1],219,7,0,0,sx,sy,&r,TRANSPARENCY_NONE, 0);
 	                    }
 	                    dirtybuffer[offs] = 1;
 	                }
@@ -872,9 +872,9 @@ public class pc_t1t
 	            dirtybuffer[offs] = 0;
 	            dirtybuffer[offs+1] = 0;
 	
-				if( attr & 0x80 )	/* blinking ? */
+				if ((attr & 0x80) != 0)	/* blinking ? */
 				{
-					if( pc_blink )
+					if (pc_blink != 0)
 						attr = (attr & 0x70) | ((attr & 0x70) >> 4);
 					else
 						attr = attr & 0x7f;
@@ -887,7 +887,7 @@ public class pc_t1t
 				if( DOCLIP(&r) )
 				{
 					/* draw the character */
-					drawgfx(bitmap, Machine->gfx[0], code, attr, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
+					drawgfx(bitmap, Machine.gfx[0], code, attr, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
 	                if( offs == T1T_cursor && T1T_curmode != 0x20 )
 					{
 						if( T1T_curmode == 0x60 || (pc_framecnt & 32) )
@@ -898,7 +898,7 @@ public class pc_t1t
 	                            r.min_y = r.max_y;
 	                        if( sy + T1T_curmaxy < r.max_y )
 								r.max_y = sy + T1T_curmaxy;
-							drawgfx(bitmap,Machine->gfx[0],219,7,0,0,sx,sy,&r,TRANSPARENCY_NONE, 0);
+							drawgfx(bitmap,Machine.gfx[0],219,7,0,0,sx,sy,&r,TRANSPARENCY_NONE, 0);
 	                    }
 	                    dirtybuffer[offs] = 1;
 	                }
@@ -943,7 +943,7 @@ public class pc_t1t
 				r.max_x = sx + 8 - 1;
 				r.max_y = sy + T1T_maxscan / 2 - 1;
 				if( DOCLIP(&r) )
-					drawgfx(bitmap, Machine->gfx[3], code, T1T_2bpp_attr, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
+					drawgfx(bitmap, Machine.gfx[3], code, T1T_2bpp_attr, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
 			}
 			if( (sx += 8) == (2 * T1T_HDISP * 8) )
 			{
@@ -970,7 +970,7 @@ public class pc_t1t
 				r.max_x = sx + 8 - 1;
 				r.max_y = sy + T1T_maxscan / 2 - 1;
 				if( DOCLIP(&r) )
-					drawgfx(bitmap, Machine->gfx[3], code, T1T_2bpp_attr, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
+					drawgfx(bitmap, Machine.gfx[3], code, T1T_2bpp_attr, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
 			}
 			if( (sx += 8) == (2 * T1T_HDISP * 8) )
 			{
@@ -1009,7 +1009,7 @@ public class pc_t1t
 				r.max_x = sx + 8 - 1;
 				r.max_y = sy + T1T_maxscan / 2 - 1;
 				if( DOCLIP(&r) )
-					drawgfx(bitmap, Machine->gfx[2], code, 0, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
+					drawgfx(bitmap, Machine.gfx[2], code, 0, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
 			}
 			if( (sx += 8) == (2 * T1T_HDISP * 8) )
 			{
@@ -1036,7 +1036,7 @@ public class pc_t1t
 				r.max_x = sx + 8 - 1;
 				r.max_y = sy + T1T_maxscan / 2 - 1;
 				if( DOCLIP(&r) )
-					drawgfx(bitmap, Machine->gfx[2], code, 0, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
+					drawgfx(bitmap, Machine.gfx[2], code, 0, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
 	        }
 			if( (sx += 8) == (2 * T1T_HDISP * 8) )
 			{
@@ -1077,7 +1077,7 @@ public class pc_t1t
 				r.max_x = sx + 8 - 1;
 				r.max_y = sy + T1T_maxscan/2 - 1;
 				if( DOCLIP(&r) )
-					drawgfx(bitmap, Machine->gfx[5], code, 0, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
+					drawgfx(bitmap, Machine.gfx[5], code, 0, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
 	        }
 			if( (sx += 8) == (T1T_HDISP*8) )
 			{
@@ -1102,7 +1102,7 @@ public class pc_t1t
 	            r.max_x = sx + 4 - 1;
 				r.max_y = sy + T1T_maxscan/2 - 1;
 				if( DOCLIP(&r) )
-					drawgfx(bitmap, Machine->gfx[5], code, 0, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
+					drawgfx(bitmap, Machine.gfx[5], code, 0, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
 	        }
 			if( (sx += 8) == (T1T_HDISP*8) )
 			{
@@ -1143,7 +1143,7 @@ public class pc_t1t
 	            r.max_x = sx + 4 - 1;
 				r.max_y = sy + T1T_maxscan/4 - 1;
 				if( DOCLIP(&r) )
-					drawgfx(bitmap, Machine->gfx[5], code, 0, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
+					drawgfx(bitmap, Machine.gfx[5], code, 0, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
 	        }
 			if( (sx += 4) == (2 * T1T_HDISP*4) )
 			{
@@ -1168,7 +1168,7 @@ public class pc_t1t
 	            r.max_x = sx + 4 - 1;
 				r.max_y = sy + T1T_maxscan/4 - 1;
 				if( DOCLIP(&r) )
-					drawgfx(bitmap, Machine->gfx[5], code, 0, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
+					drawgfx(bitmap, Machine.gfx[5], code, 0, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
 	        }
 			if( (sx += 4) == (2 * T1T_HDISP*4) )
 			{
@@ -1194,7 +1194,7 @@ public class pc_t1t
 	            r.max_x = sx + 4 - 1;
 				r.max_y = sy + T1T_maxscan/4 - 1;
 				if( DOCLIP(&r) )
-					drawgfx(bitmap, Machine->gfx[5], code, 0, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
+					drawgfx(bitmap, Machine.gfx[5], code, 0, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
 	        }
 			if( (sx += 4) == (2 * T1T_HDISP*4) )
 			{
@@ -1220,7 +1220,7 @@ public class pc_t1t
 	            r.max_x = sx + 4 - 1;
 				r.max_y = sy + T1T_maxscan/4 - 1;
 				if( DOCLIP(&r) )
-					drawgfx(bitmap, Machine->gfx[5], code, 0, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
+					drawgfx(bitmap, Machine.gfx[5], code, 0, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
 	        }
 			if( (sx += 4) == (2 * T1T_HDISP*4) )
 			{
@@ -1261,7 +1261,7 @@ public class pc_t1t
 				r.max_x = sx + 4 - 1;
 				r.max_y = sy + T1T_maxscan/4 - 1;
 				if( DOCLIP(&r) )
-					drawgfx(bitmap, Machine->gfx[6], code, 0, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
+					drawgfx(bitmap, Machine.gfx[6], code, 0, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
 	        }
 			if( (sx += 4) == (T1T_HDISP*4) )
 			{
@@ -1287,7 +1287,7 @@ public class pc_t1t
 	            r.max_x = sx + 4 - 1;
 				r.max_y = sy + T1T_maxscan/4 - 1;
 				if( DOCLIP(&r) )
-					drawgfx(bitmap, Machine->gfx[6], code, 0, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
+					drawgfx(bitmap, Machine.gfx[6], code, 0, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
 	        }
 			if( (sx += 4) == (T1T_HDISP*4) )
 			{
@@ -1313,7 +1313,7 @@ public class pc_t1t
 	            r.max_x = sx + 4 - 1;
 				r.max_y = sy + T1T_maxscan/4 - 1;
 				if( DOCLIP(&r) )
-					drawgfx(bitmap, Machine->gfx[6], code, 0, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
+					drawgfx(bitmap, Machine.gfx[6], code, 0, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
 	        }
 			if( (sx += 4) == (T1T_HDISP*4) )
 			{
@@ -1339,7 +1339,7 @@ public class pc_t1t
 	            r.max_x = sx + 4 - 1;
 				r.max_y = sy + T1T_maxscan/4 - 1;
 				if( DOCLIP(&r) )
-					drawgfx(bitmap, Machine->gfx[6], code, 0, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
+					drawgfx(bitmap, Machine.gfx[6], code, 0, 0, 0,r.min_x,r.min_y, &r, TRANSPARENCY_NONE, 0);
 	        }
 			if( (sx += 4) == (T1T_HDISP*4) )
 			{
@@ -1356,7 +1356,7 @@ public class pc_t1t
 	  Do NOT call osd_update_display() from this function,
 	  it will be called by the main emulation engine.
 	***************************************************************************/
-	void pc_t1t_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr pc_t1t_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 		static int video_active = 0;
 	
@@ -1367,10 +1367,10 @@ public class pc_t1t
 	
 	    /* draw entire scrbitmap because of usrintrf functions
 		   called osd_clearbitmap or attr change / scanline change */
-		if( full_refresh )
+		if (full_refresh != 0)
 		{
-			memset(dirtybuffer, 1, videoram_size);
-			fillbitmap(bitmap, Machine->pens[0], &Machine->visible_area);
+			memset(dirtybuffer, 1, videoram_size[0]);
+			fillbitmap(bitmap, Machine.pens[0], &Machine.visible_area);
 			video_active = 0;
 	    }
 	
@@ -1416,7 +1416,7 @@ public class pc_t1t
 	
 	        default:
 				if( video_active && --video_active == 0 )
-					fillbitmap(bitmap, Machine->pens[0], &Machine->visible_area);
+					fillbitmap(bitmap, Machine.pens[0], &Machine.visible_area);
 	    }
-	}
+	} };
 }

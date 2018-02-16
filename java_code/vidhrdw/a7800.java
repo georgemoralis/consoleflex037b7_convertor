@@ -25,7 +25,7 @@ public class a7800
 	
 	static struct osd_bitmap *maria_bitmap;
 	
-	//static unsigned char *ROM;
+	//static UBytePtr ROM;
 	
 	/********** Maria ***********/
 	
@@ -54,11 +54,11 @@ public class a7800
 	  Start the video hardware emulation.
 	
 	***************************************************************************/
-	int a7800_vh_start(void)
+	public static VhStartPtr a7800_vh_start = new VhStartPtr() { public int handler() 
 	{
 	    int i;
 	
-	    if ((maria_bitmap = bitmap_alloc(Machine->drv->screen_width,Machine->drv->screen_height)) == 0)
+	    if ((maria_bitmap = bitmap_alloc(Machine.drv.screen_width,Machine.drv.screen_height)) == 0)
 			return 1;
 	
 	    for(i=0; i<8; i++) {
@@ -76,12 +76,12 @@ public class a7800
 	    maria_dmaon_pending=0;
 	    maria_wsync=0;
 	    return 0;
-	}
+	} };
 	
-	void a7800_vh_stop(void)
+	public static VhStopPtr a7800_vh_stop = new VhStopPtr() { public void handler() 
 	{
 	    osd_free_bitmap(maria_bitmap);
-	}
+	} };
 	
 	/***************************************************************************
 	
@@ -100,7 +100,7 @@ public class a7800
 		UINT8 *ROM = memory_region(REGION_CPU1);
 	    /* Process this DLL entry */
 	    dl = maria_dl;
-	    for (d=0; d<320; d++) maria_bitmap->line[maria_scanline][d] = maria_backcolor;
+	    for (d=0; d<320; d++) maria_bitmap.line[maria_scanline][d] = maria_backcolor;
 	    /* Step through DL's */
 	    while (READ_MEM(dl + 1) != 0) {
 	
@@ -149,10 +149,10 @@ public class a7800
 			  ind_bytes--;
 	          d = READ_MEM(data_addr++);
 			  c = (d & 0xC0) >> 6;
-			  if (c) {
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[pal][c];
+			  if (c != 0) {
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[pal][c];
 			      if (hpos > 510) hpos=0;
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[pal][c];
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[pal][c];
 			  }
 			  else {
 			      hpos+=2;
@@ -160,10 +160,10 @@ public class a7800
 	
 			  if (hpos > 510) hpos=0;
 			  c = (d & 0x30) >> 4;
-			  if (c) {
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[pal][c];
+			  if (c != 0) {
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[pal][c];
 			      if (hpos > 510) hpos=0;
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[pal][c];
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[pal][c];
 			  }
 			  else {
 	
@@ -172,10 +172,10 @@ public class a7800
 	
 			  if (hpos > 510) hpos=0;
 			  c = (d & 0x0C) >> 2;
-			  if (c) {
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[pal][c];
+			  if (c != 0) {
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[pal][c];
 			      if (hpos > 510) hpos=0;
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[pal][c];
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[pal][c];
 			  }
 			  else {
 	
@@ -184,10 +184,10 @@ public class a7800
 	
 			  if (hpos > 510) hpos=0;
 			  c = (d & 0x03);
-			  if (c) {
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[pal][c];
+			  if (c != 0) {
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[pal][c];
 			      if (hpos > 510) hpos=0;
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[pal][c];
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[pal][c];
 			  }
 			  else {
 	
@@ -215,58 +215,58 @@ public class a7800
 	             d = READ_MEM(data_addr);
 			  }
 	
-			  if (d & 0x80) {
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[pal][2];
+			  if ((d & 0x80) != 0) {
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[pal][2];
 			  }
 			  else {
 			      hpos+=1;
 			  }
 			  if (hpos > 510) hpos=0;
-			  if (d & 0x40) {
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[pal][2];
+			  if ((d & 0x40) != 0) {
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[pal][2];
 			  }
 			  else {
 	
 			      hpos+=1;
 			  }
 			  if (hpos > 510) hpos=0;
-			  if (d & 0x20) {
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[pal][2];
+			  if ((d & 0x20) != 0) {
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[pal][2];
 			  }
 			  else {
 			      hpos+=1;
 			  }
 			  if (hpos > 510) hpos=0;
-			  if (d & 0x10) {
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[pal][2];
+			  if ((d & 0x10) != 0) {
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[pal][2];
 			  }
 			  else {
 			      hpos+=1;
 			  }
 			  if (hpos > 510) hpos=0;
-			  if (d & 0x08) {
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[pal][2];
+			  if ((d & 0x08) != 0) {
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[pal][2];
 			  }
 			  else {
 			      hpos+=1;
 			  }
 			  if (hpos > 510) hpos=0;
-			  if (d & 0x04) {
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[pal][2];
+			  if ((d & 0x04) != 0) {
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[pal][2];
 			  }
 			  else {
 			      hpos+=1;
 			  }
 			  if (hpos > 510) hpos=0;
-			  if (d & 0x02) {
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[pal][2];
+			  if ((d & 0x02) != 0) {
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[pal][2];
 			  }
 			  else {
 			      hpos+=1;
 			  }
 			  if (hpos > 510) hpos=0;
-			  if (d & 0x01) {
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[pal][2];
+			  if ((d & 0x01) != 0) {
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[pal][2];
 			  }
 			  else {
 			     hpos+=1;
@@ -298,10 +298,10 @@ public class a7800
 	
 	          c = (d & 0x0C) | ((d & 0xC0) >> 6);
 	          if (c == 4 || c == 8 || c == 12) c=0;
-	          if (c) {
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[pal][c];
+	          if (c != 0) {
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[pal][c];
 			      if (hpos > 510) hpos=0;
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[pal][c];
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[pal][c];
 			  }
 			  else {
 			      hpos+=2;
@@ -310,10 +310,10 @@ public class a7800
 	
 	          c = ((d & 0x03) << 2) | ((d & 0x30) >> 4);
 	          if (c == 4 || c == 8 || c == 12) c=0;
-			  if (c) {
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[pal][c];
+			  if (c != 0) {
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[pal][c];
 			      if (hpos > 510) hpos=0;
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[pal][c];
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[pal][c];
 			  }
 			  else {
 	
@@ -342,8 +342,8 @@ public class a7800
 			  }
 	
 	          c = ((d & 0x80) >> 6) | ((d & 0x08) >> 3);
-	          if (c) {
-	              maria_bitmap->line[maria_scanline][hpos++]=maria_palette[pal][c];
+	          if (c != 0) {
+	              maria_bitmap.line[maria_scanline][hpos++]=maria_palette[pal][c];
 			  }
 			  else {
 			      hpos+=1;
@@ -351,8 +351,8 @@ public class a7800
 			  if (hpos > 510) hpos=0;
 	
 	          c = ((d & 0x40) >> 5) | ((d & 0x04) >> 2);
-	          if (c) {
-	              maria_bitmap->line[maria_scanline][hpos++]=maria_palette[pal][c];
+	          if (c != 0) {
+	              maria_bitmap.line[maria_scanline][hpos++]=maria_palette[pal][c];
 			  }
 			  else {
 			      hpos+=1;
@@ -360,8 +360,8 @@ public class a7800
 			  if (hpos > 510) hpos=0;
 	
 	          c = ((d & 0x20) >> 4) | ((d & 0x02) >> 1);
-	          if (c) {
-	              maria_bitmap->line[maria_scanline][hpos++]=maria_palette[pal][c];
+	          if (c != 0) {
+	              maria_bitmap.line[maria_scanline][hpos++]=maria_palette[pal][c];
 			  }
 			  else {
 			      hpos+=1;
@@ -369,8 +369,8 @@ public class a7800
 			  if (hpos > 510) hpos=0;
 	
 	          c = ((d & 0x10) >> 3) | (d & 0x01);
-	          if (c) {
-	              maria_bitmap->line[maria_scanline][hpos++]=maria_palette[pal][c];
+	          if (c != 0) {
+	              maria_bitmap.line[maria_scanline][hpos++]=maria_palette[pal][c];
 			  }
 			  else {
 			      hpos+=1;
@@ -397,38 +397,38 @@ public class a7800
 	             d = READ_MEM(data_addr);
 			  }
 			  c = ((d & 0x0C) >> 2) | (pal & 0x04);
-			  if (d & 0x80) {
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[c][2];
+			  if ((d & 0x80) != 0) {
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[c][2];
 			      if (hpos > 510) hpos=0;
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[c][2];
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[c][2];
 			  }
 			  else {
 			     hpos+=2;
 			  }
 			  if (hpos > 510) hpos=0;
-			  if (d & 0x40) {
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[c][2];
+			  if ((d & 0x40) != 0) {
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[c][2];
 			      if (hpos > 510) hpos=0;
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[c][2];
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[c][2];
 			  }
 			  else {
 			     hpos+=2;
 			  }
 			  if (hpos > 510) hpos=0;
 			  c = (d & 0x03) | (pal & 0x04);
-			  if (d & 0x20) {
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[c][2];
+			  if ((d & 0x20) != 0) {
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[c][2];
 			      if (hpos > 510) hpos=0;
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[c][2];
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[c][2];
 			  }
 			  else {
 			      hpos+=2;
 			  }
 			  if (hpos > 510) hpos=0;
-			  if (d & 0x10) {
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[c][2];
+			  if ((d & 0x10) != 0) {
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[c][2];
 			      if (hpos > 510) hpos=0;
-			      maria_bitmap->line[maria_scanline][hpos++]=maria_palette[c][2];
+			      maria_bitmap.line[maria_scanline][hpos++]=maria_palette[c][2];
 			  }
 			  else {
 			      hpos+=2;
@@ -443,7 +443,7 @@ public class a7800
 	}
 	
 	
-	int a7800_interrupt(void)
+	public static InterruptPtr a7800_interrupt = new InterruptPtr() { public int handler() 
 	{
 	    int frame_scanline;
 		UINT8 *ROM = memory_region(REGION_CPU1);
@@ -451,7 +451,7 @@ public class a7800
 	    maria_scanline++;
 	    frame_scanline = maria_scanline % 263;
 	
-	    if (maria_wsync) {
+	    if (maria_wsync != 0) {
 	      cpu_trigger(TRIGGER_HSYNC);
 	      maria_wsync=0;
 	    }
@@ -488,14 +488,14 @@ public class a7800
 	       maria_vblank = 0x80;
 	    }
 	
-	    if (maria_dli) {
+	    if (maria_dli != 0) {
 		maria_dli = 0;
 		return M6502_INT_NMI;
 	    }
 	    else {
 		return M6502_INT_NONE;
 	    }
-	}
+	} };
 	
 	/***************************************************************************
 	
@@ -503,11 +503,11 @@ public class a7800
 	
 	***************************************************************************/
 	/* This routine is called at the start of vblank to refresh the screen */
-	void a7800_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr a7800_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 	    maria_scanline=0;
-	    copybitmap(bitmap,maria_bitmap,0,0,0,0,&Machine->visible_area,TRANSPARENCY_NONE,0);
-	}
+	    copybitmap(bitmap,maria_bitmap,0,0,0,0,&Machine.visible_area,TRANSPARENCY_NONE,0);
+	} };
 	
 	
 	/****** MARIA ***************************************/
@@ -529,16 +529,16 @@ public class a7800
 	    switch (offset) {
 	
 		case 0x00:
-		    maria_backcolor = Machine->pens[data];
+		    maria_backcolor = Machine.pens[data];
 		    break;
 		case 0x01:
-		    maria_palette[0][1] = Machine->pens[data];
+		    maria_palette[0][1] = Machine.pens[data];
 		    break;
 		case 0x02:
-		    maria_palette[0][2] = Machine->pens[data];
+		    maria_palette[0][2] = Machine.pens[data];
 		    break;
 		case 0x03:
-		    maria_palette[0][3] = Machine->pens[data];
+		    maria_palette[0][3] = Machine.pens[data];
 		    break;
 		case 0x04:
 		    timer_holdcpu_trigger(0,TRIGGER_HSYNC);
@@ -546,65 +546,65 @@ public class a7800
 		    break;
 	
 		case 0x05:
-		    maria_palette[1][1] = Machine->pens[data];
+		    maria_palette[1][1] = Machine.pens[data];
 		    break;
 		case 0x06:
-		    maria_palette[1][2] = Machine->pens[data];
+		    maria_palette[1][2] = Machine.pens[data];
 		    break;
 		case 0x07:
-		    maria_palette[1][3] = Machine->pens[data];
+		    maria_palette[1][3] = Machine.pens[data];
 		    break;
 	
 		case 0x09:
-		    maria_palette[2][1] = Machine->pens[data];
+		    maria_palette[2][1] = Machine.pens[data];
 		    break;
 		case 0x0A:
-		    maria_palette[2][2] = Machine->pens[data];
+		    maria_palette[2][2] = Machine.pens[data];
 		    break;
 		case 0x0B:
-		    maria_palette[2][3] = Machine->pens[data];
+		    maria_palette[2][3] = Machine.pens[data];
 		    break;
 	
 		case 0x0D:
-		    maria_palette[3][1] = Machine->pens[data];
+		    maria_palette[3][1] = Machine.pens[data];
 		    break;
 		case 0x0E:
-		    maria_palette[3][2] = Machine->pens[data];
+		    maria_palette[3][2] = Machine.pens[data];
 		    break;
 		case 0x0F:
-		    maria_palette[3][3] = Machine->pens[data];
+		    maria_palette[3][3] = Machine.pens[data];
 		    break;
 	
 		case 0x11:
-		    maria_palette[4][1] = Machine->pens[data];
+		    maria_palette[4][1] = Machine.pens[data];
 		    break;
 		case 0x12:
-		    maria_palette[4][2] = Machine->pens[data];
+		    maria_palette[4][2] = Machine.pens[data];
 		    break;
 		case 0x13:
-		    maria_palette[4][3] = Machine->pens[data];
+		    maria_palette[4][3] = Machine.pens[data];
 		    break;
 		case 0x14:
 		    maria_charbase = (data << 8);
 		    break;
 		case 0x15:
-		    maria_palette[5][1] = Machine->pens[data];
+		    maria_palette[5][1] = Machine.pens[data];
 		    break;
 		case 0x16:
-		    maria_palette[5][2] = Machine->pens[data];
+		    maria_palette[5][2] = Machine.pens[data];
 		    break;
 		case 0x17:
-		    maria_palette[5][3] = Machine->pens[data];
+		    maria_palette[5][3] = Machine.pens[data];
 		    break;
 	
 		case 0x19:
-		    maria_palette[6][1] = Machine->pens[data];
+		    maria_palette[6][1] = Machine.pens[data];
 		    break;
 		case 0x1A:
-		    maria_palette[6][2] = Machine->pens[data];
+		    maria_palette[6][2] = Machine.pens[data];
 		    break;
 		case 0x1B:
-		    maria_palette[6][3] = Machine->pens[data];
+		    maria_palette[6][3] = Machine.pens[data];
 		    break;
 	
 		case 0x1C:
@@ -615,13 +615,13 @@ public class a7800
 			maria_dmaon_pending=maria_dmaon=0;
 		    break;
 		case 0x1D:
-		    maria_palette[7][1] = Machine->pens[data];
+		    maria_palette[7][1] = Machine.pens[data];
 		    break;
 		case 0x1E:
-		    maria_palette[7][2] = Machine->pens[data];
+		    maria_palette[7][2] = Machine.pens[data];
 		    break;
 		case 0x1F:
-		    maria_palette[7][3] = Machine->pens[data];
+		    maria_palette[7][3] = Machine.pens[data];
 		    break;
 	
 	    }

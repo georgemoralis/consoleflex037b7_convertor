@@ -118,17 +118,17 @@ public class ti99_2
 	
 	static int ROM_paged;
 	
-	static void init_ti99_2_24(void)
+	static public static InitDriverPtr init_ti99_2_24 = new InitDriverPtr() { public void handler() 
 	{
 		/* no ROM paging */
 		ROM_paged = 0;
-	}
+	} };
 	
-	static void init_ti99_2_32(void)
+	static public static InitDriverPtr init_ti99_2_32 = new InitDriverPtr() { public void handler() 
 	{
 		/* ROM paging enabled */
 		ROM_paged = 1;
-	}
+	} };
 	
 	static int ti99_2_24_load_rom(void)
 	{
@@ -149,15 +149,15 @@ public class ti99_2
 		return 0;
 	}
 	
-	static void ti99_2_init_machine(void)
+	static public static InitMachinePtr ti99_2_init_machine = new InitMachinePtr() { public void handler() 
 	{
-	}
+	} };
 	
 	static void ti99_2_stop_machine(void)
 	{
 	}
 	
-	static int ti99_2_vblank_interrupt(void)
+	public static InterruptPtr ti99_2_vblank_interrupt = new InterruptPtr() { public int handler() 
 	{
 		TMS9928A_interrupt();
 	
@@ -165,7 +165,7 @@ public class ti99_2
 		cpu_set_irq_line(0, 1, PULSE_LINE);
 	
 		return ignore_interrupt();
-	}
+	} };
 	
 	
 	/*
@@ -191,18 +191,18 @@ public class ti99_2
 	#define TI99_2_PALETTE_SIZE sizeof(ti99_2_palette)/3
 	#define TI99_2_COLORTABLE_SIZE sizeof(ti99_2_colortable)/2
 	
-	static void ti99_2_init_palette(unsigned char *palette, unsigned short *colortable, const unsigned char *color_prom)
+	static public static VhConvertColorPromPtr ti99_2_init_palette = new VhConvertColorPromPtr() { public void handler(char []palette, char []colortable, UBytePtr color_prom) 
 	{
 		memcpy(palette, & ti99_2_palette, sizeof(ti99_2_palette));
 		memcpy(colortable, & ti99_2_colortable, sizeof(ti99_2_colortable));
-	}
+	} };
 	
-	static int ti99_2_vh_start(void)
+	static public static VhStartPtr ti99_2_vh_start = new VhStartPtr() { public int handler() 
 	{
-		videoram_size = 768;
+		videoram_size[0] = 768;
 	
 		return generic_vh_start();
-	}
+	} };
 	
 	#define ti99_2_vh_stop generic_vh_stop
 	#define ti99_2_video_w videoram_w
@@ -211,7 +211,7 @@ public class ti99_2
 	{
 		int i, sx, sy;
 	
-		if (full_refresh)
+		if (full_refresh != 0)
 			memset(dirtybuffer, 1, videoram_size);
 	
 		sx = sy = 0;
@@ -223,8 +223,8 @@ public class ti99_2
 				dirtybuffer[i] = 0;
 	
 				/* Is the char code masked or not ??? */
-				drawgfx(bitmap, Machine->gfx[0], videoram[i] & 0x7F, 0,
-				          0, 0, sx, sy, &Machine->visible_area, TRANSPARENCY_NONE, 0);
+				drawgfx(bitmap, Machine.gfx[0], videoram.read(i)& 0x7F, 0,
+				          0, 0, sx, sy, &Machine.visible_area, TRANSPARENCY_NONE, 0);
 				osd_mark_dirty(sx, sy, sx+7, sy+7, 1);
 			}
 	
@@ -237,23 +237,23 @@ public class ti99_2
 		}
 	}
 	
-	static struct GfxLayout ti99_2_charlayout =
-	{
+	static GfxLayout ti99_2_charlayout = new GfxLayout
+	(
 		8,8,        /* 8 x 8 characters */
 		128,        /* 128 characters */
 		1,          /* 1 bits per pixel */
-		{ 0 },      /* no bitplanes; 1 bit per pixel */
+		new int[] { 0 },      /* no bitplanes; 1 bit per pixel */
 		/* x offsets */
-		{ 0,1,2,3,4,5,6,7 },
+		new int[] { 0,1,2,3,4,5,6,7 },
 		/* y offsets */
-		{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8, },
+		new int[] { 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8, },
 		8*8         /* every char takes 8 bytes */
-	};
+	);
 	
-	static struct GfxDecodeInfo gfxdecodeinfo[] =
+	static GfxDecodeInfo gfxdecodeinfo[] =
 	{
-		{ REGION_CPU1, 0x1c00, & ti99_2_charlayout, 0, 0 },
-		{ -1 }    /* end of array */
+		new GfxDecodeInfo( REGION_CPU1, 0x1c00,  ti99_2_charlayout, 0, 0 ),
+		new GfxDecodeInfo( -1 )    /* end of array */
 	};
 	
 	
@@ -261,26 +261,26 @@ public class ti99_2
 	  Memory map - see description above
 	*/
 	
-	static struct MemoryReadAddress ti99_2_readmem[] =
+	static MemoryReadAddress ti99_2_readmem[] =
 	{
-		{ 0x0000, 0x3fff, MRA_ROM },            /*system ROM*/
-		{ 0x4000, 0x5fff, /*MRA_ROM*/MRA_BANK1 },   /*system ROM, banked on 32kb ROMs protos*/
-		{ 0x6000, 0xdfff, MRA_NOP },            /*free for expansion*/
-		{ 0xe000, 0xefff, MRA_RAM },            /*system RAM*/
-		{ 0xf000, 0xffff, MRA_NOP },            /*processor RAM or free*/
-		{ -1 }    /* end of table */
+		new MemoryReadAddress( 0x0000, 0x3fff, MRA_ROM ),            /*system ROM*/
+		new MemoryReadAddress( 0x4000, 0x5fff, /*MRA_ROM*/MRA_BANK1 ),   /*system ROM, banked on 32kb ROMs protos*/
+		new MemoryReadAddress( 0x6000, 0xdfff, MRA_NOP ),            /*free for expansion*/
+		new MemoryReadAddress( 0xe000, 0xefff, MRA_RAM ),            /*system RAM*/
+		new MemoryReadAddress( 0xf000, 0xffff, MRA_NOP ),            /*processor RAM or free*/
+		new MemoryReadAddress( -1 )    /* end of table */
 	};
 	
-	static struct MemoryWriteAddress ti99_2_writemem[] =
+	static MemoryWriteAddress ti99_2_writemem[] =
 	{
-		{ 0x0000, 0x3fff, MWA_ROM },            /*system ROM*/
-		{ 0x4000, 0x5fff, /*MWA_ROM*/MWA_BANK1 },       /*system ROM, banked on 32kb ROMs protos*/
-		{ 0x6000, 0xdfff, MWA_NOP },            /*free for expansion*/
-		{ 0xe000, 0xebff, MWA_RAM },            /*system RAM*/
-		{ 0xec00, 0xeeff, ti99_2_video_w, & videoram }, /*system RAM : used for video*/
-		{ 0xef00, 0xefff, MWA_RAM },            /*system RAM*/
-		{ 0xf000, 0xffff, MWA_NOP },            /*processor RAM or free*/
-		{ -1 }    /* end of table */
+		new MemoryWriteAddress( 0x0000, 0x3fff, MWA_ROM ),            /*system ROM*/
+		new MemoryWriteAddress( 0x4000, 0x5fff, /*MWA_ROM*/MWA_BANK1 ),       /*system ROM, banked on 32kb ROMs protos*/
+		new MemoryWriteAddress( 0x6000, 0xdfff, MWA_NOP ),            /*free for expansion*/
+		new MemoryWriteAddress( 0xe000, 0xebff, MWA_RAM ),            /*system RAM*/
+		new MemoryWriteAddress( 0xec00, 0xeeff, ti99_2_video_w,  videoram ), /*system RAM : used for video*/
+		new MemoryWriteAddress( 0xef00, 0xefff, MWA_RAM ),            /*system RAM*/
+		new MemoryWriteAddress( 0xf000, 0xffff, MWA_NOP ),            /*processor RAM or free*/
+		new MemoryWriteAddress( -1 )    /* end of table */
 	};
 	
 	
@@ -299,13 +299,13 @@ public class ti99_2
 		if (offset <= 2)
 		{
 			/* this implementation is just a guess */
-			if (data)
+			if (data != 0)
 				KeyRow |= 1 << offset;
 			else
 				KeyRow &= ~ (1 << offset);
 		}
 		/* now, we handle ROM paging */
-		if (ROM_paged)
+		if (ROM_paged != 0)
 		{	/* if we have paged ROMs, page according to S0 keyboard interface line */
 			cpu_setbank(1, (KeyRow == 0) ? TI99_2_32_ROMPAGE1 : TI99_2_32_ROMPAGE0);
 		}
@@ -338,11 +338,11 @@ public class ti99_2
 		}
 	}
 	
-	static struct IOWritePort ti99_2_writeport[] =
+	static IOWritePort ti99_2_writeport[] =
 	{
-		{0x7000, 0x73ff, ti99_2_write_kbd},
-		{0x7400, 0x77ff, ti99_2_write_misc_cru},
-		{ -1 }    /* end of table */
+		new IOWritePort(0x7000, 0x73ff, ti99_2_write_kbd),
+		new IOWritePort(0x7400, 0x77ff, ti99_2_write_misc_cru),
+		new IOWritePort( -1 )    /* end of table */
 	};
 	
 	/* read keys in the current row */
@@ -356,84 +356,84 @@ public class ti99_2
 		return 0;
 	}
 	
-	static struct IOReadPort ti99_2_readport[] =
+	static IOReadPort ti99_2_readport[] =
 	{
-		{0x0E00, 0x0E7f, ti99_2_read_kbd},
-		{0x0E80, 0x0Eff, ti99_2_read_misc_cru},
-		{ -1 }    /* end of table */
+		new IOReadPort(0x0E00, 0x0E7f, ti99_2_read_kbd),
+		new IOReadPort(0x0E80, 0x0Eff, ti99_2_read_misc_cru),
+		new IOReadPort( -1 )    /* end of table */
 	};
 	
 	
 	/* ti99/2 : 54-key keyboard */
-	INPUT_PORTS_START(ti99_2)
+	static InputPortPtr input_ports_ti99_2 = new InputPortPtr(){ public void handler() { 
 	
-		PORT_START    /* col 0 */
-			PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "1 ! DEL", KEYCODE_1, IP_JOY_NONE)
-			PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "2 @ INS", KEYCODE_2, IP_JOY_NONE)
-			PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "3 #", KEYCODE_3, IP_JOY_NONE)
-			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "4 $ CLEAR", KEYCODE_4, IP_JOY_NONE)
-			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "5 % BEGIN", KEYCODE_5, IP_JOY_NONE)
-			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "6 ^ PROC'D", KEYCODE_6, IP_JOY_NONE)
-			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "7 & AID", KEYCODE_7, IP_JOY_NONE)
-			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "8 * REDO", KEYCODE_8, IP_JOY_NONE)
+		PORT_START();     /* col 0 */
+			PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "1 ! DEL", KEYCODE_1, IP_JOY_NONE);
+			PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "2 @ INS", KEYCODE_2, IP_JOY_NONE);
+			PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "3 #", KEYCODE_3, IP_JOY_NONE);
+			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "4 $ CLEAR", KEYCODE_4, IP_JOY_NONE);
+			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "5 % BEGIN", KEYCODE_5, IP_JOY_NONE);
+			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "6 ^ PROC'D", KEYCODE_6, IP_JOY_NONE);
+			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "7 & AID", KEYCODE_7, IP_JOY_NONE);
+			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "8 * REDO", KEYCODE_8, IP_JOY_NONE);
 	
-		PORT_START    /* col 1 */
-			PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "q Q", KEYCODE_Q, IP_JOY_NONE)
-			PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "w W ~", KEYCODE_W, IP_JOY_NONE)
-			PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "e E (UP)", KEYCODE_E, IP_JOY_NONE)
-			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "r R [", KEYCODE_R, IP_JOY_NONE)
-			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "t T ]", KEYCODE_T, IP_JOY_NONE)
-			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "y Y", KEYCODE_Y, IP_JOY_NONE)
-			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "i I ?", KEYCODE_I, IP_JOY_NONE)
-			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "9 ( BACK", KEYCODE_9, IP_JOY_NONE)
+		PORT_START();     /* col 1 */
+			PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "q Q", KEYCODE_Q, IP_JOY_NONE);
+			PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "w W ~", KEYCODE_W, IP_JOY_NONE);
+			PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "e E (UP);, KEYCODE_E, IP_JOY_NONE)
+			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "r R [", KEYCODE_R, IP_JOY_NONE);
+			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "t T ]", KEYCODE_T, IP_JOY_NONE);
+			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "y Y", KEYCODE_Y, IP_JOY_NONE);
+			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "i I ?", KEYCODE_I, IP_JOY_NONE);
+			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "9 ( BACK", KEYCODE_9, IP_JOY_NONE);
 	
-		PORT_START    /* col 2 */
-			PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "a A", KEYCODE_A, IP_JOY_NONE)
-			PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "s S (LEFT)", KEYCODE_S, IP_JOY_NONE)
-			PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "d D (RIGHT)", KEYCODE_D, IP_JOY_NONE)
-			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "f F {", KEYCODE_F, IP_JOY_NONE)
-			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "h H", KEYCODE_H, IP_JOY_NONE)
-			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "u U _", KEYCODE_U, IP_JOY_NONE)
-			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "o O '", KEYCODE_O, IP_JOY_NONE)
-			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "0 )", KEYCODE_0, IP_JOY_NONE)
+		PORT_START();     /* col 2 */
+			PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "a A", KEYCODE_A, IP_JOY_NONE);
+			PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "s S (LEFT);, KEYCODE_S, IP_JOY_NONE)
+			PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "d D (RIGHT);, KEYCODE_D, IP_JOY_NONE)
+			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "f F {", KEYCODE_F, IP_JOY_NONE);
+			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "h H", KEYCODE_H, IP_JOY_NONE);
+			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "u U _", KEYCODE_U, IP_JOY_NONE);
+			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "o O '", KEYCODE_O, IP_JOY_NONE);
+			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "0 );, KEYCODE_0, IP_JOY_NONE)
 	
-		PORT_START    /* col 3 */
-			PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "z Z \\", KEYCODE_Z, IP_JOY_NONE)
-			PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "x X (DOWN)", KEYCODE_X, IP_JOY_NONE)
-			PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "c C `", KEYCODE_C, IP_JOY_NONE)
-			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "g G }", KEYCODE_G, IP_JOY_NONE)
-			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "j J", KEYCODE_J, IP_JOY_NONE)
-			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "k K", KEYCODE_K, IP_JOY_NONE)
-			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "p P \"", KEYCODE_P, IP_JOY_NONE)
-			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "= + QUIT", KEYCODE_EQUALS, IP_JOY_NONE)
+		PORT_START();     /* col 3 */
+			PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "z Z \\", KEYCODE_Z, IP_JOY_NONE);
+			PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "x X (DOWN);, KEYCODE_X, IP_JOY_NONE)
+			PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "c C `", KEYCODE_C, IP_JOY_NONE);
+			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "g G }", KEYCODE_G, IP_JOY_NONE);
+			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "j J", KEYCODE_J, IP_JOY_NONE);
+			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "k K", KEYCODE_K, IP_JOY_NONE);
+			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "p P \"", KEYCODE_P, IP_JOY_NONE);
+			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "= + QUIT", KEYCODE_EQUALS, IP_JOY_NONE);
 	
-		PORT_START    /* col 4 */
-			PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "SHIFT", KEYCODE_LSHIFT/*KEYCODE_CAPSLOCK*/, IP_JOY_NONE)
-			PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "CTRL", KEYCODE_LCONTROL, IP_JOY_NONE)
-			PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "v V", KEYCODE_V, IP_JOY_NONE)
-			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "n N", KEYCODE_N, IP_JOY_NONE)
-			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, ", <", KEYCODE_COMMA, IP_JOY_NONE)
-			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "l L", KEYCODE_L, IP_JOY_NONE)
-			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "; :", KEYCODE_COLON, IP_JOY_NONE)
-			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "/ -", KEYCODE_SLASH, IP_JOY_NONE)
+		PORT_START();     /* col 4 */
+			PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "SHIFT", KEYCODE_LSHIFT/*KEYCODE_CAPSLOCK*/, IP_JOY_NONE);
+			PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "CTRL", KEYCODE_LCONTROL, IP_JOY_NONE);
+			PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "v V", KEYCODE_V, IP_JOY_NONE);
+			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "n N", KEYCODE_N, IP_JOY_NONE);
+			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, ", <", KEYCODE_COMMA, IP_JOY_NONE);
+			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "l L", KEYCODE_L, IP_JOY_NONE);
+			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "; :", KEYCODE_COLON, IP_JOY_NONE);
+			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "/ -", KEYCODE_SLASH, IP_JOY_NONE);
 	
-		PORT_START    /* col 5 */
-			PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "BREAK", KEYCODE_ESC, IP_JOY_NONE)
-			PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "(SPACE)", KEYCODE_SPACE, IP_JOY_NONE)
-			PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "b B", KEYCODE_B, IP_JOY_NONE)
-			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "m M", KEYCODE_M, IP_JOY_NONE)
-			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, ". >", KEYCODE_STOP, IP_JOY_NONE)
-			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "FCTN", KEYCODE_LALT, IP_JOY_NONE)
-			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "SHIFT", KEYCODE_RSHIFT, IP_JOY_NONE)
-			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "ENTER", KEYCODE_ENTER, IP_JOY_NONE)
+		PORT_START();     /* col 5 */
+			PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "BREAK", KEYCODE_ESC, IP_JOY_NONE);
+			PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "(SPACE);, KEYCODE_SPACE, IP_JOY_NONE)
+			PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "b B", KEYCODE_B, IP_JOY_NONE);
+			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "m M", KEYCODE_M, IP_JOY_NONE);
+			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, ". >", KEYCODE_STOP, IP_JOY_NONE);
+			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "FCTN", KEYCODE_LALT, IP_JOY_NONE);
+			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "SHIFT", KEYCODE_RSHIFT, IP_JOY_NONE);
+			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "ENTER", KEYCODE_ENTER, IP_JOY_NONE);
 	
-		PORT_START    /* col 6 */
-			PORT_BITX(0xFF, IP_ACTIVE_LOW, IPT_UNUSED, DEF_STR( Unused ), IP_KEY_NONE, IP_JOY_NONE)
+		PORT_START();     /* col 6 */
+			PORT_BITX(0xFF, IP_ACTIVE_LOW, IPT_UNUSED, DEF_STR( "Unused") ); IP_KEY_NONE, IP_JOY_NONE)
 	
-		PORT_START    /* col 7 */
-			PORT_BITX(0xFF, IP_ACTIVE_LOW, IPT_UNUSED, DEF_STR( Unused ), IP_KEY_NONE, IP_JOY_NONE)
+		PORT_START();     /* col 7 */
+			PORT_BITX(0xFF, IP_ACTIVE_LOW, IPT_UNUSED, DEF_STR( "Unused") ); IP_KEY_NONE, IP_JOY_NONE)
 	
-	INPUT_PORTS_END
+	INPUT_PORTS_END(); }}; 
 	
 	
 	static struct tms9995reset_param ti99_2_processor_config =
@@ -448,19 +448,19 @@ public class ti99_2
 		1           /* enable automatic wait state generation */
 	};
 	
-	static struct MachineDriver machine_driver_ti99_2 =
-	{
+	static MachineDriver machine_driver_ti99_2 = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_TMS9995,
 				10700000,     /* 10.7 Mhz*/
 	
 				ti99_2_readmem, ti99_2_writemem, ti99_2_readport, ti99_2_writeport,
 				ti99_2_vblank_interrupt, 1,
 				0, 0,
-				& ti99_2_processor_config
-			},
+				 ti99_2_processor_config
+			),
 		},
 		60, DEFAULT_REAL_60HZ_VBLANK_DURATION, /* frames per second, vblank duration */
 		1,
@@ -470,14 +470,14 @@ public class ti99_2
 		/* video hardware */
 		256,                      /* screen width */
 		192,                      /* screen height */
-		{ 0, 256-1, 0, 192-1},    /* visible_area */
+		new rectangle( 0, 256-1, 0, 192-1),    /* visible_area */
 		gfxdecodeinfo,            /* graphics decode info (???)*/
 		TI99_2_PALETTE_SIZE,      /* palette is 3*total_colors bytes long */
 		TI99_2_COLORTABLE_SIZE,   /* length in shorts of the color lookup table */
 		ti99_2_init_palette,      /* palette init */
 	
 		VIDEO_TYPE_RASTER,
-		0,
+		null,
 		ti99_2_vh_start,
 		ti99_2_vh_stop,
 		ti99_2_vh_refresh,
@@ -486,27 +486,27 @@ public class ti99_2
 		0,
 		0,0,0,
 	#if 0
-		{ /* no sound ! */
+		new MachineSound[] { /* no sound ! */
 		}
 	#endif
-	};
+	);
 	
 	
 	/*
 	  ROM loading
 	*/
-	ROM_START(ti99_224)
+	static RomLoadPtr rom_ti99_224 = new RomLoadPtr(){ public void handler(){ 
 		/*CPU memory space*/
-		ROM_REGION(0x10000,REGION_CPU1)
-		ROM_LOAD("992rom.bin", 0x0000, 0x6000, 0x00000000)      /* system ROMs */
-	ROM_END
+		ROM_REGION(0x10000,REGION_CPU1);
+		ROM_LOAD("992rom.bin", 0x0000, 0x6000, 0x00000000);     /* system ROMs */
+	ROM_END(); }}; 
 	
-	ROM_START(ti99_232)
+	static RomLoadPtr rom_ti99_232 = new RomLoadPtr(){ public void handler(){ 
 		/*64kb CPU memory space + 8kb to read the extra ROM page*/
-		ROM_REGION(0x12000,REGION_CPU1)
-		ROM_LOAD("992rom32.bin", 0x0000, 0x6000, 0x00000000)    /* system ROM - 32kb */
-		ROM_CONTINUE(0x10000,0x2000)
-	ROM_END
+		ROM_REGION(0x12000,REGION_CPU1);
+		ROM_LOAD("992rom32.bin", 0x0000, 0x6000, 0x00000000);   /* system ROM - 32kb */
+		ROM_CONTINUE(0x10000,0x2000);
+	ROM_END(); }}; 
 	
 	static const struct IODevice io_ti99_2[] =
 	{

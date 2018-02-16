@@ -58,22 +58,22 @@ public class pcw16
 	
 	
 	/* Initialise the palette */
-	void pcw16_init_palette(unsigned char *sys_palette, unsigned short *sys_colortable, const unsigned char *color_prom)
+	void pcw16_init_palette(UBytePtr sys_palette, unsigned short *sys_colortable, const UBytePtr color_prom)
 	{
 		memcpy(sys_palette, pcw16_palette, sizeof (pcw16_palette));
 		memcpy(sys_colortable, pcw16_colour_table, sizeof (pcw16_colour_table));
 	}
 	
-	int pcw16_vh_start(void)
+	public static VhStartPtr pcw16_vh_start = new VhStartPtr() { public int handler() 
 	{
 		return 0;
 	
 	//	return 0;
-	}
+	} };
 	
-	void    pcw16_vh_stop(void)
+	public static VhStopPtr pcw16_vh_stop = new VhStopPtr() { public void handler() 
 	{
-	}
+	} };
 	
 	/* 640, 1 bit per pixel */
 	static void pcw16_vh_decode_mode0(struct osd_bitmap *bitmap, int x, int y, unsigned char byte)
@@ -84,8 +84,8 @@ public class pcw16
 	
 		local_byte = byte;
 	
-		col0 = Machine->pens[pcw16_colour_palette[0]];
-		col1 = Machine->pens[pcw16_colour_palette[1]];
+		col0 = Machine.pens[pcw16_colour_palette[0]];
+		col1 = Machine.pens[pcw16_colour_palette[1]];
 	
 		for (b=0; b<8; b++)
 		{
@@ -93,7 +93,7 @@ public class pcw16
 	
 			col = col0;
 	
-			if (local_byte & 0x080)
+			if ((local_byte & 0x080) != 0)
 			{
 				col = col1;
 			}
@@ -117,7 +117,7 @@ public class pcw16
 		{
 			int col;
 	
-			col = Machine->pens[pcw16_colour_palette[((local_byte>>6) & 0x03)]];
+			col = Machine.pens[pcw16_colour_palette[((local_byte>>6) & 0x03)]];
 	
 			plot_pixel(bitmap, x+(b<<1), y, col);
 			plot_pixel(bitmap, x+(b<<1)+1, y, col);
@@ -138,7 +138,7 @@ public class pcw16
 		{
 			int col;
 	
-			col = Machine->pens[pcw16_colour_palette[((local_byte>>4)&0x0f)]];
+			col = Machine.pens[pcw16_colour_palette[((local_byte>>4)&0x0f)]];
 	
 			plot_pixel(bitmap, x+(b<<2), y, col);
 			plot_pixel(bitmap, x+(b<<2)+1, y, col);
@@ -154,9 +154,9 @@ public class pcw16
 	  Do NOT call osd_update_display() from this function,
 	  it will be called by the main emulation engine.
 	***************************************************************************/
-	void pcw16_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr pcw16_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
-		unsigned char *pScanLine = (unsigned char *)pcw16_ram + 0x0fc00;	//0x03c00;	//0x020FC00;
+		UBytePtr pScanLine = (UBytePtr )pcw16_ram + 0x0fc00;	//0x03c00;	//0x020FC00;
 	
 		int y;
 		int x;
@@ -175,7 +175,7 @@ public class pcw16
 			border_colour = pcw16_colour_palette[1];
 		}
 	
-		border_colour = Machine->pens[border_colour];
+		border_colour = Machine.pens[border_colour];
 	
 		if ((pcw16_video_control & (1<<6))==0)
 		{
@@ -296,5 +296,5 @@ public class pcw16
 				pScanLine+=2;
 			}
 		}
-	}
+	} };
 }

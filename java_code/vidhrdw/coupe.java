@@ -19,22 +19,22 @@ public class coupe
 {
 	
 	
-	unsigned char *sam_screen;
+	UBytePtr sam_screen;
 	
 	/***************************************************************************
 	  Start the video hardware emulation.
 	***************************************************************************/
-	int coupe_vh_start(void) 
+	public static VhStartPtr coupe_vh_start = new VhStartPtr() { public int handler()  
 	{
 		if( generic_bitmapped_vh_start() )
 			return 1;
 		return 0;
-	}
+	} };
 	
-	void    coupe_vh_stop(void) 
+	public static VhStopPtr coupe_vh_stop = new VhStopPtr() { public void handler()  
 	{
 		generic_vh_stop();
-	}
+	} };
 	
 	//#define MONO
 	
@@ -49,32 +49,32 @@ public class coupe
 	#ifdef MONO
 			if (tmp>>4)
 			{
-				plot_pixel(bitmap, x*2, y, Machine->pens[127]);
-				plot_pixel(bitmap, x*2+1, y, Machine->pens[127]);
+				plot_pixel(bitmap, x*2, y, Machine.pens[127]);
+				plot_pixel(bitmap, x*2+1, y, Machine.pens[127]);
 			}
 			else
 			{
-				plot_pixel(bitmap, x*2, y, Machine->pens[0]);
-				plot_pixel(bitmap, x*2+1, y, Machine->pens[0]);
+				plot_pixel(bitmap, x*2, y, Machine.pens[0]);
+				plot_pixel(bitmap, x*2+1, y, Machine.pens[0]);
 			}
 			x++;
-			if (tmp&0x0F)
+			if ((tmp & 0x0F) != 0)
 			{
-				plot_pixel(bitmap, x*2, y, Machine->pens[127]);
-				plot_pixel(bitmap, x*2+1, y, Machine->pens[127]);
+				plot_pixel(bitmap, x*2, y, Machine.pens[127]);
+				plot_pixel(bitmap, x*2+1, y, Machine.pens[127]);
 			}
 			else
 			{
-				plot_pixel(bitmap, x*2, y, Machine->pens[0]);
-				plot_pixel(bitmap, x*2+1, y, Machine->pens[0]);
+				plot_pixel(bitmap, x*2, y, Machine.pens[0]);
+				plot_pixel(bitmap, x*2+1, y, Machine.pens[0]);
 			}
 			x++;
 	#else
-			plot_pixel(bitmap, x*2, y, Machine->pens[CLUT[tmp>>4]]);
-			plot_pixel(bitmap, x*2+1, y, Machine->pens[CLUT[tmp>>4]]);
+			plot_pixel(bitmap, x*2, y, Machine.pens[CLUT[tmp>>4]]);
+			plot_pixel(bitmap, x*2+1, y, Machine.pens[CLUT[tmp>>4]]);
 			x++;
-			plot_pixel(bitmap, x*2, y, Machine->pens[CLUT[tmp&0x0F]]);
-			plot_pixel(bitmap, x*2+1, y, Machine->pens[CLUT[tmp&0x0F]]);				
+			plot_pixel(bitmap, x*2, y, Machine.pens[CLUT[tmp&0x0F]]);
+			plot_pixel(bitmap, x*2+1, y, Machine.pens[CLUT[tmp&0x0F]]);				
 			x++;
 	#endif
 		}
@@ -90,33 +90,33 @@ public class coupe
 			tmp=*(sam_screen + (x/4) + (y*128));
 	#ifdef MONO
 			if (tmp>>6)
-				plot_pixel(bitmap,x,y,Machine->pens[127]);
+				plot_pixel(bitmap,x,y,Machine.pens[127]);
 			else
-				plot_pixel(bitmap,x,y,Machine->pens[0]);
+				plot_pixel(bitmap,x,y,Machine.pens[0]);
 			x++;
 			if ((tmp>>4)&0x03)
-				plot_pixel(bitmap,x,y,Machine->pens[127]);
+				plot_pixel(bitmap,x,y,Machine.pens[127]);
 			else
-				plot_pixel(bitmap,x,y,Machine->pens[0]);
+				plot_pixel(bitmap,x,y,Machine.pens[0]);
 			x++;
 			if ((tmp>>2)&0x03)
-				plot_pixel(bitmap,x,y,Machine->pens[127]);
+				plot_pixel(bitmap,x,y,Machine.pens[127]);
 			else
-				plot_pixel(bitmap,x,y,Machine->pens[0]);
+				plot_pixel(bitmap,x,y,Machine.pens[0]);
 			x++;
-			if (tmp&0x03)
-				plot_pixel(bitmap,x,y,Machine->pens[127]);
+			if ((tmp & 0x03) != 0)
+				plot_pixel(bitmap,x,y,Machine.pens[127]);
 			else
-				plot_pixel(bitmap,x,y,Machine->pens[0]);
+				plot_pixel(bitmap,x,y,Machine.pens[0]);
 			x++;
 	#else
-			plot_pixel(bitmap,x,y,Machine->pens[CLUT[tmp>>6]]);
+			plot_pixel(bitmap,x,y,Machine.pens[CLUT[tmp>>6]]);
 			x++;
-			plot_pixel(bitmap,x,y,Machine->pens[CLUT[(tmp>>4)&0x03]]);
+			plot_pixel(bitmap,x,y,Machine.pens[CLUT[(tmp>>4)&0x03]]);
 			x++;
-			plot_pixel(bitmap,x,y,Machine->pens[CLUT[(tmp>>2)&0x03]]);
+			plot_pixel(bitmap,x,y,Machine.pens[CLUT[(tmp>>2)&0x03]]);
 			x++;
-			plot_pixel(bitmap,x,y,Machine->pens[CLUT[tmp&0x03]]);
+			plot_pixel(bitmap,x,y,Machine.pens[CLUT[tmp&0x03]]);
 			x++;
 	#endif
 		}
@@ -127,7 +127,7 @@ public class coupe
 		int x,b,scrx;
 		unsigned char tmp=0;
 		unsigned short ink,pap;
-		unsigned char *attr;
+		UBytePtr attr;
 	
 		attr=sam_screen + 32*192 + y*32;
 	
@@ -146,15 +146,15 @@ public class coupe
 	
 			for (b=0x80;b!=0;b>>=1)
 			{
-				if (tmp&b)
+				if ((tmp & b) != 0)
 				{
-					plot_pixel(bitmap,scrx++,y,Machine->pens[ink]);
-					plot_pixel(bitmap,scrx++,y,Machine->pens[ink]);
+					plot_pixel(bitmap,scrx++,y,Machine.pens[ink]);
+					plot_pixel(bitmap,scrx++,y,Machine.pens[ink]);
 				}
 				else
 				{
-					plot_pixel(bitmap,scrx++,y,Machine->pens[pap]);
-					plot_pixel(bitmap,scrx++,y,Machine->pens[pap]);
+					plot_pixel(bitmap,scrx++,y,Machine.pens[pap]);
+					plot_pixel(bitmap,scrx++,y,Machine.pens[pap]);
 				}
 			}
 		}
@@ -165,7 +165,7 @@ public class coupe
 		int x,b,scrx,scry;
 		unsigned char tmp=0;
 		unsigned short ink,pap;
-		unsigned char *attr;
+		UBytePtr attr;
 	
 		attr=sam_screen + 32*192 + (y/8)*32;
 	
@@ -184,15 +184,15 @@ public class coupe
 			attr++;
 			for (b=0x80;b!=0;b>>=1)
 			{
-				if (tmp&b)
+				if ((tmp & b) != 0)
 				{
-					plot_pixel(bitmap,scrx++,scry,Machine->pens[ink]);
-					plot_pixel(bitmap,scrx++,scry,Machine->pens[ink]);
+					plot_pixel(bitmap,scrx++,scry,Machine.pens[ink]);
+					plot_pixel(bitmap,scrx++,scry,Machine.pens[ink]);
 				}
 				else
 				{
-					plot_pixel(bitmap,scrx++,scry,Machine->pens[pap]);
-					plot_pixel(bitmap,scrx++,scry,Machine->pens[pap]);
+					plot_pixel(bitmap,scrx++,scry,Machine.pens[pap]);
+					plot_pixel(bitmap,scrx++,scry,Machine.pens[pap]);
 				}
 			}
 		}
@@ -203,9 +203,9 @@ public class coupe
 	  Do NOT call osd_update_display() from this function,
 	  it will be called by the main emulation engine.
 	***************************************************************************/
-	void coupe_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh) 
+	public static VhUpdatePtr coupe_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh)  
 	{
-	}
+	} };
 	
 	
 	

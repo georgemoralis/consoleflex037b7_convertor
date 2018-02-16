@@ -114,11 +114,11 @@ public class smsvdp
 	
 	void sms_vdp_stop(void)
 	{
-	    if(tmpbitmap) osd_free_bitmap(tmpbitmap);
+	    if (tmpbitmap != 0) osd_free_bitmap(tmpbitmap);
 	}
 	
 	
-	int sms_vdp_interrupt(void)
+	public static InterruptPtr sms_vdp_interrupt = new InterruptPtr() { public int handler() 
 	{
 	    /* Bump scanline counter */
 	    curline = (curline + 1) % 262;
@@ -171,7 +171,7 @@ public class smsvdp
 	    }
 	
 	    return (Z80_IGNORE_INT);
-	}
+	} };
 	
 	
 	
@@ -311,7 +311,7 @@ public class smsvdp
 	    /* Check if display is disabled */
 	    if(!(reg[1] & 0x40))
 	    {
-	        memset(&bitmap->line[line][0], Machine->pens[0x10 + reg[7]], 0x100);
+	        memset(&bitmap.line[line][0], Machine.pens[0x10 + reg[7]], 0x100);
 	        return;
 	    }
 	
@@ -330,7 +330,7 @@ public class smsvdp
 	        for(x=0;x<8;x++)
 	        {
 	            color = cache[ (charindex << 6) + (v_row << 3) + (x)];
-	            bitmap->line[line][(xscroll+(i<<3)+x) & 0xFF] = Machine->pens[color | palselect];
+	            bitmap.line[line][(xscroll+(i<<3)+x) & 0xFF] = Machine.pens[color | palselect];
 	        }
 	    }
 	
@@ -352,14 +352,14 @@ public class smsvdp
 	            for(x=0;x<width;x++)
 	            {
 	                color = cache[(sn << 6)+(sl << 3) + (x)];
-	                if(color) bitmap->line[line][(sx + x) & 0xFF] = Machine->pens[0x10 | color];
+	                if (color != 0) bitmap.line[line][(sx + x) & 0xFF] = Machine.pens[0x10 | color];
 	            }
 	        }
 	    }
 	
 	    if(reg[0] & 0x20)
 	    {
-	        memset(&bitmap->line[line][0], Machine->pens[0x10 + reg[7]], 8);
+	        memset(&bitmap.line[line][0], Machine.pens[0x10 + reg[7]], 8);
 	    }
 	}
 	
@@ -442,7 +442,7 @@ public class smsvdp
 	{
 	    sms_update_palette();
 		palette_recalc();
-	    copybitmap (bitmap, tmpbitmap, 0, 0, 0, 0, &Machine->visible_area, TRANSPARENCY_NONE, 0);
+	    copybitmap (bitmap, tmpbitmap, 0, 0, 0, 0, &Machine.visible_area, TRANSPARENCY_NONE, 0);
 	}
 	
 	

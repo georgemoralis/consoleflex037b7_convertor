@@ -17,11 +17,11 @@ public class vc20tape
 	
 	#define VERBOSE_DBG 0
 	
-	struct DACinterface vc20tape_sound_interface =
-	{
+	static DACinterface vc20tape_sound_interface = new DACinterface
+	(
 		1,
-		{25}
-	};
+		new int[] {25}
+	);
 	
 	#define TONE_ON_VALUE 0xff
 	
@@ -197,29 +197,28 @@ public class vc20tape
 			return NULL;
 	
 		/* fill in the sample data */
-		result->length = length;
-		result->smpfreq = rate;
-		result->resolution = bits;
+		result.length = length;
+		result.smpfreq = rate;
+		result.resolution = bits;
 	
 		/* read the data in */
 		if (bits == 8)
 		{
-			osd_fread (f, result->data, length);
+			osd_fread (f, result.data, length);
 	
 			/* convert 8-bit data to signed samples */
 			for (temp32 = 0; temp32 < length; temp32++)
-				result->data[temp32] ^= 0x80;
+				result.data[temp32] ^= 0x80;
 		}
 		else
 		{
 			/* 16-bit data is fine as-is */
-			osd_fread_lsbfirst (f, result->data, length);
+			osd_fread_lsbfirst (f, result.data, length);
 		}
 	
 		return result;
 	}
 	
-	static void vc20_wav_timer (int data);
 	static void vc20_wav_state (void)
 	{
 		switch (wav.state)
@@ -245,7 +244,7 @@ public class vc20tape
 			if (tape.motor && tape.play)
 			{
 				wav.state = 3;
-				wav.timer = timer_pulse (1.0 / wav.sample->smpfreq, 0, vc20_wav_timer);
+				wav.timer = timer_pulse (1.0 / wav.sample.smpfreq, 0, vc20_wav_timer);
 				break;
 			}
 			if (tape.motor && tape.record)
@@ -297,7 +296,7 @@ public class vc20tape
 	{
 		FILE *fp;
 	
-		fp = (FILE*)osd_fopen (Machine->gamedrv->name, device_filename(image_type,image_id), OSD_FILETYPE_IMAGE_R, 0);
+		fp = (FILE*)osd_fopen (Machine.gamedrv.name, device_filename(image_type,image_id), OSD_FILETYPE_IMAGE_R, 0);
 		if (!fp)
 		{
 			logerror("tape %s file not found\n", device_filename(image_type,image_id));
@@ -328,11 +327,11 @@ public class vc20tape
 	
 	static void vc20_wav_timer (int data)
 	{
-		if (wav.sample->resolution == 8)
+		if (wav.sample.resolution == 8)
 		{
-			tape.data = wav.sample->data[wav.pos] > 0x0;
+			tape.data = wav.sample.data[wav.pos] > 0x0;
 			wav.pos++;
-			if (wav.pos >= wav.sample->length)
+			if (wav.pos >= wav.sample.length)
 			{
 				wav.pos = 0;
 				tape.play = 0;
@@ -340,9 +339,9 @@ public class vc20tape
 		}
 		else
 		{
-			tape.data = ((short *) (wav.sample->data))[wav.pos] > 0x0;
+			tape.data = ((short *) (wav.sample.data))[wav.pos] > 0x0;
 			wav.pos++;
-			if (wav.pos * 2 >= wav.sample->length)
+			if (wav.pos * 2 >= wav.sample.length)
 			{
 				wav.pos = 0;
 				tape.play = 0;
@@ -355,7 +354,6 @@ public class vc20tape
 		/*    vc20_wav_state(); // removing timer in timer puls itself hangs */
 	}
 	
-	static void vc20_prg_timer (int data);
 	static void vc20_prg_state (void)
 	{
 		switch (prg.state)
@@ -435,7 +433,7 @@ public class vc20tape
 	    FILE *fp;
 		int i;
 	
-		fp = (FILE*)osd_fopen (Machine->gamedrv->name, device_filename(image_type,image_id), OSD_FILETYPE_IMAGE_R, 0);
+		fp = (FILE*)osd_fopen (Machine.gamedrv.name, device_filename(image_type,image_id), OSD_FILETYPE_IMAGE_R, 0);
 		if (!fp)
 		{
 			logerror("tape %s file not found\n", device_filename(image_type,image_id));
@@ -490,7 +488,7 @@ public class vc20tape
 			logerror("%f %d %s %d\n", (PCM_LONG + PCM_MIDDLE) / 2,
 						 bytecount, old ? "high" : "low",
 						 diff);
-			if (old)
+			if (old != 0)
 			{
 				if (count > 0 /*27000 */ )
 				{
@@ -571,7 +569,7 @@ public class vc20tape
 		switch (prg.statebit)
 		{
 		case 0:
-			if (bit)
+			if (bit != 0)
 			{
 				timer_reset (prg.timer, prg.lasttime = PCM_MIDDLE);
 				prg.statebit = 2;
@@ -922,7 +920,6 @@ public class vc20tape
 		vc20_prg_state ();
 	}
 	
-	static void vc20_zip_timer (int data);
 	static void vc20_zip_state (void)
 	{
 		switch (zip.state)
@@ -1012,7 +1009,7 @@ public class vc20tape
 				rewindzip (zip.zip);
 				continue;
 			}
-			if ((cp = strrchr (zip.zipentry->name, '.')) == NULL)
+			if ((cp = strrchr (zip.zipentry.name, '.')) == NULL)
 				continue;
 			if (stricmp (cp, ".prg") == 0)
 				break;
@@ -1023,12 +1020,12 @@ public class vc20tape
 			zip.state = 0;
 			return;
 		}
-		for (i = 0; zip.zipentry->name[i] != 0; i++)
-			prg.name[i] = toupper (zip.zipentry->name[i]);
+		for (i = 0; zip.zipentry.name[i] != 0; i++)
+			prg.name[i] = toupper (zip.zipentry.name[i]);
 		for (; i < 16; i++)
 			prg.name[i] = ' ';
 	
-		prg.length = zip.zipentry->uncompressed_size;
+		prg.length = zip.zipentry.uncompressed_size;
 		if ((prg.prg = (UINT8 *) malloc (prg.length)) == NULL)
 		{
 			logerror("out of memory\n");
@@ -1277,7 +1274,7 @@ public class vc20tape
 	
 	void vc20_tape_buttons (int play, int record, int stop)
 	{
-		if (stop)
+		if (stop != 0)
 		{
 			tape.play = 0, tape.record = 0;
 		}
@@ -1312,8 +1309,8 @@ public class vc20tape
 			case 3:
 				snprintf (text, size, "Tape (%s) loading %d/%dsec",
 						  device_filename(wav.image_type, wav.image_id),
-						  wav.pos / wav.sample->smpfreq,
-						  wav.sample->length / wav.sample->smpfreq);
+						  wav.pos / wav.sample.smpfreq,
+						  wav.sample.length / wav.sample.smpfreq);
 				break;
 			}
 			break;
@@ -1337,7 +1334,7 @@ public class vc20tape
 				break;
 			case 3:
 				snprintf (text, size, "Tape (%s) File %s loading %d",
-					device_filename(zip.image_type,zip.image_id), zip.zipentry->name, prg.pos);
+					device_filename(zip.image_type,zip.image_id), zip.zipentry.name, prg.pos);
 				break;
 			}
 			break;

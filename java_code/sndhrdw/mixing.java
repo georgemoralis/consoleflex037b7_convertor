@@ -45,7 +45,7 @@ public class mixing
 		zero8bit = zero8;
 		zero16bit = zero16;
 	
-		if (threeVoiceAmplify)
+		if (threeVoiceAmplify != 0)
 		{
 			ampDiv = (maxLogicalVoices-1);
 		}
@@ -84,9 +84,9 @@ public class mixing
 	
 	INLINE void syncEm(void)
 	{
-		bool sync1 = (optr1.modulator->cycleLenCount <= 0);
-		bool sync2 = (optr2.modulator->cycleLenCount <= 0);
-		bool sync3 = (optr3.modulator->cycleLenCount <= 0);
+		bool sync1 = (optr1.modulator.cycleLenCount <= 0);
+		bool sync2 = (optr2.modulator.cycleLenCount <= 0);
+		bool sync3 = (optr3.modulator.cycleLenCount <= 0);
 	
 		optr1.cycleLenCount--;
 		optr2.cycleLenCount--;

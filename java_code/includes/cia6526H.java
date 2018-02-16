@@ -27,7 +27,6 @@ struct cia6526_interface
 };
 
 void cia6526_config (int which, const struct cia6526_interface *intf);
-void cia6526_reset (void);
 
 void cia6526_status (char *text, int size);
 

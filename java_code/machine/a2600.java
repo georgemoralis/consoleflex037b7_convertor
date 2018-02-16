@@ -154,11 +154,8 @@ public class a2600
 	
 	UINT8 RIOT_passedzero = 0;
 	
-	static void a2600_main_cb(int param);
 	
-	static void a2600_scanline_cb(void);
-	static void a2600_Cycle_cb(int param);
-	
+	static 
 	/*static int cpu_current_state;*/
 	
 	static void *HSYNC_timer;
@@ -196,7 +193,7 @@ public class a2600
 	
 	
 	/* local */
-	static unsigned char *a2600_cartridge_rom;
+	static UBytePtr a2600_cartridge_rom;
 	
 	/* scanline */
 	static int currentline = 0;
@@ -594,15 +591,15 @@ public class a2600
 		case VSYNC:
 			if (!(data & 0x02))
 			{
-				/* plot_pixel(stella_backbuffer, 69, currentline + Machine->visible_area.min_y, Machine->pens[flashycolour]); */
+				/* plot_pixel(stella_backbuffer, 69, currentline + Machine.visible_area.min_y, Machine.pens[flashycolour]); */
 	
 				logerror("TIA_w - VSYNC Stop\n");
 	
 			}
-			else if (data & 0x02)
+			else if ((data & 0x02) != 0)
 			{
 				logerror("TIA_w - VSYNC Start\n");
-				/* plot_pixel(stella_backbuffer, 69, currentline + Machine->visible_area.min_y, Machine->pens[flashycolour]); */
+				/* plot_pixel(stella_backbuffer, 69, currentline + Machine.visible_area.min_y, Machine.pens[flashycolour]); */
 			}
 			break;
 	
@@ -612,7 +609,7 @@ public class a2600
 			{
 	
 				TIA_vblank = 0;
-				/* plot_pixel(stella_backbuffer, 69, currentline + Machine->visible_area.min_y, Machine->pens[flashycolour]); */
+				/* plot_pixel(stella_backbuffer, 69, currentline + Machine.visible_area.min_y, Machine.pens[flashycolour]); */
 				flashycolour++;
 				flashycolour = flashycolour & 0x0f;
 	
@@ -623,10 +620,10 @@ public class a2600
 				logerror("TIA_w - VBLANK Stop\n");
 	
 			}
-			else if (data & 0x02)
+			else if ((data & 0x02) != 0)
 			{
 				TIA_vblank = 1;
-				/* plot_pixel(stella_backbuffer, 69, currentline + Machine->visible_area.min_y, Machine->pens[flashycolour]); */
+				/* plot_pixel(stella_backbuffer, 69, currentline + Machine.visible_area.min_y, Machine.pens[flashycolour]); */
 				logerror("TIA_w - VBLANK Start\n");
 	
 			}
@@ -646,7 +643,7 @@ public class a2600
 	
 			else
 			{
-				if (TIA_VERBOSE)
+				if (TIA_VERBOSE != 0)
 					logerror("TIA_w - WSYNC Write Error! offset $%02x & data $%02x\n", offset, data);
 			}
 			break;
@@ -671,12 +668,12 @@ public class a2600
 				TIA_player_1_block = 0;
 				TIA_player_0_finished = 0;
 				TIA_player_1_finished = 0;
-				if (TIA_VERBOSE)
+				if (TIA_VERBOSE != 0)
 					logerror("TIA_w - RSYNC \n");
 			}
 			else
 			{
-				if (TIA_VERBOSE)
+				if (TIA_VERBOSE != 0)
 					logerror("TIA_w - RSYNC Write Error! offset $%02x & data $%02x\n", offset, data);
 			}
 			break;
@@ -712,7 +709,7 @@ public class a2600
 	
 			tia.colreg.P0 = data;
 			tia.colreg.M0 = tia.colreg.P0;	/* missile same color */
-			if (TIA_VERBOSE)
+			if (TIA_VERBOSE != 0)
 				logerror("TIA_w - COLUP0 Write color is $%02x\n", tia.colreg.P0);
 			break;
 	
@@ -720,7 +717,7 @@ public class a2600
 	
 			tia.colreg.P1 = data;
 			tia.colreg.M1 = tia.colreg.P1;	/* missile same color */
-			if (TIA_VERBOSE)
+			if (TIA_VERBOSE != 0)
 				logerror("TIA_w - COLUP1 Write color is $%02x\n", tia.colreg.P1);
 			break;
 	
@@ -728,7 +725,7 @@ public class a2600
 	
 			tia.colreg.PF = data;
 			tia.colreg.BL = data;			/* ball is same as playfield */
-			if (TIA_VERBOSE)
+			if (TIA_VERBOSE != 0)
 				logerror("TIA_w - COLUPF Write color is $%02x\n", tia.colreg.PF);
 			break;
 	
@@ -755,14 +752,14 @@ public class a2600
 				TIA_player_0_reflect = 0;
 				logerror("TIA_w - REFP0 No reflect \n");
 			}
-			else if (data & 0x08)
+			else if ((data & 0x08) != 0)
 			{
 				TIA_player_0_reflect = 1;
 				logerror("TIA_w - REFP0 Reflect \n");
 			}
 			else
 			{
-				if (TIA_VERBOSE)
+				if (TIA_VERBOSE != 0)
 					logerror("TIA_w - Write Error, REFP0 offset $%02x & data $%02x\n", offset, data);
 			}
 			break;
@@ -774,14 +771,14 @@ public class a2600
 				TIA_player_1_reflect = 0;
 				logerror("TIA_w - REFP1 No reflect \n");
 			}
-			else if (data & 0x08)
+			else if ((data & 0x08) != 0)
 			{
 				TIA_player_1_reflect = 1;
 				logerror("TIA_w - REFP1 Reflect \n");
 			}
 			else
 			{
-				if (TIA_VERBOSE)
+				if (TIA_VERBOSE != 0)
 					logerror("TIA_w - Write Error, REFP1 offset $%02x & data $%02x\n", offset, data);
 			}
 			break;
@@ -1180,24 +1177,24 @@ public class a2600
 	
 	***************************************************************************/
 	
-	int a2600_vh_start(void)
+	public static VhStartPtr a2600_vh_start = new VhStartPtr() { public int handler() 
 	{
-		if ((stella_bitmap = bitmap_alloc(Machine->drv->screen_width, Machine->drv->screen_height)) == 0)
+		if ((stella_bitmap = bitmap_alloc(Machine.drv.screen_width, Machine.drv.screen_height)) == 0)
 			return 1;
-		if ((stella_backbuffer = bitmap_alloc(Machine->drv->screen_width, Machine->drv->screen_height)) == 0)
+		if ((stella_backbuffer = bitmap_alloc(Machine.drv.screen_width, Machine.drv.screen_height)) == 0)
 			return 1;
 		return 0;
-	}
+	} };
 	
-	void a2600_vh_stop(void)
+	public static VhStopPtr a2600_vh_stop = new VhStopPtr() { public void handler() 
 	{
-		if (stella_bitmap)
+		if (stella_bitmap != 0)
 			bitmap_free(stella_bitmap);
 		stella_bitmap = NULL;
-		if (stella_backbuffer)
+		if (stella_backbuffer != 0)
 			bitmap_free(stella_backbuffer);
 		stella_bitmap = NULL;
-	}
+	} };
 	
 	
 	/* when called, update the bitmap. */
@@ -1205,8 +1202,8 @@ public class a2600
 	{
 		int regpos;
 	
-		int xs = Machine->visible_area.min_x;
-		int yys = Machine->visible_area.min_y;
+		int xs = Machine.visible_area.min_x;
+		int yys = Machine.visible_area.min_y;
 	
 		int backcolor;
 	
@@ -1219,25 +1216,25 @@ public class a2600
 		/* to pick the color, need to bit check the playfield regs */
 	
 		/* set color to background */
-		backcolor = tia.colreg.BK % Machine->drv->color_table_len;
+		backcolor = tia.colreg.BK % Machine.drv.color_table_len;
 	
 		if (((currentline + yys) <= 299) && (TIA_vblank == 0))
 		{
 			/* now we have color, plot for 4 color cycles */
 			for (regpos = 0; regpos < 160; regpos++)
 			{
-				int i = PF_Data[regpos] % Machine->drv->color_table_len;
+				int i = PF_Data[regpos] % Machine.drv.color_table_len;
 	
 	
-				plot_pixel(stella_backbuffer, regpos + xs, currentline + yys, Machine->pens[0]);
+				plot_pixel(stella_backbuffer, regpos + xs, currentline + yys, Machine.pens[0]);
 	
 				if (i == 0)
 				{
-					plot_pixel(stella_backbuffer, regpos + xs, currentline + yys, Machine->pens[backcolor]);
+					plot_pixel(stella_backbuffer, regpos + xs, currentline + yys, Machine.pens[backcolor]);
 				}
 				else
 				{
-					plot_pixel(stella_backbuffer, regpos + xs, currentline + yys, Machine->pens[i]);
+					plot_pixel(stella_backbuffer, regpos + xs, currentline + yys, Machine.pens[i]);
 				}
 			}
 			currentline++;
@@ -1299,7 +1296,7 @@ public class a2600
 			{
 				UINT8 pix = (TIA_playfield.shiftreg & TIA_pf_mask.shiftreg)? 1:0;
 	
-				if (PF_Score)
+				if (PF_Score != 0)
 				{
 					forecolour = tia.colreg.P0;
 				}
@@ -1327,7 +1324,7 @@ public class a2600
 				{
 					UINT8 pix = (TIA_playfield.shiftreg & TIA_pf_mask.shiftreg)? 1:0;
 	
-					if (PF_Score)
+					if (PF_Score != 0)
 					{
 						forecolour = tia.colreg.P1;
 					}
@@ -1351,7 +1348,7 @@ public class a2600
 				{
 					UINT8 pix = (TIA_playfield.shiftreg & TIA_pf_mask.shiftreg)? 1:0;
 	
-					if (PF_Score)
+					if (PF_Score != 0)
 					{
 						forecolour = tia.colreg.P1;
 					}
@@ -1375,7 +1372,7 @@ public class a2600
 	
 		/* raster stuff. it should hopefully be in sync :) */
 	
-	/*	if (PF_Score)
+	/*	if (PF_Score != 0)
 		{
 			forecolour = tia.colreg.P0;
 		}
@@ -1385,7 +1382,7 @@ public class a2600
 		}
 	
 	
-		if (PF_Score)
+		if (PF_Score != 0)
 		{
 			forecolour = tia.colreg.P1;
 		}
@@ -1594,7 +1591,7 @@ public class a2600
 		/* Deal with the RIOT Timer */
 		if (!HSYNC_colour_clock)
 		{
-			if (TMR_Period)
+			if (TMR_Period != 0)
 			{
 				TMR_tmp--;
 				if (!TMR_tmp)
@@ -1612,7 +1609,7 @@ public class a2600
 	}
 	
 	
-	void a2600_init_machine(void)
+	public static InitMachinePtr a2600_init_machine = new InitMachinePtr() { public void handler() 
 	{
 	
 		/* start RIOT interface */
@@ -1623,7 +1620,7 @@ public class a2600
 		TIA_pf_mask.shiftreg = 0x080000;
 		return;
 	
-	}
+	} };
 	
 	/***************************************************************************
 	
@@ -1631,8 +1628,8 @@ public class a2600
 	
 	***************************************************************************/
 	/* This routine is called at the start of vblank to refresh the screen */
-	void a2600_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr a2600_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
-		copybitmap(bitmap, stella_bitmap, 0, 0, 0, 0, &Machine->visible_area, TRANSPARENCY_NONE, 0);
-	}
+		copybitmap(bitmap, stella_bitmap, 0, 0, 0, 0, &Machine.visible_area, TRANSPARENCY_NONE, 0);
+	} };
 }

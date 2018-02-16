@@ -43,7 +43,7 @@ public class cbmH
 	#define LOG(LEVEL,N,M,A)  \
 	        { \
 		  if(LEVEL>=N) { \
-		    if( M ) \
+		    if (M != 0) \
 	              logerror("%11.6f: %-24s",timer_get_time(), (char*)M );\
 		    logerror A; \
 		  } \

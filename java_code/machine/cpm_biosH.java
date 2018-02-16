@@ -150,19 +150,14 @@ extern dsk_fmt formats[];
 /* these are in cpm_bios.c */
 extern int cpm_floppy_init(int id);
 extern int  cpm_init(int n, const char *ids[]);
-extern void cpm_exit(void);
-
+extern 
 extern READ_HANDLER ( cpm_bios_command_r );
 extern WRITE_HANDLER ( cpm_bios_command_w );
 
 /* these are in cpm_disk.c */
 extern int	cpm_disk_select_format(int disk, const char *disk_id);
-extern void cpm_disk_open_image(void);
-extern void cpm_disk_home(void);
-extern void cpm_disk_set_track(int t);
+extern extern extern void cpm_disk_set_track(int t);
 extern void cpm_disk_set_sector(int s);
 extern void cpm_disk_set_dma(int d);
-extern int	cpm_disk_read_sector(void);
-extern int	cpm_disk_write_sector(void);
-
+extern extern 
 #endif  /* _CPM_BIOS_H */

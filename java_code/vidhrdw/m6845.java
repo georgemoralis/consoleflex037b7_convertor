@@ -98,15 +98,7 @@ public class m6845
 	/* timer to reset vsync */
 	static void *crtc6845_vsync_clear_timer = NULL;
 	
-	static void crtc6845_vsync_set_timer_callback(int);
-	static void crtc6845_vsync_clear_timer_callback(int);
-	static void crtc6845_remove_vsync_set_timer(void);
-	static void crtc6845_remove_vsync_clear_timer(void);
-	static void crtc6845_set_new_vsync_set_time(int);
-	static void crtc6845_set_new_vsync_clear_time(int);
-	static void crtc6845_recalc_cycles_to_vsync_start(void);
-	static void crtc6845_recalc_cycles_to_vsync_end(void);
-	
+	static static static static 
 	#endif
 	
 	// local copy of the 6845 external procedure calls
@@ -123,12 +115,12 @@ public class m6845
 	/* set up the local copy of the 6845 external procedure calls */
 	void crtc6845_config(const struct crtc6845_interface *intf)
 	{
-		crct6845_calls.out_MA_func=*intf->out_MA_func;
-		crct6845_calls.out_RA_func=*intf->out_RA_func;
-		crct6845_calls.out_HS_func=*intf->out_HS_func;
-		crct6845_calls.out_VS_func=*intf->out_VS_func;
-		crct6845_calls.out_DE_func=*intf->out_DE_func;
-		crct6845_calls.out_CR_func=*intf->out_CR_func;
+		crct6845_calls.out_MA_func=*intf.out_MA_func;
+		crct6845_calls.out_RA_func=*intf.out_RA_func;
+		crct6845_calls.out_HS_func=*intf.out_HS_func;
+		crct6845_calls.out_VS_func=*intf.out_VS_func;
+		crct6845_calls.out_DE_func=*intf.out_DE_func;
+		crct6845_calls.out_CR_func=*intf.out_CR_func;
 	}
 	
 	void	crtc6845_start(void)

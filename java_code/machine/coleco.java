@@ -18,12 +18,12 @@ public class coleco
 {
 	
 	/* local */
-	unsigned char *coleco_ram;
-	unsigned char *coleco_cartridge_rom;
+	UBytePtr coleco_ram;
+	UBytePtr coleco_cartridge_rom;
 	
 	static int JoyMode=0;
 	
-	//static unsigned char *ROM;
+	//static UBytePtr ROM;
 	
 	
 	int coleco_id_rom (int id)
@@ -63,7 +63,7 @@ public class coleco
 	
 		logerror("---------coleco_load_rom-----\n");
 		logerror("filetype is %d  \n",OSD_FILETYPE_IMAGE_R);
-		logerror("Machine->game->name is %s  \n",Machine->gamedrv->name);
+		logerror("Machine.game.name is %s  \n",Machine.gamedrv.name);
 		logerror("romname[0] is %s  \n",device_filename(IO_CARTSLOT,id));
 	
 		/* A cartridge isn't strictly mandatory, but it's recommended */
@@ -211,7 +211,7 @@ public class coleco
 	
 	READ_HANDLER ( coleco_VDP_r )
 	{
-		if (offset & 0x01)
+		if ((offset & 0x01) != 0)
 			return TMS9928A_register_r();
 		else
 			return TMS9928A_vram_r();
@@ -219,7 +219,7 @@ public class coleco
 	
 	WRITE_HANDLER ( coleco_VDP_w )
 	{
-		if (offset & 0x01)
+		if ((offset & 0x01) != 0)
 			TMS9928A_register_w(data);
 		else
 			TMS9928A_vram_w(data);

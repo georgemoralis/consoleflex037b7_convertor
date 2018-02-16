@@ -150,8 +150,7 @@ typedef struct {
 extern void wd179x_init(int active);
 
 extern void *wd179x_select_drive(UINT8 drive, UINT8 head, void (*callback)(int), const char *name);
-extern void wd179x_stop_drive(void);
-
+extern 
 extern void wd179x_read_sectormap(UINT8 drive, UINT8 *tracks, UINT8 *heads, UINT8 *sec_per_track);
 extern void wd179x_set_geometry(UINT8 drive, UINT8 tracks, UINT8 heads, UINT8 sec_per_track, UINT16 sector_length, UINT16 dir_sector, UINT16 dir_length, UINT8 first_sector_id);
 

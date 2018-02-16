@@ -78,10 +78,10 @@ public class mbee
 	
 	void mbee_videoram_w(int offs, int data)
 	{
-	    if( videoram[offs] != data )
+	    if( videoram.read(offs)!= data )
 		{
 			logerror("mbee videoram [$%04X] <- $%02X\n",offs,data);
-			videoram[offs] = data;
+			videoram.write(offs,data);
 			dirtybuffer[offs] = 1;
 		}
 	}
@@ -89,15 +89,15 @@ public class mbee
 	int mbee_videoram_r(int offs)
 	{
 		int data;
-		if( m6545_video_bank & 0x01 )
+		if ((m6545_video_bank & 0x01) != 0)
 		{
 			data = pcgram[offs];
-			logerror("mbee pcgram [$%04X] -> $%02X\n",offs,data);
+			logerror("mbee pcgram [$%04X] . $%02X\n",offs,data);
 		}
 		else
 		{
-			data = videoram[offs];
-			logerror("mbee videoram [$%04X] -> $%02X\n",offs,data);
+			data = videoram.read(offs);
+			logerror("mbee videoram [$%04X] . $%02X\n",offs,data);
 	    }
 	    return data;
 	}
@@ -113,7 +113,7 @@ public class mbee
 	            logerror("mbee pcgram  [$%04X] <- $%02X\n",offs,data);
 	            pcgram[0x0800+offs] = data;
 	            /* decode character graphics again */
-	            decodechar(Machine->gfx[0], chr, pcgram, &mbee_charlayout);
+	            decodechar(Machine.gfx[0], chr, pcgram, &mbee_charlayout);
 	
 	            /* mark all visible characters with that code dirty */
 	            for( offs = 0; offs < videoram_size; offs++ )
@@ -125,10 +125,10 @@ public class mbee
 	    }
 		else
 		{
-			if( colorram[offs] != data )
+			if( colorram.read(offs)!= data )
 	        {
 	            logerror("colorram [$%04X] <- $%02X\n",offs,data);
-	            colorram[offs] = data;
+	            colorram.write(offs,data);
 	            dirtybuffer[offs] = 1;
 	        }
 		}
@@ -138,8 +138,8 @@ public class mbee
 	{
 		int data;
 	
-		if( mbee_pcg_color_latch & 0x40 )
-	        data = colorram[offs];
+		if ((mbee_pcg_color_latch & 0x40) != 0)
+	        data = colorram.read(offs);
 		else
 			data = pcgram[0x0800+offs];
 	    return data;
@@ -152,32 +152,32 @@ public class mbee
 		int data = (readinputport(port) >> bit) & 1;
 		int extra = readinputport(8);
 	
-		if( extra & 0x01 )	/* extra: cursor up */
+		if ((extra & 0x01) != 0)	/* extra: cursor up */
 		{
 			if( port == 7 && bit == 1 ) data = 1;	/* Control */
 			if( port == 0 && bit == 5 ) data = 1;	/* E */
 		}
-		if( extra & 0x02 )	/* extra: cursor down */
+		if ((extra & 0x02) != 0)	/* extra: cursor down */
 		{
 			if( port == 7 && bit == 1 ) data = 1;	/* Control */
 			if( port == 3 && bit == 0 ) data = 1;	/* X */
 	    }
-		if( extra & 0x04 )	/* extra: cursor left */
+		if ((extra & 0x04) != 0)	/* extra: cursor left */
 		{
 			if( port == 7 && bit == 1 ) data = 1;	/* Control */
 			if( port == 2 && bit == 3 ) data = 1;	/* S */
 	    }
-		if( extra & 0x08 )	/* extra: cursor right */
+		if ((extra & 0x08) != 0)	/* extra: cursor right */
 		{
 			if( port == 7 && bit == 1 ) data = 1;	/* Control */
 			if( port == 0 && bit == 4 ) data = 1;	/* D */
 	    }
-		if( extra & 0x10 )	/* extra: insert */
+		if ((extra & 0x10) != 0)	/* extra: insert */
 		{
 			if( port == 7 && bit == 1 ) data = 1;	/* Control */
 			if( port == 2 && bit == 6 ) data = 1;	/* V */
 	    }
-	    if( data )
+	    if (data != 0)
 		{
 			crt.lpen_lo = offs & 0xff;
 			crt.lpen_hi = (offs >> 8) & 0x03;
@@ -239,7 +239,7 @@ public class mbee
 		int data;
 	    data = keyboard_matrix_r(param);
 	    crt.update_strobe = 1;
-		if( data )
+		if (data != 0)
 		{
 			logerror("6545 update_strobe_cb $%04X = $%02X\n", param, data);
 		}
@@ -249,8 +249,8 @@ public class mbee
 	{
 		int data = 0, y = cpu_getscanline();
 	
-		if( y < Machine->visible_area.min_y ||
-			y > Machine->visible_area.max_y )
+		if( y < Machine.visible_area.min_y ||
+			y > Machine.visible_area.max_y )
 			data |= 0x20;	/* vertical blanking */
 		if( crt.lpen_strobe )
 			data |= 0x40;	/* lpen register full */
@@ -498,24 +498,24 @@ public class mbee
 	    }
 	}
 	
-	int mbee_vh_start(void)
+	public static VhStartPtr mbee_vh_start = new VhStartPtr() { public int handler() 
 	{
 	    if( generic_vh_start() )
 			return 1;
 		pcgram = memory_region(REGION_CPU1)+0xf000;
 		videoram = memory_region(REGION_GFX1)+0x0000;
 		colorram = memory_region(REGION_GFX1)+0x0800;
-	    memset(dirtybuffer, 1, videoram_size);
+	    memset(dirtybuffer, 1, videoram_size[0]);
 	
 	    return 0;
-	}
+	} };
 	
-	void mbee_vh_stop(void)
+	public static VhStopPtr mbee_vh_stop = new VhStopPtr() { public void handler() 
 	{
 		generic_vh_stop();
-	}
+	} };
 	
-	void mbee_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr mbee_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 		int offs, cursor;
 	
@@ -530,17 +530,17 @@ public class mbee
 				 */
 	            while( strlen(mbee_frame_message) < 128 )
 					strcat(mbee_frame_message, " ");
-				ui_text(bitmap, mbee_frame_message, 0, Machine->uiheight - 10);
+				ui_text(bitmap, mbee_frame_message, 0, Machine.uiheight - 10);
 			}
 	    }
 	
 	    if( palette_recalc() )
 			full_refresh = 1;
 	
-	    if( full_refresh )
+	    if (full_refresh != 0)
 		{
-			memset(dirtybuffer, 1, videoram_size);
-	        fillbitmap(bitmap, Machine->pens[0], &Machine->visible_area);
+			memset(dirtybuffer, 1, videoram_size[0]);
+	        fillbitmap(bitmap, Machine.pens[0], &Machine.visible_area);
 		}
 	
 		for( offs = 0x000; offs < 0x380; offs += 0x10 )
@@ -556,10 +556,10 @@ public class mbee
 				int sx, sy, code, color;
 				sy = off_y + (offs / crt.horizontal_displayed) * (crt.scan_lines + 1);
 				sx = (off_x + (offs % crt.horizontal_displayed)) * 8;
-				code = videoram[offs];
-				color = colorram[offs];
-				drawgfx( bitmap,Machine->gfx[0],code,color,0,0,sx,sy,
-					&Machine->visible_area,TRANSPARENCY_NONE,0);
+				code = videoram.read(offs);
+				color = colorram.read(offs);
+				drawgfx( bitmap,Machine.gfx[0],code,color,0,0,sx,sy,
+					&Machine.visible_area,TRANSPARENCY_NONE,0);
 				dirtybuffer[offs] = 0;
 				if( offs == cursor && (crt.cursor_top & 0x60) != 0x20 )
 				{
@@ -571,14 +571,14 @@ public class mbee
 							if( y > crt.scan_lines )
 								break;
 							for( x = 0; x < 8; x++ )
-								plot_pixel(bitmap,sx+x,sy+y, Machine->pens[color]);
+								plot_pixel(bitmap,sx+x,sy+y, Machine.pens[color]);
 						}
 						dirtybuffer[offs] = 1;
 					}
 	            }
 			}
 		}
-	}
+	} };
 	
 	
 	

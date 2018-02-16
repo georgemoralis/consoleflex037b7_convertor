@@ -36,12 +36,12 @@ public class spectrum
 	#define MIN(x,y) ((x)<(y)?(x):(y))
 	#endif
 	
-	static unsigned char *pSnapshotData = NULL;
+	static UBytePtr pSnapshotData = NULL;
 	static unsigned long SnapshotDataSize = 0;
 	static unsigned long TapePosition = 0;
-	static void spectrum_setup_sna(unsigned char *pSnapshot, unsigned long SnapshotSize);
-	static void spectrum_setup_z80(unsigned char *pSnapshot, unsigned long SnapshotSize);
-	static int is48k_z80snapshot(unsigned char *pSnapshot, unsigned long SnapshotSize);
+	static void spectrum_setup_sna(UBytePtr pSnapshot, unsigned long SnapshotSize);
+	static void spectrum_setup_z80(UBytePtr pSnapshot, unsigned long SnapshotSize);
+	static int is48k_z80snapshot(UBytePtr pSnapshot, unsigned long SnapshotSize);
 	static OPBASE_HANDLER(spectrum_opbaseoverride);
 	static OPBASE_HANDLER(spectrum_tape_opbaseoverride);
 	
@@ -64,7 +64,7 @@ public class spectrum
 		int length;
 	} quick;
 	
-	void spectrum_init_machine(void)
+	public static InitMachinePtr spectrum_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		if (pSnapshotData != NULL)
 		{
@@ -76,7 +76,7 @@ public class spectrum
 			else
 				cpu_setOPbaseoverride(0, spectrum_opbaseoverride);
 		}
-	}
+	} };
 	
 	void spectrum_shutdown_machine(void)
 	{
@@ -88,10 +88,10 @@ public class spectrum
 	
 		file = image_fopen(IO_SNAPSHOT, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
 	
-		if (file)
+		if (file != 0)
 		{
 			int datasize;
-			unsigned char *data;
+			UBytePtr data;
 	
 			datasize = osd_fsize(file);
 	
@@ -151,7 +151,7 @@ public class spectrum
 		/* clear op base override */
 		cpu_setOPbaseoverride(0, 0);
 	
-		if (pSnapshotData)
+		if (pSnapshotData != 0)
 		{
 			/* snapshot loaded setup */
 	
@@ -288,7 +288,7 @@ public class spectrum
 		{
 			/* Wrong flag byte or verify selected so reset carry flag to indicate failure */
 			cpu_set_reg(Z80_AF, af_reg & 0xfffe);
-			if (af_reg & 0x0001)
+			if ((af_reg & 0x0001) != 0)
 				logerror("Failed to load tape block at offset %ld - type wanted %02x, got type %02x\n", TapePosition, a_reg,
 						 pSnapshotData[TapePosition + 2]);
 			else
@@ -301,7 +301,7 @@ public class spectrum
 			/* End of tape - either rewind or disable op base override */
 			if (readinputport(16) & 0x40)
 			{
-				if (data_loaded)
+				if (data_loaded != 0)
 				{
 					TapePosition = 0;
 					data_loaded = 0;
@@ -362,7 +362,7 @@ public class spectrum
 			spectrum_128_update_memory();
 		else
 		{
-			if (spectrum_128_port_7ffd_data & 0x10)
+			if ((spectrum_128_port_7ffd_data & 0x10) != 0)
 				/* Page in Spec 48K basic ROM */
 				spectrum_plus3_port_1ffd_data = 0x04;
 			else
@@ -435,7 +435,7 @@ public class spectrum
 	 *      in which case it is included twice.
 	 *
 	 *******************************************************************/
-	void spectrum_setup_sna(unsigned char *pSnapshot, unsigned long SnapshotSize)
+	void spectrum_setup_sna(UBytePtr pSnapshot, unsigned long SnapshotSize)
 	{
 		int i, j, usedbanks[8];
 		long bank_offset;
@@ -566,7 +566,7 @@ public class spectrum
 	}
 	
 	
-	static void spectrum_z80_decompress_block(unsigned char *pSource, int Dest, int size)
+	static void spectrum_z80_decompress_block(UBytePtr pSource, int Dest, int size)
 	{
 		unsigned char ch;
 		int i;
@@ -633,7 +633,7 @@ public class spectrum
 	}
 	
 	/* now supports 48k & 128k .Z80 files */
-	void spectrum_setup_z80(unsigned char *pSnapshot, unsigned long SnapshotSize)
+	void spectrum_setup_z80(UBytePtr pSnapshot, unsigned long SnapshotSize)
 	{
 		int i, is48ksnap;
 		unsigned char lo, hi, data;
@@ -769,7 +769,7 @@ public class spectrum
 		}
 		else
 		{
-			unsigned char *pSource;
+			UBytePtr pSource;
 			int header_size;
 	
 			logerror("v2.0+ V of Z80 snapshot found!\n");
@@ -793,7 +793,7 @@ public class spectrum
 	
 			pSource = pSnapshot + header_size;
 	
-			if (is48ksnap)
+			if (is48ksnap != 0)
 				/* Ensure 48K Basic ROM is used */
 				spectrum_page_basicrom();
 	
@@ -806,7 +806,7 @@ public class spectrum
 				length = (pSource[0] & 0x0ff) | ((pSource[1] & 0x0ff) << 8);
 				page = pSource[2];
 	
-				if (is48ksnap)
+				if (is48ksnap != 0)
 				{
 					switch (page)
 					{
@@ -887,7 +887,7 @@ public class spectrum
 	 *      and 0 if it is a Spectrum 128K or SamRam snapshot.
 	 *
 	 *******************************************************************/
-	int is48k_z80snapshot(unsigned char *pSnapshot, unsigned long SnapshotSize)
+	int is48k_z80snapshot(UBytePtr pSnapshot, unsigned long SnapshotSize)
 	{
 		unsigned char lo, hi, data;
 	
@@ -933,11 +933,11 @@ public class spectrum
 			!stricmp(device_filename(IO_CASSETTE, id) + strlen(device_filename(IO_CASSETTE, id) ) - 4, ".tap"))
 		{
 			int datasize;
-			unsigned char *data;
+			UBytePtr data;
 	
 			file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
 			logerror(".TAP file found\n");
-			if (file)
+			if (file != 0)
 				datasize = osd_fsize(file);
 			else
 				datasize = 0;
@@ -966,7 +966,7 @@ public class spectrum
 		}
 	
 		file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-		if (file)
+		if (file != 0)
 		{
 			struct wave_args wa =
 			{0,};
@@ -982,7 +982,7 @@ public class spectrum
 	
 		/* HJB 02/18: no file, create a new file instead */
 		file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_WRITE);
-		if (file)
+		if (file != 0)
 		{
 			struct wave_args wa =
 			{0,};

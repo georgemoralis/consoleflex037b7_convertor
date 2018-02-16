@@ -38,22 +38,22 @@ public class amiga
 	
 			/* Level 7 = NMI Can only be triggered from outside the hardware */
 	
-			if ( ints & 0x2000 )
+			if ((ints & 0x2000) != 0)
 				return m68_level6_irq();
 	
-			if ( ints & 0x1800 )
+			if ((ints & 0x1800) != 0)
 				return m68_level5_irq();
 	
-			if ( ints & 0x0780 )
+			if ((ints & 0x0780) != 0)
 				return m68_level4_irq();
 	
-			if ( ints & 0x0070 )
+			if ((ints & 0x0070) != 0)
 				return m68_level3_irq();
 	
-			if ( ints & 0x0008 )
+			if ((ints & 0x0008) != 0)
 				return m68_level2_irq();
 	
-			if ( ints & 0x0007 )
+			if ((ints & 0x0007) != 0)
 				return m68_level1_irq();
 		}
 	
@@ -64,7 +64,7 @@ public class amiga
 	
 		int level = get_int_level();
 	
-		if ( level )
+		if (level != 0)
 			cpu_cause_interrupt( 0, level );
 	}
 	
@@ -79,22 +79,22 @@ public class amiga
 	
 			/* Level 7 = NMI Can only be triggered from outside the hardware */
 	
-			if ( ints & 0x2000 )
+			if ((ints & 0x2000) != 0)
 				ret |= ( 1 << 5 );
 	
-			if ( ints & 0x1800 )
+			if ((ints & 0x1800) != 0)
 				ret |= ( 1 << 4 );
 	
-			if ( ints & 0x0780 )
+			if ((ints & 0x0780) != 0)
 				ret |= ( 1 << 3 );
 	
-			if ( ints & 0x0070 )
+			if ((ints & 0x0070) != 0)
 				ret |= ( 1 << 2 );
 	
-			if ( ints & 0x0008 )
+			if ((ints & 0x0008) != 0)
 				ret |= ( 1 << 1 );
 	
-			if ( ints & 0x0007 )
+			if ((ints & 0x0007) != 0)
 				ret |= ( 1 << 0 );
 		}
 	
@@ -126,11 +126,11 @@ public class amiga
 	
 		for ( i = 0; i < 16; i++ ) {
 			data = ( src >> i ) & 1;
-			if ( data ) {
+			if (data != 0) {
 				*fc ^= 1;
-				if ( mode & 0x0010 ) /* Exclusive mode */
+				if ((mode & 0x0010) != 0) /* Exclusive mode */
 					dst |= ( data ^ *fc ) << i;
-				if ( mode & 0x0008 ) /* Inclusive mode */
+				if ((mode & 0x0008) != 0) /* Inclusive mode */
 					dst |= ( data | *fc ) << i;
 			} else
 				dst |= ( *fc << i );
@@ -150,22 +150,22 @@ public class amiga
 		dataB =	new_data[1];																	\
 		dataC =	new_data[2];																	\
 																								\
-		if ( first )																			\
+		if (first != 0)																			\
 			dataA &= custom_regs.BLTAFWM;														\
 																								\
-		if ( last )																				\
+		if (last != 0)																				\
 			dataA &= custom_regs.BLTALWM;														\
 																								\
 		shiftA = ( custom_regs.BLTCON0 >> 12 ) & 0x0f;											\
 		shiftB = ( custom_regs.BLTCON1 >> 12 ) & 0x0f;											\
 																								\
-		if ( shiftA ) {																			\
+		if (shiftA != 0) {																			\
 			dataA >>= shiftA;																	\
 			if ( !first )																		\
 				dataA |= ( old_data[0] & ( ( 1 << shiftA ) - 1 ) ) << ( 16 - shiftA );			\
 		}																						\
 																								\
-		if ( shiftB ) {																			\
+		if (shiftB != 0) {																			\
 			dataB >>= shiftB;																	\
 			if ( !first )																		\
 				dataB |= ( old_data[1] & ( ( 1 << shiftB ) - 1 ) ) << ( 16 - shiftB );			\
@@ -205,22 +205,22 @@ public class amiga
 		dataB =	new_data[1];																	\
 		dataC =	new_data[2];																	\
 																								\
-		if ( first )																			\
+		if (first != 0)																			\
 			dataA &= custom_regs.BLTAFWM;														\
 																								\
-		if ( last )																				\
+		if (last != 0)																				\
 			dataA &= custom_regs.BLTALWM;														\
 																								\
 		shiftA = ( custom_regs.BLTCON0 >> 12 ) & 0x0f;											\
 		shiftB = ( custom_regs.BLTCON1 >> 12 ) & 0x0f;											\
 																								\
-		if ( shiftA ) {																			\
+		if (shiftA != 0) {																			\
 			dataA <<= shiftA;																	\
 			if ( !first )																		\
 				dataA |= ( old_data[0] >> ( 16 - shiftA ) ) & ( ( 1 << shiftA ) - 1 );			\
 		}																						\
 																								\
-		if ( shiftB ) {																			\
+		if (shiftB != 0) {																			\
 			dataB <<= shiftB;																	\
 			if ( !first )																		\
 				dataB |= ( old_data[1] >> ( 16 - shiftB ) ) & ( ( 1 << shiftB ) - 1 );			\
@@ -281,7 +281,7 @@ public class amiga
 	
 	static void blitter_proc( int param ) {
 		/* Now we do the real blitting */
-		unsigned char *RAM = memory_region( REGION_CPU1 );
+		UBytePtr RAM = memory_region( REGION_CPU1 );
 		int	blt_total = 0;
 	
 		custom_regs.DMACON |= 0x2000; /* Blit Zero, we modify it later */
@@ -564,7 +564,7 @@ public class amiga
 	
 		custom_regs.DMACON ^= 0x4000; /* signal we're done */
 	
-		if ( blt_total )
+		if (blt_total != 0)
 			custom_regs.DMACON ^= 0x2000;
 	
 	
@@ -605,7 +605,7 @@ public class amiga
 	
 		blit_time = ( (double)ticks * (double)width * (double)height );
 	
-		blit_time /= ( (double)Machine->drv->cpu[0].cpu_clock / 1000000.0 );
+		blit_time /= ( (double)Machine.drv.cpu[0].cpu_clock / 1000000.0 );
 	
 		timer_set( TIME_IN_USEC( blit_time ), 0, blitter_proc );
 	}
@@ -617,9 +617,7 @@ public class amiga
 	***************************************************************************/
 	
 	/* required prototype */
-	static void cia_issue_index( void );
-	static void setup_fdc_buffer( int drive );
-	
+	static 
 	typedef struct {
 		int motor_on;
 		int side;
@@ -739,7 +737,7 @@ public class amiga
 		if ( custom_regs.DSKLEN & 0x4000 ) {
 			logerror("Write to disk unsupported yet\n" );
 		} else {
-			unsigned char *RAM = &memory_region(REGION_CPU1)[( custom_regs.DSKPTH << 16 ) | custom_regs.DSKPTL];
+			UBytePtr RAM = &memory_region(REGION_CPU1)[( custom_regs.DSKPTH << 16 ) | custom_regs.DSKPTL];
 			int cur_pos = fdc_status[drive].pos;
 			int len = custom_regs.DSKLEN & 0x3fff;
 	
@@ -855,7 +853,7 @@ public class amiga
 		for ( sector = 0; sector < 11; sector++ ) {
 			unsigned char secbuf[544];
 		    int i;
-		    unsigned char *mfmbuf = ( &fdc_status[drive].mfm[544*2*sector] );
+		    UBytePtr mfmbuf = ( &fdc_status[drive].mfm[544*2*sector] );
 			unsigned long deven,dodd;
 			unsigned long hck = 0,dck = 0;
 	
@@ -991,7 +989,7 @@ public class amiga
 	}
 	
 	static void fdc_stepdrive( int drive ) {
-		if ( fdc_dir ) {
+		if (fdc_dir != 0) {
 			if ( fdc_status[drive].cyl )
 				fdc_status[drive].cyl--;
 		} else {
@@ -1054,7 +1052,7 @@ public class amiga
 		for ( drive = 0; drive < 4; drive++ ) {
 			if ( !( fdc_sel & ( 1 << drive ) ) ) {
 				if ( fdc_status[drive].motor_on ) {
-					if ( fdc_rdy )
+					if (fdc_rdy != 0)
 						ret &= ~0x20;
 					fdc_rdy = 1;
 				} else {
@@ -1242,7 +1240,7 @@ public class amiga
 		if ( cia_8520[1].tod_running ) {
 			int i;
 	
-			for ( i = 0; i < Machine->drv->screen_height; i++ ) {
+			for ( i = 0; i < Machine.drv.screen_height; i++ ) {
 				cia_8520[1].tod++;
 				if ( cia_8520[1].tod == cia_8520[1].alarm ) {
 					cia_8520[1].ics |= 0x84;
@@ -1537,19 +1535,19 @@ public class amiga
 			break;
 	
 			case 0xd00:
-				if ( data & 0x80 ) /* set */
+				if ((data & 0x80) != 0) /* set */
 					cia_8520[cia_sel].icr |= ( data & 0x7f );
 				else /* clear */
 					cia_8520[cia_sel].icr &= ~( data & 0x7f );
 			break;
 	
 			case 0xe00:
-				if ( data & 0x10 ) { /* force load */
+				if ((data & 0x10) != 0) { /* force load */
 					cia_8520[cia_sel].timerA_count = cia_8520[cia_sel].timerA_latch;
 					cia_stop_timer( cia_sel, 0 );
 				}
 	
-				if ( data & 0x01 )
+				if ((data & 0x01) != 0)
 					cia_fire_timer( cia_sel, 0 );
 				else
 					cia_stop_timer( cia_sel, 0 );
@@ -1558,12 +1556,12 @@ public class amiga
 			break;
 	
 			case 0xf00:
-				if ( data & 0x10 ) { /* force load */
+				if ((data & 0x10) != 0) { /* force load */
 					cia_8520[cia_sel].timerB_count = cia_8520[cia_sel].timerB_latch;
 					cia_stop_timer( cia_sel, 1 );
 				}
 	
-				if ( data & 0x01 )
+				if ((data & 0x01) != 0)
 					cia_fire_timer( cia_sel, 1 );
 				else
 					cia_stop_timer( cia_sel, 1 );
@@ -1623,8 +1621,8 @@ public class amiga
 					lft = ( input >> 1 ) & 1;
 					rgt = input & 1;
 	
-					if ( lft ) top ^= 1;
-					if ( rgt ) bot ^= 1;
+					if (lft != 0) top ^= 1;
+					if (rgt != 0) bot ^= 1;
 	
 					return ( bot | ( rgt << 1 ) | ( top << 8 ) | ( lft << 9 ) );
 				} else {
@@ -1646,8 +1644,8 @@ public class amiga
 					lft = ( input >> 1 ) & 1;
 					rgt = input & 1;
 	
-					if ( lft ) top ^= 1;
-					if ( rgt ) bot ^= 1;
+					if (lft != 0) top ^= 1;
+					if (rgt != 0) bot ^= 1;
 	
 					return ( bot | ( rgt << 1 ) | ( top << 8 ) | ( lft << 9 ) );
 				} else {
@@ -1707,7 +1705,7 @@ public class amiga
 	}
 	
 	#define SETCLR( reg, data ) { \
-		if ( data & 0x8000 ) \
+		if ((data & 0x8000) != 0) \
 			reg |= ( data & 0x7fff ); \
 		else \
 			reg &= ~( data & 0x7fff ); }
@@ -1726,7 +1724,7 @@ public class amiga
 			break;
 	
 			case 0x0024: /* DSKLEN */
-				if ( data & 0x8000 ) {
+				if ((data & 0x8000) != 0) {
 					if ( custom_regs.DSKLEN & 0x8000 )
 						fdc_setup_dma();
 				}
@@ -1770,7 +1768,7 @@ public class amiga
 					int loc = ( offset - 0x48 ) >> 2;
 					int order[4] = { 2, 1, 0, 3 };
 	
-					if ( lo )
+					if (lo != 0)
 						custom_regs.BLTxPTL[order[loc]] = ( data & 0xfffe ); /* should be word aligned, we make sure is is */
 					else
 						custom_regs.BLTxPTH[order[loc]] = ( data & 0x1f );
@@ -1817,7 +1815,7 @@ public class amiga
 					int lo = ( offset & 2 );
 					int loc = ( offset >> 2 ) & 1;
 	
-					if ( lo )
+					if (lo != 0)
 						custom_regs.COPLCL[loc] = ( data & ~1 ); /* should be word aligned, we make sure it is */
 					else
 						custom_regs.COPLCH[loc] = ( data & 0x1f );
@@ -1862,7 +1860,7 @@ public class amiga
 			case 0x009a: /* INTENA */
 				SETCLR( custom_regs.INTENA, data )
 	#if OLD_INTERRUPT_SYSTEM
-				if ( data & 0x8000 )
+				if ((data & 0x8000) != 0)
 					trigger_int();
 	#else
 				check_ints();
@@ -1872,7 +1870,7 @@ public class amiga
 			case 0x009c: /* INTREQ */
 				SETCLR( custom_regs.INTREQ, data )
 	#if OLD_INTERRUPT_SYSTEM
-				if ( data & 0x8000 )
+				if ((data & 0x8000) != 0)
 					trigger_int();
 	#else
 				check_ints();
@@ -1899,7 +1897,7 @@ public class amiga
 					int lo = ( offset & 2 );
 					int plane = ( offset >> 2 ) & 0x07;
 	
-					if ( lo ) {
+					if (lo != 0) {
 						custom_regs.BPLPTR[plane] &= 0x001f0000;
 						custom_regs.BPLPTR[plane] |= ( data & 0xfffe );
 					} else {
@@ -1964,7 +1962,7 @@ public class amiga
 					int lo = ( offset & 2 );
 					int num = ( offset >> 2 ) & 0x07;
 	
-					if ( lo ) {
+					if (lo != 0) {
 						custom_regs.SPRxPT[num] &= 0x001f0000;
 						custom_regs.SPRxPT[num] |= ( data & 0xfffe );
 						amiga_reload_sprite_info( num );
@@ -2028,7 +2026,7 @@ public class amiga
 	
 	***************************************************************************/
 	
-	int amiga_vblank_irq( void ) {
+	public static InterruptPtr amiga_vblank_irq = new InterruptPtr() { public int handler()  {
 		/* Update TOD on CIA A */
 		cia_vblank_update();
 	
@@ -2038,7 +2036,7 @@ public class amiga
 		amiga_custom_w( 0x009c, 0x8020 );
 	
 		return ignore_interrupt();
-	}
+	} };
 	
 	/***************************************************************************
 	
@@ -2046,7 +2044,7 @@ public class amiga
 	
 	***************************************************************************/
 	
-	void amiga_init_machine( void ) {
+	public static InitMachinePtr amiga_init_machine = new InitMachinePtr() { public void handler()  {
 	
 		/* Initialize the CIA's */
 		cia_init();
@@ -2060,5 +2058,5 @@ public class amiga
 		/* Fake our reset pointer */
 		/* This is done with a hardware overlay from the 8520 CIA A in the real hardware */
 		memcpy( memory_region( REGION_CPU1 ), &memory_region( REGION_CPU1 )[0x180000], 8 );
-	}
+	} };
 }

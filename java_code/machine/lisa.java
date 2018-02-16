@@ -66,7 +66,7 @@ public class lisa
 	
 	static int setup;	/* MMU setup mode : allows to edit the MMU regs */
 	
-	static int seg;		/* current SEG0-1 state (-> MMU register bank) */
+	static int seg;		/* current SEG0-1 state (. MMU register bank) */
 	
 	/* lisa MMU segment regs */
 	typedef struct real_mmu_entry
@@ -79,7 +79,7 @@ public class lisa
 	typedef struct mmu_entry
 	{
 		offs_t sorg;	/* (real_sorg & 0x0fff) << 9 */
-		enum { RAM_stack_r, RAM_r, RAM_stack_rw, RAM_rw, IO, invalid, special_IO } type;	/* <-> (real_slim & 0x0f00) */
+		enum { RAM_stack_r, RAM_r, RAM_stack_rw, RAM_rw, IO, invalid, special_IO } type;	/* <. (real_slim & 0x0f00) */
 		int slim;	/* (~ ((real_slim & 0x00ff) << 9)) & 0x01ffff */
 	} mmu_entry;
 	
@@ -94,7 +94,7 @@ public class lisa
 		detect errors, instead of generating several bits to fix errors)
 	*/
 	
-	static int diag2;			/* -> writes wrong parity data into RAM */
+	static int diag2;			/* . writes wrong parity data into RAM */
 	static int test_parity;		/* detect parity hard errors */
 	static UINT16 mem_err_addr_latch;	/* address when parity error occured */
 	static int parity_error_pending;	/* parity error interrupt pending */
@@ -124,7 +124,6 @@ public class lisa
 	static void COPS_via_out_b(int offset, int val);
 	static void COPS_via_out_ca2(int offset, int val);
 	static void COPS_via_out_cb2(int offset, int val);
-	static void COPS_via_irq_func(int val);
 	static int parallel_via_in_b(int offset);
 	
 	static int KBIR;	/* COPS VIA interrupt pending */
@@ -179,22 +178,22 @@ public class lisa
 	
 	static void lisa_field_interrupts(void)
 	{
-		if (parity_error_pending)
+		if (parity_error_pending != 0)
 			return;	/* don't touch anything... */
 	
-		/*if (RSIR)
+		/*if (RSIR != 0)
 			// serial interrupt
 			cpu_set_irq_line(0, M68K_IRQ_6, ASSERT_LINE);
-		else if (int0)
+		else if (int0 != 0)
 			// external interrupt
 			cpu_set_irq_line(0, M68K_IRQ_5, ASSERT_LINE);
-		else if (int1)
+		else if (int1 != 0)
 			// external interrupt
 			cpu_set_irq_line(0, M68K_IRQ_4, ASSERT_LINE);
-		else if (int2)
+		else if (int2 != 0)
 			// external interrupt
 			cpu_set_irq_line(0, M68K_IRQ_3, ASSERT_LINE);
-		else*/ if (KBIR)
+		else*/ if (KBIR != 0)
 			/* COPS VIA interrupt */
 			cpu_set_irq_line(0, M68K_IRQ_2, ASSERT_LINE);
 		else if (FDIR || VTIR)
@@ -210,7 +209,7 @@ public class lisa
 	#if 0
 		/* does not work well due to bugs in 68k cores */
 		parity_error_pending = value;
-		if (parity_error_pending)
+		if (parity_error_pending != 0)
 		{
 			cpu_set_irq_line(0, M68K_IRQ_7, ASSERT_LINE);
 			cpu_irq_line_vector_w(0, M68K_IRQ_7, M68K_INT_ACK_AUTOVECTOR);
@@ -476,10 +475,10 @@ public class lisa
 		/* some pull-ups allow the COPS to read 1s when the VIA port is not set as output */
 		command = (COPS_command | (~ via_read(0, VIA_DDRA))) & 0xff;
 	
-		if (command & 0x80)
+		if ((command & 0x80) != 0)
 			return;	/* NOP */
 	
-		if (command & 0xF0)
+		if ((command & 0xF0) != 0)
 		{	/* commands with 4-bit immediate operand */
 			int immediate = command & 0xf;
 	
@@ -491,7 +490,7 @@ public class lisa
 	
 			case 0x2:	/* set clock mode */
 	#if 0
-				if (immediate & 0x8)
+				if ((immediate & 0x8) != 0)
 				{	/* start setting the clock */
 				}
 	
@@ -540,14 +539,14 @@ public class lisa
 				break;
 	
 			case 0x7:	/* send mouse command */
-				if (mouse_timer)
+				if (mouse_timer != 0)
 				{
-					/* disable mouse timer -> disable mouse */
+					/* disable mouse timer . disable mouse */
 					timer_remove(mouse_timer);
 					mouse_timer = NULL;
 				}
 	
-				if (immediate & 0x8)
+				if ((immediate & 0x8) != 0)
 					/* enable mouse */
 					mouse_timer = timer_pulse(TIME_IN_MSEC((immediate & 0x7)*4), 0, handle_mouse);
 				break;
@@ -607,9 +606,9 @@ public class lisa
 		for (i=0; i<8; i++)
 			key_matrix[i] = 0;
 	
-		if (mouse_timer)
+		if (mouse_timer != 0)
 		{
-			/* disable mouse timer -> disable mouse */
+			/* disable mouse timer . disable mouse */
 			timer_remove(mouse_timer);
 			mouse_timer = NULL;
 		}
@@ -651,7 +650,7 @@ public class lisa
 	}
 	
 	/* called at power-up */
-	static void init_COPS(void)
+	static public static InitDriverPtr init_COPS = new InitDriverPtr() { public void handler() 
 	{
 		COPS_Ready = FALSE;
 	
@@ -672,16 +671,16 @@ public class lisa
 		clock_regs.tenths = 0;
 	
 		reset_COPS();
-	}
+	} };
 	
 	
 	
 	/* VIA1 accessors (COPS, sound, and 2 hard disk lines) */
 	
 	/*
-		PA0-7 (I/O) : VIA <-> COPS data bus
+		PA0-7 (I/O) : VIA <. COPS data bus
 		CA1 (I) : COPS sending valid data
-		CA2 (O) : VIA -> COPS handshake
+		CA2 (O) : VIA . COPS handshake
 	*/
 	static void COPS_via_out_a(int offset, int val)
 	{
@@ -719,7 +718,7 @@ public class lisa
 		if (! COPS_Ready)
 			val |= 0x40;
 	
-		if (FDIR)
+		if (FDIR != 0)
 			val |= 0x10;
 	
 		return val;
@@ -727,7 +726,7 @@ public class lisa
 	
 	static void COPS_via_out_b(int offset, int val)
 	{
-		if (val & 0x01)
+		if ((val & 0x01) != 0)
 			COPS_reset_line = FALSE;
 		else if (! COPS_reset_line)
 		{
@@ -753,7 +752,7 @@ public class lisa
 	/* VIA2 accessors (hard disk, and a few floppy disk lines) */
 	
 	/*
-		PA0-7 (I/O) : VIA <-> hard disk data bus (cf PB3)
+		PA0-7 (I/O) : VIA <. hard disk data bus (cf PB3)
 		CA1 (I) : hard disk BSY line
 		CA2 (O) : hard disk PSTRB* line
 	*/
@@ -774,7 +773,7 @@ public class lisa
 	{
 		int val = 0;
 	
-		if (DISK_DIAG)
+		if (DISK_DIAG != 0)
 			val |= 0x40;
 	
 		/* tell there is no hard disk : */
@@ -792,26 +791,26 @@ public class lisa
 		LISA video emulation
 	*/
 	
-	int lisa_vh_start(void)
+	public static VhStartPtr lisa_vh_start = new VhStartPtr() { public int handler() 
 	{
-		size_t videoram_size = (720 * 360 / 8);
+		size_t videoram_size[0] = (720 * 360 / 8);
 	
-		old_display = (UINT16 *) malloc(videoram_size);
+		old_display = (UINT16 *) malloc(videoram_size[0]);
 		if (! old_display)
 		{
 			return 1;
 		}
-		memset(old_display, 0, videoram_size);
+		memset(old_display, 0, videoram_size[0]);
 	
 		return 0;
-	}
+	} };
 	
-	void lisa_vh_stop(void)
+	public static VhStopPtr lisa_vh_stop = new VhStopPtr() { public void handler() 
 	{
 		free(old_display);
-	}
+	} };
 	
-	void lisa_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr lisa_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 		UINT16	data;
 		UINT16	*old;
@@ -819,8 +818,8 @@ public class lisa
 		int		fg, bg, x, y;
 	
 		v = videoram_ptr;
-		bg = Machine->pens[0];
-		fg = Machine->pens[1];
+		bg = Machine.pens[0];
+		fg = Machine.pens[1];
 		old = old_display;
 	
 		for (y = 0; y < 360; y++) {
@@ -849,14 +848,14 @@ public class lisa
 				old++;
 			}
 		}
-	}
+	} };
 	
 	
 	static OPBASE_HANDLER (lisa_OPbaseoverride)
 	{
 		offs_t answer;
 	
-		/* upper 7 bits -> segment # */
+		/* upper 7 bits . segment # */
 		int segment = (address >> 17) & 0x7f;
 	
 		int the_seg = seg;
@@ -864,15 +863,15 @@ public class lisa
 		/*logerror("logical address%lX\n", address);*/
 	
 	
-		if (setup)
+		if (setup != 0)
 		{
-			if (address & 0x004000)
+			if ((address & 0x004000) != 0)
 			{
 				the_seg = 0;	/* correct ??? */
 			}
 			else
 			{
-				if (address & 0x008000)
+				if ((address & 0x008000) != 0)
 				{	/* MMU register : BUS error ??? */
 					answer = 0;
 				}
@@ -891,7 +890,7 @@ public class lisa
 		{
 			int seg_offset = address & 0x01ffff;
 	
-			/* add revelant origin -> address */
+			/* add revelant origin . address */
 			offs_t mapped_address = (mmu_regs[the_seg][segment].sorg + seg_offset) & 0x1fffff;
 	
 			switch (mmu_regs[the_seg][segment].type)
@@ -931,7 +930,7 @@ public class lisa
 	
 	static OPBASE_HANDLER (lisa_fdc_OPbaseoverride)
 	{
-		/* 8kb of address space -> wraparound */
+		/* 8kb of address space . wraparound */
 		return (address & 0x1fff);
 	}
 	
@@ -1000,7 +999,7 @@ public class lisa
 		iwm_lisa_init();
 	}
 	
-	int lisa_interrupt(void)
+	public static InterruptPtr lisa_interrupt = new InterruptPtr() { public int handler() 
 	{
 		static int frame_count = 0;
 	
@@ -1077,14 +1076,14 @@ public class lisa
 		}
 	
 		/* set VBI */
-		if (VTMSK)
+		if (VTMSK != 0)
 			set_VTIR(TRUE);
 	
 		/* do keyboard scan */
 		scan_keyboard();
 	
 		return 0;
-	}
+	} };
 	
 	
 	READ_HANDLER ( lisa_fdc_io_r )
@@ -1113,7 +1112,7 @@ public class lisa
 				/*DIS = offset & 1;*/	/* ???? */
 				break;
 			case 5:
-				/*HDS = offset & 1;*/		/* head select (-> disk side) */
+				/*HDS = offset & 1;*/		/* head select (. disk side) */
 				iwm_lisa_set_head_line(offset & 1);
 				break;
 			case 6:
@@ -1163,7 +1162,7 @@ public class lisa
 				/*DIS = offset & 1;*/	/* ???? */
 				break;
 			case 5:
-				/*HDS = offset & 1;*/		/* head select (-> disk side) */
+				/*HDS = offset & 1;*/		/* head select (. disk side) */
 				iwm_lisa_set_head_line(offset & 1);
 				break;
 			case 6:
@@ -1224,24 +1223,24 @@ public class lisa
 		/* segment register set */
 		int the_seg = seg;
 	
-		/* upper 7 bits -> segment # */
+		/* upper 7 bits . segment # */
 		int segment = (offset >> 17) & 0x7f;
 	
 	
 		/*logerror("read, logical address%lX\n", offset);*/
 	
-		if (setup)
+		if (setup != 0)
 		{	/* special setup mode */
-			if (offset & 0x004000)
+			if ((offset & 0x004000) != 0)
 			{
 				the_seg = 0;	/* correct ??? */
 			}
 			else
 			{
-				if (offset & 0x008000)
+				if ((offset & 0x008000) != 0)
 				{	/* read MMU register */
 					/*logerror("read from segment registers (%X:%X) ", the_seg, segment);*/
-					if (offset & 0x000008)
+					if ((offset & 0x000008) != 0)
 					{	/* sorg register */
 						answer = real_mmu_regs[the_seg][segment].sorg;
 						/*logerror("sorg, data = %X\n", answer);*/
@@ -1267,7 +1266,7 @@ public class lisa
 			/* offset in segment */
 			int seg_offset = offset & 0x01ffff;
 	
-			/* add revelant origin -> address */
+			/* add revelant origin . address */
 			offs_t address = (mmu_regs[the_seg][segment].sorg + seg_offset) & 0x1fffff;
 	
 			/*logerror("read, logical address%lX\n", offset);
@@ -1378,22 +1377,22 @@ public class lisa
 		/* segment register set */
 		int the_seg = seg;
 	
-		/* upper 7 bits -> segment # */
+		/* upper 7 bits . segment # */
 		int segment = (offset >> 17) & 0x7f;
 	
 	
-		if (setup)
+		if (setup != 0)
 		{
-			if (offset & 0x004000)
+			if ((offset & 0x004000) != 0)
 			{
 				the_seg = 0;	/* correct ??? */
 			}
 			else
 			{
-				if (offset & 0x008000)
+				if ((offset & 0x008000) != 0)
 				{	/* write to MMU register */
 					/*logerror("write to segment registers (%X:%X) ", the_seg, segment);*/
-					if (offset & 0x000008)
+					if ((offset & 0x000008) != 0)
 					{	/* sorg register */
 						/*logerror("sorg, data = %X\n", data);*/
 						real_mmu_regs[the_seg][segment].sorg = data;
@@ -1454,7 +1453,7 @@ public class lisa
 			/* offset in segment */
 			int seg_offset = offset & 0x01ffff;
 	
-			/* add revelant origin -> address */
+			/* add revelant origin . address */
 			offs_t address = (mmu_regs[the_seg][segment].sorg + seg_offset) & 0x1fffff;
 	
 			switch (mmu_regs[the_seg][segment].type)
@@ -1467,7 +1466,7 @@ public class lisa
 	
 				}
 				COMBINE_WORD_MEM(lisa_ram_ptr + address, data);
-				if (diag2)
+				if (diag2 != 0)
 				{
 					if (! (data & 0x00ff0000))
 					{
@@ -1504,7 +1503,7 @@ public class lisa
 	
 				}
 				COMBINE_WORD_MEM(lisa_ram_ptr + address, data);
-				if (diag2)
+				if (diag2 != 0)
 				{
 					if (! (data & 0x00ff0000))
 					{
@@ -1833,7 +1832,7 @@ public class lisa
 				/*logerror("video address latch write offs=%X, data=%X\n", offset, data);*/
 				COMBINE_WORD_MEM(& video_address_latch, data);
 				videoram_ptr = lisa_ram_ptr + ((video_address_latch << 7) & 0x1f8000);
-				/*logerror("video address latch %X -> base address %X\n", video_address_latch,
+				/*logerror("video address latch %X . base address %X\n", video_address_latch,
 								(video_address_latch << 7) & 0x1f8000);*/
 				break;
 			}

@@ -315,7 +315,7 @@ public class cocopak
 	
 			/* Is this a fancy image with PC-Dragon Info in it? */
 			pcd1 = (pcd_info1 *) p11.disk_directory;
-			if ((pcd1->magic1[0] == 0xAB) && (pcd1->magic1[1] == 0xBA)) {
+			if ((pcd1.magic1[0] == 0xAB) && (pcd1.magic1[1] == 0xBA)) {
 				/* Yes it is! */
 				/* Note! I should be checking the checksum */
 				pcd2 = (pcd_info2 *) p11.disk_name;
@@ -334,30 +334,30 @@ public class cocopak
 			rawtrailer += sizeof(pak_trailer13);
 		}
 	
-		trailer->reg_pc = LITTLE_ENDIANIZE_INT16(p3.reg_pc);
-		trailer->reg_x = LITTLE_ENDIANIZE_INT16(p4.reg_x);
-		trailer->reg_y = LITTLE_ENDIANIZE_INT16(p4.reg_y);
-		trailer->reg_u = LITTLE_ENDIANIZE_INT16(p4.reg_u);
-		trailer->reg_s = LITTLE_ENDIANIZE_INT16(p4.reg_s);
-		trailer->reg_dp = p4.reg_dp;
-		trailer->reg_b = p4.reg_b;
-		trailer->reg_a = p4.reg_a;
-		trailer->reg_cc = p6.reg_cc;
+		trailer.reg_pc = LITTLE_ENDIANIZE_INT16(p3.reg_pc);
+		trailer.reg_x = LITTLE_ENDIANIZE_INT16(p4.reg_x);
+		trailer.reg_y = LITTLE_ENDIANIZE_INT16(p4.reg_y);
+		trailer.reg_u = LITTLE_ENDIANIZE_INT16(p4.reg_u);
+		trailer.reg_s = LITTLE_ENDIANIZE_INT16(p4.reg_s);
+		trailer.reg_dp = p4.reg_dp;
+		trailer.reg_b = p4.reg_b;
+		trailer.reg_a = p4.reg_a;
+		trailer.reg_cc = p6.reg_cc;
 	
-		trailer->io_pia[0] = 0x00;
-		trailer->io_pia[1] = 0x34;
-		trailer->io_pia[4] = 0x02;
-		trailer->io_pia[5] = 0x34;
-		trailer->io_pia[7] = 0x3c;
+		trailer.io_pia[0] = 0x00;
+		trailer.io_pia[1] = 0x34;
+		trailer.io_pia[4] = 0x02;
+		trailer.io_pia[5] = 0x34;
+		trailer.io_pia[7] = 0x3c;
 	
 		switch(rawtrailerlen) {
 		case PAK_V14_SIZE:
-			trailer->io_pia[2] = u1.p8.io_ff02;
-			trailer->io_pia[3] = u1.p8.io_ff03;
-			trailer->io_pia[6] = u1.p8.io_ff22;
-			trailer->enable_hiram = (u1.p8.rom_status == 0xdf);
-			trailer->video_base = LITTLE_ENDIANIZE_INT16(p9.video_base);
-			trailer->video_end = LITTLE_ENDIANIZE_INT16(p9.video_end);
+			trailer.io_pia[2] = u1.p8.io_ff02;
+			trailer.io_pia[3] = u1.p8.io_ff03;
+			trailer.io_pia[6] = u1.p8.io_ff22;
+			trailer.enable_hiram = (u1.p8.rom_status == 0xdf);
+			trailer.video_base = LITTLE_ENDIANIZE_INT16(p9.video_base);
+			trailer.video_end = LITTLE_ENDIANIZE_INT16(p9.video_end);
 			break;
 	
 		case PAK_VLITE_SIZE:
@@ -365,22 +365,22 @@ public class cocopak
 			 * for the program counter... I have to set everything up as default
 			 * including the stack pointer... arg this sucks...
 			 */
-			trailer->io_pia[2] = 0xff;
-			trailer->io_pia[3] = 0x34;
-			trailer->io_pia[6] = 0x00;
-			trailer->enable_hiram = 0;
-			trailer->video_base = 0x400;
-			trailer->video_end = 0x600;
-			trailer->reg_s = 0x3d7;
+			trailer.io_pia[2] = 0xff;
+			trailer.io_pia[3] = 0x34;
+			trailer.io_pia[6] = 0x00;
+			trailer.enable_hiram = 0;
+			trailer.video_base = 0x400;
+			trailer.video_end = 0x600;
+			trailer.reg_s = 0x3d7;
 			break;
 	
 		default:
-			trailer->io_pia[2] = u1.s.p13.io_ff02;
-			trailer->io_pia[3] = u1.s.p13.io_ff03;
-			trailer->io_pia[6] = u1.s.p13.io_ff22;
-			trailer->enable_hiram = (u1.s.p7.himem_readseg == 0);
-			trailer->video_base = LITTLE_ENDIANIZE_INT16(p9.video_base);
-			trailer->video_end = LITTLE_ENDIANIZE_INT16(p9.video_end);
+			trailer.io_pia[2] = u1.s.p13.io_ff02;
+			trailer.io_pia[3] = u1.s.p13.io_ff03;
+			trailer.io_pia[6] = u1.s.p13.io_ff22;
+			trailer.enable_hiram = (u1.s.p7.himem_readseg == 0);
+			trailer.video_base = LITTLE_ENDIANIZE_INT16(p9.video_base);
+			trailer.video_end = LITTLE_ENDIANIZE_INT16(p9.video_end);
 			break;
 		}
 		return 0;

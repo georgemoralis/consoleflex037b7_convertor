@@ -92,14 +92,6 @@ public class dragon
 	static WRITE_HANDLER ( d_pia0_cb2_w);
 	static WRITE_HANDLER ( d_pia1_ca2_w);
 	static WRITE_HANDLER ( d_pia0_ca2_w);
-	static void d_pia0_irq_a(int state);
-	static void d_pia0_irq_b(int state);
-	static void d_pia1_firq_a(int state);
-	static void d_pia1_firq_b(int state);
-	static void coco3_pia0_irq_a(int state);
-	static void coco3_pia0_irq_b(int state);
-	static void coco3_pia1_firq_a(int state);
-	static void coco3_pia1_firq_b(int state);
 	
 	#define LOG_PAK			0
 	#define LOG_WAVE		0
@@ -203,15 +195,15 @@ public class dragon
 	{
 		int i, value;
 	
-		cpu_set_reg(M6809_PC, trailer->reg_pc);
-		cpu_set_reg(M6809_X, trailer->reg_x);
-		cpu_set_reg(M6809_Y, trailer->reg_y);
-		cpu_set_reg(M6809_U, trailer->reg_u);
-		cpu_set_reg(M6809_S, trailer->reg_s);
-		cpu_set_reg(M6809_DP, trailer->reg_dp);
-		cpu_set_reg(M6809_B, trailer->reg_b);
-		cpu_set_reg(M6809_A, trailer->reg_a);
-		cpu_set_reg(M6809_CC, trailer->reg_cc);
+		cpu_set_reg(M6809_PC, trailer.reg_pc);
+		cpu_set_reg(M6809_X, trailer.reg_x);
+		cpu_set_reg(M6809_Y, trailer.reg_y);
+		cpu_set_reg(M6809_U, trailer.reg_u);
+		cpu_set_reg(M6809_S, trailer.reg_s);
+		cpu_set_reg(M6809_DP, trailer.reg_dp);
+		cpu_set_reg(M6809_B, trailer.reg_b);
+		cpu_set_reg(M6809_A, trailer.reg_a);
+		cpu_set_reg(M6809_CC, trailer.reg_cc);
 	
 		/* I seem to only be able to get a small amount of the PIA state from the
 		 * snapshot trailers. Thus I am going to configure the PIA myself. The
@@ -234,9 +226,9 @@ public class dragon
 		cpu_writemem16(0xff22, 0x00);
 		cpu_writemem16(0xff20, 0x02);
 	
-		cpu_writemem16(0xff03, trailer->io_ff03);	/* d_pia0_cb2_w */
-		cpu_writemem16(0xff02, trailer->io_ff02);	/* d_pia0_pb_w */
-		cpu_writemem16(0xff22, trailer->io_ff22);	/* d_pia1_pb_w */
+		cpu_writemem16(0xff03, trailer.io_ff03);	/* d_pia0_cb2_w */
+		cpu_writemem16(0xff02, trailer.io_ff02);	/* d_pia0_pb_w */
+		cpu_writemem16(0xff22, trailer.io_ff22);	/* d_pia1_pb_w */
 	#else
 		pia_write(0, 1, 0x00);
 		pia_write(0, 3, 0x00);
@@ -247,30 +239,30 @@ public class dragon
 		pia_write(1, 0, 0xfe);
 		pia_write(1, 2, 0xf8);
 	
-		pia_write(0, 1, trailer->io_pia[1]);
-		pia_write(0, 0, trailer->io_pia[0]);
-		pia_write(0, 3, trailer->io_pia[3]);
-		pia_write(0, 2, trailer->io_pia[2]);
+		pia_write(0, 1, trailer.io_pia[1]);
+		pia_write(0, 0, trailer.io_pia[0]);
+		pia_write(0, 3, trailer.io_pia[3]);
+		pia_write(0, 2, trailer.io_pia[2]);
 	
-		pia_write(1, 1, trailer->io_pia[5]);
-		pia_write(1, 0, trailer->io_pia[4]);
-		pia_write(1, 3, trailer->io_pia[7]);
-		pia_write(1, 2, trailer->io_pia[6]);
+		pia_write(1, 1, trailer.io_pia[5]);
+		pia_write(1, 0, trailer.io_pia[4]);
+		pia_write(1, 3, trailer.io_pia[7]);
+		pia_write(1, 2, trailer.io_pia[6]);
 	#endif
 	
 		/* For some reason, this seems to screw things up; I'm not sure whether it
 		 * is because I'm using the wrong method to get access
-		 * trailer->enable_hiram or whether it is osmething else
+		 * trailer.enable_hiram or whether it is osmething else
 		 */
-		/* cpu_writemem16(0xffde + trailer->enable_hiram, 0); */
+		/* cpu_writemem16(0xffde + trailer.enable_hiram, 0); */
 	
-		value = trailer->video_base >> 9;
+		value = trailer.video_base >> 9;
 		for (i = 0; i < 6; i++) {
 			dragon_sam_display_offset(i * 2 + (value & 1), 0);
 			value >>= 1;
 		}
 	
-		switch(trailer->video_end - trailer->video_base) {
+		switch(trailer.video_end - trailer.video_base) {
 		case 512:
 			value = 0;
 			break;
@@ -299,10 +291,10 @@ public class dragon
 	static int trailer_load = 0;
 	static pak_decodedtrailer trailer;
 	
-	static void pak_load_trailer_callback(int param)
+	public static timer_callback pak_load_trailer_callback = new timer_callback() { public void handler(int param) 
 	{
 		pak_load_trailer(&trailer);
-	}
+	} };
 	
 	static int generic_rom_load(int id, UINT8 *rambase, UINT8 *rombase, UINT8 *pakbase)
 	{
@@ -311,7 +303,7 @@ public class dragon
 		cart_inserted = 0;
 	
 		fp = image_fopen (IO_SNAPSHOT, id, OSD_FILETYPE_IMAGE_R, 0);
-		if (fp)
+		if (fp != 0)
 		{
 			int paklength;
 			int pakstart;
@@ -342,7 +334,7 @@ public class dragon
 			}
 	
 			trailerlen = osd_fread(fp, trailerraw, sizeof(trailerraw));
-			if (trailerlen) {
+			if (trailerlen != 0) {
 				if (pak_decode_trailer(trailerraw, trailerlen, &trailer)) {
 	#if LOG_PAK
 					logerror("Invalid or unknown PAK trailer.\n");
@@ -555,7 +547,7 @@ public class dragon
 	
 	static void coco3_raise_interrupt(int mask, int state)
 	{
-		if (state) {
+		if (state != 0) {
 			if ((coco3_gimereg[0] & 0x20) && (coco3_gimereg[2] & mask)) {
 				gime_irq |= (coco3_gimereg[2] & mask);
 				coco3_recalc_irq();
@@ -579,11 +571,11 @@ public class dragon
 	  PIA
 	***************************************************************************/
 	
-	int dragon_interrupt(void)
+	public static InterruptPtr dragon_interrupt = new InterruptPtr() { public int handler() 
 	{
 		pia_0_cb1_w (0, 1);
 		return ignore_interrupt();
-	}
+	} };
 	
 	static READ_HANDLER ( d_pia0_ca1_r )
 	{
@@ -622,7 +614,7 @@ public class dragon
 		 *    1:	Serial out
 		 */
 		d_dac = data & 0xfc;
-		if (sound_mux)
+		if (sound_mux != 0)
 			DAC_data_w(0,d_dac);
 		else
 			device_output(IO_CASSETTE, 0, ((int) d_dac - 0x80) * 0x102);
@@ -637,15 +629,15 @@ public class dragon
 	 * semigraphics modes
 	 */
 	
-	static WRITE_HANDLER( d_pia1_pb_w )
+	public static WriteHandlerPtr d_pia1_pb_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		m6847_set_gmode(data >> 3);
-	}
+	} };
 	
-	static WRITE_HANDLER( coco3_pia1_pb_w )
+	public static WriteHandlerPtr coco3_pia1_pb_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		m6847_set_mode(data >> 3);
-	}
+	} };
 	
 	static WRITE_HANDLER ( d_pia0_cb2_w )
 	{
@@ -660,7 +652,7 @@ public class dragon
 		{
 			status = device_status(IO_CASSETTE, 0, -1);
 			status &= ~1;
-			if (data)
+			if (data != 0)
 				status |= 1;
 			device_status(IO_CASSETTE, 0, status);
 			tape_motor = data;
@@ -806,7 +798,7 @@ public class dragon
 		 * TODO:  This should affect _all_ memory accesses, not just video ram
 		 * TODO:  Verify that the CoCo 3 ignored this
 		 */
-		if (offset & 1)
+		if ((offset & 1) != 0)
 			d_sam_memory_size &= ~(1 << (offset / 2));
 		else
 			d_sam_memory_size |= 1 << (offset / 2);
@@ -890,7 +882,7 @@ public class dragon
 	 */
 	static void coco3_timer_recalculate(int newcounterval, int allowreset)
 	{
-		if (coco3_timer)
+		if (coco3_timer != 0)
 			timer_remove(coco3_timer);
 	
 		if (newcounterval || !allowreset) {
@@ -916,7 +908,7 @@ public class dragon
 	{
 		int result = 0;
 	
-		if (coco3_timer) {
+		if (coco3_timer != 0) {
 			result = coco3_timer_counter -
 				(timer_timeleft(coco3_timer) / coco3_timer_interval_time());
 	
@@ -950,7 +942,7 @@ public class dragon
 		int oldtimerval;
 	
 		if (interval != coco3_timer_interval) {
-			if (coco3_timer) {
+			if (coco3_timer != 0) {
 				oldtimerval = coco3_timer_r();
 	
 				coco3_timer_interval = interval;
@@ -974,7 +966,7 @@ public class dragon
 	WRITE_HANDLER(dragon64_sam_himemmap)
 	{
 		UINT8 *RAM = memory_region(REGION_CPU1);
-		if (offset) {
+		if (offset != 0) {
 			cpu_setbank(1, &RAM[0x8000]);
 			cpu_setbankhandler_w(1, dragon64_ram_w);
 		}
@@ -1185,7 +1177,7 @@ public class dragon
 		switch(offset) {
 		case 2:	/* Read pending IRQs */
 			result = gime_irq;
-			if (result) {
+			if (result != 0) {
 				gime_irq = 0;
 				coco3_recalc_irq();
 			}
@@ -1193,7 +1185,7 @@ public class dragon
 	
 		case 3:	/* Read pending FIRQs */
 			result = gime_firq;
-			if (result) {
+			if (result != 0) {
 				gime_firq = 0;
 				coco3_recalc_firq();
 			}
@@ -1340,14 +1332,14 @@ public class dragon
 			/* Now go through all inputs, and set or reset IPF_CENTER on all
 			 * joysticks
 			 */
-			for (in = Machine->input_ports; in->type != IPT_END; in++) {
-				if (((in->type & ~IPF_MASK) > IPT_ANALOG_START)
-						&& ((in->type & ~IPF_MASK) < IPT_ANALOG_END)) {
+			for (in = Machine.input_ports; in.type != IPT_END; in++) {
+				if (((in.type & ~IPF_MASK) > IPT_ANALOG_START)
+						&& ((in.type & ~IPF_MASK) < IPT_ANALOG_END)) {
 					/* We found a joystick */
-					if (portval)
-						in->type |= IPF_CENTER;
+					if (portval != 0)
+						in.type |= IPF_CENTER;
 					else
-						in->type &= ~IPF_CENTER;
+						in.type &= ~IPF_CENTER;
 				}
 			}
 		}
@@ -1401,7 +1393,7 @@ public class dragon
 			newb = bytes[i];
 			for (j = 0; j < 8; j++) {
 				b >>= 1;
-				if (newb & 1)
+				if ((newb & 1) != 0)
 					b |= 0x80;
 				newb >>= 1;
 	
@@ -1431,7 +1423,7 @@ public class dragon
 	
 					case 3:
 						/* Data byte */
-						if (block_length) {
+						if (block_length != 0) {
 							block_length--;
 							block_checksum += b;
 						}
@@ -1558,7 +1550,7 @@ public class dragon
 		struct wave_args wa;
 	
 		file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-		if( file )
+		if (file != 0)
 		{
 			wave_size = osd_fsize(file);
 	
@@ -1580,7 +1572,7 @@ public class dragon
 		}
 	
 		file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_RW_CREATE);
-		if( file )
+		if (file != 0)
 	    {
 			memset(&wa, 0, sizeof(&wa));
 			wa.file = file;
@@ -1709,13 +1701,13 @@ public class dragon
 			motor_mask = 0x08;
 			haltenable_mask = 0x80;
 	
-			if (data & 0x04)
+			if ((data & 0x04) != 0)
 				drive = 2;
-			else if (data & 0x02)
+			else if ((data & 0x02) != 0)
 				drive = 1;
-			else if (data & 0x01)
+			else if ((data & 0x01) != 0)
 				drive = 0;
-			else if (data & 0x40)
+			else if ((data & 0x40) != 0)
 				drive = 3;
 			else
 				motor_mask = 0;
@@ -1735,9 +1727,9 @@ public class dragon
 		haltenable = data & haltenable_mask;
 		dskreg = data;
 	
-		if (data & motor_mask) {
+		if ((data & motor_mask) != 0) {
 			fd = wd179x_select_drive(drive, head, coco_fdc_callback, device_filename(IO_FLOPPY,drive));
-			if (fd) {
+			if (fd != 0) {
 				/* For now, assume that real floppies are always 35 tracks */
 				tracks = (fd == REAL_FDD) ? 35 : (osd_fsize(fd) / (18*256));
 				wd179x_set_geometry(drive, tracks, 1, 18, 256, 0, 0, 1);
@@ -1781,7 +1773,7 @@ public class dragon
 		case 5:
 		case 6:
 		case 7:
-			if (raise_nmi) {
+			if (raise_nmi != 0) {
 				cpu_set_nmi_line(0, ASSERT_LINE);
 				raise_nmi = 0;
 			}
@@ -1873,7 +1865,7 @@ public class dragon
 		pia_config(1, PIA_STANDARD_ORDERING | PIA_8BIT, &piaintf[1]);
 		pia_reset();
 	
-		if (trailer_load) {
+		if (trailer_load != 0) {
 			trailer_load = 0;
 			timer_set(0, 0, pak_load_trailer_callback);
 		}
@@ -1882,40 +1874,40 @@ public class dragon
 		autocenter_init(12, 0x04);
 	}
 	
-	void dragon32_init_machine(void)
+	public static InitMachinePtr dragon32_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		d_sam_memory_size = 0;
 		generic_init_machine(dragon_pia_intf);
 	
 		coco_rom = memory_region(REGION_CPU1) + 0x8000;
 	
-		if (cart_inserted)
+		if (cart_inserted != 0)
 			cpu_set_irq_line(0, M6809_FIRQ_LINE, ASSERT_LINE);
 		timer_pulse(COCO_TIMER_HSYNC, 0, dragon_hblank);
-	}
+	} };
 	
-	void coco_init_machine(void)
+	public static InitMachinePtr coco_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		d_sam_memory_size = 0;
 		generic_init_machine(dragon_pia_intf);
 	
 		coco_rom = memory_region(REGION_CPU1) + 0x10000;
 	
-		if (cart_inserted)
+		if (cart_inserted != 0)
 			cpu_set_irq_line(0, M6809_FIRQ_LINE, ASSERT_LINE);
 		dragon64_sam_himemmap(0, 0);
 		timer_pulse(COCO_TIMER_HSYNC, 0, dragon_hblank);
-	}
+	} };
 	
 	
-	void dragon64_init_machine(void)
+	public static InitMachinePtr dragon64_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		dragon32_init_machine();
 		coco_rom = memory_region(REGION_CPU1) + 0x10000;
 		dragon64_sam_himemmap(0, 0);
-	}
+	} };
 	
-	void coco3_init_machine(void)
+	public static InitMachinePtr coco3_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		int i;
 	
@@ -1933,7 +1925,7 @@ public class dragon
 	
 		coco_rom = memory_region(REGION_CPU1) + 0x80000;
 	
-		if (cart_inserted)
+		if (cart_inserted != 0)
 			coco3_raise_interrupt(COCO3_INT_EI0, 1);
 	
 		coco3_mmu_update(0, 8);
@@ -1943,7 +1935,7 @@ public class dragon
 		timer_pulse(TIME_IN_HZ(50), 0, coco3_poll_keyboard);
 	
 		timer_pulse(COCO_TIMER_HSYNC, 0, coco3_hblank);
-	}
+	} };
 	
 	void dragon_stop_machine(void)
 	{

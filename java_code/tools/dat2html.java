@@ -117,10 +117,10 @@ public class dat2html
 	
 			fgets(line, sizeof(line), dat);
 			eol = strchr(line, '\n');
-			if( eol )
+			if (eol != 0)
 				*eol = '\0';
 			eol = strchr(line, '\r');
-			if( eol )
+			if (eol != 0)
 	            *eol = '\0';
 	        if( line[0] != '#' )
 			{
@@ -131,13 +131,13 @@ public class dat2html
 						char *eq = strchr(line, '='), *p;
 						strcpy(system_name, eq + 1);
 						p = strchr(system_name, '\\');
-						if( p )
+						if (p != 0)
 							*p = '\0';
 						/* multiple systems? */
 						p = strchr(system_name, ',');
 						if( systemcount % 3 == 0 )
 							fprintf(html, "<tr>\n");
-						if( p )
+						if (p != 0)
 						{
 							*p = '\0';
 							sprintf(system_filename, "%s/%s.htm", html_directory, system_name);
@@ -190,7 +190,7 @@ public class dat2html
 				}
 				else
 				{
-					if( html_system )
+					if (html_system != 0)
 					{
 						if ( strlen(line) == 0 )
 						{
@@ -204,7 +204,7 @@ public class dat2html
 							emptycount = 0;
 							if ( linecount == 0 )
 							{
-								if( ulcount )
+								if (ulcount != 0)
 									fprintf(html_system, "</ul>\n");
 								ulcount = 0;
 								/* first line is header 4 */
@@ -225,7 +225,7 @@ public class dat2html
 	                            }
 	                            else
 								{
-									if( ulcount )
+									if (ulcount != 0)
 										fprintf(html_system, "</ul>\n");
 									ulcount = 0;
 									/* lines ending in a colon are bold */

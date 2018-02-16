@@ -8,7 +8,7 @@ public class pclpt
 {
 	
 	#define LOG(LEVEL,N,M,A)  \
-	if( M )logerror("%11.6f: %-24s",timer_get_time(),(char*)M ); logerror A;
+	if (M != 0)logerror("%11.6f: %-24s",timer_get_time(),(char*)M ); logerror A;
 	
 	
 	//#define VERBOSE_LPT

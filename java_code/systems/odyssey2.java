@@ -27,77 +27,77 @@ package systems;
 public class odyssey2
 {
 	
-	static struct MemoryReadAddress readmem[] =
+	static MemoryReadAddress readmem[] =
 	{
-	    { 0x0000, 0x03FF, MRA_ROM },
-	    { 0x0400, 0x14FF, MRA_ROM },
-		{ -1 }  /* end of table */
+	    new MemoryReadAddress( 0x0000, 0x03FF, MRA_ROM ),
+	    new MemoryReadAddress( 0x0400, 0x14FF, MRA_ROM ),
+		new MemoryReadAddress( -1 )  /* end of table */
 	};
 	
-	static struct MemoryWriteAddress writemem[] =
+	static MemoryWriteAddress writemem[] =
 	{
-	    { 0x0000, 0x03FF, MWA_ROM },
-	    { 0x0400, 0x14FF, MWA_ROM },
-	    { -1 }  /* end of table */
+	    new MemoryWriteAddress( 0x0000, 0x03FF, MWA_ROM ),
+	    new MemoryWriteAddress( 0x0400, 0x14FF, MWA_ROM ),
+	    new MemoryWriteAddress( -1 )  /* end of table */
 	};
 	
-	static struct IOReadPort readport[] =
+	static IOReadPort readport[] =
 	{
-	    { 0x00,     0xff,     odyssey2_MAINRAM_r},
-	    { I8039_p1, I8039_p1, odyssey2_getp1 },
-		{ -1 }	/* end of table */
+	    new IOReadPort( 0x00,     0xff,     odyssey2_MAINRAM_r),
+	    new IOReadPort( I8039_p1, I8039_p1, odyssey2_getp1 ),
+		new IOReadPort( -1 )	/* end of table */
 	};
 	
-	static struct IOWritePort writeport[] =
+	static IOWritePort writeport[] =
 	{
-	    { 0x00,     0xff,     odyssey2_MAINRAM_w },
-	    { I8039_p1, I8039_p1, odyssey2_putp1 },
-		{ -1 }	/* end of table */
+	    new IOWritePort( 0x00,     0xff,     odyssey2_MAINRAM_w ),
+	    new IOWritePort( I8039_p1, I8039_p1, odyssey2_putp1 ),
+		new IOWritePort( -1 )	/* end of table */
 	};
 	
 	
-	INPUT_PORTS_START( odyssey2 )
-		PORT_START      /* IN0 */
-	INPUT_PORTS_END
+	static InputPortPtr input_ports_odyssey2 = new InputPortPtr(){ public void handler() { 
+		PORT_START();       /* IN0 */
+	INPUT_PORTS_END(); }}; 
 	
-	static struct MachineDriver machine_driver_odyssey2 =
-	{
+	static MachineDriver machine_driver_odyssey2 = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 	            CPU_I8048,
 	            1790000,  /* 1.79 MHz */
 	            readmem,writemem,readport,writeport,
 				ignore_interrupt,1
-			}
+			)
 		},
 		8*15, DEFAULT_REAL_60HZ_VBLANK_DURATION,
 		1,
 		odyssey2_init_machine,	/* init_machine */
-		0,						/* stop_machine */
+		null,						/* stop_machine */
 	
 		/* video hardware */
-		262,240, {0,262-1,0,240-1},
+		262,240, new rectangle(0,262-1,0,240-1),
 		NULL,
 		(8+2)*3,
 		8*2,
 		odyssey2_vh_init_palette,
 	
 		VIDEO_TYPE_RASTER,
-		0,
+		null,
 	    odyssey2_vh_start,
 	    odyssey2_vh_stop,
 	    odyssey2_vh_screenrefresh,
 	
 		/* sound hardware */
 		0,0,0,0,
-	};
+	);
 	
 	
 	ROM_START (odyssey2)
-		ROM_REGION(0x10000,REGION_CPU1)	   /* 64 k Internal RAM */
-	    ROM_LOAD ("o2bios.rom", 0x0000, 0x400, 0x8016a315)
-	ROM_END
+		ROM_REGION(0x10000,REGION_CPU1);   /* 64 k Internal RAM */
+	    ROM_LOAD ("o2bios.rom", 0x0000, 0x400, 0x8016a315);
+	ROM_END(); }}; 
 	
 	static const struct IODevice io_odyssey2[] = {
 		{

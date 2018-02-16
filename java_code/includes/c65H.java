@@ -50,16 +50,9 @@ public class c65H
 	/*extern UINT8 *c65_graphics; */
 	
 	void c65_map(int a, int x, int y, int z);
-	void c65_bankswitch (void);
 	void c65_colorram_write (int offset, int value);
 	
-	extern void c65_driver_init (void);
-	extern void c65_driver_alpha1_init (void);
-	extern void c65pal_driver_init (void);
-	extern void c65_driver_shutdown (void);
-	extern void c65_init_machine (void);
-	extern void c65_shutdown_machine (void);
-	
+	extern extern extern extern extern extern 
 	/*only for debugging */
 	void c65_state (PRASTER *This);
 	

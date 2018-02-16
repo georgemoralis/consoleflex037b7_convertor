@@ -59,11 +59,7 @@ public class vic6567H
 	#define VIC6569_LINES 312
 	#define VIC2_LINES (vic2.pal?VIC6569_LINES:VIC6567_LINES)
 	
-	extern int vic2_vh_start (void);
-	extern void vic2_vh_stop (void);
-	extern void vic2_vh_screenrefresh (struct osd_bitmap *bitmap, int full_refresh);
-	extern int vic2_raster_irq (void);
-	
+	extern extern extern extern 
 	extern unsigned char vic2_palette[16 * 3];
 	extern unsigned char vic3_palette[0x100 * 3];
 	
@@ -77,15 +73,10 @@ public class vic6567H
 	
 	extern void vic2_lightpen_write (int level);
 	
-	int vic2e_k0_r (void);
-	int vic2e_k1_r (void);
-	int vic2e_k2_r (void);
 	
-	WRITE_HANDLER( vic3_palette_w );
 	
 	/* to be called each vertical retrace */
-	extern int vic2_frame_interrupt (void);
-	
+	extern 
 	extern void (*vic2_display_state)(PRASTER *This); /* calls machine after rastering frame*/
 	
 	/* private area */

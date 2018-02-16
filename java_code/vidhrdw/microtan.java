@@ -37,7 +37,7 @@ public class microtan
 	char microtan_frame_message[64+1];
 	int microtan_frame_time = 0;
 	
-	void microtan_init_colors (unsigned char *palette, unsigned short *colortable, const unsigned char *color_prom)
+	public static VhConvertColorPromPtr microtan_init_colors = new VhConvertColorPromPtr() { public void handler(char []palette, char []colortable, UBytePtr color_prom) 
 	{
 		palette[0*3+0] = 0x00;
 		palette[0*3+1] = 0x00;
@@ -49,52 +49,52 @@ public class microtan
 	
 		colortable[0] = 0;
 		colortable[1] = 1;
-	}
+	} };
 	
-	WRITE_HANDLER( microtan_videoram_w )
+	public static WriteHandlerPtr microtan_videoram_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
-		if (videoram[offset] != data || microtan_chunky_buffer[offset] != microtan_chunky_graphics)
+		if (videoram.read(offset)!= data || microtan_chunky_buffer[offset] != microtan_chunky_graphics)
 		{
-			videoram[offset] = data;
+			videoram.write(offset,data);
 			microtan_chunky_buffer[offset] = microtan_chunky_graphics;
 			dirtybuffer[offset] = 1;
 		}
-	}
+	} };
 	
-	int microtan_vh_start(void)
+	public static VhStartPtr microtan_vh_start = new VhStartPtr() { public int handler() 
 	{
 		if (generic_vh_start())
 			return 1;
-		microtan_chunky_buffer = malloc(videoram_size);
+		microtan_chunky_buffer = malloc(videoram_size[0]);
 	    microtan_chunky_graphics = 0;
 		memset(microtan_chunky_buffer, microtan_chunky_graphics, sizeof(microtan_chunky_buffer));
 	
 	    return 0;
-	}
+	} };
 	
-	void microtan_vh_stop(void)
+	public static VhStopPtr microtan_vh_stop = new VhStopPtr() { public void handler() 
 	{
 		generic_vh_stop();
 		free(microtan_chunky_buffer);
 		microtan_chunky_buffer = NULL;
-	}
+	} };
 	
-	void microtan_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr microtan_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 	    int offs;
 	
 		if( microtan_frame_time > 0 )
 	    {
-			ui_text(bitmap, microtan_frame_message, 1, Machine->visible_area.max_y - 9);
+			ui_text(bitmap, microtan_frame_message, 1, Machine.visible_area.max_y - 9);
 	        /* if the message timed out, clear it on the next frame */
 			if( --microtan_frame_time == 0 )
 				full_refresh = 1;
 	    }
 	
-	    if( full_refresh )
+	    if (full_refresh != 0)
 		{
-			fillbitmap(Machine->scrbitmap, Machine->pens[0], &Machine->visible_area);
-			memset(dirtybuffer, 1, videoram_size);
+			fillbitmap(Machine.scrbitmap, Machine.pens[0], &Machine.visible_area);
+			memset(dirtybuffer, 1, videoram_size[0]);
 	    }
 	
 		for( offs = 0; offs < 32*16; offs++ )
@@ -104,13 +104,13 @@ public class microtan
 				int sx, sy, code;
 				sy = (offs / 32) * 16;
 				sx = (offs % 32) * 8;
-				code = videoram[offs];
-				drawgfx(bitmap,Machine->gfx[microtan_chunky_buffer[offs]],code,0,0,0,sx,sy,
-					&Machine->visible_area,TRANSPARENCY_NONE,0);
+				code = videoram.read(offs);
+				drawgfx(bitmap,Machine.gfx[microtan_chunky_buffer[offs]],code,0,0,0,sx,sy,
+					&Machine.visible_area,TRANSPARENCY_NONE,0);
 	            dirtybuffer[offs] = 0;
 			}
 		}
-	}
+	} };
 	
 	
 }

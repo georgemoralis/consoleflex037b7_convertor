@@ -41,12 +41,12 @@ public class snes
 {
 	
 	
-	unsigned char *zBuffer;
+	UBytePtr zBuffer;
 	
 	/***************************************************************************
 	  Start the video hardware emulation.
 	***************************************************************************/
-	int snes_vh_start(void)
+	public static VhStartPtr snes_vh_start = new VhStartPtr() { public int handler() 
 	{
 		zBuffer=malloc((256+32)*(256+32));
 		if (!zBuffer)
@@ -54,31 +54,31 @@ public class snes
 		if( generic_bitmapped_vh_start() )
 			return 1;
 		return 0;
-	}
+	} };
 	
-	void snes_vh_stop(void)
+	public static VhStopPtr snes_vh_stop = new VhStopPtr() { public void handler() 
 	{
 		generic_vh_stop();
 		free(zBuffer);
-	}
+	} };
 	
 	/***************************************************************************
 	  Draw the game screen in the given osd_bitmap.
 	  Do NOT call osd_update_display() from this function,
 	  it will be called by the main emulation engine.
 	***************************************************************************/
-	void snes_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr snes_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
-	}
+	} };
 	
 	/*   ------ SNES SCREEN DECODING TO BE FOUND HERE -------- */
 	
-	unsigned char *ScreenAddress[4];	/* Screen Address (in VRAM) for BKGs */
-	unsigned char *ScreenAddressL;		/* Screen Address left pane during plane update */
-	unsigned char *ScreenAddressR;		/* Screen Address right pane during plane update */
-	unsigned char *TileAddress[4];		/* Tile Address (in VRAM) for tiles */
-	unsigned char *TileAddress_;		/* Tile Address during plane update */
-	unsigned char *TileAddress_Y;		/* Tile Address during plane update if Y flipped */
+	UBytePtr ScreenAddress[4];	/* Screen Address (in VRAM) for BKGs */
+	UBytePtr ScreenAddressL;		/* Screen Address left pane during plane update */
+	UBytePtr ScreenAddressR;		/* Screen Address right pane during plane update */
+	UBytePtr TileAddress[4];		/* Tile Address (in VRAM) for tiles */
+	UBytePtr TileAddress_;		/* Tile Address during plane update */
+	UBytePtr TileAddress_Y;		/* Tile Address during plane update if Y flipped */
 	
 	struct osd_bitmap *snes_bitmap;
 	
@@ -94,7 +94,7 @@ public class snes
 	unsigned long Tile_Offset_Table_32_4[32]={0,2,4,6,8,10,12,14,16*8*4,16*8*4+2,16*8*4+4,16*8*4+6,16*8*4+8,16*8*4+10,16*8*4+12,16*8*4+14,16*8*4*2,16*8*4*2+2,16*8*4*2+4,16*8*4*2+6,16*8*4*2+8,16*8*4*2+10,16*8*4*2+12,16*8*4*2+14};
 	unsigned long Tile_Offset_Table_32_4_Y[32]={16*8*4*2+14,16*8*4*2+12,16*8*4*2+10,16*8*4*2+8,16*8*4*2+6,16*8*4*2+4,16*8*4*2+2,16*8*4*2,16*8*4+14,16*8*4+12,16*8*4+10,16*8*4+8,16*8*4+6,16*8*4+4,16*8*4+2,16*8*4,14,12,10,8,6,4,2,0};
 	
-	void PLOT_8x8_2BplTile(unsigned char *Tile,unsigned short *dst,unsigned char *zCur,unsigned char depth)
+	void PLOT_8x8_2BplTile(UBytePtr Tile,unsigned short *dst,UBytePtr zCur,unsigned char depth)
 	{
 		unsigned char DestPixel;
 		int count;
@@ -114,11 +114,11 @@ public class snes
 			Bitmask<<=8;
 			if ((Bitmask&Bits)==Bitmask)
 				DestPixel|=ColourBase2;
-			if (DestPixel)
+			if (DestPixel != 0)
 			{
 				if (*zCur<=depth)
 				{
-					*dst=Machine->pens[palIndx[DestPixel]];
+					*dst=Machine.pens[palIndx[DestPixel]];
 					*zCur=depth;
 				}
 			}
@@ -129,7 +129,7 @@ public class snes
 		}
 	}
 	
-	void PLOT_8x8_2BplTileX(unsigned char *Tile,unsigned short *dst,unsigned char *zCur,unsigned char depth)
+	void PLOT_8x8_2BplTileX(UBytePtr Tile,unsigned short *dst,UBytePtr zCur,unsigned char depth)
 	{
 		unsigned char DestPixel;
 		int count;
@@ -149,11 +149,11 @@ public class snes
 			Bitmask<<=8;
 			if ((Bitmask&Bits)==Bitmask)
 				DestPixel|=ColourBase2;
-			if (DestPixel)
+			if (DestPixel != 0)
 			{
 				if (*zCur<=depth)
 				{
-					*dst=Machine->pens[palIndx[DestPixel]];
+					*dst=Machine.pens[palIndx[DestPixel]];
 					*zCur=depth;
 				}
 			}
@@ -164,7 +164,7 @@ public class snes
 		}
 	}
 	
-	void PLOT_8x8_4BplTile(unsigned char *Tile,unsigned short *dst,unsigned char *zCur,unsigned char depth)
+	void PLOT_8x8_4BplTile(UBytePtr Tile,unsigned short *dst,UBytePtr zCur,unsigned char depth)
 	{
 		unsigned char DestPixel;
 		int count;
@@ -193,11 +193,11 @@ public class snes
 				DestPixel|=ColourBase2;
 			if ((Bitmask&Bits2)==Bitmask)
 				DestPixel|=ColourBase8;
-			if (DestPixel)
+			if (DestPixel != 0)
 			{
 				if (*zCur<=depth)
 				{
-					*dst=Machine->pens[palIndx[DestPixel]];
+					*dst=Machine.pens[palIndx[DestPixel]];
 					*zCur=depth;
 				}
 			}
@@ -208,7 +208,7 @@ public class snes
 		}
 	}
 	
-	void PLOT_8x8_4BplTileX(unsigned char *Tile,unsigned short *dst,unsigned char *zCur,unsigned char depth)
+	void PLOT_8x8_4BplTileX(UBytePtr Tile,unsigned short *dst,UBytePtr zCur,unsigned char depth)
 	{
 		unsigned char DestPixel;
 		int count;
@@ -237,11 +237,11 @@ public class snes
 				DestPixel|=ColourBase2;
 			if ((Bitmask&Bits2)==Bitmask)
 				DestPixel|=ColourBase8;
-			if (DestPixel)
+			if (DestPixel != 0)
 			{
 				if (*zCur<=depth)
 				{
-					*dst=Machine->pens[palIndx[DestPixel]];
+					*dst=Machine.pens[palIndx[DestPixel]];
 					*zCur=depth;
 				}
 			}
@@ -252,7 +252,7 @@ public class snes
 		}
 	}
 	
-	void PLOT_8x8_8BplTile(unsigned char *Tile,unsigned short *dst,unsigned char *zCur,unsigned char depth)
+	void PLOT_8x8_8BplTile(UBytePtr Tile,unsigned short *dst,UBytePtr zCur,unsigned char depth)
 	{
 		unsigned char DestPixel;
 		int count;
@@ -299,11 +299,11 @@ public class snes
 				DestPixel|=0x20;
 			if ((Bitmask&Bits4)==Bitmask)
 				DestPixel|=0x80;
-			if (DestPixel)
+			if (DestPixel != 0)
 			{
 				if (*zCur<=depth)
 				{
-					*dst=Machine->pens[palIndx[DestPixel]];
+					*dst=Machine.pens[palIndx[DestPixel]];
 					*zCur=depth;
 				}
 			}
@@ -314,7 +314,7 @@ public class snes
 		}
 	}
 	
-	void PLOT_8x8_8BplTileX(unsigned char *Tile,unsigned short *dst,unsigned char *zCur,unsigned char depth)
+	void PLOT_8x8_8BplTileX(UBytePtr Tile,unsigned short *dst,UBytePtr zCur,unsigned char depth)
 	{
 		unsigned char DestPixel;
 		int count;
@@ -361,11 +361,11 @@ public class snes
 				DestPixel|=0x40;
 			if ((Bitmask&Bits4)==Bitmask)
 				DestPixel|=0x80;
-			if (DestPixel)
+			if (DestPixel != 0)
 			{
 				if (*zCur<=depth)
 				{
-					*dst=Machine->pens[palIndx[DestPixel]];
+					*dst=Machine.pens[palIndx[DestPixel]];
 					*zCur=depth;
 				}
 			}
@@ -376,9 +376,9 @@ public class snes
 		}
 	}
 	
-	int SPLOT_4BplTile(unsigned short xPos,short tileCode,unsigned short *dst,unsigned char *zCur,int width)
+	int SPLOT_4BplTile(unsigned short xPos,short tileCode,unsigned short *dst,UBytePtr zCur,int width)
 	{
-		unsigned char *TileAddressSpr;
+		UBytePtr TileAddressSpr;
 		unsigned char Temp;
 		int depth;
 		int tileNum;
@@ -386,7 +386,7 @@ public class snes
 		short xDiff;
 	
 		cnt++;
-		if (tileCode & 0x8000)
+		if ((tileCode & 0x8000) != 0)
 			TileAddressSpr = TileAddress_Y;
 		else
 			TileAddressSpr = TileAddress_;
@@ -406,14 +406,14 @@ public class snes
 		xDiff=xPos<<7;
 		xDiff>>=7;
 	
-		if (tileCode & 0x4000)
+		if ((tileCode & 0x4000) != 0)
 			tileNum+=(width-1)*32;
 	
 		for (a=0;a<width;a++)
 		{
 			if (xDiff>-16)
 			{
-				if (tileCode & 0x4000)
+				if ((tileCode & 0x4000) != 0)
 				{
 					PLOT_8x8_4BplTileX(TileAddressSpr + tileNum,dst+xDiff,zCur+xDiff,depth);
 					tileNum-=32;
@@ -435,7 +435,7 @@ public class snes
 		return cnt;
 	}
 	
-	void RENDER_LINE_8x8_C2(unsigned char PalOffset,unsigned char *Screen,unsigned long Count,unsigned short *dst,unsigned char *zCur,unsigned char depth)
+	void RENDER_LINE_8x8_C2(unsigned char PalOffset,UBytePtr Screen,unsigned long Count,unsigned short *dst,UBytePtr zCur,unsigned char depth)
 	{
 		unsigned short TileInfo;
 		unsigned long TileNum;
@@ -449,7 +449,7 @@ public class snes
 			TileNum=((unsigned long)(TileInfo&0x3FF))<<4;		/* 2*8 */
 	
 			adepth=depth;
-			if (TileInfo&0x2000)
+			if ((TileInfo & 0x2000) != 0)
 				adepth++;
 	
 			TileInfo&=0xDC00;
@@ -482,7 +482,7 @@ public class snes
 		}
 	}
 	
-	void RENDER_LINE_8x8_C4(unsigned char PalOffset,unsigned char *Screen,unsigned long Count,unsigned short *dst,unsigned char *zCur,unsigned char depth)
+	void RENDER_LINE_8x8_C4(unsigned char PalOffset,UBytePtr Screen,unsigned long Count,unsigned short *dst,UBytePtr zCur,unsigned char depth)
 	{
 		unsigned short TileInfo;
 		unsigned long TileNum;
@@ -496,7 +496,7 @@ public class snes
 			TileNum=((unsigned long)(TileInfo&0x3FF))<<5;		/* 4*8 */
 	
 			adepth=depth;
-			if (TileInfo&0x2000)
+			if ((TileInfo & 0x2000) != 0)
 				adepth++;
 	
 			TileInfo&=0xDC00;
@@ -533,7 +533,7 @@ public class snes
 		}
 	}
 	
-	void RENDER_LINE_8x8_C8(unsigned char PalOffset,unsigned char *Screen,unsigned long Count,unsigned short *dst,unsigned char *zCur,unsigned char depth)
+	void RENDER_LINE_8x8_C8(unsigned char PalOffset,UBytePtr Screen,unsigned long Count,unsigned short *dst,UBytePtr zCur,unsigned char depth)
 	{
 		unsigned short TileInfo;
 		unsigned long TileNum;
@@ -546,7 +546,7 @@ public class snes
 			TileNum=((unsigned long)(TileInfo&0x3FF))<<6;		/* 8*8 */
 	
 			adepth=depth;
-			if (TileInfo&0x2000)
+			if ((TileInfo & 0x2000) != 0)
 				adepth++;
 	
 			TileInfo&=0xC000;
@@ -647,7 +647,7 @@ public class snes
 		}
 	}
 	
-	void RENDER_LINE(unsigned short *dst,unsigned char *zCur,int curLine,unsigned char Planenum,void (*RENDER_FUNCTION)(unsigned char,unsigned char *,unsigned long,unsigned short *,unsigned char *,unsigned char),unsigned char Bitmask,unsigned char depth,unsigned char palOffset)
+	void RENDER_LINE(unsigned short *dst,UBytePtr zCur,int curLine,unsigned char Planenum,void (*RENDER_FUNCTION)(unsigned char,UBytePtr ,unsigned long,unsigned short *,UBytePtr ,unsigned char),unsigned char Bitmask,unsigned char depth,unsigned char palOffset)
 	{
 		unsigned char HScroll=wport21xx[0][(0x0D+Planenum*2)];
 		int Temp,Temp2;
@@ -707,10 +707,10 @@ public class snes
 	
 	*/
 	
-	void RENDER_LINE_MODE7(unsigned short *dst,unsigned char *zCur,int curLine,unsigned char depth)
+	void RENDER_LINE_MODE7(unsigned short *dst,UBytePtr zCur,int curLine,unsigned char depth)
 	{
 		unsigned short tileNum;
-		unsigned char *tileGFX;
+		UBytePtr tileGFX;
 		unsigned char DestPixel;
 		short SX,SXDIR,SY,HS,VS,XC,YC,A,B,C,D,TX,TY;
 		short cnt;
@@ -764,11 +764,11 @@ public class snes
 					tileGFX = &SNES_VRAM[1 + (tileNum*8*8*2)];							// points to start of tile gfx data
 					DestPixel = *(tileGFX + ((TY & 7)*8*2) + ((TX & 7)*2));				// pixel contains actual colour index
 	
-					if (DestPixel)
+					if (DestPixel != 0)
 					{
 						if (*zCur<=depth)
 						{
-							*dst=Machine->pens[palIndx[DestPixel]];
+							*dst=Machine.pens[palIndx[DestPixel]];
 							*zCur=depth;
 						}
 					}
@@ -789,11 +789,11 @@ public class snes
 						tileGFX = &SNES_VRAM[1 + (tileNum*8*8*2)];							// points to start of tile gfx data
 						DestPixel = *(tileGFX + ((TY & 7)*8*2) + ((TX & 7)*2));				// pixel contains actual colour index
 	
-						if (DestPixel)
+						if (DestPixel != 0)
 						{
 							if (*zCur<=depth)
 							{
-								*dst=Machine->pens[palIndx[DestPixel]];
+								*dst=Machine.pens[palIndx[DestPixel]];
 								*zCur=depth;
 							}
 						}
@@ -816,11 +816,11 @@ public class snes
 						tileGFX = &SNES_VRAM[1];										// points to tile 0
 					DestPixel = *(tileGFX + ((TY & 7)*8*2) + ((TX & 7)*2));				// pixel contains actual colour index
 	
-					if (DestPixel)
+					if (DestPixel != 0)
 					{
 						if (*zCur<=depth)
 						{
-							*dst=Machine->pens[palIndx[DestPixel]];
+							*dst=Machine.pens[palIndx[DestPixel]];
 							*zCur=depth;
 						}
 					}
@@ -837,17 +837,17 @@ public class snes
 	
 	// This also attempts to fill in the time over and range over bits of STAT77
 	
-	void RenderSprites(unsigned short *dst,unsigned char *zCur,int curLine)						// dst is pointer to start of current line
+	void RenderSprites(unsigned short *dst,UBytePtr zCur,int curLine)						// dst is pointer to start of current line
 	{
 		int a,b,size,cnt=0,TOver=0,ROver=0;
-		unsigned char *oamPtr=&SNES_ORAM[0x1FF];
+		UBytePtr oamPtr=&SNES_ORAM[0x1FF];
 		short yPos,tileCode;
 		unsigned short xPos;
 		int YComp[2],Width[2];
 		unsigned long OAM_Extra;
 		int yTmp;
 		unsigned long *table[2],*tableY[2];
-		unsigned char *tmp;
+		UBytePtr tmp;
 	
 		tmp = &SNES_VRAM[ (((port21xx[0x01]&0x03)*0x2000) + ((port21xx[0x01]&0x18)*(0x1000>>3)))*2 ];
 	
@@ -915,7 +915,7 @@ public class snes
 					TileAddress_Y=tmp + table[size][yTmp];
 					cnt=SPLOT_4BplTile(xPos,tileCode,dst,zCur,Width[size]);
 	
-					if (cnt)
+					if (cnt != 0)
 					{
 						TOver++;			// Number of objects rendered on a line
 						ROver+=cnt;			// Number of 8x8 tiles rendered on a line
@@ -945,7 +945,7 @@ public class snes
 	
 		while (bMask)
 		{
-			if (bMask&bits)					// This port is set to perform hdma
+			if ((bMask & bits) != 0)					// This port is set to perform hdma
 			{
 				// First off Set up the table address into the TABLE ADDRESS A2 registers 0x43?8 0x43?9
 	
@@ -983,7 +983,7 @@ public class snes
 	
 		for (dmaBase=0x00;dmaBase<0x80;dmaBase+=0x10,bMask<<=1)
 		{
-			if (bMask&bits)					// This port is performing hdma
+			if ((bMask & bits) != 0)					// This port is performing hdma
 			{
 				// First off check to see if we need to read in a new line from the table
 				if (!(port43xx[dmaBase+0x0A]&0x7F))
@@ -1059,7 +1059,7 @@ public class snes
 						return 0;
 				}
 	
-				if (contMode)												// Continue mode so record updated pointer
+				if (contMode != 0)												// Continue mode so record updated pointer
 				{
 					if (port43xx[dmaBase + 0x00] & 0x40)					// Indirect mode so update Indirect table pointer
 					{
@@ -1098,8 +1098,8 @@ public class snes
 		static unsigned char hdmaEnable;						// Which hdma channels to look at this scanline
 		int a,tmp;
 		unsigned char SCR_TM=port21xx[0x2C]|port21xx[0x2D];		// Temp hack until sub screens properly supported
-		unsigned short *dst=(unsigned short *)bitmap->line[curLine+16] + 16;
-		unsigned char *zCur=&zBuffer[(256+32)*(curLine+16) + 16];
+		unsigned short *dst=(unsigned short *)bitmap.line[curLine+16] + 16;
+		UBytePtr zCur=&zBuffer[(256+32)*(curLine+16) + 16];
 	
 		if (curLine==0)											// If start of line then setup HDMA
 			hdmaEnable=setupHDMA(port42xx[0x0C]);
@@ -1118,7 +1118,7 @@ public class snes
 		{
 			// Screen is forceably blanked this line
 			for (a=0;a<256;a++)
-				*dst++=Machine->pens[0];						// Black is at pos 0 in the pens
+				*dst++=Machine.pens[0];						// Black is at pos 0 in the pens
 		}
 		else
 		{
@@ -1127,11 +1127,11 @@ public class snes
 				tmp=palIndx[256];
 			for (a=0;a<256;a++)
 			{
-				dst[a]=Machine->pens[tmp];
+				dst[a]=Machine.pens[tmp];
 				zCur[a]=0;
 			}
 	
-			if (SCR_TM&0x10)									// Render sprites
+			if ((SCR_TM & 0x10) != 0)									// Render sprites
 				RenderSprites(dst,zCur,curLine);
 	
 			switch(port21xx[0x05]&0x07)				  			// Determine background mode
@@ -1145,45 +1145,45 @@ public class snes
 					logerror("Unsuported Video Mode %d\n",port21xx[0x05]&0x07);
 					break;
 				case 0:											// Mode 0 - 4 BPLs 4 / 4 / 4 / 4 colours
-					if (SCR_TM&0x01)
+					if ((SCR_TM & 0x01) != 0)
 						RENDER_LINE(dst,zCur,curLine,0,RENDER_LINE_8x8_C2,0x10,4,0x00);
-					if (SCR_TM&0x02)
+					if ((SCR_TM & 0x02) != 0)
 						RENDER_LINE(dst,zCur,curLine,1,RENDER_LINE_8x8_C2,0x20,3,0x20);
-					if (SCR_TM&0x04)
+					if ((SCR_TM & 0x04) != 0)
 						RENDER_LINE(dst,zCur,curLine,2,RENDER_LINE_8x8_C2,0x40,2,0x40);
-					if (SCR_TM&0x08)
+					if ((SCR_TM & 0x08) != 0)
 						RENDER_LINE(dst,zCur,curLine,3,RENDER_LINE_8x8_C2,0x80,1,0x60);
 					break;
 				case 1:											// Mode 1 - 3 BPLS 16 / 16 / 4 colours
 					if (port21xx[0x05]&0x08)	// if set plane 3 has highest priority
 					{
-						if (SCR_TM&0x04)
+						if ((SCR_TM & 0x04) != 0)
 							RENDER_LINE(dst,zCur,curLine,2,RENDER_LINE_8x8_C2,0x40,3,0);
-						if (SCR_TM&0x01)
+						if ((SCR_TM & 0x01) != 0)
 							RENDER_LINE(dst,zCur,curLine,0,RENDER_LINE_8x8_C4,0x10,2,0);
-						if (SCR_TM&0x02)
+						if ((SCR_TM & 0x02) != 0)
 							RENDER_LINE(dst,zCur,curLine,1,RENDER_LINE_8x8_C4,0x20,1,0);
 					}
 					else
 					{
-						if (SCR_TM&0x01)
+						if ((SCR_TM & 0x01) != 0)
 							RENDER_LINE(dst,zCur,curLine,0,RENDER_LINE_8x8_C4,0x10,2,0);
-						if (SCR_TM&0x02)
+						if ((SCR_TM & 0x02) != 0)
 							RENDER_LINE(dst,zCur,curLine,1,RENDER_LINE_8x8_C4,0x20,1,0);
-						if (SCR_TM&0x04)
+						if ((SCR_TM & 0x04) != 0)
 							RENDER_LINE(dst,zCur,curLine,2,RENDER_LINE_8x8_C2,0x40,0,0);
 					}
 					break;
 				case 2:											// Mode 2 - 2 BPLS 16 / 16 colours  (OFFSET CHANGE MODE)
-					if (SCR_TM&0x01)
+					if ((SCR_TM & 0x01) != 0)
 						RENDER_LINE(dst,zCur,curLine,0,RENDER_LINE_8x8_C4,0x10,2,0);
-					if (SCR_TM&0x02)
+					if ((SCR_TM & 0x02) != 0)
 						RENDER_LINE(dst,zCur,curLine,1,RENDER_LINE_8x8_C4,0x20,1,0);
 					break;
 				case 3:											// Mode 3 - 2 BPLS 256 / 16 colours
-					if (SCR_TM&0x01)
+					if ((SCR_TM & 0x01) != 0)
 						RENDER_LINE(dst,zCur,curLine,0,RENDER_LINE_8x8_C8,0x10,2,0);
-					if (SCR_TM&0x02)
+					if ((SCR_TM & 0x02) != 0)
 						RENDER_LINE(dst,zCur,curLine,1,RENDER_LINE_8x8_C4,0x20,1,0);
 					break;
 			}

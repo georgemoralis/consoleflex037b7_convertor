@@ -22,18 +22,18 @@ public class genesis
 	#define HALT		0
 	#define RESUME		1
 	void genesis_modify_display(int);
-	int genesis_isfunkySMD(unsigned char *);
-	int genesis_isSMD(unsigned char *);
+	int genesis_isfunkySMD(UBytePtr );
+	int genesis_isSMD(UBytePtr );
 	int genesis_sharedram_size = 0x10000;
 	int genesis_soundram_size = 0x10000;
 	
-	/*unsigned char *genesis_sharedram;*/
+	/*UBytePtr genesis_sharedram;*/
 	unsigned char genesis_sharedram[0x10000];
-	unsigned char *genesis_soundram;
+	UBytePtr genesis_soundram;
 	
-	static unsigned char *ROM;
+	static UBytePtr ROM;
 	
-	void genesis_init_machine(void)
+	public static InitMachinePtr genesis_init_machine = new InitMachinePtr() { public void handler() 
 	{
 	    genesis_soundram = memory_region(REGION_CPU2);
 		if( !genesis_soundram )
@@ -53,15 +53,15 @@ public class genesis
 	
 		z80running = 0;
 		logerror("Machine init\n");
-	}
+	} };
 	
 	
 	int genesis_load_rom(int id)
 	{
 		FILE *romfile = NULL;
-		unsigned char *tmpROMnew, *tmpROM;
-		unsigned char *secondhalf;
-		unsigned char *rawROM;
+		UBytePtr tmpROMnew, *tmpROM;
+		UBytePtr secondhalf;
+		UBytePtr rawROM;
 		int relocate;
 		int length;
 		int ptr, x;
@@ -168,14 +168,14 @@ public class genesis
 		return INIT_OK;
 	
 	bad:
-		if (romfile)
+		if (romfile != 0)
 			osd_fclose(romfile);
 		return INIT_FAILED;
 	}
 	
 	/* code taken directly from GoodGEN by Cowering */
 	
-	int genesis_isfunkySMD(unsigned char *buf)
+	int genesis_isfunkySMD(UBytePtr buf)
 	{
 	
 		/* aq quiz */
@@ -236,14 +236,14 @@ public class genesis
 	}
 	
 	/* code taken directly from GoodGEN by Cowering */
-	int genesis_isSMD(unsigned char *buf)
+	int genesis_isSMD(UBytePtr buf)
 	{
 		if (buf[0x2080] == 'S' && buf[0x80] == 'E' && buf[0x2081] == 'G' && buf[0x81] == 'A')
 			return 1;
 		return genesis_isfunkySMD(buf);
 	}
 	
-	int genesis_isfunkyBIN(unsigned char *buf)
+	int genesis_isfunkyBIN(UBytePtr buf)
 	{
 		/* all the special cases for crappy headered roms */
 		/* aq quiz */
@@ -303,7 +303,7 @@ public class genesis
 	    return 0;
 	}
 	
-	int genesis_isBIN(unsigned char *buf)
+	int genesis_isBIN(UBytePtr buf)
 	{
 		if (buf[0x0100] == 'S' && buf[0x0101] == 'E' && buf[0x0102] == 'G' && buf[0x0103] == 'A')
 			return 1;
@@ -315,15 +315,15 @@ public class genesis
 	 * where (size % 16384) != 0
 	 */
 	
-	int genesis_smd2bin(unsigned char *inbuf, unsigned int len)
+	int genesis_smd2bin(UBytePtr inbuf, unsigned int len)
 	{
 		unsigned long i, j, offset = 0;
-		unsigned char *tbuf = NULL;
+		UBytePtr tbuf = NULL;
 	
 		if (len < 16384)
 			return 0;
 		tbuf = malloc(len + 32768);
-		if (tbuf)
+		if (tbuf != 0)
 		{
 			for (i = 0; i < len; i += 16384)
 			{
@@ -347,15 +347,15 @@ public class genesis
 		}
 	}
 	
-	int genesis_md2bin(unsigned char *inbuf, unsigned long len)
+	int genesis_md2bin(UBytePtr inbuf, unsigned long len)
 	{
 		unsigned long i, j, offset = 0;
-		unsigned char *tbuf = NULL;
+		UBytePtr tbuf = NULL;
 	
 		if (len < 16384)
 			return 0;
 		tbuf = malloc(len + 32768);
-		if (tbuf)
+		if (tbuf != 0)
 		{
 			j = len / 2;
 			for (i = 0; i < j; i++)
@@ -374,26 +374,26 @@ public class genesis
 		}
 	}
 	
-	UINT32 genesis_partialcrc(const unsigned char *buf, unsigned int len)
+	UINT32 genesis_partialcrc(const UBytePtr buf, unsigned int len)
 	{
 		UINT32 crc = 0;
 	
 		if (len < 1700)
 			return 0;						/* smallest known working ROM */
-		if (genesis_isSMD((unsigned char *) &buf[0x200]))
+		if (genesis_isSMD((UBytePtr ) &buf[0x200]))
 		{
-			if (genesis_smd2bin((unsigned char *) &buf[0x200], len - 0x200))
+			if (genesis_smd2bin((UBytePtr ) &buf[0x200], len - 0x200))
 			{
 				crc = (UINT32) crc32(0L, &buf[0x200], len - 0x200);
 			}
 		}
-		else if (genesis_isBIN((unsigned char *) buf))
+		else if (genesis_isBIN((UBytePtr ) buf))
 		{
 			crc = (UINT32) crc32(0L, buf, len);
 		}
 		else if ((buf[0x080] == 'E') && (buf[0x081] == 'A') && (buf[0x082] == 'M' || buf[0x082] == 'G'))
 		{
-			if (genesis_md2bin((unsigned char *) buf, len))
+			if (genesis_md2bin((UBytePtr ) buf, len))
 			{
 				crc = (UINT32) crc32(0L, buf, len);
 			}
@@ -405,13 +405,13 @@ public class genesis
 	int genesis_id_rom(int id)
 	{
 		FILE *romfile;
-		unsigned char *temp;
+		UBytePtr temp;
 		int retval = ID_FAILED;
 	
 		if (!(romfile = image_fopen(IO_CARTSLOT, id, OSD_FILETYPE_IMAGE_R, 0)))
 			return ID_FAILED;
-		temp = (unsigned char *) malloc(0x8000 + 0x200);
-		if (temp)
+		temp = (UBytePtr ) malloc(0x8000 + 0x200);
+		if (temp != 0)
 		{
 	
 			osd_fread(romfile, temp, 0x8000 + 0x200);
@@ -437,7 +437,7 @@ public class genesis
 		return retval;
 	}
 	
-	int genesis_interrupt(void)
+	public static InterruptPtr genesis_interrupt = new InterruptPtr() { public int handler() 
 	{
 		static int inter = 0;
 	
@@ -469,7 +469,7 @@ public class genesis
 			return 0;
 		}
 		return 0;
-	}
+	} };
 	
 	WRITE_HANDLER(genesis_io_w)
 	{

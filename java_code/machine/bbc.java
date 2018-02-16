@@ -252,7 +252,7 @@ public class bbc
 		bit=data & 0x07;
 		value=(data>>3) &0x01;
 	
-		if (value) {
+		if (value != 0) {
 			switch (bit) {
 			case 0:
 				if (b0_sound==0) {
@@ -397,14 +397,14 @@ public class bbc
 	
 	static void bbcb_via0_write_ca2(int offset, int data)
 	{
-	  //if( errorlog ) fprintf(errorlog, "via0_write_ca2: $%02X\n", data);
+	  //if (errorlog != 0) fprintf(errorlog, "via0_write_ca2: $%02X\n", data);
 	}
 	
 	/* this is wired as in input port so writing to this port would be bad */
 	
 	static void bbcb_via0_write_cb2(int offset, int data)
 	{
-	  //if( errorlog ) fprintf(errorlog, "via0_write_cb2: $%02X\n", data);
+	  //if (errorlog != 0) fprintf(errorlog, "via0_write_cb2: $%02X\n", data);
 	}
 	
 	
@@ -414,7 +414,7 @@ public class bbc
 	static void bbc_via0_irq(int level)
 	{
 	  via0_irq=level;
-	  //if (errorlog) { fprintf(errorlog, "SYSTEM via irq %d %d %d\n",via0_irq,via1_irq,level); };
+	  //if (errorlog != 0) { fprintf(errorlog, "SYSTEM via irq %d %d %d\n",via0_irq,via1_irq,level); };
 	  cpu_set_irq_line(0, M6502_INT_IRQ, via0_irq|via1_irq);
 	}
 	
@@ -422,7 +422,7 @@ public class bbc
 	static void bbc_via1_irq(int level)
 	{
 	  via1_irq=level;
-	  //if (errorlog) { fprintf(errorlog, "USER via irq %d %d %d\n",via0_irq,via1_irq,level); };
+	  //if (errorlog != 0) { fprintf(errorlog, "USER via irq %d %d %d\n",via0_irq,via1_irq,level); };
 	  cpu_set_irq_line(0, M6502_INT_IRQ, via0_irq|via1_irq);
 	}
 	
@@ -488,7 +488,7 @@ public class bbc
 			//cpu_set_irq_line(0,M6502_INT_NMI,0);
 	}
 	
-	void init_machine_bbca(void)
+	public static InitMachinePtr init_machine_bbca = new InitMachinePtr() { public void handler() 
 	{
 		cpu_setbankhandler_r(1, MRA_BANK1);
 		cpu_setbankhandler_r(2, MRA_BANK2);
@@ -501,9 +501,9 @@ public class bbc
 		via_reset();
 		bbcb_IC32_initialise();
 	
-	}
+	} };
 	
-	void init_machine_bbcb(void)
+	public static InitMachinePtr init_machine_bbcb = new InitMachinePtr() { public void handler() 
 	{
 		cpu_setbankhandler_r(1, MRA_BANK1);
 		cpu_setbankhandler_r(2, MRA_BANK2);
@@ -525,7 +525,7 @@ public class bbc
 	
 		i8271_init(&bbc_i8271_interface);
 		i8271_reset();
-	}
+	} };
 	
 	
 	void stop_machine_bbcb(void)

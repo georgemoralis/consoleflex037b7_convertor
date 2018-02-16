@@ -32,25 +32,25 @@ package systems;
 public class coupe
 {
 	
-	static struct MemoryReadAddress coupe_readmem[] = {
-		{ 0x0000, 0x3FFF, MRA_BANK1 },
-		{ 0x4000, 0x7FFF, MRA_BANK2 },
-		{ 0x8000, 0xBFFF, MRA_BANK3 },
-		{ 0xC000, 0xFFFF, MRA_BANK4 },
-		{ -1 }  /* end of table */
+	static MemoryReadAddress coupe_readmem[] ={
+		new MemoryReadAddress( 0x0000, 0x3FFF, MRA_BANK1 ),
+		new MemoryReadAddress( 0x4000, 0x7FFF, MRA_BANK2 ),
+		new MemoryReadAddress( 0x8000, 0xBFFF, MRA_BANK3 ),
+		new MemoryReadAddress( 0xC000, 0xFFFF, MRA_BANK4 ),
+		new MemoryReadAddress( -1 )  /* end of table */
 	};
 	
-	static struct MemoryWriteAddress coupe_writemem[] = {
-		{ 0x0000, 0x3FFF, MWA_BANK5 },
-		{ 0x4000, 0x7FFF, MWA_BANK6 },
-		{ 0x8000, 0xBFFF, MWA_BANK7 },
-		{ 0xC000, 0xFFFF, MWA_BANK8 },
-		{ -1 }  /* end of table */
+	static MemoryWriteAddress coupe_writemem[] ={
+		new MemoryWriteAddress( 0x0000, 0x3FFF, MWA_BANK5 ),
+		new MemoryWriteAddress( 0x4000, 0x7FFF, MWA_BANK6 ),
+		new MemoryWriteAddress( 0x8000, 0xBFFF, MWA_BANK7 ),
+		new MemoryWriteAddress( 0xC000, 0xFFFF, MWA_BANK8 ),
+		new MemoryWriteAddress( -1 )  /* end of table */
 	};
 	
-	int coupe_line_interrupt(void)
+	public static InterruptPtr coupe_line_interrupt = new InterruptPtr() { public int handler() 
 	{
-		struct osd_bitmap *bitmap = Machine->scrbitmap;
+		struct osd_bitmap *bitmap = Machine.scrbitmap;
 		int interrupted=0;				// This is used to allow me to clear the STAT flag (easiest way I can do it!)
 	
 		HPEN = CURLINE;
@@ -88,7 +88,7 @@ public class coupe
 	
 		if (CURLINE == 193)
 		{
-			if (interrupted)
+			if (interrupted != 0)
 				STAT&=~0x08;
 			else
 				STAT=0x17;
@@ -101,7 +101,7 @@ public class coupe
 			STAT=0x1F;
 	
 		return ignore_interrupt();
-	}
+	} };
 	
 	unsigned char getSamKey1(unsigned char hi)
 	{
@@ -114,14 +114,14 @@ public class coupe
 			result &=readinputport(8) & 0x1F;
 		else
 		{
-			if (hi&0x80) result &= readinputport(7) & 0x1F;
-			if (hi&0x40) result &= readinputport(6) & 0x1F;
-			if (hi&0x20) result &= readinputport(5) & 0x1F;
-			if (hi&0x10) result &= readinputport(4) & 0x1F;
-			if (hi&0x08) result &= readinputport(3) & 0x1F;
-			if (hi&0x04) result &= readinputport(2) & 0x1F;
-			if (hi&0x02) result &= readinputport(1) & 0x1F;
-			if (hi&0x01) result &= readinputport(0) & 0x1F;
+			if ((hi & 0x80) != 0) result &= readinputport(7) & 0x1F;
+			if ((hi & 0x40) != 0) result &= readinputport(6) & 0x1F;
+			if ((hi & 0x20) != 0) result &= readinputport(5) & 0x1F;
+			if ((hi & 0x10) != 0) result &= readinputport(4) & 0x1F;
+			if ((hi & 0x08) != 0) result &= readinputport(3) & 0x1F;
+			if ((hi & 0x04) != 0) result &= readinputport(2) & 0x1F;
+			if ((hi & 0x02) != 0) result &= readinputport(1) & 0x1F;
+			if ((hi & 0x01) != 0) result &= readinputport(0) & 0x1F;
 		}
 	
 		return result;
@@ -140,14 +140,14 @@ public class coupe
 		}
 		else
 		{
-			if (hi&0x80) result &= readinputport(7) & 0xE0;
-			if (hi&0x40) result &= readinputport(6) & 0xE0;
-			if (hi&0x20) result &= readinputport(5) & 0xE0;
-			if (hi&0x10) result &= readinputport(4) & 0xE0;
-			if (hi&0x08) result &= readinputport(3) & 0xE0;
-			if (hi&0x04) result &= readinputport(2) & 0xE0;
-			if (hi&0x02) result &= readinputport(1) & 0xE0;
-			if (hi&0x01) result &= readinputport(0) & 0xE0;
+			if ((hi & 0x80) != 0) result &= readinputport(7) & 0xE0;
+			if ((hi & 0x40) != 0) result &= readinputport(6) & 0xE0;
+			if ((hi & 0x20) != 0) result &= readinputport(5) & 0xE0;
+			if ((hi & 0x10) != 0) result &= readinputport(4) & 0xE0;
+			if ((hi & 0x08) != 0) result &= readinputport(3) & 0xE0;
+			if ((hi & 0x04) != 0) result &= readinputport(2) & 0xE0;
+			if ((hi & 0x02) != 0) result &= readinputport(1) & 0xE0;
+			if ((hi & 0x01) != 0) result &= readinputport(0) & 0xE0;
 		}
 	
 		return result;
@@ -263,7 +263,7 @@ public class coupe
 	{
 	
 		{
-			if (side)
+			if (side != 0)
 			{
 			switch (data&0xF0)		// decode command part of sequence
 			{
@@ -284,7 +284,7 @@ public class coupe
 						,id,side,(data&0x08)>>3,(data&0x04)>>2);
 					break;
 				case 0xD0:			// Force Interrupt
-					logerror("Dsk %d Side %d Command Force Interrupt : Now=%d,Next Index=%d,Ready->Not Ready=%d,Not Ready->Ready=%d,Abort=%d\n"
+					logerror("Dsk %d Side %d Command Force Interrupt : Now=%d,Next Index=%d,Ready.Not Ready=%d,Not Ready.Ready=%d,Abort=%d\n"
 						,id,side,(data&0x08)>>3,(data&0x04)>>2,(data&0x02)>>1,(data&0x01),(data&0x0F)==0);
 					break;
 				default:
@@ -414,116 +414,116 @@ public class coupe
 		}
 	}
 	
-	static struct IOReadPort coupe_readport[] = {
-		{0, 0x0ffff, coupe_port_r},
-		{ -1 }
+	static IOReadPort coupe_readport[] ={
+		new IOReadPort(0, 0x0ffff, coupe_port_r),
+		new IOReadPort( -1 )
 	};
 	
-	static struct IOWritePort coupe_writeport[] = {
-		{0x0000, 0x0ffff, coupe_port_w},
-		{ -1 }
+	static IOWritePort coupe_writeport[] ={
+		new IOWritePort(0x0000, 0x0ffff, coupe_port_w),
+		new IOWritePort( -1 )
 	};
 	
-	static struct GfxDecodeInfo coupe_gfxdecodeinfo[] = {
-		{ -1 } /* end of array */
+	static GfxDecodeInfo coupe_gfxdecodeinfo[] ={
+		new GfxDecodeInfo( -1 ) /* end of array */
 	};
 	
-	INPUT_PORTS_START( coupe )
-		PORT_START // FE  0
-		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "SHIFT", KEYCODE_LSHIFT,  IP_JOY_NONE )
-		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "Z", KEYCODE_Z,  IP_JOY_NONE )
-		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "X", KEYCODE_X,  IP_JOY_NONE )
-		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "C", KEYCODE_C,  IP_JOY_NONE )
-		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "V", KEYCODE_V,  IP_JOY_NONE )
-		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "F1",KEYCODE_F1, IP_JOY_NONE )
-		PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "F2",KEYCODE_F2, IP_JOY_NONE )
-		PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "F3",KEYCODE_F3, IP_JOY_NONE )
+	static InputPortPtr input_ports_coupe = new InputPortPtr(){ public void handler() { 
+		PORT_START();  // FE  0
+		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "SHIFT", KEYCODE_LSHIFT,  IP_JOY_NONE );
+		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "Z", KEYCODE_Z,  IP_JOY_NONE );
+		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "X", KEYCODE_X,  IP_JOY_NONE );
+		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "C", KEYCODE_C,  IP_JOY_NONE );
+		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "V", KEYCODE_V,  IP_JOY_NONE );
+		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "F1",KEYCODE_F1, IP_JOY_NONE );
+		PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "F2",KEYCODE_F2, IP_JOY_NONE );
+		PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "F3",KEYCODE_F3, IP_JOY_NONE );
 	
-		PORT_START // FD  1
-		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "A", KEYCODE_A,  IP_JOY_NONE )
-		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "S", KEYCODE_S,  IP_JOY_NONE )
-		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "D", KEYCODE_D,  IP_JOY_NONE )
-		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "F", KEYCODE_F,  IP_JOY_NONE )
-		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "G", KEYCODE_G,  IP_JOY_NONE )
-		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "F4",KEYCODE_F4, IP_JOY_NONE )
-		PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "F5",KEYCODE_F5, IP_JOY_NONE )
-		PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "F6",KEYCODE_F6, IP_JOY_NONE )
+		PORT_START();  // FD  1
+		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "A", KEYCODE_A,  IP_JOY_NONE );
+		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "S", KEYCODE_S,  IP_JOY_NONE );
+		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "D", KEYCODE_D,  IP_JOY_NONE );
+		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "F", KEYCODE_F,  IP_JOY_NONE );
+		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "G", KEYCODE_G,  IP_JOY_NONE );
+		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "F4",KEYCODE_F4, IP_JOY_NONE );
+		PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "F5",KEYCODE_F5, IP_JOY_NONE );
+		PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "F6",KEYCODE_F6, IP_JOY_NONE );
 	
-		PORT_START // FB  2
-		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "Q", KEYCODE_Q,  IP_JOY_NONE )
-		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "W", KEYCODE_W,  IP_JOY_NONE )
-		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "E", KEYCODE_E,  IP_JOY_NONE )
-		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "R", KEYCODE_R,  IP_JOY_NONE )
-		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "T", KEYCODE_T,  IP_JOY_NONE )
-		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "F7",KEYCODE_F7, IP_JOY_NONE )
-		PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "F8",KEYCODE_F8, IP_JOY_NONE )
-		PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "F9",KEYCODE_F9, IP_JOY_NONE )
+		PORT_START();  // FB  2
+		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "Q", KEYCODE_Q,  IP_JOY_NONE );
+		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "W", KEYCODE_W,  IP_JOY_NONE );
+		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "E", KEYCODE_E,  IP_JOY_NONE );
+		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "R", KEYCODE_R,  IP_JOY_NONE );
+		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "T", KEYCODE_T,  IP_JOY_NONE );
+		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "F7",KEYCODE_F7, IP_JOY_NONE );
+		PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "F8",KEYCODE_F8, IP_JOY_NONE );
+		PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "F9",KEYCODE_F9, IP_JOY_NONE );
 	
-		PORT_START // F7  3
-		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "1", KEYCODE_1,  IP_JOY_NONE )
-		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "2", KEYCODE_2,  IP_JOY_NONE )
-		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "3", KEYCODE_3,  IP_JOY_NONE )
-		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "4", KEYCODE_4,  IP_JOY_NONE )
-		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "5", KEYCODE_5,  IP_JOY_NONE )
-		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "ESC",KEYCODE_ESC, IP_JOY_NONE )
-		PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "TAB",KEYCODE_TAB, IP_JOY_NONE )
-		PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "CAPS LOCK",KEYCODE_CAPSLOCK, IP_JOY_NONE )
+		PORT_START();  // F7  3
+		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "1", KEYCODE_1,  IP_JOY_NONE );
+		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "2", KEYCODE_2,  IP_JOY_NONE );
+		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "3", KEYCODE_3,  IP_JOY_NONE );
+		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "4", KEYCODE_4,  IP_JOY_NONE );
+		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "5", KEYCODE_5,  IP_JOY_NONE );
+		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "ESC",KEYCODE_ESC, IP_JOY_NONE );
+		PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "TAB",KEYCODE_TAB, IP_JOY_NONE );
+		PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "CAPS LOCK",KEYCODE_CAPSLOCK, IP_JOY_NONE );
 	
-		PORT_START // EF  4
-		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "0", KEYCODE_0,  IP_JOY_NONE )
-		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "9", KEYCODE_9,  IP_JOY_NONE )
-		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "8", KEYCODE_8,  IP_JOY_NONE )
-		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "7", KEYCODE_7,  IP_JOY_NONE )
-		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "6", KEYCODE_6,  IP_JOY_NONE )
-		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "-", KEYCODE_MINUS, IP_JOY_NONE )
-		PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "+", KEYCODE_EQUALS, IP_JOY_NONE )
-		PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "BACKSPACE",KEYCODE_BACKSPACE, IP_JOY_NONE )
+		PORT_START();  // EF  4
+		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "0", KEYCODE_0,  IP_JOY_NONE );
+		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "9", KEYCODE_9,  IP_JOY_NONE );
+		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "8", KEYCODE_8,  IP_JOY_NONE );
+		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "7", KEYCODE_7,  IP_JOY_NONE );
+		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "6", KEYCODE_6,  IP_JOY_NONE );
+		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "-", KEYCODE_MINUS, IP_JOY_NONE );
+		PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "+", KEYCODE_EQUALS, IP_JOY_NONE );
+		PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "BACKSPACE",KEYCODE_BACKSPACE, IP_JOY_NONE );
 	
-		PORT_START // DF  5
-		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "P", KEYCODE_P,  IP_JOY_NONE )
-		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "O", KEYCODE_O,  IP_JOY_NONE )
-		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "I", KEYCODE_I,  IP_JOY_NONE )
-		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "U", KEYCODE_U,  IP_JOY_NONE )
-		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "Y", KEYCODE_Y,  IP_JOY_NONE )
-		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "=", KEYCODE_OPENBRACE, IP_JOY_NONE )
-		PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "\"", KEYCODE_CLOSEBRACE, IP_JOY_NONE )
-		PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "F0", KEYCODE_F10, IP_JOY_NONE )
+		PORT_START();  // DF  5
+		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "P", KEYCODE_P,  IP_JOY_NONE );
+		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "O", KEYCODE_O,  IP_JOY_NONE );
+		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "I", KEYCODE_I,  IP_JOY_NONE );
+		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "U", KEYCODE_U,  IP_JOY_NONE );
+		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "Y", KEYCODE_Y,  IP_JOY_NONE );
+		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "=", KEYCODE_OPENBRACE, IP_JOY_NONE );
+		PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "\"", KEYCODE_CLOSEBRACE, IP_JOY_NONE );
+		PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "F0", KEYCODE_F10, IP_JOY_NONE );
 	
-		PORT_START // BF  6
-		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "RETURN", KEYCODE_ENTER,  IP_JOY_NONE )
-		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "L", KEYCODE_L,  IP_JOY_NONE )
-		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "K", KEYCODE_K,  IP_JOY_NONE )
-		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "J", KEYCODE_J,  IP_JOY_NONE )
-		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "H", KEYCODE_H,  IP_JOY_NONE )
-		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, ";", KEYCODE_COLON, IP_JOY_NONE )
-		PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, ":", KEYCODE_QUOTE, IP_JOY_NONE )
-		PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "EDIT", KEYCODE_RALT, IP_JOY_NONE )
+		PORT_START();  // BF  6
+		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "RETURN", KEYCODE_ENTER,  IP_JOY_NONE );
+		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "L", KEYCODE_L,  IP_JOY_NONE );
+		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "K", KEYCODE_K,  IP_JOY_NONE );
+		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "J", KEYCODE_J,  IP_JOY_NONE );
+		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "H", KEYCODE_H,  IP_JOY_NONE );
+		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, ";", KEYCODE_COLON, IP_JOY_NONE );
+		PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, ":", KEYCODE_QUOTE, IP_JOY_NONE );
+		PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "EDIT", KEYCODE_RALT, IP_JOY_NONE );
 	
-		PORT_START // 7F  7
-		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "SPACE", KEYCODE_SPACE,  IP_JOY_NONE )
-		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "SYMBOL", KEYCODE_LCONTROL,  IP_JOY_NONE )
-		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "M", KEYCODE_M,  IP_JOY_NONE )
-		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "N", KEYCODE_N,  IP_JOY_NONE )
-		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "B", KEYCODE_B,  IP_JOY_NONE )
-		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, ",", KEYCODE_COMMA, IP_JOY_NONE )
-		PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, ".", KEYCODE_STOP, IP_JOY_NONE )
-		PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "INV", KEYCODE_SLASH, IP_JOY_NONE )
+		PORT_START();  // 7F  7
+		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "SPACE", KEYCODE_SPACE,  IP_JOY_NONE );
+		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "SYMBOL", KEYCODE_LCONTROL,  IP_JOY_NONE );
+		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "M", KEYCODE_M,  IP_JOY_NONE );
+		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "N", KEYCODE_N,  IP_JOY_NONE );
+		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "B", KEYCODE_B,  IP_JOY_NONE );
+		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, ",", KEYCODE_COMMA, IP_JOY_NONE );
+		PORT_BITX(0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, ".", KEYCODE_STOP, IP_JOY_NONE );
+		PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "INV", KEYCODE_SLASH, IP_JOY_NONE );
 	
-		PORT_START // FF  8
-		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "CTRL", KEYCODE_LALT,  IP_JOY_NONE )
-		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "UP", KEYCODE_UP,  IP_JOY_NONE )
-		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "DOWN", KEYCODE_DOWN,  IP_JOY_NONE )
-		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "LEFT", KEYCODE_LEFT,  IP_JOY_NONE )
-		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "RIGHT", KEYCODE_RIGHT,  IP_JOY_NONE )
+		PORT_START();  // FF  8
+		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "CTRL", KEYCODE_LALT,  IP_JOY_NONE );
+		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "UP", KEYCODE_UP,  IP_JOY_NONE );
+		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "DOWN", KEYCODE_DOWN,  IP_JOY_NONE );
+		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "LEFT", KEYCODE_LEFT,  IP_JOY_NONE );
+		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "RIGHT", KEYCODE_RIGHT,  IP_JOY_NONE );
 	
-		PORT_START
-		PORT_DIPNAME(0x80, 0x00, "Sam Ram")
-		PORT_DIPSETTING(0x00, "256K" )						// Not implemented yet!!!
-		PORT_DIPSETTING(0x80, "512K" )
-	INPUT_PORTS_END
+		PORT_START(); 
+		PORT_DIPNAME(0x80, 0x00, "Sam Ram");
+		PORT_DIPSETTING(0x00, "256K" );					// Not implemented yet!!!
+		PORT_DIPSETTING(0x80, "512K" );
+	INPUT_PORTS_END(); }}; 
 	
 	/* Initialise the palette */
-	static void coupe_init_palette(unsigned char *sys_palette, unsigned short *sys_colortable,const unsigned char *color_prom)
+	static void coupe_init_palette(UBytePtr sys_palette, unsigned short *sys_colortable,const UBytePtr color_prom)
 	{
 		unsigned char red,green,blue;
 		int a;
@@ -541,23 +541,23 @@ public class coupe
 			// not quite max of 255 but close enough for me!
 	
 			red=green=blue=0;
-			if (a&0x01)
+			if ((a & 0x01) != 0)
 				blue+=2*36;
-			if (a&0x02)
+			if ((a & 0x02) != 0)
 				red+=2*36;
-			if (a&0x04)
+			if ((a & 0x04) != 0)
 				green+=2*36;
-			if (a&0x08)
+			if ((a & 0x08) != 0)
 			{
 				red+=1*36;
 				green+=1*36;
 				blue+=1*36;
 			}
-			if (a&0x10)
+			if ((a & 0x10) != 0)
 				blue+=4*36;
-			if (a&0x20)
+			if ((a & 0x20) != 0)
 				red+=4*36;
-			if (a&0x40)
+			if ((a & 0x40) != 0)
 				green+=4*36;
 	
 			coupe_palette[a*3+0]=red;
@@ -577,18 +577,18 @@ public class coupe
 	 {50},
 	};
 	
-	static struct MachineDriver machine_driver_coupe =
-	{
+	static MachineDriver machine_driver_coupe = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_Z80|CPU_16BIT_PORT,
 				6000000,        /* 6 Mhz */
 			    coupe_readmem,coupe_writemem,
 				coupe_readport,coupe_writeport,
 				coupe_line_interrupt,192 + 10,			// 192 scanlines + 10 lines of vblank (approx)..
 	
-			},
+			),
 		},
 		50, /*2500*/0,       /* frames per second, vblank duration */
 		1,
@@ -598,28 +598,28 @@ public class coupe
 		/* video hardware */
 		64*8,                               /* screen width */
 		24*8,                               /* screen height */
-		{ 0, 64*8-1, 0, 24*8-1 },           /* visible_area */
+		new rectangle( 0, 64*8-1, 0, 24*8-1 ),           /* visible_area */
 		coupe_gfxdecodeinfo,				/* graphics decode info */
 		128, 128,							/* colors used for the characters */
 		coupe_init_palette,					/* initialise palette */
 	
 		VIDEO_TYPE_RASTER,
-		0,
+		null,
 		coupe_vh_start,
 		coupe_vh_stop,
 		coupe_vh_screenrefresh,
 	
 		/* sound hardware */
 		0,0,0,0,
-		{
+		new MachineSound[] {
 			/* standard spectrum sound */
-			{
+			new MachineSound(
 				SOUND_SPEAKER,
-				&coupe_speaker_interface
-			},
+				coupe_speaker_interface
+			),
 		}
 	
-	};
+	);
 	
 	/***************************************************************************
 	
@@ -627,11 +627,11 @@ public class coupe
 	
 	***************************************************************************/
 	
-	ROM_START(coupe)
-		ROM_REGION(0x18000,REGION_CPU1)
-		ROM_LOAD("sam_rom0.rom", 0x10000, 0x4000, 0x9954CF1A)
-		ROM_LOAD("sam_rom1.rom", 0x14000, 0x4000, 0xF031AED4)
-	ROM_END
+	static RomLoadPtr rom_coupe = new RomLoadPtr(){ public void handler(){ 
+		ROM_REGION(0x18000,REGION_CPU1);
+		ROM_LOAD("sam_rom0.rom", 0x10000, 0x4000, 0x9954CF1A);
+		ROM_LOAD("sam_rom1.rom", 0x14000, 0x4000, 0xF031AED4);
+	ROM_END(); }}; 
 	
 	static const struct IODevice io_coupe[] =
 	{

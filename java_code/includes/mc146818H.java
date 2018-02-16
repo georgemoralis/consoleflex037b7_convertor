@@ -6,7 +6,6 @@ typedef enum {
 } MC146818_TYPE;
 
 void mc146818_init(MC146818_TYPE type);
-void mc146818_close(void);
 
 READ_HANDLER(mc146818_port_r);
 WRITE_HANDLER(mc146818_port_w);

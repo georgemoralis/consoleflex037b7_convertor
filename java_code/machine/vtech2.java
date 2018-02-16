@@ -113,15 +113,15 @@ public class vtech2
 	    MWA_BANK4   /* mapped in c000-ffff */
 	};
 	
-	void init_laser(void)
+	public static InitDriverPtr init_laser = new InitDriverPtr() { public void handler() 
 	{
 	    UINT8 *gfx = memory_region(REGION_GFX2);
 	    int i;
 	    for (i = 0; i < 256; i++)
 	        gfx[i] = i;
-	}
+	} };
 	
-	void laser350_init_machine(void)
+	public static InitMachinePtr laser350_init_machine = new InitMachinePtr() { public void handler() 
 	{
 	    mem = memory_region(REGION_CPU1);
 		/* banks 0 to 3 only, optional ROM extension */
@@ -129,9 +129,9 @@ public class vtech2
 	    laser_video_bank = 3;
 		videoram = mem + laser_video_bank * 0x04000;
 		logerror("laser350 init machine: bank mask $%04X, video %d [$%05X]\n", laser_bank_mask, laser_video_bank, laser_video_bank * 0x04000);
-	}
+	} };
 	
-	void laser500_init_machine(void)
+	public static InitMachinePtr laser500_init_machine = new InitMachinePtr() { public void handler() 
 	{
 	    mem = memory_region(REGION_CPU1);
 		/* banks 0 to 2, and 4-7 only , optional ROM extension */
@@ -139,9 +139,9 @@ public class vtech2
 	    laser_video_bank = 7;
 	    videoram = mem + laser_video_bank * 0x04000;
 		logerror("laser500 init machine: bank mask $%04X, video %d [$%05X]\n", laser_bank_mask, laser_video_bank, laser_video_bank * 0x04000);
-	}
+	} };
 	
-	void laser700_init_machine(void)
+	public static InitMachinePtr laser700_init_machine = new InitMachinePtr() { public void handler() 
 	{
 	    mem = memory_region(REGION_CPU1);
 		/* all banks except #3 */
@@ -149,7 +149,7 @@ public class vtech2
 	    laser_video_bank = 7;
 	    videoram = mem + laser_video_bank * 0x04000;
 		logerror("laser700 init machine: bank mask $%04X, video %d [$%05X]\n", laser_bank_mask, laser_video_bank, laser_video_bank * 0x04000);
-	}
+	} };
 	
 	void laser_shutdown_machine(void)
 	{
@@ -374,7 +374,7 @@ public class vtech2
 	    void *file;
 	
 		file = image_fopen(IO_CARTSLOT, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-	    if( file )
+	    if (file != 0)
 	    {
 			size = osd_fread(file, &mem[0x30000], 0x10000);
 	        osd_fclose(file);
@@ -406,7 +406,7 @@ public class vtech2
 	    void *file;
 	
 		file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-	    if( file )
+	    if (file != 0)
 	    {
 			int i;
 	
@@ -466,7 +466,7 @@ public class vtech2
 	static INT16 *fill_wave_bit(INT16 *buffer, int bit)
 	{
 		int i;
-		if( bit )
+		if (bit != 0)
 		{
 			for( i = 0; i < BITSAMPLES; i++ )
 				*buffer++ = bit1[i];
@@ -542,7 +542,7 @@ public class vtech2
 	{
 		void *file;
 		file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-		if( file )
+		if (file != 0)
 		{
 			struct wave_args wa = {0,};
 			wa.file = file;
@@ -558,7 +558,7 @@ public class vtech2
 			return INIT_OK;
 	    }
 		file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_RW_CREATE);
-		if( file )
+		if (file != 0)
 	    {
 			struct wave_args wa = {0,};
 			wa.file = file;
@@ -574,7 +574,7 @@ public class vtech2
 	
 	void laser_cassette_exit(int id)
 	{
-		if( cassette_image )
+		if (cassette_image != 0)
 			free(cassette_image);
 		cassette_image = NULL;
 	}
@@ -585,7 +585,7 @@ public class vtech2
 		UINT8 buff[32];
 	
 		file = image_fopen(IO_FLOPPY, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-	    if( file )
+	    if (file != 0)
 	    {
 	        osd_fread(file, buff, sizeof(buff));
 			osd_fclose(file);
@@ -653,7 +653,7 @@ public class vtech2
 	    case 1: /* data (read-only) */
 	        if( laser_fdc_bits > 0 )
 	        {
-	            if( laser_fdc_status & 0x80 )
+	            if ((laser_fdc_status & 0x80) != 0)
 	                laser_fdc_bits--;
 	            data = (laser_data >> laser_fdc_bits) & 0xff;
 	#if 0
@@ -666,7 +666,7 @@ public class vtech2
 	        {
 	            laser_data = laser_fdc_data[laser_fdc_offs];
 	            logerror("laser_fdc_r %d : data ($%04X) $%02X\n", offset, laser_fdc_offs, laser_data);
-	            if( laser_fdc_status & 0x80 )
+	            if ((laser_fdc_status & 0x80) != 0)
 	            {
 	                laser_fdc_bits = 8;
 	                laser_fdc_offs = ++laser_fdc_offs % TRKSIZE_FM;
@@ -739,14 +739,14 @@ public class vtech2
 	                    {
 	                        UINT8 value = 0;
 	                        laser_data &= 0xffff;
-	                        if( laser_data & 0x4000 ) value |= 0x80;
-	                        if( laser_data & 0x1000 ) value |= 0x40;
-	                        if( laser_data & 0x0400 ) value |= 0x20;
-	                        if( laser_data & 0x0100 ) value |= 0x10;
-	                        if( laser_data & 0x0040 ) value |= 0x08;
-	                        if( laser_data & 0x0010 ) value |= 0x04;
-	                        if( laser_data & 0x0004 ) value |= 0x02;
-	                        if( laser_data & 0x0001 ) value |= 0x01;
+	                        if ((laser_data & 0x4000) != 0) value |= 0x80;
+	                        if ((laser_data & 0x1000) != 0) value |= 0x40;
+	                        if ((laser_data & 0x0400) != 0) value |= 0x20;
+	                        if ((laser_data & 0x0100) != 0) value |= 0x10;
+	                        if ((laser_data & 0x0040) != 0) value |= 0x08;
+	                        if ((laser_data & 0x0010) != 0) value |= 0x04;
+	                        if ((laser_data & 0x0004) != 0) value |= 0x02;
+	                        if ((laser_data & 0x0001) != 0) value |= 0x01;
 	                        logerror("laser_fdc_w(%d) data($%04X) $%02X <- $%02X ($%04X)\n", offset, laser_fdc_offs, laser_fdc_data[laser_fdc_offs], value, laser_data);
 	                        laser_fdc_data[laser_fdc_offs] = value;
 	                        laser_fdc_offs = ++laser_fdc_offs % TRKSIZE_FM;
@@ -759,7 +759,7 @@ public class vtech2
 	            if( (laser_fdc_latch ^ data) & 0x40 )
 	            {
 	                /* falling edge? */
-	                if ( laser_fdc_latch & 0x40 )
+	                if ((laser_fdc_latch & 0x40) != 0)
 	                {
 	                    sprintf(laser_frame_message, "#%d put track %02d", laser_drive, laser_track_x2[laser_drive]/2);
 	                    laser_frame_time = 30;
@@ -769,7 +769,7 @@ public class vtech2
 	                else
 	                {
 	                    /* data written to track before? */
-	                    if( laser_fdc_write )
+	                    if (laser_fdc_write != 0)
 	                        laser_put_track();
 	                }
 	                laser_fdc_bits = 8;

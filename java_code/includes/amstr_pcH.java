@@ -1,23 +1,13 @@
-WRITE_HANDLER( pc1640_port60_w );
-READ_HANDLER( pc1640_port60_r );
 
-READ_HANDLER( pc1640_mouse_x_r );
-READ_HANDLER( pc1640_mouse_y_r );
 
-WRITE_HANDLER( pc1640_mouse_x_w );
-WRITE_HANDLER( pc1640_mouse_y_w );
 
-READ_HANDLER( pc1640_port3d0_r );
-READ_HANDLER( pc1640_port378_r );
-READ_HANDLER( pc1640_port4278_r );
-READ_HANDLER( pc1640_port278_r );
 
 #define AMSTRAD_HELPER(bit, text, key1, key2) \
-	PORT_BITX( bit, 0x0000, IPT_KEYBOARD, text, key1, key2 )
+	PORT_BITX( bit, 0x0000, IPT_KEYBOARD, text, key1, key2 );
 
 #define AMSTRAD_KEYBOARD \
-    PORT_START  /* IN4 */\
-	PORT_BIT ( 0x0001, 0x0000, IPT_UNUSED ) 	/* unused scancode 0 */\
+    PORT_START();   /* IN4 */\
+	PORT_BIT ( 0x0001, 0x0000, IPT_UNUSED );	/* unused scancode 0 */\
 	AMSTRAD_HELPER( 0x0002, "Esc",          KEYCODE_ESC,        IP_JOY_NONE ) \
 	AMSTRAD_HELPER( 0x0004, "1 !",          KEYCODE_1,          IP_JOY_NONE ) \
 	AMSTRAD_HELPER( 0x0008, "2 @",          KEYCODE_2,          IP_JOY_NONE ) \
@@ -34,7 +24,7 @@ READ_HANDLER( pc1640_port278_r );
 	AMSTRAD_HELPER( 0x4000, "<--",          KEYCODE_BACKSPACE,  IP_JOY_NONE ) \
 	AMSTRAD_HELPER( 0x8000, "Tab",          KEYCODE_TAB,        IP_JOY_NONE ) \
 		\
-	PORT_START	/* IN5 */\
+	PORT_START(); 	/* IN5 */\
 	AMSTRAD_HELPER( 0x0001, "Q",            KEYCODE_Q,          IP_JOY_NONE ) \
 	AMSTRAD_HELPER( 0x0002, "W",            KEYCODE_W,          IP_JOY_NONE ) \
 	AMSTRAD_HELPER( 0x0004, "E",            KEYCODE_E,          IP_JOY_NONE ) \
@@ -52,7 +42,7 @@ READ_HANDLER( pc1640_port278_r );
 	AMSTRAD_HELPER( 0x4000, "A",            KEYCODE_A,          IP_JOY_NONE ) \
 	AMSTRAD_HELPER( 0x8000, "S",            KEYCODE_S,          IP_JOY_NONE ) \
 		\
-	PORT_START	/* IN6 */\
+	PORT_START(); 	/* IN6 */\
 	AMSTRAD_HELPER( 0x0001, "D",            KEYCODE_D,          IP_JOY_NONE ) \
 	AMSTRAD_HELPER( 0x0002, "F",            KEYCODE_F,          IP_JOY_NONE ) \
 	AMSTRAD_HELPER( 0x0004, "G",            KEYCODE_G,          IP_JOY_NONE ) \
@@ -70,7 +60,7 @@ READ_HANDLER( pc1640_port278_r );
 	AMSTRAD_HELPER( 0x4000, "C",            KEYCODE_C,          IP_JOY_NONE ) \
 	AMSTRAD_HELPER( 0x8000, "V",            KEYCODE_V,          IP_JOY_NONE ) \
 		\
-	PORT_START	/* IN7 */\
+	PORT_START(); 	/* IN7 */\
 	AMSTRAD_HELPER( 0x0001, "B",            KEYCODE_B,          IP_JOY_NONE ) \
 	AMSTRAD_HELPER( 0x0002, "N",            KEYCODE_N,          IP_JOY_NONE ) \
 	AMSTRAD_HELPER( 0x0004, "M",            KEYCODE_M,          IP_JOY_NONE ) \
@@ -88,7 +78,7 @@ READ_HANDLER( pc1640_port278_r );
 	AMSTRAD_HELPER( 0x4000, "F4",           KEYCODE_F4,         IP_JOY_NONE ) \
 	AMSTRAD_HELPER( 0x8000, "F5",           KEYCODE_F5,         IP_JOY_NONE ) \
 		\
-	PORT_START	/* IN8 */\
+	PORT_START(); 	/* IN8 */\
 	AMSTRAD_HELPER( 0x0001, "F6",           KEYCODE_F6,         IP_JOY_NONE ) \
 	AMSTRAD_HELPER( 0x0002, "F7",           KEYCODE_F7,         IP_JOY_NONE ) \
 	AMSTRAD_HELPER( 0x0004, "F8",           KEYCODE_F8,         IP_JOY_NONE ) \
@@ -106,22 +96,22 @@ READ_HANDLER( pc1640_port278_r );
 	AMSTRAD_HELPER( 0x4000, "KP +",         KEYCODE_PLUS_PAD,   IP_JOY_NONE ) \
 	AMSTRAD_HELPER( 0x8000, "KP 1 (End)",   KEYCODE_1_PAD,      KEYCODE_END ) \
 		\
-	PORT_START	/* IN9 key codes 0x50 */\
+	PORT_START(); 	/* IN9 key codes 0x50 */\
 	AMSTRAD_HELPER( 0x0001, "KP 2 (Down)",  KEYCODE_2_PAD,      CODE_NONE ) \
 	AMSTRAD_HELPER( 0x0002, "KP 3 (PgDn)",  KEYCODE_3_PAD,      KEYCODE_PGDN ) \
 	AMSTRAD_HELPER( 0x0004, "KP 0 (Ins)",   KEYCODE_0_PAD,      KEYCODE_INSERT ) \
 	AMSTRAD_HELPER( 0x0008, "KP . (Del)",   KEYCODE_DEL_PAD,    KEYCODE_DEL ) \
-	PORT_BIT ( 0x0030, 0x0000, IPT_UNUSED )\
+	PORT_BIT ( 0x0030, 0x0000, IPT_UNUSED );
 	AMSTRAD_HELPER( 0x0040, "?(84/102)\\",	KEYCODE_BACKSLASH2,	IP_JOY_NONE ) \
 		\
-	PORT_BIT ( 0xff80, 0x0000, IPT_UNUSED )\
+	PORT_BIT ( 0xff80, 0x0000, IPT_UNUSED );
 		\
-	PORT_START	/* IN10 */\
-	PORT_BIT ( 0xffff, 0x0000, IPT_UNUSED )\
+	PORT_START(); 	/* IN10 */\
+	PORT_BIT ( 0xffff, 0x0000, IPT_UNUSED );
 		\
-	PORT_START	/* IN11 key codes 0x70 */\
-	PORT_BIT ( 0x806e, 0x0000, IPT_UNUSED )\
-	AMSTRAD_HELPER( 0x0001, "-->",			CODE_DEFAULT,    IP_JOY_NONE ) \
+	PORT_START(); 	/* IN11 key codes 0x70 */\
+	PORT_BIT ( 0x806e, 0x0000, IPT_UNUSED );
+	AMSTRAD_HELPER( 0x0001, "-.",			CODE_DEFAULT,    IP_JOY_NONE ) \
 	AMSTRAD_HELPER( 0x0010,	"?Enter",		CODE_DEFAULT,    IP_JOY_NONE ) \
 	AMSTRAD_HELPER( 0x0100,	"Amstrad Joystick Button 1",KEYCODE_RALT, CODE_NONE ) \
 	AMSTRAD_HELPER( 0x0080,	"Amstrad Joystick Button 2",KEYCODE_RCONTROL, CODE_NONE ) \
@@ -131,11 +121,11 @@ READ_HANDLER( pc1640_port278_r );
 	AMSTRAD_HELPER( 0x1000,	"Amstrad Joystick Up",		KEYCODE_UP, CODE_NONE ) \
 	AMSTRAD_HELPER( 0x4000,	"Amstrad Mouse Button left",	KEYCODE_F11, CODE_NONE ) \
 	AMSTRAD_HELPER( 0x2000,	"Amstrad Mouse Button right",	KEYCODE_F12, CODE_NONE ) \
-	PORT_START	/* IN12 */\
-	PORT_BIT ( 0xffff, 0x0000, IPT_UNUSED )\
-	PORT_START /* IN13 Mouse - X AXIS */ \
+	PORT_START(); 	/* IN12 */\
+	PORT_BIT ( 0xffff, 0x0000, IPT_UNUSED );
+	PORT_START();  /* IN13 Mouse - X AXIS */ \
 	PORT_ANALOGX( 0xff, 0x00, IPT_TRACKBALL_X | IPF_REVERSE|IPF_PLAYER1, 100, 0, 0, 0, \
-				  CODE_DEFAULT, CODE_DEFAULT, IP_JOY_NONE, IP_JOY_NONE ) \
-	PORT_START /* IN14 Mouse - Y AXIS */ \
+				  CODE_DEFAULT, CODE_DEFAULT, IP_JOY_NONE, IP_JOY_NONE );\
+	PORT_START();  /* IN14 Mouse - Y AXIS */ \
 	PORT_ANALOGX( 0xff, 0x00, IPT_TRACKBALL_Y | IPF_PLAYER1, 100, 0, 0, 0, \
-				  CODE_DEFAULT, CODE_DEFAULT, IP_JOY_NONE, IP_JOY_NONE )
+				  CODE_DEFAULT, CODE_DEFAULT, IP_JOY_NONE, IP_JOY_NONE );

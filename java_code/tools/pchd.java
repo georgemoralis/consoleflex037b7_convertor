@@ -49,17 +49,17 @@ public class pchd
 	
 		memset(buffer, 0, sizeof(buffer));
 	    /* fill in the drive geometry information */
-		buffer[0x1ad] = options->cylinders & 0xff;           /* cylinders */
-		buffer[0x1ae] = (options->cylinders >> 8) & 3;
-		buffer[0x1af] = options->heads;						/* heads */
-		buffer[0x1b0] = (options->cylinders+1) & 0xff;		/* write precompensation */
-		buffer[0x1b1] = ((options->cylinders+1) >> 8) & 3;
-		buffer[0x1b2] = (options->cylinders+1) & 0xff;		/* reduced write current */
-		buffer[0x1b3] = ((options->cylinders+1) >> 8) & 3;
+		buffer[0x1ad] = options.cylinders & 0xff;           /* cylinders */
+		buffer[0x1ae] = (options.cylinders >> 8) & 3;
+		buffer[0x1af] = options.heads;						/* heads */
+		buffer[0x1b0] = (options.cylinders+1) & 0xff;		/* write precompensation */
+		buffer[0x1b1] = ((options.cylinders+1) >> 8) & 3;
+		buffer[0x1b2] = (options.cylinders+1) & 0xff;		/* reduced write current */
+		buffer[0x1b3] = ((options.cylinders+1) >> 8) & 3;
 		buffer[0x1b4] = ECC;						/* ECC length */
 		buffer[0x1b5] = CONTROL;					/* control (step rate) */
-		buffer[0x1b6] = options->cylinders & 0xff;			/* parking cylinder */
-		buffer[0x1b7] = (options->cylinders >> 8) & 3;
+		buffer[0x1b6] = options.cylinders & 0xff;			/* parking cylinder */
+		buffer[0x1b7] = (options.cylinders >> 8) & 3;
 		buffer[0x1b8] = 0x00;						/* no idea */
 		buffer[0x1b9] = 0x00;
 		buffer[0x1ba] = 0x00;
@@ -73,7 +73,7 @@ public class pchd
 			return IMGTOOLERR_WRITEERROR;
 	
 		/* write F6 patterns throughout the image */
-		s = options->cylinders * options->heads * SECTORS * sizeof(buffer);
+		s = options.cylinders * options.heads * SECTORS * sizeof(buffer);
 		if (stream_fill(f, 0xf6, s) != s)
 			return IMGTOOLERR_WRITEERROR;
 	

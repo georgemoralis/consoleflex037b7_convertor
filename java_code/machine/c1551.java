@@ -56,15 +56,15 @@ public class c1551
 		int i;
 	
 		if (interface==SERIAL)
-			drive->i.serial.device=serialnr;
+			drive.i.serial.device=serialnr;
 	
 		if (interface==IEEE)
-			drive->i.ieee.device=serialnr;
+			drive.i.ieee.device=serialnr;
 	
-		if (drive->interface == interface)
+		if (drive.interface == interface)
 			return;
 	
-		if (drive->interface == SERIAL)
+		if (drive.interface == SERIAL)
 		{
 			for (i = 0; (i < cbm_serial.count) && (cbm_serial.drives[i] != drive); i++) ;
 			for (; i + 1 < cbm_serial.count; i++)
@@ -72,17 +72,17 @@ public class c1551
 			cbm_serial.count--;
 		}
 	
-		drive->interface = interface;
+		drive.interface = interface;
 	
-		if (drive->interface == IEC)
+		if (drive.interface == IEC)
 		{
-			drive->i.iec.handshakein =
-				drive->i.iec.handshakeout = 0;
-			drive->i.iec.status = 0;
-			drive->i.iec.dataout = drive->i.iec.datain = 0xff;
-			drive->i.iec.state = 0;
+			drive.i.iec.handshakein =
+				drive.i.iec.handshakeout = 0;
+			drive.i.iec.status = 0;
+			drive.i.iec.dataout = drive.i.iec.datain = 0xff;
+			drive.i.iec.state = 0;
 		}
-		else if (drive->interface == SERIAL)
+		else if (drive.interface == SERIAL)
 		{
 			cbm_serial.drives[cbm_serial.count++] = drive;
 			vc1541_reset_write(drive, 0);
@@ -103,14 +103,14 @@ public class c1551
 	{
 		CBM_Drive *drive = cbm_drive + id;
 	
-		if (drive->drive == D64_IMAGE)
+		if (drive.drive == D64_IMAGE)
 		{
 			return 1;					   /* as long as floppy system is called before driver init */
-			if (drive->d.d64.image)
-				free (drive->d.d64.image);
+			if (drive.d.d64.image)
+				free (drive.d.d64.image);
 		}
-		memset (&(drive->d.fs), 0, sizeof (drive->d.fs));
-		drive->drive = FILESYSTEM;
+		memset (&(drive.d.fs), 0, sizeof (drive.d.fs));
+		drive.drive = FILESYSTEM;
 		return 0;
 	}
 	
@@ -157,7 +157,7 @@ public class c1551
 			return cbm_drive_attach_fs (id);
 	#else
 	    CBM_Drive *drive = cbm_drive + id;
-		if (drive->drive == FILESYSTEM) {
+		if (drive.drive == FILESYSTEM) {
 	
 		}
 	#endif
@@ -167,32 +167,32 @@ public class c1551
 	
 	static void c1551_write_data (CBM_Drive * c1551, int data)
 	{
-		c1551->i.iec.datain = data;
+		c1551.i.iec.datain = data;
 		c1551_state (c1551);
 	}
 	
 	static int c1551_read_data (CBM_Drive * c1551)
 	{
 		c1551_state (c1551);
-		return c1551->i.iec.dataout;
+		return c1551.i.iec.dataout;
 	}
 	
 	static void c1551_write_handshake (CBM_Drive * c1551, int data)
 	{
-		c1551->i.iec.handshakein = data&0x40?1:0;
+		c1551.i.iec.handshakein = data&0x40?1:0;
 		c1551_state (c1551);
 	}
 	
 	static int c1551_read_handshake (CBM_Drive * c1551)
 	{
 		c1551_state (c1551);
-		return c1551->i.iec.handshakeout?0x80:0;
+		return c1551.i.iec.handshakeout?0x80:0;
 	}
 	
 	static int c1551_read_status (CBM_Drive * c1551)
 	{
 		c1551_state (c1551);
-		return c1551->i.iec.status;
+		return c1551.i.iec.status;
 	}
 	
 	void c1551_0_write_data (int data)
@@ -241,29 +241,29 @@ public class c1551
 	{
 		if (level == 0)
 		{
-			vc1541->i.serial.data =
-				vc1541->i.serial.clock =
-				vc1541->i.serial.atn = 1;
-			vc1541->i.serial.state = 0;
+			vc1541.i.serial.data =
+				vc1541.i.serial.clock =
+				vc1541.i.serial.atn = 1;
+			vc1541.i.serial.state = 0;
 		}
 	}
 	
 	static int vc1541_atn_read (CBM_Drive * vc1541)
 	{
 		vc1541_state (vc1541);
-		return vc1541->i.serial.atn;
+		return vc1541.i.serial.atn;
 	}
 	
 	static int vc1541_data_read (CBM_Drive * vc1541)
 	{
 		vc1541_state (vc1541);
-		return vc1541->i.serial.data;
+		return vc1541.i.serial.data;
 	}
 	
 	static int vc1541_clock_read (CBM_Drive * vc1541)
 	{
 		vc1541_state (vc1541);
-		return vc1541->i.serial.clock;
+		return vc1541.i.serial.clock;
 	}
 	
 	static void vc1541_data_write (CBM_Drive * vc1541, int level)
@@ -382,55 +382,55 @@ public class c1551
 	{
 		text[0] = 0;
 	#if VERBOSE_DBG
-		if ((c1551->interface == SERIAL) /*&&(c1551->i.serial.device==8) */ )
+		if ((c1551.interface == SERIAL) /*&&(c1551.i.serial.device==8) */ )
 		{
 			snprintf (text, size, "%d state:%d %d %d %s %s %s",
-					  c1551->state, c1551->i.serial.state, c1551->pos, c1551->size,
+					  c1551.state, c1551.i.serial.state, c1551.pos, c1551.size,
 					  cbm_serial.atn[0] ? "ATN" : "atn",
 					  cbm_serial.clock[0] ? "CLOCK" : "clock",
 					  cbm_serial.data[0] ? "DATA" : "data");
 			return;
 		}
-		if ((c1551->interface == IEC) /*&&(c1551->i.serial.device==8) */ )
+		if ((c1551.interface == IEC) /*&&(c1551.i.serial.device==8) */ )
 		{
 			snprintf (text, size, "%d state:%d %d %d",
-					  c1551->state, c1551->i.iec.state, c1551->pos, c1551->size);
+					  c1551.state, c1551.i.iec.state, c1551.pos, c1551.size);
 			return;
 		}
 	#endif
-		if (c1551->drive == FILESYSTEM)
+		if (c1551.drive == FILESYSTEM)
 		{
-			switch (c1551->state)
+			switch (c1551.state)
 			{
 			case OPEN:
-				snprintf (text, size, "Romdir File %s open", c1551->d.fs.filename);
+				snprintf (text, size, "Romdir File %s open", c1551.d.fs.filename);
 				break;
 			case READING:
 				snprintf (text, size, "Romdir File %s loading %d",
-						  c1551->d.fs.filename, c1551->size - c1551->pos - 1);
+						  c1551.d.fs.filename, c1551.size - c1551.pos - 1);
 				break;
 			case WRITING:
 				snprintf (text, size, "Romdir File %s saving %d",
-						  c1551->d.fs.filename, c1551->pos);
+						  c1551.d.fs.filename, c1551.pos);
 				break;
 			}
 		}
-		else if (c1551->drive == D64_IMAGE)
+		else if (c1551.drive == D64_IMAGE)
 		{
-			switch (c1551->state)
+			switch (c1551.state)
 			{
 			case OPEN:
 				snprintf (text, size, "Image File %s open",
-						  c1551->d.d64.filename);
+						  c1551.d.d64.filename);
 				break;
 			case READING:
 				snprintf (text, size, "Image File %s loading %d",
-						  c1551->d.d64.filename,
-						  c1551->size - c1551->pos - 1);
+						  c1551.d.d64.filename,
+						  c1551.size - c1551.pos - 1);
 				break;
 			case WRITING:
 				snprintf (text, size, "Image File %s saving %d",
-						  c1551->d.d64.filename, c1551->pos);
+						  c1551.d.d64.filename, c1551.pos);
 				break;
 			}
 		}

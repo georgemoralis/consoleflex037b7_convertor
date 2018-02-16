@@ -114,7 +114,7 @@ public class pc_flopp
 	//
 	//	offset[drv] = (pc_fdd_track[drv] * pc_fdc_heads[drv] + pc_fdd_head[drv]) * pc_fdc_spt[drv] * pc_fdc_scl[drv] * 256;
 	//	FDC_LOG(1,"FDC_seek_execute",(errorlog, "T:%02d H:%d $%08x\n", pc_fdd_track[drv], pc_fdd_head[drv], offset[drv]));
-	//	if (f) 
+	//	if (f != 0) 
 	//	{
 	//		osd_fseek(f, offset[drv], SEEK_SET);
 	//	}
@@ -131,12 +131,12 @@ public class pc_flopp
 	static void pc_fdc_get_id_callback(int drive, chrn_id *id, int id_index, int side)
 	{
 		/* temp */
-		id->C = pc_fdd_track[drive];
-		id->H = side;
-		id->R = id_index+1;
-		id->N = 2;
-		id->data_id = id_index;
-		id->flags = 0;
+		id.C = pc_fdd_track[drive];
+		id.H = side;
+		id.R = id_index+1;
+		id.N = 2;
+		id.data_id = id_index;
+		id.flags = 0;
 	}
 	
 	static void pc_fdc_read_sector_into_buffer(int drv, int side, int id, char *ptr, int size)
@@ -149,7 +149,7 @@ public class pc_flopp
 		/* seek to new one and read */
 		offset[drv] = ((((pc_fdd_track[drv] * pc_fdc_heads[drv]) + pc_fdd_head[drv]) * pc_fdc_spt[drv]) + (sector[drv] - 1)) * pc_fdc_scl[drv] * 256;
 	
-		if (f) 
+		if (f != 0) 
 		{
 			osd_fseek(f, offset[drv], SEEK_SET);
 	        osd_fread(f, ptr, size);
@@ -166,7 +166,7 @@ public class pc_flopp
 		/* seek to new one and read */
 		offset[drv] = ((((pc_fdd_track[drv] * pc_fdc_heads[drv]) + pc_fdd_head[drv]) * pc_fdc_spt[drv]) + (sector[drv] - 1)) * pc_fdc_scl[drv] * 256;
 	
-		if (f) 
+		if (f != 0) 
 		{
 			osd_fseek(f, offset[drv], SEEK_SET);
 	        osd_fwrite(f, ptr, size);
@@ -183,7 +183,7 @@ public class pc_flopp
 		sector[drv] = sector_index + 1;
 		offset[drv] = ((((pc_fdd_track[drv] * pc_fdc_heads[drv]) + pc_fdd_head[drv]) * pc_fdc_spt[drv]) + (sector[drv] - 1)) * pc_fdc_scl[drv] * 256;
 	
-		if (f)
+		if (f != 0)
 		{
 			char sector_buffer[8192];
 	

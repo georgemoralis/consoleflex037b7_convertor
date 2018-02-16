@@ -252,7 +252,7 @@ public class m6847
 	 * Initialization and termination
 	 * -------------------------------------------------- */
 	
-	void m6847_vh_init_palette(unsigned char *sys_palette, unsigned short *sys_colortable,const unsigned char *color_prom)
+	void m6847_vh_init_palette(UBytePtr sys_palette, unsigned short *sys_colortable,const UBytePtr color_prom)
 	{
 		memcpy(sys_palette,palette,sizeof(palette));
 	}
@@ -275,10 +275,10 @@ public class m6847
 		return 0;
 	}
 	
-	int m6847_vh_start(void)
+	public static VhStartPtr m6847_vh_start = new VhStartPtr() { public int handler() 
 	{
 		return internal_m6847_vh_start(MAX_VRAM);
-	}
+	} };
 	
 	void m6847_set_vram(void *ram, int rammask)
 	{
@@ -309,10 +309,10 @@ public class m6847
 		{ \
 			int xx, yy, cc; \
 			xx = (x); yy = (y); cc = (c); \
-			if (use_plotpixel) \
+			if (use_plotpixel != 0) \
 				plot_pixel(bitmap, xx, yy, cc); \
 			else \
-				bitmap->line[yy][xx] = cc; \
+				bitmap.line[yy][xx] = cc; \
 		}
 	
 	#define MARK_DIRTY(x1, y1, x2, y2) \
@@ -341,17 +341,17 @@ public class m6847
 		int use_plotpixel;
 		UINT8 *vidram;
 	
-		if (metapalette) {
-			bg = Machine->pens[metapalette[0]];
-			fg = Machine->pens[metapalette[1]];
+		if (metapalette != 0) {
+			bg = Machine.pens[metapalette[0]];
+			fg = Machine.pens[metapalette[1]];
 		}
 		else {
-			bg = Machine->pens[0];
-			fg = Machine->pens[1];
+			bg = Machine.pens[0];
+			fg = Machine.pens[1];
 		}
 	
 		vidram = vrambase + vrampos;
-		use_plotpixel = Machine->orientation || (Machine->color_depth != 8);
+		use_plotpixel = Machine.orientation || (Machine.color_depth != 8);
 	
 		if (!db)
 			MARK_DIRTY(basex, basey, basex + scalex*sizex*8, basey + scaley*sizey);
@@ -368,7 +368,7 @@ public class m6847
 							}
 						}
 					}
-					if (db) {
+					if (db != 0) {
 						MARK_DIRTY_PIX(x*8*scalex+basex, y*scaley+basey, scalex*8, scaley);
 						*(db++) = 0;
 					}
@@ -379,7 +379,7 @@ public class m6847
 				vidram++;
 			}
 			vidram += additionalrowbytes;
-			if (db)
+			if (db != 0)
 				db += additionalrowbytes;
 	
 			/* Check to see if the video RAM has wrapped around */
@@ -399,21 +399,21 @@ public class m6847
 		int use_plotpixel;
 		UINT8 *vidram;
 	
-		if (metapalette) {
-			c[0] = Machine->pens[metapalette[0]];
-			c[1] = Machine->pens[metapalette[1]];
-			c[2] = Machine->pens[metapalette[2]];
-			c[3] = Machine->pens[metapalette[3]];
+		if (metapalette != 0) {
+			c[0] = Machine.pens[metapalette[0]];
+			c[1] = Machine.pens[metapalette[1]];
+			c[2] = Machine.pens[metapalette[2]];
+			c[3] = Machine.pens[metapalette[3]];
 		}
 		else {
-			c[0] = Machine->pens[0];
-			c[1] = Machine->pens[1];
-			c[2] = Machine->pens[2];
-			c[3] = Machine->pens[3];
+			c[0] = Machine.pens[0];
+			c[1] = Machine.pens[1];
+			c[2] = Machine.pens[2];
+			c[3] = Machine.pens[3];
 		}
 	
 		vidram = vrambase + vrampos;
-		use_plotpixel = Machine->orientation || (Machine->color_depth != 8);
+		use_plotpixel = Machine.orientation || (Machine.color_depth != 8);
 	
 		if (!db)
 			MARK_DIRTY(basex, basey, basex + scalex*sizex*4, basey + scaley*sizey);
@@ -430,7 +430,7 @@ public class m6847
 							}
 						}
 					}
-					if (db) {
+					if (db != 0) {
 						MARK_DIRTY_PIX(x*4*scalex+basex, y*scaley+basey, scalex*4, scaley);
 						*(db++) = 0;
 					}
@@ -441,7 +441,7 @@ public class m6847
 				vidram++;
 			}
 			vidram += additionalrowbytes;
-			if (db)
+			if (db != 0)
 				db += additionalrowbytes;
 	
 			/* Check to see if the video RAM has wrapped around */
@@ -500,13 +500,13 @@ public class m6847
 		int use_plotpixel;
 		UINT8 *vidram;
 	
-		c[0] = Machine->pens[metapalette[0]];
-		c[1] = Machine->pens[metapalette[1]];
-		c[2] = Machine->pens[metapalette[2]];
-		c[3] = Machine->pens[metapalette[3]];
+		c[0] = Machine.pens[metapalette[0]];
+		c[1] = Machine.pens[metapalette[1]];
+		c[2] = Machine.pens[metapalette[2]];
+		c[3] = Machine.pens[metapalette[3]];
 	
 		vidram = vrambase + vrampos;
-		use_plotpixel = Machine->orientation || (Machine->color_depth != 8);
+		use_plotpixel = Machine.orientation || (Machine.color_depth != 8);
 	
 		for (y = 0; y < sizey; y++) {
 			nextdirty = 0;
@@ -573,7 +573,7 @@ public class m6847
 		int use_plotpixel;
 	
 		vidram = vrambase + vrampos;
-		use_plotpixel = Machine->orientation || (Machine->color_depth != 8);
+		use_plotpixel = Machine.orientation || (Machine.color_depth != 8);
 	
 		if (!db)
 			MARK_DIRTY(basex, basey, basex + scalex*sizex*2, basey + scaley*sizey);
@@ -581,8 +581,8 @@ public class m6847
 		for (y = 0; y < sizey; y++) {
 			for (x = 0; x < sizex; x++) {
 				if (!db || *db) {
-					p1 = Machine->pens[(*vidram >> 4) & 0x0f];
-					p2 = Machine->pens[(*vidram >> 0) & 0x0f];
+					p1 = Machine.pens[(*vidram >> 4) & 0x0f];
+					p2 = Machine.pens[(*vidram >> 0) & 0x0f];
 	
 					for (py = 0; py < scaley; py++) {
 						for (px = 0; px < scalex; px++) {
@@ -590,7 +590,7 @@ public class m6847
 							PLOT_PIXEL((x * 2 + 1) * scalex + px + basex, y * scaley + py + basey, p2);
 						}
 					}
-					if (db) {
+					if (db != 0) {
 						MARK_DIRTY_PIX(x*2*scalex+basex, y*scaley+basey, scalex*2, scaley);
 						*(db++) = 0;
 					}
@@ -601,7 +601,7 @@ public class m6847
 				vidram++;
 			}
 			vidram += additionalrowbytes;
-			if (db)
+			if (db != 0)
 				db += additionalrowbytes;
 	
 			/* Check to see if the video RAM has wrapped around */
@@ -634,11 +634,11 @@ public class m6847
 		UINT8 *cptr;
 	
 		db = dirtybuffer;
-		if (full_refresh) {
+		if (full_refresh != 0) {
 			memset(dirtybuffer, 1, videoram_size);
 		}
 	
-		if (video_gmode & 0x10)
+		if ((video_gmode & 0x10) != 0)
 		{
 			if ((video_gmode & 0x02) && !(artifact && ((video_gmode & 0x1e) == M6847_MODE_G4R)))
 			{
@@ -655,7 +655,7 @@ public class m6847
 	
 				/* Are we doing PMODE 4 artifact colors? */
 				artifacting = ((video_gmode & 0x0c) == 0x0c) && (video_gmode & 0x02);
-				if (artifacting) {
+				if (artifacting != 0) {
 					/* I am here because we are doing PMODE 4 artifact colors */
 					artifactpalette[0] = metapalette[video_gmode & 0x1 ? 10: 8];
 					artifactpalette[3] = metapalette[video_gmode & 0x1 ? 11: 9];
@@ -703,7 +703,7 @@ public class m6847
 							 *
 							 * TODO: Find out what the normal M6847 did with bit 2
 							 */
-							if (video_gmode & 0x04)
+							if ((video_gmode & 0x04) != 0)
 								bg ^= 1;
 	
 							/* Is this character lowercase or inverse? */
@@ -722,8 +722,8 @@ public class m6847
 						}
 	
 						cptr = &fontdata8x12[((int) b) * 12];
-						bg = Machine->pens[metapalette[bg]];
-						fg = Machine->pens[metapalette[fg]];
+						bg = Machine.pens[metapalette[bg]];
+						fg = Machine.pens[metapalette[fg]];
 	
 						for (y2 = (y * video_rowheight); y2 < ((y+1) * video_rowheight); y2++) {
 							b = cptr[y2 % 12];
@@ -780,27 +780,27 @@ public class m6847
 		int borderpen;
 		struct rectangle r;
 	
-		borderpen = Machine->pens[pen];
+		borderpen = Machine.pens[pen];
 	
-		left = (bitmap->width - screenx) / 2;
+		left = (bitmap.width - screenx) / 2;
 		right = left + screenx;
-		top = (bitmap->height - screeny) / 2;
+		top = (bitmap.height - screeny) / 2;
 		bottom = top + screeny;
 	
 		r.min_x = 0;
 		r.min_y = 0;
-		r.max_x = bitmap->width - 1;
+		r.max_x = bitmap.width - 1;
 		r.max_y = top-1;
 		fillbitmap(bitmap, borderpen, &r);
 		r.min_y = bottom;
-		r.max_y = bitmap->height - 1;
+		r.max_y = bitmap.height - 1;
 		fillbitmap(bitmap, borderpen, &r);
 		r.min_y = top;
 		r.max_x = left-1;
 		r.max_y = bottom-1;
 		fillbitmap(bitmap, borderpen, &r);
 		r.min_x = right;
-		r.max_x = bitmap->width - 1;
+		r.max_x = bitmap.width - 1;
 		fillbitmap(bitmap, borderpen, &r);
 	}
 	
@@ -837,17 +837,17 @@ public class m6847
 		};
 		int artifact_value;
 	
-		if (vblankproc)
+		if (vblankproc != 0)
 			vblankproc();
 	
 		artifact_value = (artifact_dipswitch == -1) ? 0 : readinputport(artifact_dipswitch);
 	
-		if (full_refresh)
+		if (full_refresh != 0)
 			m6847_drawborder(bitmap, 256, 192);
 	
 		internal_m6847_vh_screenrefresh(bitmap, full_refresh, m6847_metapalette, videoram,
 			video_offset, vram_mask + 1, FALSE,
-			(bitmap->width - 256) / 2, (bitmap->height - 192) / 2,
+			(bitmap.width - 256) / 2, (bitmap.height - 192) / 2,
 			1, artifacts[artifact_value & 3]);
 	}
 	

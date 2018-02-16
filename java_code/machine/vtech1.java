@@ -64,7 +64,7 @@ public class vtech1
 	static int vtech1_fdc_offs = 0;
 	static int vtech1_fdc_latch = 0;
 	
-	void init_vtech1(void)
+	public static InitDriverPtr init_vtech1 = new InitDriverPtr() { public void handler() 
 	{
 		int i;
 	    UINT8 *gfx = memory_region(REGION_GFX1);
@@ -72,9 +72,9 @@ public class vtech1
 		/* create 256 bit patterns */
 	    for( i = 0; i < 256; i++ )
 	        gfx[0x0c00+i] = i;
-	}
+	} };
 	
-	static void common_init_machine(void)
+	static public static InitMachinePtr common_init_machine = new InitMachinePtr() { public void handler() 
 	{
 	
 		/* install DOS ROM ? */
@@ -85,16 +85,16 @@ public class vtech1
 	
 			memset(vtech1_fdc_data, 0, TRKSIZE_FM);
 	
-	        dos = osd_fopen(Machine->gamedrv->name, "vzdos.rom", OSD_FILETYPE_IMAGE_R, OSD_FOPEN_READ);
-			if( dos )
+	        dos = osd_fopen(Machine.gamedrv.name, "vzdos.rom", OSD_FILETYPE_IMAGE_R, OSD_FOPEN_READ);
+			if (dos != 0)
 	        {
 				osd_fread(dos, &ROM[0x4000], 0x2000);
 				osd_fclose(dos);
 	        }
 	    }
-	}
+	} };
 	
-	void laser110_init_machine(void)
+	public static InitMachinePtr laser110_init_machine = new InitMachinePtr() { public void handler() 
 	{
 	    if( readinputport(0) & 0x80 )
 	    {
@@ -107,9 +107,9 @@ public class vtech1
 			install_mem_write_handler(0, 0x8000, 0xbfff, MWA_NOP);
 	    }
 		common_init_machine();
-	}
+	} };
 	
-	void laser210_init_machine(void)
+	public static InitMachinePtr laser210_init_machine = new InitMachinePtr() { public void handler() 
 	{
 	    if( readinputport(0) & 0x80 )
 	    {
@@ -122,9 +122,9 @@ public class vtech1
 	        install_mem_write_handler(0, 0x9000, 0xcfff, MWA_NOP);
 	    }
 		common_init_machine();
-	}
+	} };
 	
-	void laser310_init_machine(void)
+	public static InitMachinePtr laser310_init_machine = new InitMachinePtr() { public void handler() 
 	{
 	    if( readinputport(0) & 0x80 )
 	    {
@@ -137,7 +137,7 @@ public class vtech1
 	        install_mem_write_handler(0, 0xb800, 0xf7ff, MWA_NOP);
 	    }
 		common_init_machine();
-	}
+	} };
 	
 	void vtech1_shutdown_machine(void)
 	{
@@ -160,7 +160,7 @@ public class vtech1
 	    void *file;
 	
 		file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-	    if( file )
+	    if (file != 0)
 	    {
 			int i;
 	
@@ -275,7 +275,7 @@ public class vtech1
 	{
 		void *file;
 		file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-		if( file )
+		if (file != 0)
 		{
 			struct wave_args wa = {0,};
 			wa.file = file;
@@ -291,7 +291,7 @@ public class vtech1
 			return INIT_OK;
 	    }
 		file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_RW_CREATE);
-		if( file )
+		if (file != 0)
 	    {
 			struct wave_args wa = {0,};
 			wa.file = file;
@@ -329,7 +329,7 @@ public class vtech1
 			{
 				memcpy(&RAM[start], &vtech1_snapshot_data[24], end - start);
 	            sprintf(vtech1_frame_message, "BASIC snapshot %04x-%04x", start, end);
-				vtech1_frame_time = Machine->drv->frames_per_second;
+				vtech1_frame_time = Machine.drv.frames_per_second;
 				logerror("VTECH1 BASIC snapshot %04x-%04x\n", start, end);
 	            /* patch BASIC variables */
 				RAM[0x78a4] = start % 256;
@@ -345,7 +345,7 @@ public class vtech1
 			{
 				memcpy(&RAM[start], &vtech1_snapshot_data[24], end - start);
 				sprintf(vtech1_frame_message, "M-Code snapshot %04x-%04x", start, end);
-				vtech1_frame_time = Machine->drv->frames_per_second;
+				vtech1_frame_time = Machine.drv.frames_per_second;
 				logerror("VTECH1 MCODE snapshot %04x-%04x\n", start, end);
 	            /* set USR() address */
 				RAM[0x788e] = start % 256;
@@ -364,7 +364,7 @@ public class vtech1
 	
 		logerror("VTECH snapshot_id\n");
 	    file = image_fopen(IO_SNAPSHOT, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-	    if( file )
+	    if (file != 0)
 	    {
 	        osd_fread(file, buff, sizeof(buff));
 			osd_fclose(file);
@@ -388,16 +388,16 @@ public class vtech1
 	
 		logerror("VTECH snapshot_init\n");
 	    file = image_fopen(IO_SNAPSHOT, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-	    if( file )
+	    if (file != 0)
 		{
 			vtech1_snapshot_size = osd_fsize(file);
 			vtech1_snapshot_data = malloc(vtech1_snapshot_size);
-	        if( vtech1_snapshot_data )
+	        if (vtech1_snapshot_data != 0)
 			{
 				osd_fread(file, vtech1_snapshot_data, vtech1_snapshot_size);
 				osd_fclose(file);
 				/* 1/2 second delay after the READY message */
-				vtech1_snapshot_count = Machine->drv->frames_per_second / 2;
+				vtech1_snapshot_count = Machine.drv.frames_per_second / 2;
 	            return INIT_OK;
 			}
 			osd_fclose(file);
@@ -408,7 +408,7 @@ public class vtech1
 	void vtech1_snapshot_exit(int id)
 	{
 		logerror("VTECH snapshot_exit\n");
-	    if( vtech1_snapshot_data )
+	    if (vtech1_snapshot_data != 0)
 			free(vtech1_snapshot_data);
 		vtech1_snapshot_data = NULL;
 		vtech1_snapshot_size = 0;
@@ -420,7 +420,7 @@ public class vtech1
 	    UINT8 buff[32];
 	
 		file = image_fopen(IO_FLOPPY, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-	    if( file )
+	    if (file != 0)
 	    {
 	        osd_fread(file, buff, sizeof(buff));
 	        osd_fclose(file);
@@ -506,7 +506,7 @@ public class vtech1
 	    case 1: /* data (read-only) */
 			if( vtech1_fdc_bits > 0 )
 	        {
-				if( vtech1_fdc_status & 0x80 )
+				if ((vtech1_fdc_status & 0x80) != 0)
 					vtech1_fdc_bits--;
 				data = (vtech1_data >> vtech1_fdc_bits) & 0xff;
 	#if 0
@@ -519,7 +519,7 @@ public class vtech1
 	        {
 				vtech1_data = vtech1_fdc_data[vtech1_fdc_offs];
 				logerror("vtech1_fdc_r %d : data ($%04X) $%02X\n", offset, vtech1_fdc_offs, vtech1_data);
-				if( vtech1_fdc_status & 0x80 )
+				if ((vtech1_fdc_status & 0x80) != 0)
 	            {
 					vtech1_fdc_bits = 8;
 					vtech1_fdc_offs = ++vtech1_fdc_offs % TRKSIZE_FM;
@@ -592,14 +592,14 @@ public class vtech1
 						{
 							UINT8 value = 0;
 							vtech1_data &= 0xffff;
-							if( vtech1_data & 0x4000 ) value |= 0x80;
-							if( vtech1_data & 0x1000 ) value |= 0x40;
-							if( vtech1_data & 0x0400 ) value |= 0x20;
-							if( vtech1_data & 0x0100 ) value |= 0x10;
-							if( vtech1_data & 0x0040 ) value |= 0x08;
-							if( vtech1_data & 0x0010 ) value |= 0x04;
-							if( vtech1_data & 0x0004 ) value |= 0x02;
-							if( vtech1_data & 0x0001 ) value |= 0x01;
+							if ((vtech1_data & 0x4000) != 0) value |= 0x80;
+							if ((vtech1_data & 0x1000) != 0) value |= 0x40;
+							if ((vtech1_data & 0x0400) != 0) value |= 0x20;
+							if ((vtech1_data & 0x0100) != 0) value |= 0x10;
+							if ((vtech1_data & 0x0040) != 0) value |= 0x08;
+							if ((vtech1_data & 0x0010) != 0) value |= 0x04;
+							if ((vtech1_data & 0x0004) != 0) value |= 0x02;
+							if ((vtech1_data & 0x0001) != 0) value |= 0x01;
 							logerror("vtech1_fdc_w(%d) data($%04X) $%02X <- $%02X ($%04X)\n", offset, vtech1_fdc_offs, vtech1_fdc_data[vtech1_fdc_offs], value, vtech1_data);
 							vtech1_fdc_data[vtech1_fdc_offs] = value;
 							vtech1_fdc_offs = ++vtech1_fdc_offs % TRKSIZE_FM;
@@ -612,7 +612,7 @@ public class vtech1
 				if( (vtech1_fdc_latch ^ data) & 0x40 )
 	            {
 	                /* falling edge? */
-					if ( vtech1_fdc_latch & 0x40 )
+					if ((vtech1_fdc_latch & 0x40) != 0)
 	                {
 						sprintf(vtech1_frame_message, "#%d put track %02d", vtech1_drive, vtech1_track_x2[vtech1_drive]/2);
 						vtech1_frame_time = 30;
@@ -622,7 +622,7 @@ public class vtech1
 	                else
 	                {
 	                    /* data written to track before? */
-						if( vtech1_fdc_write )
+						if (vtech1_fdc_write != 0)
 							vtech1_put_track();
 	                }
 					vtech1_fdc_bits = 8;
@@ -766,10 +766,10 @@ public class vtech1
 	    vtech1_latch = data;
 	}
 	
-	int vtech1_interrupt(void)
+	public static InterruptPtr vtech1_interrupt = new InterruptPtr() { public int handler() 
 	{
 		if( vtech1_snapshot_size > 0 )
 			vtech1_snapshot_copy();
 		return interrupt();
-	}
+	} };
 }

@@ -19,7 +19,6 @@ public class pc_fdc_h
 	
 	static pc_fdc fdc;
 	
-	static void pc_fdc_hw_interrupt(int state);
 	static void pc_fdc_hw_dma_drq(int,int);
 	
 	static nec765_interface pc_fdc_nec765_interface = 

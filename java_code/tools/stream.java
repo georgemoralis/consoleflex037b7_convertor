@@ -32,11 +32,11 @@ public class stream
 		ext = strrchr(fname, '.');
 		if (ext && !stricmp(ext, ".zip")) {
 			/* Zip file */
-			imgfile->imgtype = IMG_MEM;
-			imgfile->write_protect = 1;
-			imgfile->u.m.pos = 0;
+			imgfile.imgtype = IMG_MEM;
+			imgfile.write_protect = 1;
+			imgfile.u.m.pos = 0;
 	
-			if (read_or_write)
+			if (read_or_write != 0)
 				goto error;
 	
 			z = openzip(fname);
@@ -47,13 +47,13 @@ public class stream
 			if (!zipent)
 				goto error;
 	
-			imgfile->u.m.bufsz = zipent->uncompressed_size;
-			imgfile->u.m.buf = malloc(zipent->uncompressed_size);
-			if (!imgfile->u.m.buf)
+			imgfile.u.m.bufsz = zipent.uncompressed_size;
+			imgfile.u.m.buf = malloc(zipent.uncompressed_size);
+			if (!imgfile.u.m.buf)
 				goto error;
 	
-			if (readuncompresszip(z, zipent, imgfile->u.m.buf)) {
-				free(imgfile->u.m.buf);
+			if (readuncompresszip(z, zipent, imgfile.u.m.buf)) {
+				free(imgfile.u.m.buf);
 				goto error;
 			}
 	
@@ -61,18 +61,18 @@ public class stream
 		}
 		else {
 			/* Normal file */
-			imgfile->imgtype = IMG_FILE;
-			imgfile->write_protect = read_or_write ? 0 : 1;
+			imgfile.imgtype = IMG_FILE;
+			imgfile.write_protect = read_or_write ? 0 : 1;
 	
-			imgfile->u.f = fopen(fname, write_modes[read_or_write]);
-			if (!imgfile->u.f)
+			imgfile.u.f = fopen(fname, write_modes[read_or_write]);
+			if (!imgfile.u.f)
 				goto error;
 		}
-		imgfile->name=fname;
+		imgfile.name=fname;
 		return (STREAM *) imgfile;
 	
 	error:
-		if (z)
+		if (z != 0)
 			closezip(z);
 		free((void *) imgfile);
 		return (STREAM *) NULL;
@@ -85,14 +85,14 @@ public class stream
 		imgfile = malloc(sizeof(STREAM));
 		if (!imgfile) return NULL;
 	
-		imgfile->imgtype = IMG_MEM;
-		imgfile->write_protect = 0;
-		imgfile->u.m.pos = 0;
+		imgfile.imgtype = IMG_MEM;
+		imgfile.write_protect = 0;
+		imgfile.u.m.pos = 0;
 	
-		imgfile->u.m.bufsz = size;
-		imgfile->u.m.buf = malloc(size);
+		imgfile.u.m.bufsz = size;
+		imgfile.u.m.buf = malloc(size);
 	
-		if (!imgfile->u.m.buf) {
+		if (!imgfile.u.m.buf) {
 			free(imgfile);
 			return NULL;
 		}
@@ -101,13 +101,13 @@ public class stream
 	
 	void stream_close(STREAM *f)
 	{
-		switch(f->imgtype) {
+		switch(f.imgtype) {
 		case IMG_FILE:
-			fclose(f->u.f);
+			fclose(f.u.f);
 			break;
 	
 		case IMG_MEM:
-			free(f->u.m.buf);
+			free(f.u.m.buf);
 			break;
 		}
 		free((void *) f);
@@ -117,18 +117,18 @@ public class stream
 	{
 		size_t result = 0;
 	
-		switch(f->imgtype) {
+		switch(f.imgtype) {
 		case IMG_FILE:
-			result = fread(buf, 1, sz, f->u.f);
+			result = fread(buf, 1, sz, f.u.f);
 			break;
 	
 		case IMG_MEM:
-			if ((f->u.m.pos + sz) > f->u.m.bufsz)
-				result = f->u.m.bufsz - f->u.m.pos;
+			if ((f.u.m.pos + sz) > f.u.m.bufsz)
+				result = f.u.m.bufsz - f.u.m.pos;
 			else
 				result = sz;
-			memcpy(buf, f->u.m.buf + f->u.m.pos, result);
-			f->u.m.pos += result;
+			memcpy(buf, f.u.m.buf + f.u.m.pos, result);
+			f.u.m.pos += result;
 			break;
 		}
 		return result;
@@ -138,20 +138,20 @@ public class stream
 	{
 		size_t result = 0;
 	
-		switch(f->imgtype) {
+		switch(f.imgtype) {
 		case IMG_MEM:
-			if (!f->write_protect) {
-				if (f->u.m.bufsz<f->u.m.pos+sz) {
-					f->u.m.buf=realloc(f->u.m.buf,f->u.m.pos+sz);
-					f->u.m.bufsz=f->u.m.pos+sz;
+			if (!f.write_protect) {
+				if (f.u.m.bufsz<f.u.m.pos+sz) {
+					f.u.m.buf=realloc(f.u.m.buf,f.u.m.pos+sz);
+					f.u.m.bufsz=f.u.m.pos+sz;
 				}
-				memcpy(f->u.m.buf+f->u.m.pos, buf, sz);
-				f->u.m.pos+=sz;
+				memcpy(f.u.m.buf+f.u.m.pos, buf, sz);
+				f.u.m.pos+=sz;
 				result=sz;
 			}
 			break;
 		case IMG_FILE:
-			result = fwrite(buf, 1, sz, f->u.f);
+			result = fwrite(buf, 1, sz, f.u.f);
 			break;
 		}
 		return result;
@@ -161,13 +161,13 @@ public class stream
 	{
 		size_t result = 0;
 	
-		switch(f->imgtype) {
+		switch(f.imgtype) {
 		case IMG_FILE:
-			result = fsize(f->u.f);
+			result = fsize(f.u.f);
 			break;
 	
 		case IMG_MEM:
-			result = f->u.m.bufsz;
+			result = f.u.m.bufsz;
 			break;
 		}
 		return result;
@@ -177,25 +177,25 @@ public class stream
 	{
 		int result = 0;
 	
-		switch(f->imgtype) {
+		switch(f.imgtype) {
 		case IMG_FILE:
-			result = fseek(f->u.f, pos, where);
+			result = fseek(f.u.f, pos, where);
 			break;
 	
 		case IMG_MEM:
 			switch(where) {
 			case SEEK_CUR:
-				pos += f->u.m.pos;
+				pos += f.u.m.pos;
 				break;
 			case SEEK_END:
-				pos += f->u.m.bufsz;
+				pos += f.u.m.bufsz;
 				break;
 			}
-			if ((pos > f->u.m.bufsz) || (pos < 0)) {
+			if ((pos > f.u.m.bufsz) || (pos < 0)) {
 				result = -1;
 			}
 			else {
-				f->u.m.pos = pos;
+				f.u.m.pos = pos;
 			}
 			break;
 		}
@@ -226,9 +226,9 @@ public class stream
 		size_t sz;
 		void *ptr;
 	
-		switch(f->imgtype) {
+		switch(f.imgtype) {
 		case IMG_MEM:
-			*result = crc32(0, (unsigned char*)f->u.m.buf, f->u.m.bufsz);
+			*result = crc32(0, (UBytePtr )f.u.m.buf, f.u.m.bufsz);
 			break;
 	
 		default:
@@ -278,15 +278,15 @@ public class stream
 	void stream_clear(STREAM *f)
 	{
 		/* Need to implement */
-		switch(f->imgtype) {
+		switch(f.imgtype) {
 		case IMG_MEM: break;
 		case IMG_FILE:
-			if (!f->write_protect) {
-				fclose(f->u.f);
-				f->u.f=fopen(f->name,"wb+");
-				if (f->u.f==NULL) ;
-				fclose(f->u.f);
-				f->u.f=fopen(f->name,"wb");
+			if (!f.write_protect) {
+				fclose(f.u.f);
+				f.u.f=fopen(f.name,"wb+");
+				if (f.u.f==NULL) ;
+				fclose(f.u.f);
+				f.u.f=fopen(f.name,"wb");
 			}
 			break;
 		}

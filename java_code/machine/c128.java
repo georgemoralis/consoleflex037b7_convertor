@@ -72,9 +72,7 @@ public class c128
 		return 0xff;
 	}
 	
-	WRITE_HANDLER( c128_mmu8722_port_w );
-	READ_HANDLER( c128_mmu8722_port_r );
-	WRITE_HANDLER( c128_write_d000 )
+	public static WriteHandlerPtr c128_write_d000 = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		if (!c128_write_io) {
 			if (offset + 0xd000 >= c128_ram_top)
@@ -112,9 +110,9 @@ public class c128
 				break;
 			}
 		}
-	}
+	} };
 	
-	static READ_HANDLER( c128_read_io )
+	public static ReadHandlerPtr c128_read_io  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		switch ((offset&0xf00)>>8) {
 		case 0:case 1: case 2: case 3:
@@ -137,7 +135,7 @@ public class c128
 			DBG_LOG (1, "io read", ("%.3x\n", offset));
 			return 0xff;
 		}
-	}
+	} };
 	
 	void c128_bankswitch_64 (int reset)
 	{
@@ -208,7 +206,7 @@ public class c128
 		}
 		else
 		{
-			if (hiram)
+			if (hiram != 0)
 			{
 				cpu_setbank (14, c64_kernal);
 				cpu_setbank (15, 0x1f00 + c64_kernal);
@@ -274,7 +272,7 @@ public class c128
 			  ||((C128_MAIN_MEMORY==RAM128KB)&&(MMU_RAM_ADDR>=0x20000)) )
 			 c128_ram=NULL;
 	#else
-		 if (MMU_BOTTOM)
+		 if (MMU_BOTTOM != 0)
 			 c128_ram_bottom = MMU_SIZE;
 		 else
 			 c128_ram_bottom = 0;
@@ -293,7 +291,7 @@ public class c128
 		 cpu_setbank (4, (c128_ram_bottom > 0x2000 ? c64_memory : c128_ram) + 0x2000);
 		 cpu_setbank (5, c128_ram + 0x4000);
 	
-		 if (MMU_TOP)
+		 if (MMU_TOP != 0)
 			 c128_ram_top = 0x10000 - MMU_SIZE;
 		 else
 			 c128_ram_top = 0x10000;
@@ -316,7 +314,7 @@ public class c128
 	 static void c128_bankswitch_128 (int reset)
 	 {
 		c64mode = MMU_64MODE;
-		if (c64mode)
+		if (c64mode != 0)
 		{
 			/* mmu works also in c64 mode, but this can wait */
 			c128_ram = c64_memory;
@@ -344,7 +342,7 @@ public class c128
 			c128_va1617 = MMU_VIC_ADDR;
 			cpu_setbank (1, c64_memory + mmu_page0);
 			cpu_setbank (2, c64_memory + mmu_page1);
-			if (MMU_BOTTOM)
+			if (MMU_BOTTOM != 0)
 				{
 					c128_ram_bottom = MMU_SIZE;
 				}
@@ -355,7 +353,7 @@ public class c128
 			cpu_setbank (5, (c128_ram_bottom > 0x1000 ? c64_memory : c128_ram) + 0x1000);
 			cpu_setbank (6, (c128_ram_bottom > 0x2000 ? c64_memory : c128_ram) + 0x2000);
 	
-			if (MMU_RAM_LO)
+			if (MMU_RAM_LO != 0)
 				{
 					cpu_setbank (7, c128_ram + 0x4000);
 				}
@@ -364,17 +362,17 @@ public class c128
 					cpu_setbank (7, c128_basic);
 				}
 	
-			if (MMU_RAM_MID)
+			if (MMU_RAM_MID != 0)
 				{
 					cpu_setbank (8, c128_ram + 0x8000);
 					cpu_setbank (9, c128_ram + 0xa000);
 				}
-			else if (MMU_ROM_MID)
+			else if (MMU_ROM_MID != 0)
 				{
 					cpu_setbank (8, c128_basic + 0x4000);
 					cpu_setbank (9, c128_basic + 0x6000);
 				}
-			else if (MMU_INTERNAL_ROM_MID)
+			else if (MMU_INTERNAL_ROM_MID != 0)
 				{
 					cpu_setbank (8, c128_internal_function);
 					cpu_setbank (9, c128_internal_function + 0x2000);
@@ -385,7 +383,7 @@ public class c128
 					cpu_setbank (9, c128_external_function + 0x2000);
 				}
 	
-			if (MMU_TOP)
+			if (MMU_TOP != 0)
 				{
 					c128_ram_top = 0x10000 - MMU_SIZE;
 				}
@@ -394,7 +392,7 @@ public class c128
 	
 			cpu_setbankhandler_r (15, c128_mmu8722_ff00_r);
 	
-			if (MMU_IO_ON)
+			if (MMU_IO_ON != 0)
 				{
 					cpu_setbankhandler_r (13, c128_read_io);
 					c128_write_io = 1;
@@ -405,7 +403,7 @@ public class c128
 					cpu_setbankhandler_r (13, MRA_BANK13);
 				}
 	
-			if (MMU_RAM_HI)
+			if (MMU_RAM_HI != 0)
 				{
 					if (c128_ram_top > 0xc000)
 						{
@@ -442,7 +440,7 @@ public class c128
 							cpu_setbank (16, c64_memory + 0xff05);
 						}
 				}
-			else if (MMU_ROM_HI)
+			else if (MMU_ROM_HI != 0)
 				{
 					cpu_setbank (12, c128_editor);
 					if (!MMU_IO_ON) {
@@ -451,7 +449,7 @@ public class c128
 					cpu_setbank (14, c128_kernal);
 					cpu_setbank (16, c128_kernal + 0x1f05);
 				}
-			else if (MMU_INTERNAL_ROM_HI)
+			else if (MMU_INTERNAL_ROM_HI != 0)
 				{
 					cpu_setbank (12, c128_internal_function);
 					if (!MMU_IO_ON) {
@@ -460,7 +458,7 @@ public class c128
 					cpu_setbank (14, c128_internal_function + 0x2000);
 					cpu_setbank (16, c128_internal_function + 0x3f05);
 				}
-			else					   /*if (MMU_EXTERNAL_ROM_HI) */
+			else					   /*if (MMU_EXTERNAL_ROM_HI != 0) */
 				{
 					cpu_setbank (12, c128_external_function);
 					if (!MMU_IO_ON) {
@@ -541,7 +539,7 @@ public class c128
 		c128_bankswitch (1);
 	}
 	
-	WRITE_HANDLER( c128_mmu8722_port_w )
+	public static WriteHandlerPtr c128_mmu8722_port_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		offset &= 0xf;
 		switch (offset)
@@ -577,9 +575,9 @@ public class c128
 		case 0xf:
 			break;
 		}
-	}
+	} };
 	
-	READ_HANDLER( c128_mmu8722_port_r )
+	public static ReadHandlerPtr c128_mmu8722_port_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		int data;
 	
@@ -594,7 +592,7 @@ public class c128
 				data &= ~0x10;
 			if (!c64_exrom)
 				data &= ~0x20;
-			if (KEY_4080)
+			if (KEY_4080 != 0)
 				data &= ~0x80;
 			break;
 		case 0xb:
@@ -613,9 +611,9 @@ public class c128
 			data=c128_mmu[offset];
 		}
 		return data;
-	}
+	} };
 	
-	WRITE_HANDLER( c128_mmu8722_ff00_w )
+	public static WriteHandlerPtr c128_mmu8722_ff00_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		switch (offset)
 		{
@@ -635,66 +633,66 @@ public class c128
 			c128_bankswitch (0);
 			break;
 		}
-	}
+	} };
 	
-	READ_HANDLER( c128_mmu8722_ff00_r )
+	public static ReadHandlerPtr c128_mmu8722_ff00_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		return c128_mmu[offset];
-	}
+	} };
 	
-	WRITE_HANDLER( c128_write_0000 )
+	public static WriteHandlerPtr c128_write_0000 = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		if (c128_ram!=NULL)
 			c128_ram[0x0000 + offset] = data;
-	}
+	} };
 	
-	WRITE_HANDLER( c128_write_1000 )
+	public static WriteHandlerPtr c128_write_1000 = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		if (c128_ram!=NULL)
 			c128_ram[0x1000 + offset] = data;
-	}
+	} };
 	
-	WRITE_HANDLER( c128_write_4000 )
+	public static WriteHandlerPtr c128_write_4000 = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		if (c128_ram!=NULL)
 			c128_ram[0x4000 + offset] = data;
-	}
+	} };
 	
-	WRITE_HANDLER( c128_write_8000 )
+	public static WriteHandlerPtr c128_write_8000 = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		if (c128_ram!=NULL)
 			c128_ram[0x8000 + offset] = data;
-	}
+	} };
 	
-	WRITE_HANDLER( c128_write_a000 )
+	public static WriteHandlerPtr c128_write_a000 = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		if (c128_ram!=NULL)
 			c128_ram[0xa000 + offset] = data;
-	}
+	} };
 	
-	WRITE_HANDLER( c128_write_e000 )
+	public static WriteHandlerPtr c128_write_e000 = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		if (offset + 0xe000 >= c128_ram_top)
 			c64_memory[0xe000 + offset] = data;
 		else if (c128_ram!=NULL)
 			c128_ram[0xe000 + offset] = data;
-	}
+	} };
 	
-	WRITE_HANDLER( c128_write_ff00 )
+	public static WriteHandlerPtr c128_write_ff00 = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		if (!c64mode)
 			c128_mmu8722_ff00_w (offset, data);
 		else if (c128_ram!=NULL)
 			c64_memory[0xff00 + offset] = data;
-	}
+	} };
 	
-	WRITE_HANDLER( c128_write_ff05 )
+	public static WriteHandlerPtr c128_write_ff05 = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		if (offset + 0xff05 >= c128_ram_top)
 			c64_memory[0xff05 + offset] = data;
 		else if (c128_ram!=NULL)
 			c128_ram[0xff05 + offset] = data;
-	}
+	} };
 	
 	/*
 	 * only 14 address lines
@@ -704,7 +702,7 @@ public class c128
 	static int c128_dma_read(int offset)
 	{
 		/* main memory configuration to include */
-		if (c64mode)
+		if (c64mode != 0)
 		{
 			if (!c64_game && c64_exrom)
 			{
@@ -776,7 +774,7 @@ public class c128
 		vc20_tape_close ();
 	}
 	
-	void c128_init_machine (void)
+	public static InitMachinePtr c128_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		logerror("reset\n");
 		c64_common_init_machine ();
@@ -796,40 +794,40 @@ public class c128
 		c128_mmu8722_reset ();
 		cpu_set_halt_line (0, 0);
 		cpu_set_halt_line (1, 1);
-	}
+	} };
 	
 	void c128_shutdown_machine (void)
 	{
 	}
 	
-	int c128_vh_start (void)
+	public static VhStartPtr c128_vh_start = new VhStartPtr() { public int handler() 
 	{
 		return vdc8563_vh_start()|vic2_vh_start();
-	}
+	} };
 	
-	void c128_vh_stop (void)
+	public static VhStopPtr c128_vh_stop = new VhStopPtr() { public void handler() 
 	{
 		vdc8563_vh_stop();
 		vic2_vh_stop();
-	}
+	} };
 	
-	void c128_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr c128_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 		vdc8563_vh_screenrefresh(bitmap, full_refresh);
 		vic2_vh_screenrefresh(bitmap,full_refresh);
-	}
+	} };
 	
-	int c128_raster_irq (void)
+	public static InterruptPtr c128_raster_irq = new InterruptPtr() { public int handler() 
 	{
 		return vdc8563_raster_irq()|vic2_raster_irq();
-	}
+	} };
 	
 	void c128_state(PRASTER *This)
 	{
 		int y;
 		char text[70];
 	
-		y = Machine->visible_area.max_y + 1 - Machine->uifont->height;
+		y = Machine.visible_area.max_y + 1 - Machine.uifont.height;
 	
 	#if VERBOSE_DBG
 	# if 0

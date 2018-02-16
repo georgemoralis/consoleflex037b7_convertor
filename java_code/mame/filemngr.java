@@ -219,7 +219,7 @@ public class filemngr
 		int display_length;
 		int display_width;
 	
-		display_width = (Machine->uiwidth / Machine->uifontwidth);
+		display_width = (Machine.uiwidth / Machine.uifontwidth);
 		display_length = len;
 	
 		if (display_length>display_width)
@@ -227,7 +227,7 @@ public class filemngr
 	
 		/* malloc space for string + NULL char + extra char.*/
 		dst = malloc(len+2);
-		if (dst)
+		if (dst != 0)
 		{
 			strcpy(dst, src);
 			/* copy old char to end of string */
@@ -269,7 +269,7 @@ public class filemngr
 			fs_order[fs_total] = fs_total;
 			return (fs_total += 1) - 1;
 		}
-		if (fs_chunk)
+		if (fs_chunk != 0)
 		{
 			fs_chunk += 256;
 			logerror("fs_alloc() next chunk (total %d)\n", fs_chunk);
@@ -332,7 +332,7 @@ public class filemngr
 			   will also not work if we are not in the mess dir */
 			/* go to initial roms directory */
 			osd_change_directory("roms");
-			osd_change_directory(Machine->gamedrv->name);
+			osd_change_directory(Machine.gamedrv.name);
 			fs_init_done = 1;
 		}
 	
@@ -403,7 +403,7 @@ public class filemngr
 	
 		/* directory entries */
 		dir = osd_dir_open(".", current_filespecification);
-		if (dir)
+		if (dir != 0)
 		{
 			int len, filetype;
 			char filename[260];
@@ -414,7 +414,7 @@ public class filemngr
 					break;
 				n = fs_alloc();
 				fs_item[n] = fs_dupe(filename,len);
-				if (filetype)
+				if (filetype != 0)
 				{
 					fs_types[n] = FILESELECT_DIRECTORY;
 					fs_subitem[n] = fs_directory;
@@ -529,7 +529,7 @@ public class filemngr
 				name = update_entered_string();
 	
 				/* finished entering filename? */
-				if (name)
+				if (name != 0)
 				{
 					/* yes */
 					sel &= SEL_MASK;
@@ -550,16 +550,16 @@ public class filemngr
 			ui_displaymenu(bitmap, fs_item, fs_subitem, fs_flags, sel, arrowize);
 	
 			/* borrowed from usrintrf.c */
-			visible = Machine->uiheight / (3 * Machine->uifontheight /2) -1;
+			visible = Machine.uiheight / (3 * Machine.uifontheight /2) -1;
 	
 			if (input_ui_pressed_repeat(IPT_UI_DOWN, 8))
 			{
-				if (UI_CONTROL_PRESSED)
+				if (UI_CONTROL_PRESSED != 0)
 				{
 					sel = total - 1;
 				}
 				else
-				if (UI_SHIFT_PRESSED)
+				if (UI_SHIFT_PRESSED != 0)
 				{
 					sel = (sel + visible) % total;
 				}
@@ -571,11 +571,11 @@ public class filemngr
 	
 			if (input_ui_pressed_repeat(IPT_UI_UP, 8))
 			{
-				if (UI_CONTROL_PRESSED)
+				if (UI_CONTROL_PRESSED != 0)
 				{
 					sel = 0;
 				}
-				if (UI_SHIFT_PRESSED)
+				if (UI_SHIFT_PRESSED != 0)
 				{
 					sel = (sel + total - visible) % total;
 				}
@@ -673,7 +673,7 @@ public class filemngr
 			{
 				name = device_typename_id(type, id);
 	
-				if (name)
+				if (name != 0)
 				{
 					menu_item[total] = name;
 	
@@ -739,7 +739,7 @@ public class filemngr
 			name = update_entered_string();
 	
 			/* finished entering filename? */
-			if (name)
+			if (name != 0)
 			{
 				/* yes */
 				sel &= SEL_MASK;

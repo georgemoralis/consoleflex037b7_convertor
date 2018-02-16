@@ -224,18 +224,9 @@ public class petH
 	extern READ_HANDLER(superpet_r);
 	extern WRITE_HANDLER(superpet_w);
 	
-	extern void pet_driver_init (void);
-	extern void pet_basic1_driver_init (void);
-	extern void pet40_driver_init (void);
-	extern void cbm80_driver_init (void);
-	extern void superpet_driver_init(void);
-	extern void pet_driver_shutdown (void);
-	extern void pet_init_machine (void);
-	extern void pet_shutdown_machine (void);
-	extern void pet_frame_interrupt (int param);
+	extern extern extern extern extern extern extern extern extern void pet_frame_interrupt (int param);
 	
 	int pet_rom_id (int id);
-	void pet_rom_load(void);
 	
 	void pet_state(PRASTER *This);
 	

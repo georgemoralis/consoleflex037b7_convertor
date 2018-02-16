@@ -167,8 +167,8 @@ public class pckeybrd
 	{	
 		AT_KEYBOARD_TYPE type;
 		int on;
-		UINT8 delay;   /* 240/60 -> 0,25s */
-		UINT8 repeat;   /* 240/ 8 -> 30/s */
+		UINT8 delay;   /* 240/60 . 0,25s */
+		UINT8 repeat;   /* 240/ 8 . 30/s */
 		int numlock;
 		UINT8 queue[256];
 		UINT8 head;
@@ -408,7 +408,7 @@ public class pckeybrd
 		{
 			case 1:
 			{
-				if (pressed)
+				if (pressed != 0)
 				{
 					if (keyboard_mf2_code[code][keyboard.numlock].pressed)
 						at_keyboard_helper(keyboard_mf2_code[code][keyboard.numlock].pressed);
@@ -430,18 +430,18 @@ public class pckeybrd
 			{
 				extended_keyboard_code *key = &at_keyboard_extended_codes_set_2_3[code];
 	
-				if (pressed)
+				if (pressed != 0)
 				{
-					if (key->pressed)
+					if (key.pressed)
 					{
-						at_keyboard_helper(key->pressed);
+						at_keyboard_helper(key.pressed);
 					}
 				}
 				else
 				{
-					if (key->released)
+					if (key.released)
 					{
-						at_keyboard_helper(key->released);
+						at_keyboard_helper(key.released);
 					}
 				}
 			}
@@ -703,7 +703,7 @@ public class pckeybrd
 			keyboard.input_state=0;
 	
 			/* command? */
-			if (data & 0x080)
+			if ((data & 0x080) != 0)
 			{
 				/* command received instead of code - execute command */
 				at_keyboard_write(data);
@@ -728,7 +728,7 @@ public class pckeybrd
 			keyboard.input_state=0;
 	
 			/* command? */
-			if (data & 0x080)
+			if ((data & 0x080) != 0)
 			{
 				/* command received instead of code - execute command */
 				at_keyboard_write(data);
@@ -758,7 +758,7 @@ public class pckeybrd
 		
 			/* command? */
 			keyboard.input_state=0;
-			if (data & 0x080)
+			if ((data & 0x080) != 0)
 			{
 				/* command received instead of code - execute command */
 				at_keyboard_write(data);

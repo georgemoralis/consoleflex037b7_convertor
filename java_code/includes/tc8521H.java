@@ -20,6 +20,5 @@ public class tc8521H
 	};
 	
 	void tc8521_init(struct tc8521_interface *);
-	void tc8521_stop(void);
 	
 }

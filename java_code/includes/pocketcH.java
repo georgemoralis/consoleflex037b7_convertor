@@ -1,28 +1,9 @@
 
-int pc1401_reset(void);
-int pc1401_brk(void);
 void pc1401_outa(int data);
 void pc1401_outb(int data);
 void pc1401_outc(int data);
-int pc1401_ina(void);
-int pc1401_inb(void);
-void init_pc1401(void);
-void pc1401_machine_init(void);
-void pc1401_machine_stop(void);
 
-int pc1350_brk(void);
-int pc1350_ina(void);
-int pc1350_inb(void);
-void init_pc1350(void);
-void pc1350_machine_init(void);
-void pc1350_machine_stop(void);
 
-int pc1251_brk(void);
-int pc1251_ina(void);
-int pc1251_inb(void);
-void init_pc1251(void);
-void pc1251_machine_init(void);
-void pc1251_machine_stop(void);
 
 /* in vidhrdw/pocketc.c */
 extern READ_HANDLER(pc1401_lcd_read);
@@ -32,17 +13,11 @@ extern WRITE_HANDLER(pc1251_lcd_write);
 extern READ_HANDLER(pc1350_lcd_read);
 extern WRITE_HANDLER(pc1350_lcd_write);
 
-int pc1350_keyboard_line_r(void);
 extern unsigned char pc1401_palette[248][3];
 extern unsigned short pc1401_colortable[8][2];
-void pocketc_init_colors (unsigned char *sys_palette,
+void pocketc_init_colors (UBytePtr sys_palette,
 						  unsigned short *sys_colortable,
-						  const unsigned char *color_prom);
-int pocketc_vh_start(void);
-void pocketc_vh_stop(void);
-void pc1401_vh_screenrefresh (struct osd_bitmap *bitmap, int full_refresh);
-void pc1251_vh_screenrefresh (struct osd_bitmap *bitmap, int full_refresh);
-void pc1350_vh_screenrefresh (struct osd_bitmap *bitmap, int full_refresh);
+						  const UBytePtr color_prom);
 
 /* in systems/pocketc.c */
 #define KEY_OFF input_port_0_r(0)&0x80

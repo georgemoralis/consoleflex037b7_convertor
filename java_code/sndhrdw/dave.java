@@ -16,8 +16,7 @@ public class dave
 	
 	static unsigned char Dave_IntRegRead(void);
 	static void Dave_IntRegWrite(unsigned char);
-	static void     Dave_SetInterruptWanted(void);
-	
+	static 
 	int Dave_sh_start(void)
 	{
 		int i;
@@ -30,13 +29,13 @@ public class dave
 		return 0;
 	}
 	
-	void	Dave_sh_stop(void)
+	public static ShStopPtr Dave_sh_stop = new ShStopPtr() { public void handler() 
 	{
-	}
+	} };
 	
-	void	Dave_sh_update(void)
+	public static ShUpdatePtr Dave_sh_update = new ShUpdatePtr() { public void handler() 
 	{
-	}
+	} };
 	
 	WRITE_HANDLER (	Dave_reg_w )
 	{
@@ -49,7 +48,7 @@ public class dave
 	
 		if (dave_iface!=NULL)
 		{
-			dave_iface->reg_w(offset, data);
+			dave_iface.reg_w(offset, data);
 		}
 	}
 	
@@ -63,7 +62,7 @@ public class dave
 	{
 		if (dave_iface!=NULL)
 		{
-			dave_iface->reg_r(offset);
+			dave_iface.reg_r(offset);
 		}
 	
 		if (offset==0x14)
@@ -130,9 +129,9 @@ public class dave
 	
 	        int_wanted = (((dave.int_enable<<1) & dave.int_latch)!=0);
 	
-	        if (dave_iface->int_callback)
+	        if (dave_iface.int_callback)
 	        {
-	            dave_iface->int_callback(int_wanted);
+	            dave_iface.int_callback(int_wanted);
 	        }
 	}
 	

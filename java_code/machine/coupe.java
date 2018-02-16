@@ -24,7 +24,7 @@ public class coupe
 		#define PAGE_MASK	0x1f
 	#endif
 	
-	unsigned char *coupe_ram=NULL;
+	UBytePtr coupe_ram=NULL;
 	
 	unsigned char LMPR,HMPR,VMPR;								// Bank Select Registers (Low Page p250, Hi Page p251, Video Page p252)
 	unsigned char CLUT[16];										// 16 entries in a palette (no line affects supported yet!)
@@ -37,7 +37,7 @@ public class coupe
 	
 	struct sCoupe_fdc1772 coupe_fdc1772[2];						// Holds the floppy controller vars for each drive
 	
-	extern unsigned char *sam_screen;
+	extern UBytePtr sam_screen;
 	
 	int coupe_fdc_init(int id)
 	{
@@ -62,7 +62,7 @@ public class coupe
 	
 	void coupe_update_memory(void)
 	{
-		if (LMPR & LMPR_RAM0)										// Is ram paged in at bank 1
+		if ((LMPR & LMPR_RAM0) != 0)										// Is ram paged in at bank 1
 		{
 			if ((LMPR & 0x1F)<=PAGE_MASK)
 			{
@@ -111,7 +111,7 @@ public class coupe
 			cpu_setbankhandler_w(7, MWA_NOP);
 		}
 	
-		if (LMPR & LMPR_ROM1)										// Is Rom1 paged in at bank 4
+		if ((LMPR & LMPR_ROM1) != 0)										// Is Rom1 paged in at bank 4
 		{
 			cpu_setbank(4,memory_region(REGION_CPU1) + 0x014000);
 			cpu_setbank(8,memory_region(REGION_CPU1) + 0x014000);
@@ -134,15 +134,15 @@ public class coupe
 			}
 		}
 	
-		if (VMPR & 0x40)											// if bit set in 2 bank screen mode
+		if ((VMPR & 0x40) != 0)											// if bit set in 2 bank screen mode
 			sam_screen=coupe_ram + (((VMPR&0x1E) & PAGE_MASK)*0x4000);
 		else
 			sam_screen=coupe_ram + (((VMPR&0x1F) & PAGE_MASK)*0x4000);
 	}
 	
-	void coupe_init_machine(void)
+	public static InitMachinePtr coupe_init_machine = new InitMachinePtr() { public void handler() 
 	{
-		coupe_ram = (unsigned char *)malloc((PAGE_MASK+1)*16*1024);
+		coupe_ram = (UBytePtr )malloc((PAGE_MASK+1)*16*1024);
 		memset(coupe_ram, 0, (PAGE_MASK+1)*16*1024);
 	
 		cpu_setbankhandler_r(1, MRA_BANK1);
@@ -168,7 +168,7 @@ public class coupe
 		CURLINE = 0x00;
 	
 		coupe_update_memory();
-	}
+	} };
 	
 	void coupe_shutdown_machine(void)
 	{

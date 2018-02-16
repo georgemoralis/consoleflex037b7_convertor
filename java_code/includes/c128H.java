@@ -85,7 +85,6 @@ public class c128H
 	READ_HANDLER(c128_mmu8722_port_r);
 	WRITE_HANDLER(c128_mmu8722_ff00_w);
 	READ_HANDLER(c128_mmu8722_ff00_r);
-	int c128_capslock_r (void);
 	WRITE_HANDLER(c128_colorram_write);
 	WRITE_HANDLER(c128_write_0000);
 	WRITE_HANDLER(c128_write_1000);
@@ -97,17 +96,8 @@ public class c128H
 	WRITE_HANDLER(c128_write_ff00);
 	WRITE_HANDLER(c128_write_ff05);
 	
-	extern void c128_driver_init (void);
-	extern void c128pal_driver_init (void);
-	extern void c128_driver_shutdown (void);
-	extern void c128_init_machine (void);
-	extern void c128_shutdown_machine (void);
-	
-	extern int c128_vh_start (void);
-	extern void c128_vh_stop (void);
-	extern void c128_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh);
-	int c128_raster_irq (void);
-	
+	extern extern extern extern extern 
+	extern extern extern 
 	extern void c128_state(PRASTER *This);
 	
 	/* private area */

@@ -121,12 +121,7 @@ public class nec765
 	} NEC765;
 	
 	//static void nec765_setup_data_request(unsigned char Data);
-	static void     nec765_setup_command(void);
-	static void 	nec765_continue_command(void);
-	static int nec765_sector_count_complete(void);
-	static void nec765_increment_sector(void);
-	static void nec765_update_state(void);
-	
+	static static static static static 
 	static NEC765 fdc;
 	static char nec765_data_buffer[32*1024];
 	
@@ -169,7 +164,7 @@ public class nec765
 	
 	static int nec765_n_to_bytes(int n)
 	{
-		/* 0-> 128 bytes, 1->256 bytes, 2->512 bytes etc */
+		/* 0. 128 bytes, 1.256 bytes, 2.512 bytes etc */
 	    /* data_size = ((1<<(N+7)) */
 	    return 1<<(n+7);
 	}
@@ -285,7 +280,7 @@ public class nec765
 		fdc.nec765_flags &= ~NEC765_SEEK_ACTIVE;
 	}
 	
-	static void nec765_seek_timer_callback(int param)
+	public static timer_callback nec765_seek_timer_callback = new timer_callback() { public void handler(int param) 
 	{
 			/* seek complete */
 			nec765_seek_complete();
@@ -294,8 +289,8 @@ public class nec765
 			{
 				timer_reset(fdc.seek_timer, TIME_NEVER);
 			}
-	}
-	static void nec765_timer_callback(int param)
+	} };
+	public static timer_callback nec765_timer_callback = new timer_callback() { public void handler(int param) 
 	{
 		/* type 0 = data transfer mode in execution phase */
 		if (fdc.timer_type==0)
@@ -385,7 +380,7 @@ public class nec765
 				timer_reset(fdc.timer, TIME_NEVER);
 			}
 		}
-	}
+	} };
 	
 	/* after (32-27) the DRQ is set, then 27 us later, the int is set.
 	I don't know if this is correct, but it is required for the PCW driver.
@@ -457,7 +452,7 @@ public class nec765
 		fdc.nec765_flags |= NEC765_SEEK_ACTIVE;
 		fdc.FDC_main |= (1<<fdc.drive);
 	
-		if (is_recalibrate)
+		if (is_recalibrate != 0)
 		{
 			/* head cannot be specified with recalibrate */
 			fdc.nec765_command_bytes[1] &=~0x04;
@@ -466,7 +461,7 @@ public class nec765
 		nec765_setup_drive_and_side();
 	
 		/* recalibrate command? */
-		if (is_recalibrate)
+		if (is_recalibrate != 0)
 		{
 			fdc.nec765_flags |= NEC765_SEEK_OPERATION_IS_RECALIBRATE;
 	
@@ -549,7 +544,7 @@ public class nec765
 	static void     nec765_setup_execution_phase_read(char *ptr, int size)
 	{
 	//        fdc.FDC_main |=0x080;                       /* DRQ */
-	        fdc.FDC_main |= 0x040;                     /* FDC->CPU */
+	        fdc.FDC_main |= 0x040;                     /* FDC.CPU */
 	//		fdc.flags |= NEC765_FLAGS_DATA_TRANSFER_STARTED;
 	
 	        fdc.nec765_transfer_bytes_count = 0;
@@ -567,7 +562,7 @@ public class nec765
 	static void     nec765_setup_execution_phase_write(char *ptr, int size)
 	{
 	//        fdc.FDC_main |=0x080;                       /* DRQ */
-	        fdc.FDC_main &= ~0x040;                     /* FDC->CPU */
+	        fdc.FDC_main &= ~0x040;                     /* FDC.CPU */
 	
 	        fdc.nec765_transfer_bytes_count = 0;
 	        fdc.nec765_transfer_bytes_remaining = size;
@@ -583,7 +578,7 @@ public class nec765
 	{
 		//fdc.nec765_flags &= ~NEC765_TC;
 	
-			fdc.FDC_main |= 0x040;                     /* FDC->CPU */
+			fdc.FDC_main |= 0x040;                     /* FDC.CPU */
 	        fdc.FDC_main &= ~0x020;                    /* not execution phase */
 	
 	        fdc.nec765_transfer_bytes_count = 0;
@@ -597,7 +592,7 @@ public class nec765
 	{
 		//fdc.nec765_flags &= ~NEC765_TC;
 	
-	    fdc.FDC_main &= ~0x040;                     /* CPU->FDC */
+	    fdc.FDC_main &= ~0x040;                     /* CPU.FDC */
 	    fdc.FDC_main &= ~0x020;                    /* not execution phase */
 	    fdc.FDC_main &= ~0x010;                     /* not busy */
 	    fdc.nec765_phase = NEC765_COMMAND_PHASE_FIRST_BYTE;
@@ -610,7 +605,7 @@ public class nec765
 	{
 		fdc.nec765_flags &= ~NEC765_INT;
 	
-		if (state)
+		if (state != 0)
 		{
 			fdc.nec765_flags |= NEC765_INT;
 		}
@@ -624,7 +619,7 @@ public class nec765
 	{
 		fdc.nec765_flags &= ~NEC765_DMA_DRQ;
 	
-		if (state)
+		if (state != 0)
 		{
 			fdc.nec765_flags |= NEC765_DMA_DRQ;
 		}
@@ -640,7 +635,7 @@ public class nec765
 			fdc.seek_timer = 0;
 		memset(&nec765_iface, 0, sizeof(nec765_interface));
 	
-	        if (iface)
+	        if (iface != 0)
 	        {
 	                memcpy(&nec765_iface, iface, sizeof(nec765_interface));
 	        }
@@ -662,7 +657,7 @@ public class nec765
 		nec765_set_dma_drq(0);
 	
 		fdc.nec765_flags &= ~NEC765_TC;
-		if (state)
+		if (state != 0)
 		{
 			fdc.nec765_flags |= NEC765_TC;
 		}
@@ -753,11 +748,11 @@ public class nec765
 		/* get next id from disc */
 		floppy_drive_get_next_id(fdc.drive, fdc.side,id);
 	
-		fdc.sector_id = id->data_id;
+		fdc.sector_id = id.data_id;
 	
 		/* set correct data type */
 		fdc.data_type = NEC765_DAM_DATA;
-		if (id->flags & ID_FLAG_DELETED_DATA)
+		if (id.flags & ID_FLAG_DELETED_DATA)
 		{
 			fdc.data_type = NEC765_DAM_DELETED_DATA;
 		}
@@ -2083,7 +2078,7 @@ public class nec765
 		fdc.nec765_flags &= ~NEC765_RESET;
 	
 		/* reset */
-		if (state)
+		if (state != 0)
 		{
 			fdc.nec765_flags |= NEC765_RESET;
 	
@@ -2110,7 +2105,7 @@ public class nec765
 		/* clear ready state */
 		fdc.nec765_flags &= ~NEC765_FDD_READY;
 	
-		if (state)
+		if (state != 0)
 		{
 			fdc.nec765_flags |= NEC765_FDD_READY;
 		}

@@ -21,11 +21,7 @@ public class msx
 {
 	
 	MSX msx1;
-	static void msx_set_all_mem_banks (void);
-	static WRITE_HANDLER( msx_ppi_port_a_w );
-	static READ_HANDLER( msx_ppi_port_b_r );
-	static WRITE_HANDLER( msx_ppi_port_c_w );
-	static ppi8255_interface msx_ppi8255_interface = {
+	static static ppi8255_interface msx_ppi8255_interface = {
 	    1,
 	    NULL,
 	    msx_ppi_port_b_r,
@@ -208,7 +204,7 @@ public class msx
 	    }
 	    strcpy (msx1.cart[id].sramfile, device_filename (IO_CARTSLOT, id) );
 	    pext = strrchr (msx1.cart[id].sramfile, '.');
-	    if (pext) *pext = 0;
+	    if (pext != 0) *pext = 0;
 	    /* do some stuff for some types :)) */
 	    switch (type) {
 	    case 0:
@@ -247,7 +243,7 @@ public class msx
 	        }
 	        else if (size <= 0xc000)
 	        {
-	            if (p)
+	            if (p != 0)
 	            {
 	                /* shift up 16kB; custom memcpy so overlapping memory
 	                   isn't corrupted. ROM starts in page 1 (0x4000) */
@@ -283,7 +279,7 @@ public class msx
 	            free (msx1.cart[id].mem); msx1.cart[id].mem = NULL;
 	            return 1;
 	        }
-	        F = osd_fopen (Machine->gamedrv->name, msx1.cart[id].sramfile,
+	        F = osd_fopen (Machine.gamedrv.name, msx1.cart[id].sramfile,
 	                OSD_FILETYPE_MEMCARD, 0);
 	        if (F && (osd_fread (F, pmem + 0x21000, 0x2000) == 0x2000) )
 	        {
@@ -294,7 +290,7 @@ public class msx
 	            memset (pmem + 0x20000, 0, 0x4000);
 	            logerror("Cart #%d Failed to load SRAM\n", id);
 	        }
-	        if (F) osd_fclose (F);
+	        if (F != 0) osd_fclose (F);
 	
 	        msx1.cart[id].mem = pmem;
 	        break;
@@ -321,7 +317,7 @@ public class msx
 	            free (msx1.cart[id].mem); msx1.cart[id].mem = NULL;
 	            return 1;
 	        }
-	        F = osd_fopen (Machine->gamedrv->name, msx1.cart[id].sramfile,
+	        F = osd_fopen (Machine.gamedrv.name, msx1.cart[id].sramfile,
 	                OSD_FILETYPE_MEMCARD, 0);
 	        if (F && (osd_fread (F, pmem + size_aligned, 0x2000) == 0x2000) )
 	        {
@@ -330,7 +326,7 @@ public class msx
 	            memset (pmem + size_aligned, 0, 0x2000);
 	            logerror("Cart #%d Failed to load SRAM\n", id);
 	        }
-	        if (F) osd_fclose (F);
+	        if (F != 0) osd_fclose (F);
 	
 	        msx1.cart[id].mem = pmem;
 	        break;
@@ -341,7 +337,7 @@ public class msx
 	            free (msx1.cart[id].mem); msx1.cart[id].mem = NULL;
 	            return 1;
 	        }
-	        F = osd_fopen (Machine->gamedrv->name, msx1.cart[id].sramfile,
+	        F = osd_fopen (Machine.gamedrv.name, msx1.cart[id].sramfile,
 	                OSD_FILETYPE_MEMCARD, 0);
 	        if (F && (osd_fread (F, pmem + size_aligned, 0x2000) == 0x2000) )
 	        {
@@ -355,7 +351,7 @@ public class msx
 	            memset (pmem + size_aligned, 0, 0x4000);
 	            logerror("Cart #%d Failed to load SRAM\n", id);
 	        }
-	        if (F) osd_fclose (F);
+	        if (F != 0) osd_fclose (F);
 	
 	        msx1.cart[id].mem = pmem;
 	        break;
@@ -378,7 +374,7 @@ public class msx
 	        pmem[0x13ff7] = 0;
 	        if (msx1.cart[id].pacsram)
 	        {
-	            F = osd_fopen (Machine->gamedrv->name, msx1.cart[id].sramfile,
+	            F = osd_fopen (Machine.gamedrv.name, msx1.cart[id].sramfile,
 	                OSD_FILETYPE_MEMCARD, 0);
 	            if (F &&
 	                (osd_fread (F, buf, PAC_HEADER_LEN) == PAC_HEADER_LEN) &&
@@ -390,7 +386,7 @@ public class msx
 	               memset (pmem + 0x10000, 0, 0x2000);
 	               logerror("Cart #%d Failed to load SRAM\n", id);
 	            }
-	            if (F) osd_fclose (F);
+	            if (F != 0) osd_fclose (F);
 	        }
 	        msx1.cart[id].banks[2] = (0x14000/0x2000);
 	        msx1.cart[id].banks[3] = (0x16000/0x2000);
@@ -413,9 +409,9 @@ public class msx
 	    void *F;
 	    int res;
 	
-	    F = osd_fopen (Machine->gamedrv->name, filename, OSD_FILETYPE_MEMCARD, 1);
+	    F = osd_fopen (Machine.gamedrv.name, filename, OSD_FILETYPE_MEMCARD, 1);
 	    res = F && (osd_fwrite (F, pmem, size) == size);
-	    if (F) osd_fclose (F);
+	    if (F != 0) osd_fclose (F);
 	    return res;
 	}
 	
@@ -444,7 +440,7 @@ public class msx
 	            break;
 	        case 11: /* fm-pac */
 	            res = 1;
-	            F = osd_fopen (Machine->gamedrv->name, msx1.cart[id].sramfile,
+	            F = osd_fopen (Machine.gamedrv.name, msx1.cart[id].sramfile,
 	                OSD_FILETYPE_MEMCARD, 1);
 	            if (!F) break;
 	            size = strlen (PAC_HEADER);
@@ -500,11 +496,11 @@ public class msx
 	    return;
 	}
 	
-	void init_msx (void)
+	public static InitDriverPtr init_msx = new InitDriverPtr() { public void handler() 
 	{
 	    /* this function is called at a very early stage, and not after a reset. */
 	    TMS9928A_int_callback(msx_vdp_interrupt);
-	}
+	} };
 	
 	void msx_ch_stop (void) {
 	    free (msx1.empty); msx1.empty = NULL;
@@ -518,7 +514,7 @@ public class msx
 	
 	READ_HANDLER ( msx_vdp_r )
 	{
-	    if (offset & 0x01)
+	    if ((offset & 0x01) != 0)
 	        return TMS9928A_register_r();
 	    else
 	        return TMS9928A_vram_r();
@@ -526,7 +522,7 @@ public class msx
 	
 	WRITE_HANDLER ( msx_vdp_w )
 	{
-	    if (offset & 0x01)
+	    if ((offset & 0x01) != 0)
 	        TMS9928A_register_w(data);
 	    else
 	        TMS9928A_vram_w(data);
@@ -539,7 +535,7 @@ public class msx
 	
 	WRITE_HANDLER ( msx_psg_w )
 	{
-	    if (offset & 0x01)
+	    if ((offset & 0x01) != 0)
 	        AY8910_write_port_0_w (offset, data);
 	    else
 	        AY8910_control_port_0_w (offset, data);
@@ -602,12 +598,12 @@ public class msx
 	** The PPI functions
 	*/
 	
-	static WRITE_HANDLER( msx_ppi_port_a_w )
+	public static WriteHandlerPtr msx_ppi_port_a_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 	    msx_set_all_mem_banks ();
-	}
+	} };
 	
-	static WRITE_HANDLER( msx_ppi_port_c_w )
+	public static WriteHandlerPtr msx_ppi_port_c_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 	    static int old_val = 0xff;
 	
@@ -625,16 +621,16 @@ public class msx
 	        device_output (IO_CASSETTE, 0, (data & 0x20) ? -32768 : 32767);
 	
 	    old_val = data;
-	}
+	} };
 	
-	static READ_HANDLER( msx_ppi_port_b_r )
+	public static ReadHandlerPtr msx_ppi_port_b_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 	    int row;
 	
 	    row = ppi8255_0_r (2) & 0x0f;
 	    if (row <= 8) return readinputport (row);
 	    else return 0xff;
-	}
+	} };
 	
 	
 	/*
@@ -642,9 +638,9 @@ public class msx
 	*/
 	static void msx_set_slot_0 (int page)
 	{
-	    unsigned char *ROM;
+	    UBytePtr ROM;
 	    ROM = memory_region(REGION_CPU1);
-	    if (page < (strcmp (Machine->gamedrv->name, "msxkr") ? 2 : 3) )
+	    if (page < (strcmp (Machine.gamedrv.name, "msxkr") ? 2 : 3) )
 	    {
 	        cpu_setbank (1 + page * 2, ROM + page * 0x4000);
 	        cpu_setbank (2 + page * 2, ROM + page * 0x4000 + 0x2000);
@@ -802,7 +798,7 @@ public class msx
 	        {
 	            n = (data * 2) & msx1.cart[cart].bank_mask;
 	
-	            if (offset & 0x1000)
+	            if ((offset & 0x1000) != 0)
 	            {
 	                /* page 2 */
 	                msx1.cart[cart].banks[2] = n;
@@ -871,7 +867,7 @@ public class msx
 	            else
 	                n = (data * 2) & msx1.cart[cart].bank_mask;
 	
-	            if (offset & 0x1000)
+	            if ((offset & 0x1000) != 0)
 	            {
 	                /* page 2 */
 	                msx1.cart[cart].banks[2] = n;
@@ -900,7 +896,7 @@ public class msx
 	    case 9: /* R-Type */
 	        if (offset >= 0x3000 && offset < 0x4000)
 	        {
-	            if (data & 0x10)
+	            if ((data & 0x10) != 0)
 	            {
 	                n = (( (data & 0x07) | 0x10) * 2) & msx1.cart[cart].bank_mask;
 	            } else {
@@ -1029,7 +1025,7 @@ public class msx
 	    void *file;
 	
 	    file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-	    if( file )
+	    if (file != 0)
 	    {
 	        struct wave_args wa = {0,};
 	        wa.file = file;
@@ -1040,7 +1036,7 @@ public class msx
 	    }
 	    file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW,
 	        OSD_FOPEN_RW_CREATE);
-	    if( file )
+	    if (file != 0)
 	    {
 	        struct wave_args wa = {0,};
 	        wa.file = file;

@@ -129,7 +129,7 @@ public class c65
 			switch (cmd) {
 			case 0:
 				if (src.d==0x3ffff) dump=1;
-				if (dump)
+				if (dump != 0)
 					DBG_LOG(1,"dma copy job",
 							("len:%.4x src:%.6x dst:%.6x sub:%.2x modrm:%.2x\n",
 							 len.w.l, src.d, dst.d, c65_read_mem(pair.d),
@@ -203,7 +203,7 @@ public class c65
 	{
 		int data=0xff;
 		if (offset==7) {
-			if (C65_KEY_DIN) data &= ~1;
+			if (C65_KEY_DIN != 0) data &= ~1;
 		}
 		DBG_LOG (2, "r6511 read", ("%.2x\n", offset));
 	
@@ -214,11 +214,11 @@ public class c65
 	 (for 2 1MB MFM disk drives, 1 internal, the other extern (optional) 1565
 	 with integrated 512 byte buffer
 	
-	 0->0 reset ?
+	 0.0 reset ?
 	
-	 0->1, 0->0, wait until 2 positiv, 1->0 ???
+	 0.1, 0.0, wait until 2 positiv, 1.0 ???
 	
-	 0->0, 0 not 0 means no drive ???, other system entries
+	 0.0, 0 not 0 means no drive ???, other system entries
 	
 	
 	 reg 0 write/read
@@ -233,7 +233,7 @@ public class c65
 	  bit 0
 	  bit 1
 	  bit 2
-	  0..2 ->$1d4
+	  0..2 .$1d4
 	
 	 reg 1 write
 	  $01 written
@@ -259,7 +259,7 @@ public class c65
 	 reg 4
 	  track??
 	  0 written
-	  read -> $1d2
+	  read . $1d2
 	  cmp #$50
 	  bcs
 	
@@ -267,14 +267,14 @@ public class c65
 	 reg 5
 	  sector ??
 	  1 written
-	  read -> $1d3
+	  read . $1d3
 	  cmp #$b bcc
 	
 	
 	 reg 6
 	  head ??
 	  0 written
-	  read -> $1d1
+	  read . $1d1
 	  cmp #2 bcc
 	
 	 reg 7 read
@@ -429,7 +429,7 @@ public class c65
 	   read 0:
 	   write 0:0
 	   read 0:
-	   first read and second read bit 0x80 set --> nothing
+	   first read and second read bit 0x80 set -. nothing
 	   write 0:0
 	   read 0
 	   write 0:ff
@@ -577,8 +577,8 @@ public class c65
 	{
 		static int old=0;
 		DBG_LOG (2, "c65 bankswitch", ("%.2x\n",value));
-		if (c65_io_on) {
-			if (value&1) {
+		if (c65_io_on != 0) {
+			if ((value & 1) != 0) {
 				cpu_setbank (8, c64_colorram+0x400);
 				cpu_setbank (9, c64_colorram+0x400);
 				cpu_setbankhandler_r (8, MRA_BANK8);
@@ -591,19 +591,19 @@ public class c65
 		c65_io_dc00_on=!(value&1);
 	#if 0
 		/* cartridge roms !?*/
-		if (value&0x08) { cpu_setbank (1, c64_roml); }
+		if ((value & 0x08) != 0) { cpu_setbank (1, c64_roml); }
 		else { cpu_setbank (1, c64_memory + 0x8000); }
-		if (value&0x10) { cpu_setbank (2, c64_basic); }
+		if ((value & 0x10) != 0) { cpu_setbank (2, c64_basic); }
 		else { cpu_setbank (2, c64_memory + 0xa000); }
 	#endif
 		if ((old^value)&0x20) { /* bankswitching faulty when doing actual page */
-			if (value&0x20) { cpu_setbank (3, c65_interface); }
+			if ((value & 0x20) != 0) { cpu_setbank (3, c65_interface); }
 			else { cpu_setbank (3, c64_memory + 0xc000); }
 		}
 		c65_charset_select=value&0x40;
 	#if 0
 		/* cartridge roms !?*/
-		if (value&0x80) { cpu_setbank (8, c64_kernal); }
+		if ((value & 0x80) != 0) { cpu_setbank (8, c64_kernal); }
 		else { cpu_setbank (6, c64_memory + 0xe000); }
 	#endif
 		old=value;
@@ -655,7 +655,7 @@ public class c65
 			cpu_setbank (6, c64_colorram);
 			cpu_setbank (7, c64_colorram);
 	
-			if (c65_io_dc00_on) {
+			if (c65_io_dc00_on != 0) {
 				cpu_setbankhandler_r (8, c65_read_io_dc00);
 				cpu_setbankhandler_w (9, c65_write_io_dc00);
 			} else {
@@ -693,7 +693,7 @@ public class c65
 		}
 		else
 		{
-			if (hiram)
+			if (hiram != 0)
 			{
 				cpu_setbank (10, c64_kernal);
 			}
@@ -728,7 +728,7 @@ public class c65
 			if (offset < 0x1000)
 				return c64_vicaddr[offset & 0x3fff];
 			if (offset < 0x2000) {
-				if (c65_charset_select)
+				if (c65_charset_select != 0)
 					return c65_chargen[offset & 0xfff];
 				else
 					return c64_chargen[offset & 0xfff];
@@ -740,7 +740,7 @@ public class c65
 	
 	static int c65_dma_read_color (int offset)
 	{
-		if (c64mode) return c64_colorram[offset&0x3ff]&0xf;
+		if (c64mode != 0) return c64_colorram[offset&0x3ff]&0xf;
 		return c64_colorram[offset & 0x7ff];
 	}
 	
@@ -789,7 +789,7 @@ public class c65
 		cbm_drive_close ();
 	}
 	
-	void c65_init_machine (void)
+	public static InitMachinePtr c65_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		memset(c64_memory+0x40000, 0xff, 0xc0000);
 	
@@ -813,7 +813,7 @@ public class c65
 	
 		c65_bankswitch_interface(0xff);
 		c65_bankswitch ();
-	}
+	} };
 	
 	void c65_shutdown_machine (void)
 	{
@@ -824,8 +824,8 @@ public class c65
 		int y;
 		char text[70];
 	
-		y = Machine->visible_area.max_y + 1
-			- Machine->uifont->height;
+		y = Machine.visible_area.max_y + 1
+			- Machine.uifont.height;
 	
 	#if VERBOSE_DBG
 		cia6526_status (text, sizeof (text));

@@ -21,7 +21,7 @@ public class epnick
 	/* MESS stuff */
 	static NICK_STATE Nick;
 	
-	extern unsigned char *Enterprise_RAM;
+	extern UBytePtr Enterprise_RAM;
 	
 	// MESS specific
 	/* fetch a byte from "video ram" at Addr specified */
@@ -33,7 +33,7 @@ public class epnick
 	// MESS specific
 	/* 8-bit pixel write! */
 	#define NICK_WRITE_PIXEL(ci, dest)	\
-		*dest = Machine->pens[ci];	\
+		*dest = Machine.pens[ci];	\
 		dest++
 	
 	/*****************************************************/
@@ -88,7 +88,7 @@ public class epnick
 	
 	
 	/* initial the palette */
-	void nick_init_palette(unsigned char *palette, unsigned short *colortable,const unsigned char *color_prom)
+	public static VhConvertColorPromPtr nick_init_palette = new VhConvertColorPromPtr() { public void handler(char []palette, char []colortable, UBytePtr color_prom) 
 	{
 	      int i;
 	
@@ -106,7 +106,7 @@ public class epnick
 	
 	        //palette_recalc();
 	
-	}
+	} };
 	
 	/* first clock visible on left hand side */
 	static unsigned char Nick_FirstVisibleClock;
@@ -187,7 +187,7 @@ public class epnick
 	{
 			unsigned char LeftMargin;
 	
-			LeftMargin = NICK_GET_LEFT_MARGIN(pLPT->LM);
+			LeftMargin = NICK_GET_LEFT_MARGIN(pLPT.LM);
 	
 			if (LeftMargin>Nick_FirstVisibleClock)
 			{
@@ -205,7 +205,7 @@ public class epnick
 	{
 			unsigned char RightMargin;
 	
-			RightMargin = NICK_GET_RIGHT_MARGIN(pLPT->RM);
+			RightMargin = NICK_GET_RIGHT_MARGIN(pLPT.RM);
 	
 			if (RightMargin<Nick_LastVisibleClock)
 			{
@@ -230,7 +230,7 @@ public class epnick
 	
 		for (i=0; i<8; i++)
 		{
-			if (Data & 0x080)
+			if ((Data & 0x080) != 0)
 			{
 				PenIndex = Pen1;
 			}
@@ -239,7 +239,7 @@ public class epnick
 				PenIndex = Pen0;
 			}
 	
-	                if (PenIndex & 0x08)
+	                if ((PenIndex & 0x08) != 0)
 	                {
 	                        ColIndex = ((Nick.FIXBIAS & 0x01f)<<3) | (PenIndex & 0x07);
 	                }
@@ -265,7 +265,7 @@ public class epnick
 	
 		for (i=0; i<8; i++)
 		{
-			if (Data & 0x080)
+			if ((Data & 0x080) != 0)
 			{
 				PenIndex = Pen1;
 			}
@@ -274,7 +274,7 @@ public class epnick
 				PenIndex = Pen0;
 			}
 	
-	                if (PenIndex & 0x08)
+	                if ((PenIndex & 0x08) != 0)
 	                {
 	                        ColIndex = ((Nick.FIXBIAS & 0x01f)<<3) | (PenIndex & 0x07);
 	                }
@@ -313,7 +313,7 @@ public class epnick
 				/* left margin attributes */
 				if (Nick.LPT.LM & NICK_LM_MSBALT)
 				{
-					if (Data & 0x080)
+					if ((Data & 0x080) != 0)
 					{
 						PenOffset |= 2;
 					}
@@ -323,7 +323,7 @@ public class epnick
 	
 				if (Nick.LPT.LM & NICK_LM_LSBALT)
 				{
-					if (Data & 0x001)
+					if ((Data & 0x001) != 0)
 					{
 						PenOffset |= 4;
 					}
@@ -333,7 +333,7 @@ public class epnick
 	
 				if (Nick.LPT.RM & NICK_RM_ALTIND1)
 				{
-					if (CharIndex & 0x080)
+					if ((CharIndex & 0x080) != 0)
 					{
 						PenOffset|=0x02;
 					}
@@ -341,7 +341,7 @@ public class epnick
 	
 	//			if (Nick.LPT.RM & NICK_RM_ALTIND0)
 	//			{
-	//				if (Data & 0x040)
+	//				if ((Data & 0x040) != 0)
 	//				{
 	//					PenOffset|=0x04;
 	//				}
@@ -403,7 +403,7 @@ public class epnick
 				{
 					PenIndex = Nick_PenIndexLookup_16Colour[Data];
 	
-					if (PenIndex & 0x08)
+					if ((PenIndex & 0x08) != 0)
 					{
 						PalIndex = ((Nick.FIXBIAS & 0x01f)<<3) | (PenIndex & 0x07);
 					}
@@ -475,7 +475,7 @@ public class epnick
 				/* left margin attributes */
 				if (Nick.LPT.LM & NICK_LM_MSBALT)
 				{
-					if (Data & 0x080)
+					if ((Data & 0x080) != 0)
 					{
 						PenOffset |= 2;
 					}
@@ -485,7 +485,7 @@ public class epnick
 	
 				if (Nick.LPT.LM & NICK_LM_LSBALT)
 				{
-					if (Data & 0x001)
+					if ((Data & 0x001) != 0)
 					{
 						PenOffset |= 4;
 					}
@@ -495,7 +495,7 @@ public class epnick
 	
 				if (Nick.LPT.RM & NICK_RM_ALTIND1)
 				{
-					if (CharIndex & 0x080)
+					if ((CharIndex & 0x080) != 0)
 					{
 						PenOffset|=0x02;
 					}
@@ -503,7 +503,7 @@ public class epnick
 	
 	//			if (Nick.LPT.RM & NICK_RM_ALTIND0)
 	//			{
-	//				if (Data & 0x040)
+	//				if ((Data & 0x040) != 0)
 	//				{
 	//					PenOffset|=0x04;
 	//				}
@@ -567,7 +567,7 @@ public class epnick
 				{
 					PenIndex = Nick_PenIndexLookup_16Colour[Data];
 	
-					if (PenIndex & 0x08)
+					if ((PenIndex & 0x08) != 0)
 					{
 						PalIndex = ((Nick.FIXBIAS & 0x01f)<<3) | (PenIndex & 0x07);
 					}
@@ -739,8 +739,8 @@ public class epnick
 		unsigned char ClocksVisible;
 		unsigned char RightMargin, LeftMargin;
 	
-		LeftMargin = NICK_GET_LEFT_MARGIN(pLPT->LM);
-		RightMargin = NICK_GET_RIGHT_MARGIN(pLPT->RM);
+		LeftMargin = NICK_GET_LEFT_MARGIN(pLPT.LM);
+		RightMargin = NICK_GET_RIGHT_MARGIN(pLPT.RM);
 	
 		ClocksVisible = RightMargin - LeftMargin;
 	
@@ -749,21 +749,21 @@ public class epnick
 			unsigned char DisplayMode;
 	
 			/* get display mode */
-			DisplayMode = NICK_GET_DISPLAY_MODE(pLPT->MB);
+			DisplayMode = NICK_GET_DISPLAY_MODE(pLPT.MB);
 	
 			if ((Nick.ScanLineCount == 0))	// ||
-				//((pLPT->MB & NICK_MB_VRES)==0))
+				//((pLPT.MB & NICK_MB_VRES)==0))
 			{
 				/* doing first line */
 				/* reload LD1, and LD2 (if necessary) regardless of display mode */
-				Nick.LD1 = 	(pLPT->LD1L & 0x0ff) |
-						((pLPT->LD1H & 0x0ff)<<8);
+				Nick.LD1 = 	(pLPT.LD1L & 0x0ff) |
+						((pLPT.LD1H & 0x0ff)<<8);
 	
 				if ((DisplayMode != NICK_LPIXEL_MODE) && (DisplayMode != NICK_PIXEL_MODE))
 				{
 					/* lpixel and pixel modes don't use LD2 */
-					Nick.LD2 = (pLPT->LD2L & 0x0ff) |
-						((pLPT->LD2H & 0x0ff)<<8);
+					Nick.LD2 = (pLPT.LD2L & 0x0ff) |
+						((pLPT.LD2H & 0x0ff)<<8);
 				}
 			}
 			else
@@ -775,8 +775,8 @@ public class epnick
 					case NICK_ATTR_MODE:
 					{
 						/* reload LD1 */
-						Nick.LD1 = (pLPT->LD1L & 0x0ff) |
-						((pLPT->LD1H & 0x0ff)<<8);
+						Nick.LD1 = (pLPT.LD1L & 0x0ff) |
+						((pLPT.LD1H & 0x0ff)<<8);
 					}
 					break;
 	
@@ -785,8 +785,8 @@ public class epnick
 					case NICK_CH64_MODE:
 					{
 						/* reload LD1 */
-						Nick.LD1 = (pLPT->LD1L & 0x0ff) |
-							((pLPT->LD1H & 0x0ff)<<8);
+						Nick.LD1 = (pLPT.LD1L & 0x0ff) |
+							((pLPT.LD1H & 0x0ff)<<8);
 						Nick.LD2++;
 					}
 					break;
@@ -929,15 +929,15 @@ public class epnick
 	}
 	
 	/* MESS specific */
-	int	Nick_vh_start(void)
+	public static VhStartPtr Nick_vh_start = new VhStartPtr() { public int handler() 
 	{
 	  Nick_Init();
 	  return 0;
-	}
+	} };
 	
-	void	Nick_vh_stop(void)
+	public static VhStopPtr Nick_vh_stop = new VhStopPtr() { public void handler() 
 	{
-	}
+	} };
 	
 	int	Nick_reg_r(int RegIndex)
 	{
@@ -987,7 +987,7 @@ public class epnick
 	  {
 	
 	    /* set write address for line */
-	    Nick.dest = bm->line[line];
+	    Nick.dest = bm.line[line];
 	
 	    /* write line */
 	    Nick_DoLine();

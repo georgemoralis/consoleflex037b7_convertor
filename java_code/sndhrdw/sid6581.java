@@ -31,10 +31,10 @@ public class sid6581
 	static void sid6581_init (SID6581 *This, int (*paddle) (int offset), int pal)
 	{
 		memset(This, 0, sizeof(SID6581));
-		This->paddle_read = paddle;
+		This.paddle_read = paddle;
 		initMixerEngine();
 		filterTableInit();
-		if (pal)
+		if (pal != 0)
 			sidEmuSetReplayingSpeed(0, 50);
 		else
 			sidEmuSetReplayingSpeed(0, 60);
@@ -71,11 +71,11 @@ public class sid6581
 			break;
 		default:
 			/*stream_update(channel,0); */
-			This->reg[offset] = data;
-			if (data&1)
-				This->sidKeysOn[offset]=1;
+			This.reg[offset] = data;
+			if ((data & 1) != 0)
+				This.sidKeysOn[offset]=1;
 			else
-				This->sidKeysOff[offset]=1;
+				This.sidKeysOff[offset]=1;
 		}
 	}
 	
@@ -92,14 +92,14 @@ public class sid6581
 			data=0xff;
 			break;
 		case 0x19:						   /* paddle 1 */
-			if (This->paddle_read != NULL)
-				data=This->paddle_read (0);
+			if (This.paddle_read != NULL)
+				data=This.paddle_read (0);
 			else
 				data=0;
 			break;
 		case 0x1a:						   /* paddle 2 */
-			if (This->paddle_read != NULL)
-				data=This->paddle_read (1);
+			if (This.paddle_read != NULL)
+				data=This.paddle_read (1);
 			else
 				data=0;
 			break;
@@ -109,7 +109,7 @@ public class sid6581
 			break;
 	#endif
 		default:
-			data=This->reg[offset];
+			data=This.reg[offset];
 		}
 		DBG_LOG (1, "sid6581 read", ("offset %.2x value %.2x\n",
 									  offset, data));
@@ -118,7 +118,7 @@ public class sid6581
 	
 	UINT16 sid6581_read_word(SID6581 *This, int offset)
 	{
-		return This->reg[offset&0x1f]|This->reg[(offset+1)&0x1f]<<8;
+		return This.reg[offset&0x1f]|This.reg[(offset+1)&0x1f]<<8;
 	}
 	
 	void sid6581_0_init (int (*paddle) (int offset), int pal)
@@ -190,12 +190,12 @@ public class sid6581
 	void sid6581_custom_stop(void) {}
 	void sid6581_custom_update(void) {}
 	
-	struct CustomSound_interface sid6581_sound_interface =
-	{
+	static CustomSound_interface sid6581_sound_interface = new CustomSound_interface
+	(
 	        sid6581_custom_start,
 	        sid6581_custom_stop,
 	        sid6581_custom_update
-	};
+	);
 	
 	
 }

@@ -18,7 +18,7 @@ public class aquarius
 	
 	static	int	aquarius_ramsize = 0;
 	
-	void aquarius_init_machine(void)
+	public static InitMachinePtr aquarius_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		logerror("aquarius_init\r\n");
 		if (readinputport(9) != aquarius_ramsize)
@@ -46,7 +46,7 @@ public class aquarius
 					break;
 			}
 		}
-	}
+	} };
 	
 	void aquarius_stop_machine(void)
 	{

@@ -56,15 +56,10 @@ public class mac
 	
 	#endif
 	
-	static int scan_keyboard(void);
-	static void inquiry_timeout_func(int unused);
-	static void keyboard_receive(int val);
-	static void keyboard_send_reply(void);
-	static int mac_via_in_a(int offset);
+	static static static int mac_via_in_a(int offset);
 	static int mac_via_in_b(int offset);
 	static void mac_via_out_a(int offset, int val);
 	static void mac_via_out_b(int offset, int val);
-	static void mac_via_irq(int state);
 	
 	static struct via6522_interface mac_via6522_intf =
 	{
@@ -187,7 +182,7 @@ public class mac
 	{
 		/* set up either main RAM area or ROM mirror at 0x000000-0x3fffff */
 	
-		if (overlay)
+		if (overlay != 0)
 		{
 			/* ROM mirror */
 			install_mem_read_handler(0, 0x000000, rom_size-1, MRA_RAM_BANK1);
@@ -329,7 +324,7 @@ public class mac
 		int i, a0, a7, d0, d1;
 		int csCode, ioVRefNum, ioRefNum, ioCRefNum, ioCompletion, ioBuffer, ioReqCount, ioPosOffset;
 		char *s;
-		unsigned char *mem;
+		UBytePtr mem;
 		char buf[256];
 	
 		buf[0] = '\0';
@@ -458,7 +453,7 @@ public class mac
 		int keybuf;
 		int keycode;
 	
-		if (keycode_buf_index)
+		if (keycode_buf_index != 0)
 		{
 			return keycode_buf[--keycode_buf_index];
 		}
@@ -577,7 +572,7 @@ public class mac
 	
 		inquiry_in_progress = FALSE;
 	
-		if (hold_keyboard_reply)
+		if (hold_keyboard_reply != 0)
 			keyboard_reply = 0x7B;
 		else
 			via_set_input_si(0, 0x7B);	/* always send NULL */
@@ -590,7 +585,7 @@ public class mac
 	{
 		hold_keyboard_reply = TRUE;
 	
-		if (inquiry_in_progress)
+		if (inquiry_in_progress != 0)
 		{	/* new command aborts last inquiry */
 			inquiry_in_progress = FALSE;
 			timer_remove(inquiry_timeout);
@@ -639,7 +634,7 @@ public class mac
 				keycode_buf_index = 0;
 			}
 	
-			/* format : 1 if another device (-> keypad ?) connected | next device (-> keypad ?) number 1-8
+			/* format : 1 if another device (. keypad ?) connected | next device (. keypad ?) number 1-8
 								| keyboard model number 1-8 | 1  */
 			/* keyboards :
 				3 : mac 512k, US and international layout ? Mac plus ???
@@ -742,7 +737,7 @@ public class mac
 		}
 	
 		/* update any remaining count and then return */
-		if (count_x)
+		if (count_x != 0)
 		{
 			if (count_x < 0)
 			{
@@ -756,7 +751,7 @@ public class mac
 			}
 			x_needs_update = 1;
 		}
-		if (count_y)
+		if (count_y != 0)
 		{
 			if (count_y < 0)
 			{
@@ -1040,7 +1035,7 @@ public class mac
 	
 		if (x && y)
 		{
-			if (last_was_x)
+			if (last_was_x != 0)
 				scc_status = 0x0a;
 			else
 				scc_status = 0x02;
@@ -1049,7 +1044,7 @@ public class mac
 		}
 		else
 		{
-			if (x)
+			if (x != 0)
 				scc_status = 0x0a;
 			else
 				scc_status = 0x02;
@@ -1077,7 +1072,7 @@ public class mac
 	{
 		if (scc_reg == 0)
 		{
-			if (data & 0x10)
+			if ((data & 0x10) != 0)
 				cpu_set_irq_line(0, 2, CLEAR_LINE);	/* ack irq */
 		}
 	}
@@ -1086,7 +1081,7 @@ public class mac
 	{
 		if (scc_reg == 0)
 		{
-			if (data & 0x10)
+			if ((data & 0x10) != 0)
 				cpu_set_irq_line(0, 2, CLEAR_LINE);	/* ack irq */
 		}
 	}
@@ -1203,12 +1198,12 @@ public class mac
 	static unsigned char rtc_data_byte;
 	/* serial transmitted/received bit count */
 	static unsigned char rtc_bit_count;
-	/* direction of the current transfer (0 : VIA->RTC, 1 : RTC->VIA) */
+	/* direction of the current transfer (0 : VIA.RTC, 1 : RTC.VIA) */
 	static unsigned char rtc_data_dir;
-	/* when rtc_data_dir == 1, state of rTCData as set by RTC (-> data bit seen by VIA) */
+	/* when rtc_data_dir == 1, state of rTCData as set by RTC (. data bit seen by VIA) */
 	static unsigned char rtc_data_out;
 	
-	/* set to 1 when a write command is in progress (-> requires another byte with immediate data) */
+	/* set to 1 when a write command is in progress (. requires another byte with immediate data) */
 	static unsigned char rtc_write_cmd_in_progress;
 	/* set to 1 when command in progress */
 	static unsigned char rtc_cmd;
@@ -1222,8 +1217,6 @@ public class mac
 	static unsigned char rtc_ram[20];
 	
 	/* a few protos */
-	static void rtc_write_rTCEnb(int data);
-	static void rtc_execute_cmd(int data);
 	
 	/* init the rtc core */
 	static void rtc_init(void)
@@ -1258,19 +1251,19 @@ public class mac
 	/* shift data (called on rTCClk high-to-low transition (?)) */
 	static void rtc_shift_data(int data)
 	{
-		if (rtc_rTCEnb)
+		if (rtc_rTCEnb != 0)
 			/* if enable line inactive (high), do nothing */
 			return;
 	
-		if (rtc_data_dir)
-		{	/* RTC -> VIA transmission */
+		if (rtc_data_dir != 0)
+		{	/* RTC . VIA transmission */
 			rtc_data_out = (rtc_data_byte >> --rtc_bit_count) & 0x01;
 	#if LOG_RTC
 			logerror("RTC shifted new data %d\n", rtc_data_out);
 	#endif
 		}
 		else
-		{	/* VIA -> RTC transmission */
+		{	/* VIA . RTC transmission */
 			rtc_data_byte = (rtc_data_byte << 1) | (data ? 1 : 0);
 	
 			if (++rtc_bit_count == 8)
@@ -1310,7 +1303,7 @@ public class mac
 	#endif
 	
 		/* Time to execute a command */
-		if (rtc_write_cmd_in_progress)
+		if (rtc_write_cmd_in_progress != 0)
 		{
 			/* Writing an RTC register */
 			i = (rtc_cmd >> 2) & 0x1f;
@@ -1375,7 +1368,7 @@ public class mac
 			}
 	
 			rtc_cmd = rtc_data_byte;
-			if (rtc_cmd & 0x80)
+			if ((rtc_cmd & 0x80) != 0)
 			{
 				/* Reading an RTC register */
 				rtc_data_dir = 1;
@@ -1386,7 +1379,7 @@ public class mac
 				case 4: case 5: case 6: case 7:
 					rtc_data_byte = rtc_seconds[i & 3];
 	#if LOG_RTC
-					logerror("RTC clock read, address = %X -> data = %X\n", i, rtc_data_byte);
+					logerror("RTC clock read, address = %X . data = %X\n", i, rtc_data_byte);
 	#endif
 					break;
 	
@@ -1429,9 +1422,9 @@ public class mac
 	
 	/* should save PRAM to file */
 	/* TODO : save write_protect flag, save time difference with host clock */
-	void mac_nvram_handler(void *file, int read_or_write)
+	public static nvramPtr mac_nvram_handler  = new nvramPtr() { public void handler(Object file, int read_or_write) 
 	{
-		if (read_or_write)
+		if (read_or_write != 0)
 		{
 	#if LOG_RTC
 			logerror("Writing PRAM to file\n");
@@ -1440,7 +1433,7 @@ public class mac
 		}
 		else
 		{
-			if (file)
+			if (file != 0)
 			{
 	#if LOG_RTC
 				logerror("Reading PRAM from file\n");
@@ -1496,7 +1489,7 @@ public class mac
 				rtc_seconds[3] = (seconds >> 24) & 0xff;
 			}
 		}
-	}
+	} };
 	
 	/* ********************************** *
 	 * IWM Code specific to the Mac Plus  *
@@ -1589,13 +1582,13 @@ public class mac
 		if (cpu_getvblank())
 			val |= 0x40;
 	
-		if (mouse_bit_y)	/* Mouse Y2 */
+		if (mouse_bit_y != 0)	/* Mouse Y2 */
 			val |= 0x20;
-		if (mouse_bit_x)	/* Mouse X2 */
+		if (mouse_bit_x != 0)	/* Mouse X2 */
 			val |= 0x10;
 		if ((readinputport(0) & 0x01) == 0)
 			val |= 0x08;
-		if (rtc_data_out)
+		if (rtc_data_out != 0)
 			val |= 1;
 	
 		return val;
@@ -1663,7 +1656,7 @@ public class mac
 	 * *************************************************************************/
 	
 	#if 0
-	void init_mac128k(void)
+	public static InitDriverPtr init_mac128k = new InitDriverPtr() { public void handler() 
 	{
 		mac_model = model_Mac128k512k;
 	
@@ -1682,9 +1675,9 @@ public class mac
 	
 		/* setup keyboard */
 		keyboard_init();
-	}
+	} };
 	
-	void init_mac512k(void)
+	public static InitDriverPtr init_mac512k = new InitDriverPtr() { public void handler() 
 	{
 		mac_model = model_Mac128k512k;
 	
@@ -1703,10 +1696,10 @@ public class mac
 	
 		/* setup keyboard */
 		keyboard_init();
-	}
+	} };
 	#endif
 	
-	void init_mac512ke(void)
+	public static InitDriverPtr init_mac512ke = new InitDriverPtr() { public void handler() 
 	{
 		mac_model = model_Mac512ke;
 	
@@ -1725,9 +1718,9 @@ public class mac
 	
 		/* setup keyboard */
 		keyboard_init();
-	}
+	} };
 	
-	void init_macplus(void)
+	public static InitDriverPtr init_macplus = new InitDriverPtr() { public void handler() 
 	{
 		mac_model = model_MacPlus;
 	
@@ -1747,7 +1740,7 @@ public class mac
 	
 		/* setup keyboard */
 		keyboard_init();
-	}
+	} };
 	
 	/* will not work with 2.5Mb RAM config */
 	static OPBASE_HANDLER (mac_OPbaseoverride)
@@ -1814,7 +1807,7 @@ public class mac
 	
 	static int current_scanline;
 	
-	void mac_init_machine(void)
+	public static InitMachinePtr mac_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		mac_ram_ptr = memory_region(REGION_CPU1);
 		rom_ptr = memory_region(REGION_CPU1) + 0x400000;
@@ -1858,14 +1851,14 @@ public class mac
 	
 		/* reset video */
 		current_scanline = 0;
-	}
+	} };
 	
-	int mac_vblank_irq(void)
+	public static InterruptPtr mac_vblank_irq = new InterruptPtr() { public int handler() 
 	{
 		static int irq_count = 0, ca1_data = 0, ca2_data = 0;
 	
 		/* handle keyboard */
-		if (inquiry_in_progress)
+		if (inquiry_in_progress != 0)
 		{
 			int keycode = scan_keyboard();
 	
@@ -1879,7 +1872,7 @@ public class mac
 				timer_remove(inquiry_timeout);
 				inquiry_timeout = NULL;
 	
-				if (hold_keyboard_reply)
+				if (hold_keyboard_reply != 0)
 					keyboard_reply = keycode;
 				else
 					via_set_input_si(0, keycode);
@@ -1902,9 +1895,9 @@ public class mac
 		}
 	
 		return 0;
-	}
+	} };
 	
-	int mac_interrupt(void)
+	public static InterruptPtr mac_interrupt = new InterruptPtr() { public int handler() 
 	{
 		mac_sh_data_w(current_scanline);
 	
@@ -1920,5 +1913,5 @@ public class mac
 			current_scanline = 0;
 	
 		return 0;
-	}
+	} };
 }

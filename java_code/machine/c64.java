@@ -82,7 +82,7 @@ public class c64
 	{
 		int value = 0xff;
 	
-		if (JOYSTICK_SWAP) value = c64_keyline[8];
+		if (JOYSTICK_SWAP != 0) value = c64_keyline[8];
 	    else value = c64_keyline[9];
 		return value;
 	}
@@ -108,10 +108,10 @@ public class c64
 		if (!(cia0porta & 1))
 			value &= c64_keyline[0];
 	
-		if (JOYSTICK_SWAP) value &= c64_keyline[9];
+		if (JOYSTICK_SWAP != 0) value &= c64_keyline[9];
 		else value &= c64_keyline[8];
 	
-		if (c128)
+		if (c128 != 0)
 		{
 			if (!vic2e_k0_r ())
 				value &= c128_keyline[0];
@@ -120,7 +120,7 @@ public class c64
 			if (!vic2e_k2_r ())
 				value &= c128_keyline[2];
 		}
-		if (c65) {
+		if (c65 != 0) {
 			if (!(c65_6511_port&2))
 				value&=c65_keyline;
 		}
@@ -145,7 +145,7 @@ public class c64
 		if (level != old_level)
 		{
 			DBG_LOG (3, "mos6510", ("irq %s\n", level ? "start" : "end"));
-			if (c128) {
+			if (c128 != 0) {
 				if (0&&(cpu_getactivecpu()==0)) {
 					cpu_set_irq_line (0, Z80_IRQ_INT, level);
 				} else {
@@ -226,7 +226,7 @@ public class c64
 		cbm_serial_data_write (serial_data = !(data & 0x20));
 		cbm_serial_atn_write (serial_atn = !(data & 8));
 		c64_vicaddr = c64_memory + helper[data & 3];
-		if (c128) {
+		if (c128 != 0) {
 			c128_vicaddr = c64_memory + helper[data & 3] + c128_va1617;
 		}
 	}
@@ -271,7 +271,6 @@ public class c64
 		0xc7, 0xff, 0
 	};
 	
-	static void c64_bankswitch (int reset);
 	static void c64_robocop2_w(int offset, int value)
 	{
 		/* robocop2 0xe00
@@ -280,7 +279,7 @@ public class c64
 		 */
 		roml=cbm_rom[value&0xf].chip;
 		romh=cbm_rom[(value&0xf)+0x10].chip;
-		if (value & 0x80)
+		if ((value & 0x80) != 0)
 			{
 				c64_game = value & 0x10;
 				c64_exrom = 1;
@@ -289,7 +288,7 @@ public class c64
 			{
 				c64_game = c64_exrom = 1;
 			}
-		if (c128)
+		if (c128 != 0)
 			c128_bankswitch_64 (0);
 		else
 			c64_bankswitch (0);
@@ -303,7 +302,7 @@ public class c64
 		 */
 		roml=cbm_rom[value&3].chip;
 		romh=cbm_rom[value&3].chip+0x2000;
-		if (value & 4)
+		if ((value & 4) != 0)
 			{
 				c64_game = 0;
 				c64_exrom = 1;
@@ -316,13 +315,13 @@ public class c64
 			{
 				c64_game = c64_exrom = 0;
 			}
-		if (c128)
+		if (c128 != 0)
 			c128_bankswitch_64 (0);
 		else
 			c64_bankswitch (0);
 	}
 	
-	WRITE_HANDLER( c64_write_io )
+	public static WriteHandlerPtr c64_write_io = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		if (offset < 0x400) {
 			vic2_port_w (offset & 0x3ff, data);
@@ -334,7 +333,7 @@ public class c64
 			cia6526_0_port_w (offset & 0xff, data);
 		else if (offset < 0xe00)
 		{
-			if (c64_cia1_on)
+			if (c64_cia1_on != 0)
 				cia6526_1_port_w (offset & 0xff, data);
 			else
 				DBG_LOG (1, "io write", ("%.3x %.2x\n", offset, data));
@@ -359,9 +358,9 @@ public class c64
 			else
 				DBG_LOG (1, "io write", ("%.3x %.2x\n", offset, data));
 		}
-	}
+	} };
 	
-	READ_HANDLER( c64_read_io )
+	public static ReadHandlerPtr c64_read_io  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		if (offset < 0x400)
 			return vic2_port_r (offset & 0x3ff);
@@ -375,7 +374,7 @@ public class c64
 			return cia6526_1_port_r (offset & 0xff);
 		DBG_LOG (1, "io read", ("%.3x\n", offset));
 		return 0xff;
-	}
+	} };
 	
 	/*
 	 * two devices access bus, cpu and vic
@@ -503,7 +502,7 @@ public class c64
 		else
 		{
 			cpu_setbankhandler_w (8, MWA_RAM);
-			if (hiram)
+			if (hiram != 0)
 			{
 				cpu_setbank (7, c64_kernal);
 			}
@@ -531,7 +530,7 @@ public class c64
 	 */
 	WRITE_HANDLER(c64_m6510_port_w)
 	{
-		if (offset)
+		if (offset != 0)
 		{
 			if (c64_port6510 != data)
 				c64_port6510 = data;
@@ -542,13 +541,13 @@ public class c64
 				c64_ddr6510 = data;
 		}
 		data = (c64_port6510 & c64_ddr6510) | (c64_ddr6510 ^ 0xff);
-		if (c64_tape_on) {
+		if (c64_tape_on != 0) {
 			vc20_tape_write (!(data & 8));
 			vc20_tape_motor (data & 0x20);
 		}
-		if (c128)
+		if (c128 != 0)
 			c128_bankswitch_64 (0);
-		else if (c65)
+		else if (c65 != 0)
 			c65_bankswitch();
 		else if (!ultimax)
 			c64_bankswitch (0);
@@ -556,7 +555,7 @@ public class c64
 	
 	READ_HANDLER(c64_m6510_port_r)
 	{
-		if (offset)
+		if (offset != 0)
 		{
 			int data = (c64_ddr6510 & c64_port6510) | (c64_ddr6510 ^ 0xff);
 	
@@ -576,38 +575,38 @@ public class c64
 	int c64_paddle_read (int which)
 	{
 		int pot1=0xff, pot2=0xff, pot3=0xff, pot4=0xff, temp;
-		if (PADDLES34) {
-			if (which) pot4=PADDLE4_VALUE;
+		if (PADDLES34 != 0) {
+			if (which != 0) pot4=PADDLE4_VALUE;
 			else pot3=PADDLE3_VALUE;
 		}
 		if (JOYSTICK2_2BUTTON&&which) {
-			if (JOYSTICK_2_BUTTON2) pot4=0x00;
+			if (JOYSTICK_2_BUTTON2 != 0) pot4=0x00;
 		}
-		if (MOUSE2) {
-			if (which) pot4=MOUSE2_Y;
+		if (MOUSE2 != 0) {
+			if (which != 0) pot4=MOUSE2_Y;
 			else pot3=MOUSE2_X;
 		}
-		if (PADDLES12) {
-			if (which) pot2=PADDLE2_VALUE;
+		if (PADDLES12 != 0) {
+			if (which != 0) pot2=PADDLE2_VALUE;
 			else pot1=PADDLE1_VALUE;
 		}
 		if (JOYSTICK1_2BUTTON&&which) {
-			if (JOYSTICK_1_BUTTON2) pot1=0x00;
+			if (JOYSTICK_1_BUTTON2 != 0) pot1=0x00;
 		}
-		if (MOUSE1) {
-			if (which) pot2=MOUSE1_Y;
+		if (MOUSE1 != 0) {
+			if (which != 0) pot2=MOUSE1_Y;
 			else pot1=MOUSE1_X;
 		}
-		if (JOYSTICK_SWAP) {
+		if (JOYSTICK_SWAP != 0) {
 			temp=pot1;pot1=pot2;pot2=pot1;
 			temp=pot3;pot3=pot4;pot4=pot3;
 		}
 		switch (cia0porta & 0xc0) {
 		case 0x40:
-			if (which) return pot2;
+			if (which != 0) return pot2;
 			return pot1;
 		case 0x80:
-			if (which) return pot4;
+			if (which != 0) return pot4;
 				return pot3;
 		default:
 			return 0;
@@ -619,10 +618,10 @@ public class c64
 		return c64_colorram[offset & 0x3ff];
 	}
 	
-	WRITE_HANDLER( c64_colorram_write )
+	public static WriteHandlerPtr c64_colorram_write = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		c64_colorram[offset & 0x3ff] = data | 0xf0;
-	}
+	} };
 	
 	/*
 	 * only 14 address lines
@@ -658,10 +657,10 @@ public class c64
 	{
 		/*    memset(c64_memory, 0, 0xfd00); */
 	
-		if (c64_tape_on)
+		if (c64_tape_on != 0)
 			vc20_tape_open (c64_tape_read);
 	
-		if (c64_cia1_on)
+		if (c64_cia1_on != 0)
 		{
 			cbm_drive_open ();
 	
@@ -672,13 +671,13 @@ public class c64
 		sid6581_0_init (c64_paddle_read, c64_pal);
 		c64_cia0.todin50hz = c64_pal;
 		cia6526_config (0, &c64_cia0);
-		if (c64_cia1_on)
+		if (c64_cia1_on != 0)
 		{
 			c64_cia1.todin50hz = c64_pal;
 			cia6526_config (1, &c64_cia1);
 		}
 	
-		if (ultimax)
+		if (ultimax != 0)
 		{
 			vic6567_init (0, c64_pal, c64_dma_read_ultimax, c64_dma_read_color,
 						  c64_vic_interrupt);
@@ -736,17 +735,17 @@ public class c64
 		{
 			cbm_drive_close ();
 		}
-		if (c64_tape_on)
+		if (c64_tape_on != 0)
 			vc20_tape_close ();
 	}
 	
-	void c64_common_init_machine (void)
+	public static InitMachinePtr c64_common_init_machine = new InitMachinePtr() { public void handler() 
 	{
 	#ifdef VC1541
 		vc1541_reset ();
 	#endif
 		sid6581_0_configure(SID8580);
-		if (c64_cia1_on)
+		if (c64_cia1_on != 0)
 		{
 			cbm_serial_reset_write (0);
 			cbm_drive_0_config (SERIAL8ON ? SERIAL : 0, c65?10:8);
@@ -758,20 +757,20 @@ public class c64
 		vicirq = cia0irq = 0;
 		c64_port6510 = 0xff;
 		c64_ddr6510 = 0;
-	}
+	} };
 	
-	void c64_init_machine (void)
+	public static InitMachinePtr c64_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		c64_common_init_machine ();
 	
 		c64_rom_recognition ();
 		c64_rom_load();
 	
-		if (c128)
+		if (c128 != 0)
 			c128_bankswitch_64 (1);
 		if (!ultimax)
 			c64_bankswitch (1);
-	}
+	} };
 	
 	void c64_shutdown_machine (void)
 	{
@@ -818,7 +817,7 @@ public class c64
 				retval = 1;
 		}
 	
-		if (retval)
+		if (retval != 0)
 			logerror("rom %s recognized\n", device_filename(IO_CARTSLOT,id) );
 		else
 			logerror("rom %s not recognized\n", device_filename(IO_CARTSLOT,id));
@@ -853,7 +852,7 @@ public class c64
 	
 		c64_exrom = 1;
 		c64_game = 1;
-		if (cartridge)
+		if (cartridge != 0)
 		{
 			if (AUTO_MODULE && (cartridgetype == CartridgeAuto))
 			{
@@ -867,20 +866,20 @@ public class c64
 			{
 				logerror("Cartridge could be c64 type!?\n");
 			}
-			if (C64_MODULE)
+			if (C64_MODULE != 0)
 				cartridgetype = CartridgeC64;
-			else if (ULTIMAX_MODULE)
+			else if (ULTIMAX_MODULE != 0)
 				cartridgetype = CartridgeUltimax;
-			else if (SUPERGAMES_MODULE)
+			else if (SUPERGAMES_MODULE != 0)
 				cartridgetype = CartridgeSuperGames;
-			else if (ROBOCOP2_MODULE)
+			else if (ROBOCOP2_MODULE != 0)
 				cartridgetype = CartridgeRobocop2;
 			if (ultimax || (cartridgetype == CartridgeUltimax)) {
 				c64_game = 0;
 			} else {
 				c64_exrom = 0;
 			}
-			if (ultimax) {
+			if (ultimax != 0) {
 				for (i=0; (i<sizeof(cbm_rom)/sizeof(cbm_rom[0]))
 						 &&(cbm_rom[i].size!=0); i++) {
 					if (cbm_rom[i].addr==CBM_ROM_ADDR_LO) {
@@ -948,7 +947,7 @@ public class c64
 		}
 	}
 	
-	int c64_frame_interrupt (void)
+	public static InterruptPtr c64_frame_interrupt = new InterruptPtr() { public int handler() 
 	{
 		static int quickload = 0;
 		static int nmilevel = 0;
@@ -958,7 +957,7 @@ public class c64
 		sid6581_update();
 		if (nmilevel != KEY_RESTORE)
 		{
-			if (c128) {
+			if (c128 != 0) {
 				if (cpu_getactivecpu()==0) { /* z80 */
 					cpu_set_nmi_line (0, KEY_RESTORE);
 				} else {
@@ -971,16 +970,16 @@ public class c64
 		}
 	
 		if (!quickload && QUICKLOAD) {
-			if (c65) {
+			if (c65 != 0) {
 				cbm_c65_quick_open (0, 0, c64_memory);
 			} else
 				cbm_quick_open (0, 0, c64_memory);
 		}
 		quickload = QUICKLOAD;
 	
-		if (c128) {
+		if (c128 != 0) {
 			if (MONITOR_TV!=monitor) {
-				if (MONITOR_TV) {
+				if (MONITOR_TV != 0) {
 					vic2_set_rastering(0);
 					vdc8563_set_rastering(1);
 					osd_set_visible_area(0,655,0,215);
@@ -995,328 +994,328 @@ public class c64
 		}
 	
 		value = 0xff;
-		if (c128) {
-			if (C128_KEY_CURSOR_DOWN)
+		if (c128 != 0) {
+			if (C128_KEY_CURSOR_DOWN != 0)
 				value &= ~0x80;
-			if (C128_KEY_F5)
+			if (C128_KEY_F5 != 0)
 				value &= ~0x40;
-			if (C128_KEY_F3)
+			if (C128_KEY_F3 != 0)
 				value &= ~0x20;
-			if (C128_KEY_F1)
+			if (C128_KEY_F1 != 0)
 				value &= ~0x10;
-			if (C128_KEY_F7)
+			if (C128_KEY_F7 != 0)
 				value &= ~8;
-			if (C128_KEY_CURSOR_RIGHT)
+			if (C128_KEY_CURSOR_RIGHT != 0)
 				value &= ~4;
-		} else if (c65) {
-			if (C65_KEY_CURSOR_DOWN)
+		} else if (c65 != 0) {
+			if (C65_KEY_CURSOR_DOWN != 0)
 				value &= ~0x80;
-			if (C65_KEY_F5)
+			if (C65_KEY_F5 != 0)
 				value &= ~0x40;
-			if (C65_KEY_F3)
+			if (C65_KEY_F3 != 0)
 				value &= ~0x20;
-			if (C65_KEY_F1)
+			if (C65_KEY_F1 != 0)
 				value &= ~0x10;
-			if (C65_KEY_F7)
+			if (C65_KEY_F7 != 0)
 				value &= ~8;
-			if (C65_KEY_CURSOR_RIGHT)
+			if (C65_KEY_CURSOR_RIGHT != 0)
 				value &= ~4;
 		} else {
-			if (KEY_CURSOR_DOWN)
+			if (KEY_CURSOR_DOWN != 0)
 				value &= ~0x80;
-			if (KEY_F5)
+			if (KEY_F5 != 0)
 				value &= ~0x40;
-			if (KEY_F3)
+			if (KEY_F3 != 0)
 				value &= ~0x20;
-			if (KEY_F1)
+			if (KEY_F1 != 0)
 				value &= ~0x10;
-			if (KEY_F7)
+			if (KEY_F7 != 0)
 				value &= ~8;
-			if (KEY_CURSOR_RIGHT)
+			if (KEY_CURSOR_RIGHT != 0)
 				value &= ~4;
 		}
-		if (KEY_RETURN)
+		if (KEY_RETURN != 0)
 			value &= ~2;
-		if (KEY_DEL)
+		if (KEY_DEL != 0)
 			value &= ~1;
 		c64_keyline[0] = value;
 	
 		value = 0xff;
-		if (KEY_LEFT_SHIFT)
+		if (KEY_LEFT_SHIFT != 0)
 			value &= ~0x80;
-		if (KEY_E)
+		if (KEY_E != 0)
 			value &= ~0x40;
-		if (KEY_S)
+		if (KEY_S != 0)
 			value &= ~0x20;
-		if (KEY_Z)
+		if (KEY_Z != 0)
 			value &= ~0x10;
-		if (KEY_4) value &= ~8;
-		if (KEY_A)
+		if (KEY_4 != 0) value &= ~8;
+		if (KEY_A != 0)
 			value &= ~4;
-		if (KEY_W)
+		if (KEY_W != 0)
 			value &= ~2;
-		if (KEY_3) value &= ~1;
+		if (KEY_3 != 0) value &= ~1;
 		c64_keyline[1] = value;
 	
 		value = 0xff;
-		if (KEY_X)
+		if (KEY_X != 0)
 			value &= ~0x80;
-		if (KEY_T)
+		if (KEY_T != 0)
 			value &= ~0x40;
-		if (KEY_F)
+		if (KEY_F != 0)
 			value &= ~0x20;
-		if (KEY_C)
+		if (KEY_C != 0)
 			value &= ~0x10;
-		if (KEY_6) value &= ~8;
-		if (KEY_D)
+		if (KEY_6 != 0) value &= ~8;
+		if (KEY_D != 0)
 			value &= ~4;
-		if (KEY_R)
+		if (KEY_R != 0)
 			value &= ~2;
-		if (KEY_5) value &= ~1;
+		if (KEY_5 != 0) value &= ~1;
 		c64_keyline[2] = value;
 	
 		value = 0xff;
-		if (KEY_V)
+		if (KEY_V != 0)
 			value &= ~0x80;
-		if (KEY_U)
+		if (KEY_U != 0)
 			value &= ~0x40;
-		if (KEY_H)
+		if (KEY_H != 0)
 			value &= ~0x20;
-		if (KEY_B)
+		if (KEY_B != 0)
 			value &= ~0x10;
-		if (KEY_8) value &= ~8;
-		if (KEY_G)
+		if (KEY_8 != 0) value &= ~8;
+		if (KEY_G != 0)
 			value &= ~4;
-		if (KEY_Y)
+		if (KEY_Y != 0)
 			value &= ~2;
-		if (KEY_7) value &= ~1;
+		if (KEY_7 != 0) value &= ~1;
 		c64_keyline[3] = value;
 	
 		value = 0xff;
-		if (KEY_N)
+		if (KEY_N != 0)
 			value &= ~0x80;
-		if (KEY_O)
+		if (KEY_O != 0)
 			value &= ~0x40;
-		if (KEY_K)
+		if (KEY_K != 0)
 			value &= ~0x20;
-		if (KEY_M)
+		if (KEY_M != 0)
 			value &= ~0x10;
-		if (KEY_0)
+		if (KEY_0 != 0)
 			value &= ~8;
-		if (KEY_J)
+		if (KEY_J != 0)
 			value &= ~4;
-		if (KEY_I)
+		if (KEY_I != 0)
 			value &= ~2;
-		if (KEY_9)
+		if (KEY_9 != 0)
 			value &= ~1;
 		c64_keyline[4] = value;
 	
 		value = 0xff;
-		if (KEY_COMMA)
+		if (KEY_COMMA != 0)
 			value &= ~0x80;
-		if (KEY_ATSIGN)
+		if (KEY_ATSIGN != 0)
 			value &= ~0x40;
-		if (KEY_SEMICOLON)
+		if (KEY_SEMICOLON != 0)
 			value &= ~0x20;
-		if (KEY_POINT)
+		if (KEY_POINT != 0)
 			value &= ~0x10;
-		if (KEY_MINUS)
+		if (KEY_MINUS != 0)
 			value &= ~8;
-		if (KEY_L)
+		if (KEY_L != 0)
 			value &= ~4;
-		if (KEY_P)
+		if (KEY_P != 0)
 			value &= ~2;
-		if (KEY_PLUS)
+		if (KEY_PLUS != 0)
 			value &= ~1;
 		c64_keyline[5] = value;
 	
 	
 		value = 0xff;
-		if (KEY_SLASH)
+		if (KEY_SLASH != 0)
 			value &= ~0x80;
-		if (KEY_ARROW_UP)
+		if (KEY_ARROW_UP != 0)
 			value &= ~0x40;
-		if (KEY_EQUALS)
+		if (KEY_EQUALS != 0)
 			value &= ~0x20;
-		if (c128) {
-			if (C128_KEY_RIGHT_SHIFT)
+		if (c128 != 0) {
+			if (C128_KEY_RIGHT_SHIFT != 0)
 			value &= ~0x10;
-		} else if (c65) {
-			if (C65_KEY_RIGHT_SHIFT)
+		} else if (c65 != 0) {
+			if (C65_KEY_RIGHT_SHIFT != 0)
 			value &= ~0x10;
 		} else {
-			if (KEY_RIGHT_SHIFT)
+			if (KEY_RIGHT_SHIFT != 0)
 			value &= ~0x10;
 		}
-		if (KEY_HOME)
+		if (KEY_HOME != 0)
 			value &= ~8;
-		if (KEY_COLON)
+		if (KEY_COLON != 0)
 			value &= ~4;
-		if (KEY_ASTERIX)
+		if (KEY_ASTERIX != 0)
 			value &= ~2;
-		if (KEY_POUND)
+		if (KEY_POUND != 0)
 			value &= ~1;
 		c64_keyline[6] = value;
 	
 		value = 0xff;
-		if (c65) {
-			if (C65_KEY_STOP)
+		if (c65 != 0) {
+			if (C65_KEY_STOP != 0)
 				value &= ~0x80;
-			if (C65_KEY_SPACE)
+			if (C65_KEY_SPACE != 0)
 				value &= ~0x10;
-			if (C65_KEY_CTRL)
+			if (C65_KEY_CTRL != 0)
 				value &= ~4;
 		} else {
-			if (KEY_STOP)
+			if (KEY_STOP != 0)
 				value &= ~0x80;
-			if (KEY_SPACE)
+			if (KEY_SPACE != 0)
 				value &= ~0x10;
-			if (KEY_CTRL)
+			if (KEY_CTRL != 0)
 				value &= ~4;
 		}
-		if (KEY_Q)
+		if (KEY_Q != 0)
 			value &= ~0x40;
-		if (KEY_CBM)
+		if (KEY_CBM != 0)
 			value &= ~0x20;
-		if (KEY_2) value &= ~8;
-		if (KEY_ARROW_LEFT)
+		if (KEY_2 != 0) value &= ~8;
+		if (KEY_ARROW_LEFT != 0)
 			value &= ~2;
-		if (KEY_1) value &= ~1;
+		if (KEY_1 != 0) value &= ~1;
 		c64_keyline[7] = value;
 	
 		value = 0xff;
 		if (JOYSTICK1||JOYSTICK1_2BUTTON) {
-			if (JOYSTICK_1_BUTTON)
+			if (JOYSTICK_1_BUTTON != 0)
 				value &= ~0x10;
-			if (JOYSTICK_1_RIGHT)
+			if (JOYSTICK_1_RIGHT != 0)
 				value &= ~8;
-			if (JOYSTICK_1_LEFT)
+			if (JOYSTICK_1_LEFT != 0)
 				value &= ~4;
-			if (JOYSTICK_1_DOWN)
+			if (JOYSTICK_1_DOWN != 0)
 				value &= ~2;
-			if (JOYSTICK_1_UP)
+			if (JOYSTICK_1_UP != 0)
 				value &= ~1;
-		} else if (PADDLES12) {
-			if (PADDLE2_BUTTON)
+		} else if (PADDLES12 != 0) {
+			if (PADDLE2_BUTTON != 0)
 				value &= ~8;
-			if (PADDLE1_BUTTON)
+			if (PADDLE1_BUTTON != 0)
 				value &= ~4;
-		} else if (MOUSE1) {
-			if (MOUSE1_BUTTON1)
+		} else if (MOUSE1 != 0) {
+			if (MOUSE1_BUTTON1 != 0)
 				value &= ~0x10;
-			if (MOUSE1_BUTTON2)
+			if (MOUSE1_BUTTON2 != 0)
 				value &= ~1;
 		}
 		c64_keyline[8] = value;
 	
 		value2 = 0xff;
 		if (JOYSTICK2||JOYSTICK2_2BUTTON) {
-			if (JOYSTICK_2_BUTTON)
+			if (JOYSTICK_2_BUTTON != 0)
 				value2 &= ~0x10;
-			if (JOYSTICK_2_RIGHT)
+			if (JOYSTICK_2_RIGHT != 0)
 				value2 &= ~8;
-			if (JOYSTICK_2_LEFT)
+			if (JOYSTICK_2_LEFT != 0)
 				value2 &= ~4;
-			if (JOYSTICK_2_DOWN)
+			if (JOYSTICK_2_DOWN != 0)
 				value2 &= ~2;
-			if (JOYSTICK_2_UP)
+			if (JOYSTICK_2_UP != 0)
 				value2 &= ~1;
-		} else if (PADDLES34) {
-			if (PADDLE4_BUTTON)
+		} else if (PADDLES34 != 0) {
+			if (PADDLE4_BUTTON != 0)
 				value2 &= ~8;
-			if (PADDLE3_BUTTON)
+			if (PADDLE3_BUTTON != 0)
 				value2 &= ~4;
-		} else if (MOUSE2) {
-			if (MOUSE2_BUTTON1)
+		} else if (MOUSE2 != 0) {
+			if (MOUSE2_BUTTON1 != 0)
 				value2 &= ~0x10;
-			if (MOUSE2_BUTTON2)
+			if (MOUSE2_BUTTON2 != 0)
 				value2 &= ~1;
 		}
 		c64_keyline[9] = value2;
 	
-		if ( c128 ) {
+		if (c128 != 0) {
 			value = 0xff;
-			if (KEY_NUM1)
+			if (KEY_NUM1 != 0)
 				value &= ~0x80;
-			if (KEY_NUM7)
+			if (KEY_NUM7 != 0)
 				value &= ~0x40;
-			if (KEY_NUM4)
+			if (KEY_NUM4 != 0)
 				value &= ~0x20;
-			if (KEY_NUM2)
+			if (KEY_NUM2 != 0)
 				value &= ~0x10;
-			if (KEY_TAB)
+			if (KEY_TAB != 0)
 				value &= ~8;
-			if (KEY_NUM5)
+			if (KEY_NUM5 != 0)
 				value &= ~4;
-			if (KEY_NUM8)
+			if (KEY_NUM8 != 0)
 				value &= ~2;
-			if (KEY_HELP)
+			if (KEY_HELP != 0)
 				value &= ~1;
 			c128_keyline[0] = value;
 	
 			value = 0xff;
-			if (KEY_NUM3)
+			if (KEY_NUM3 != 0)
 				value &= ~0x80;
-			if (KEY_NUM9)
+			if (KEY_NUM9 != 0)
 				value &= ~0x40;
-			if (KEY_NUM6)
+			if (KEY_NUM6 != 0)
 				value &= ~0x20;
-			if (KEY_NUMENTER)
+			if (KEY_NUMENTER != 0)
 				value &= ~0x10;
-			if (KEY_LINEFEED)
+			if (KEY_LINEFEED != 0)
 				value &= ~8;
-			if (KEY_NUMMINUS)
+			if (KEY_NUMMINUS != 0)
 				value &= ~4;
-			if (KEY_NUMPLUS)
+			if (KEY_NUMPLUS != 0)
 				value &= ~2;
-			if (KEY_ESCAPE)
+			if (KEY_ESCAPE != 0)
 				value &= ~1;
 			c128_keyline[1] = value;
 	
 			value = 0xff;
-			if (KEY_NOSCRL)
+			if (KEY_NOSCRL != 0)
 				value &= ~0x80;
-			if (KEY_RIGHT)
+			if (KEY_RIGHT != 0)
 				value &= ~0x40;
-			if (KEY_LEFT)
+			if (KEY_LEFT != 0)
 				value &= ~0x20;
-			if (KEY_DOWN)
+			if (KEY_DOWN != 0)
 				value &= ~0x10;
-			if (KEY_UP)
+			if (KEY_UP != 0)
 				value &= ~8;
-			if (KEY_NUMPOINT)
+			if (KEY_NUMPOINT != 0)
 				value &= ~4;
-			if (KEY_NUM0)
+			if (KEY_NUM0 != 0)
 				value &= ~2;
-			if (KEY_ALT)
+			if (KEY_ALT != 0)
 				value &= ~1;
 			c128_keyline[2] = value;
 		}
 	
-		if (c65) {
+		if (c65 != 0) {
 			value = 0xff;
-			if (C65_KEY_ESCAPE)
+			if (C65_KEY_ESCAPE != 0)
 				value &= ~0x80;
-			if (C65_KEY_F13)
+			if (C65_KEY_F13 != 0)
 				value &= ~0x40;
-			if (C65_KEY_F11)
+			if (C65_KEY_F11 != 0)
 				value &= ~0x20;
-			if (C65_KEY_F9)
+			if (C65_KEY_F9 != 0)
 				value &= ~0x10;
-			if (C65_KEY_HELP)
+			if (C65_KEY_HELP != 0)
 				value &= ~8;
-			if (C65_KEY_ALT) /* non blocking */
+			if (C65_KEY_ALT != 0) /* non blocking */
 				value &= ~4;
-			if (C65_KEY_TAB)
+			if (C65_KEY_TAB != 0)
 				value &= ~2;
-			if (C65_KEY_NOSCRL)
+			if (C65_KEY_NOSCRL != 0)
 				value &= ~1;
 			c65_keyline = value;
 		}
 	
 		vic2_frame_interrupt ();
 	
-		if (c64_tape_on) {
+		if (c64_tape_on != 0) {
 			vc20_tape_config (DATASSETTE, DATASSETTE_TONE);
 			vc20_tape_buttons (DATASSETTE_PLAY, DATASSETTE_RECORD, DATASSETTE_STOP);
 		}
@@ -1324,14 +1323,14 @@ public class c64
 		osd_led_w (0 /*KB_NUMLOCK_FLAG */ , JOYSTICK_SWAP ? 1 : 0);
 	
 		return ignore_interrupt ();
-	}
+	} };
 	
 	void c64_state(PRASTER *This)
 	{
 		int y;
 		char text[70];
 	
-		y = Machine->visible_area.max_y + 1 - Machine->uifont->height;
+		y = Machine.visible_area.max_y + 1 - Machine.uifont.height;
 	
 	#if VERBOSE_DBG
 	#if 0

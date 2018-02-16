@@ -158,7 +158,7 @@ public class crtc6845
 	
 	WRITE_HANDLER ( crtc6845_port_w )
 	{
-		if (offset & 1)
+		if ((offset & 1) != 0)
 		{
 			if ((crtc.index & 0x1f) < 18)
 			{
@@ -229,7 +229,7 @@ public class crtc6845
 	   value */
 	WRITE_HANDLER ( crtc6845_pet_port_w )
 	{
-		if (offset & 1)
+		if ((offset & 1) != 0)
 		{
 			if ((crtc.index & 0x1f) < 18)
 			{
@@ -260,7 +260,7 @@ public class crtc6845
 		int val;
 	
 		val = 0xff;
-		if (offset & 1)
+		if ((offset & 1) != 0)
 		{
 			if ((crtc.index & 0x1f) < 18)
 			{

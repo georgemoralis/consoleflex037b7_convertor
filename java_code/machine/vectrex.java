@@ -20,12 +20,11 @@ public class vectrex
 	/* from vidhrdw/vectrex.c */
 	extern void vector_add_point_stereo (int x, int y, int color, int intensity);
 	extern void (*vector_add_point_function) (int, int, int, int);
-	extern void vectrex_set_palette (void);
-	
+	extern 
 	/*********************************************************************
 	  Global variables
 	 *********************************************************************/
-	unsigned char *vectrex_ram;		   /* RAM at 0xc800 -- 0xcbff mirrored at 0xcc00 -- 0xcfff */
+	UBytePtr vectrex_ram;		   /* RAM at 0xc800 -- 0xcbff mirrored at 0xcc00 -- 0xcfff */
 	unsigned char vectrex_via_out[2];
 	int vectrex_beam_color = WHITE;	   /* the color of the vectrex beam */
 	int vectrex_imager_status = 0;	   /* 0 = off, 1 = right eye, 2 = left eye */
@@ -59,7 +58,7 @@ public class vectrex
 		FILE *cartfile = 0;
 	
 		cartfile = image_fopen (IO_CARTSLOT, id, OSD_FILETYPE_IMAGE_R, 0);
-		if (cartfile)
+		if (cartfile != 0)
 		{
 			osd_fread (cartfile, memory_region(REGION_CPU1), 0x8000);
 			osd_fclose (cartfile);
@@ -67,7 +66,7 @@ public class vectrex
 	
 		vectrex_imager_angles = unknown_game_angles;
 		name = device_filename(IO_CARTSLOT,id);
-		if (name)
+		if (name != 0)
 		{
 			/* A bit ugly but somehow we need to know which 3D game is running */
 			/* A better way would be to do this by CRC */
@@ -79,7 +78,7 @@ public class vectrex
 				vectrex_imager_angles = minestorm_3d_angles;
 		}
 	
-		if (first)
+		if (first != 0)
 			first = 0;
 		else
 			vectrex_set_palette ();
@@ -134,7 +133,7 @@ public class vectrex
 		vectrex_refresh_with_T2 = input_port_3_r (0) & 0x01;
 	
 		/* Imager control */
-		if (in2 & 0x01) /* Imager enabled */
+		if ((in2 & 0x01) != 0) /* Imager enabled */
 		{
 			if (vectrex_imager_status == 0)
 				vectrex_imager_status = in2 & 0x01;

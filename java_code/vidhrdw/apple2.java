@@ -13,10 +13,10 @@ package vidhrdw;
 public class apple2
 {
 	
-	unsigned char *apple2_lores_text1_ram;
-	unsigned char *apple2_lores_text2_ram;
-	unsigned char *apple2_hires1_ram;
-	unsigned char *apple2_hires2_ram;
+	UBytePtr apple2_lores_text1_ram;
+	UBytePtr apple2_lores_text2_ram;
+	UBytePtr apple2_hires1_ram;
+	UBytePtr apple2_hires2_ram;
 	
 	/* temp bitmaps for quicker blitting */
 	static struct osd_bitmap *apple2_text[2];
@@ -24,9 +24,9 @@ public class apple2
 	static struct osd_bitmap *apple2_hires[2];
 	
 	/* dirty video markers */
-	static unsigned char *dirty_text[2];
-	static unsigned char *dirty_lores[2];
-	static unsigned char *dirty_hires[2];
+	static UBytePtr dirty_text[2];
+	static UBytePtr dirty_lores[2];
+	static UBytePtr dirty_hires[2];
 	static unsigned char any_dirty_text[2];
 	static unsigned char any_dirty_lores[2];
 	static unsigned char any_dirty_hires[2];
@@ -34,7 +34,7 @@ public class apple2
 	/***************************************************************************
 	  apple2_vh_start
 	***************************************************************************/
-	int apple2_vh_start(void)
+	public static VhStartPtr apple2_vh_start = new VhStartPtr() { public int handler() 
 	{
 		int i;
 	
@@ -91,12 +91,12 @@ public class apple2
 		}
 	
 		return 0;
-	}
+	} };
 	
 	/***************************************************************************
 	  apple2_vh_stop
 	***************************************************************************/
-	void apple2_vh_stop(void)
+	public static VhStopPtr apple2_vh_stop = new VhStopPtr() { public void handler() 
 	{
 		int i;
 	
@@ -121,7 +121,7 @@ public class apple2
 		}
 	
 		return;
-	}
+	} };
 	
 	/***************************************************************************
 	  apple2_text_draw
@@ -130,7 +130,7 @@ public class apple2
 	{
 		int x,y;
 		int offset;
-		unsigned char *text_ram;
+		UBytePtr text_ram;
 	
 	#if 0
 		if (!any_dirty_text[page])
@@ -142,7 +142,7 @@ public class apple2
 			text_ram = apple2_lores_text2_ram;
 	#else
 	{
-		unsigned char *RAM = memory_region(REGION_CPU1);
+		UBytePtr RAM = memory_region(REGION_CPU1);
 		int auxram = a2.RAMRD ? 0x10000 : 0x0000;
 	
 		if (page==0)
@@ -167,7 +167,7 @@ public class apple2
 					y += 8;
 				x = x % 40;
 	
-				drawgfx(apple2_text[page], Machine->gfx[0],
+				drawgfx(apple2_text[page], Machine.gfx[0],
 						text_ram[offset],	/* Character */
 						12,		/* Color */
 						0,0,
@@ -185,7 +185,7 @@ public class apple2
 	{
 		int x,y;
 		int offset;
-		unsigned char *lores_ram;
+		UBytePtr lores_ram;
 	
 	#if 0
 		if (!any_dirty_lores[page])
@@ -197,7 +197,7 @@ public class apple2
 			lores_ram = apple2_lores_text2_ram;
 	#else
 	{
-		unsigned char *RAM = memory_region(REGION_CPU1);
+		UBytePtr RAM = memory_region(REGION_CPU1);
 		int auxram = a2.RAMRD ? 0x10000 : 0x0000;
 	
 		if (page==0)
@@ -222,7 +222,7 @@ public class apple2
 					y += 8;
 				x = x % 40;
 	
-				drawgfx(apple2_lores[page], Machine->gfx[2 + (x & 0x01)],
+				drawgfx(apple2_lores[page], Machine.gfx[2 + (x & 0x01)],
 						lores_ram[offset],	/* Character */
 						12,		/* Color */
 						0,0,
@@ -240,7 +240,7 @@ public class apple2
 	{
 		int x,y;
 		int offset;
-		unsigned char *hires_ram;
+		UBytePtr hires_ram;
 	
 	#if 0
 		if (!any_dirty_hires[page])
@@ -251,7 +251,7 @@ public class apple2
 		else
 			hires_ram = apple2_hires2_ram;
 	#else
-		unsigned char *RAM = memory_region(REGION_CPU1);
+		UBytePtr RAM = memory_region(REGION_CPU1);
 		int auxram = a2.RAMRD ? 0x10000 : 0x0000;
 	
 		if (page==0)
@@ -279,7 +279,7 @@ public class apple2
 				y += ((offset & 0x1C00) >> 10);
 	
 	#if 0
-				drawgfx(apple2_hires[page], Machine->gfx[5 + ((hires_ram[offset] & 0x80) >> 7)],
+				drawgfx(apple2_hires[page], Machine.gfx[5 + ((hires_ram[offset] & 0x80) >> 7)],
 						(hires_ram[offset] & 0x7F),	/* Character */
 						12,		/* Color */
 						0,0,
@@ -287,14 +287,14 @@ public class apple2
 						0,TRANSPARENCY_NONE,0);
 	#else
 				if (hires_ram[offset] & 0x80)
-					drawgfx(apple2_hires[page], Machine->gfx[5],
+					drawgfx(apple2_hires[page], Machine.gfx[5],
 						(hires_ram[offset] & 0x7F),	/* Character */
 						12,		/* Color */
 						0,0,
 						x*7*2+1,y,
 						0,TRANSPARENCY_NONE,0);
 				else
-					drawgfx(apple2_hires[page], Machine->gfx[5],
+					drawgfx(apple2_hires[page], Machine.gfx[5],
 						(hires_ram[offset] & 0x7F),	/* Character */
 						12,		/* Color */
 						0,0,
@@ -380,7 +380,7 @@ public class apple2
 	/***************************************************************************
 	  apple2_vh_screenrefresh
 	***************************************************************************/
-	void apple2_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr apple2_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 	    struct rectangle mixed_rect;
 		int page;
@@ -395,7 +395,7 @@ public class apple2
 		if (a2.TEXT)
 		{
 			apple2_text_draw(page);
-			copybitmap(bitmap,apple2_text[page],0,0,0,0,&Machine->visible_area,TRANSPARENCY_NONE,0);
+			copybitmap(bitmap,apple2_text[page],0,0,0,0,&Machine.visible_area,TRANSPARENCY_NONE,0);
 		}
 		else if ((a2.HIRES) && (a2.MIXED))
 		{
@@ -409,7 +409,7 @@ public class apple2
 		else if (a2.HIRES)
 		{
 			apple2_hires_draw(page);
-			copybitmap(bitmap,apple2_hires[page],0,0,0,0,&Machine->visible_area,TRANSPARENCY_NONE,0);
+			copybitmap(bitmap,apple2_hires[page],0,0,0,0,&Machine.visible_area,TRANSPARENCY_NONE,0);
 		}
 		else if (a2.MIXED)
 		{
@@ -423,10 +423,10 @@ public class apple2
 		else
 		{
 			apple2_lores_draw(page);
-			copybitmap(bitmap,apple2_lores[page],0,0,0,0,&Machine->visible_area,TRANSPARENCY_NONE,0);
+			copybitmap(bitmap,apple2_lores[page],0,0,0,0,&Machine.visible_area,TRANSPARENCY_NONE,0);
 		}
 	
 		return;
-	}
+	} };
 	
 }

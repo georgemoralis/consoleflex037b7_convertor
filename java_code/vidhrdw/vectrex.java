@@ -35,8 +35,7 @@ public class vectrex
 	extern unsigned char vectrex_via_out[2];
 	
 	extern void vectrex_imager_left_eye (double time);
-	extern void vectrex_configuration(void);
-	extern int v_via_pa_r (int offset);
+	extern extern int v_via_pa_r (int offset);
 	extern int v_via_pb_r (int offset);
 	extern void v_via_irq (int level);
 	
@@ -46,7 +45,6 @@ public class vectrex
 	static void v_via_pa_w (int offset, int data);
 	static void v_via_pb_w (int offset, int data);
 	static void vectrex_screen_update (double time);
-	static void vectrex_shift_reg_w (int via_sr);
 	static void v_via_ca2_w (int offset, int level);
 	
 	static struct via6522_interface vectrex_via6522_interface =
@@ -88,10 +86,10 @@ public class vectrex
 	 *********************************************************************/
 	static void vectrex_screen_update (double time)
 	{
-		if (vectrex_imager_status)
+		if (vectrex_imager_status != 0)
 			vectrex_imager_left_eye(time);
 	
-		if (vectrex_refresh_with_T2)
+		if (vectrex_refresh_with_T2 != 0)
 		{
 			T2_running = 3;
 			vector_vh_screenrefresh(tmpbitmap, 0);
@@ -101,7 +99,7 @@ public class vectrex
 	
 	static void vectrex_screen_update_backup (int param)
 	{
-		if (T2_running)
+		if (T2_running != 0)
 			T2_running--; /* wait some time to make sure T2 has really stopped
 				       * for a longer time. */
 		else
@@ -118,8 +116,8 @@ public class vectrex
 		vectrex_configuration();
 		copybitmap(bitmap, tmpbitmap,0,0,0,0,0,TRANSPARENCY_NONE,0);
 	
-		if (full_refresh)
-			osd_mark_dirty (0, 0, bitmap->width, bitmap->height, 0);
+		if (full_refresh != 0)
+			osd_mark_dirty (0, 0, bitmap.width, bitmap.height, 0);
 	}
 	
 	/*********************************************************************
@@ -135,7 +133,7 @@ public class vectrex
 	
 	INLINE void vectrex_zero_integrators(void)
 	{
-		if (last_point)
+		if (last_point != 0)
 			vector_add_point_function (last_point_x, last_point_y, vectrex_beam_color,
 						   MIN(last_point_z*((timer_get_time()-last_point_starttime)*3E4),255));
 		last_point = 0;
@@ -211,7 +209,7 @@ public class vectrex
 	/*********************************************************************
 	  Color init.
 	 *********************************************************************/
-	static void shade_fill (unsigned char *palette, int rgb, int start_index, int end_index, int start_inten, int end_inten)
+	static void shade_fill (UBytePtr palette, int rgb, int start_index, int end_index, int start_inten, int end_inten)
 	{
 		int i, inten, index_range, inten_range;
 	
@@ -226,11 +224,11 @@ public class vectrex
 		}
 	}
 	
-	void vectrex_new_palette (unsigned char *palette)
+	void vectrex_new_palette (UBytePtr palette)
 	{
 		int i, nextfree;
 		char overlay_name[1024];
-		const struct IODevice *dev = Machine->gamedrv->dev;
+		const struct IODevice *dev = Machine.gamedrv.dev;
 	
 		/* initialize the first 8 colors with the basic colors */
 		for (i = 0; i < 8; i++)
@@ -246,19 +244,19 @@ public class vectrex
 		nextfree +=16;
 	
 		/* try to load an overlay for game.bin named game.png */
-		if (device_filename(dev->type,0))
+		if (device_filename(dev.type,0))
 		{
-			sprintf(overlay_name,"%s", device_filename(dev->type,0));
+			sprintf(overlay_name,"%s", device_filename(dev.type,0));
 			sprintf(strchr(overlay_name,'.'),".png");
 		}
 		else
 			sprintf(overlay_name,"mine.png"); /* load the minestorm overlay (built in game) */
 	
-		overlay_load(overlay_name, nextfree, Machine->drv->total_colors-nextfree);
+		overlay_load(overlay_name, nextfree, Machine.drv.total_colors-nextfree);
 		
 		if ((artwork_overlay != NULL))
 		{
-			overlay_set_palette (palette, MIN(256, Machine->drv->total_colors) - nextfree);
+			overlay_set_palette (palette, MIN(256, Machine.drv.total_colors) - nextfree);
 		}
 		else
 		{
@@ -288,10 +286,10 @@ public class vectrex
 	
 	void vectrex_set_palette (void)
 	{
-		unsigned char *palette;
+		UBytePtr palette;
 		int i;
 	
-		palette = (unsigned char *)malloc(Machine->drv->total_colors * 3);
+		palette = (UBytePtr )malloc(Machine.drv.total_colors * 3);
 	
 		if (palette == 0)
 		{
@@ -299,13 +297,13 @@ public class vectrex
 			return;
 		}
 		
-		memset (palette, 0, Machine->drv->total_colors * 3);
+		memset (palette, 0, Machine.drv.total_colors * 3);
 		vectrex_new_palette (palette);
 		palette_recalc();
 	
 	
-		i = (Machine->scrbitmap->depth == 8) ? MIN(256,Machine->drv->total_colors) 
-			: Machine->drv->total_colors;
+		i = (Machine.scrbitmap.depth == 8) ? MIN(256,Machine.drv.total_colors) 
+			: Machine.drv.total_colors;
 	
 		while (--i >= 0)
 			palette_change_color(i, palette[i*3], palette[i*3+1], palette[i*3+2]);
@@ -332,25 +330,25 @@ public class vectrex
 		if (vector_vh_start())
 			return 1;
 	
-		if (Machine->orientation & ORIENTATION_SWAP_XY)
+		if (Machine.orientation & ORIENTATION_SWAP_XY)
 		{
-			width = Machine->scrbitmap->height;
-			height = Machine->scrbitmap->width;
+			width = Machine.scrbitmap.height;
+			height = Machine.scrbitmap.width;
 		}
 		else
 		{
-			width = Machine->scrbitmap->width;
-			height = Machine->scrbitmap->height;
+			width = Machine.scrbitmap.width;
+			height = Machine.scrbitmap.height;
 		}
 	
 		if (!(tmpbitmap = bitmap_alloc(width,height)))
 			return 1;
 	
-		x_center=((Machine->visible_area.max_x
-			  -Machine->visible_area.min_x) / 2) << VEC_SHIFT;
-		y_center=((Machine->visible_area.max_y
-			  -Machine->visible_area.min_y) / 2 - 10) << VEC_SHIFT;
-		x_max = Machine->visible_area.max_x << VEC_SHIFT;
+		x_center=((Machine.visible_area.max_x
+			  -Machine.visible_area.min_x) / 2) << VEC_SHIFT;
+		y_center=((Machine.visible_area.max_y
+			  -Machine.visible_area.min_y) / 2 - 10) << VEC_SHIFT;
+		x_max = Machine.visible_area.max_x << VEC_SHIFT;
 	
 		vector_set_shift (VEC_SHIFT);
 	
@@ -372,10 +370,10 @@ public class vectrex
 	
 	void vectrex_stop(void)
 	{
-		if (tmpbitmap) osd_free_bitmap (tmpbitmap);
+		if (tmpbitmap != 0) osd_free_bitmap (tmpbitmap);
 		vector_clear_list();
 		vector_vh_stop();
-		if (backup_timer) timer_remove (backup_timer);
+		if (backup_timer != 0) timer_remove (backup_timer);
 		backup_timer=NULL;
 	}
 	
@@ -416,10 +414,10 @@ public class vectrex
 		}
 	
 		/* Sound */
-		if (data & 0x10)
+		if ((data & 0x10) != 0)
 		{
 			/* BDIR active, PSG latches */
-			if (data & 0x08) /* BC1 (do we select a reg or write it ?) */
+			if ((data & 0x08) != 0) /* BC1 (do we select a reg or write it ?) */
 				AY8910_control_port_0_w (0, vectrex_via_out[PORTA]);
 			else
 				AY8910_write_port_0_w (0, vectrex_via_out[PORTA]);
@@ -464,7 +462,7 @@ public class vectrex
 		if (vectrex_via_out[PORTB] & 0x80)
 		{
 			/* RAMP inactive */
-			if (via_sr & 0x01)
+			if ((via_sr & 0x01) != 0)
 				/* This generates a dot (here we take the dwell time into account) */
 				vectrex_dot();
 		}
@@ -491,7 +489,7 @@ public class vectrex
 	
 	*****************************************************************/
 	
-	extern int png_read_artwork(const char *file_name, struct osd_bitmap **bitmap, unsigned char **palette, int *num_palette, unsigned char **trans, int *num_trans);
+	extern int png_read_artwork(const char *file_name, struct osd_bitmap **bitmap, UBytePtr *palette, int *num_palette, UBytePtr *trans, int *num_trans);
 	extern int s1_via_pb_r (int offset);
 	
 	static struct via6522_interface spectrum1_via6522_interface =
@@ -506,7 +504,7 @@ public class vectrex
 	static struct artwork_info *buttons, *led;
 	static int transparent_pen;
 	
-	void raaspec_init_colors (unsigned char *palette, unsigned short *colortable,const unsigned char *color_prom)
+	public static VhConvertColorPromPtr raaspec_init_colors = new VhConvertColorPromPtr() { public void handler(char []palette, char []colortable, UBytePtr color_prom) 
 	{
 		int i;
 	
@@ -523,28 +521,28 @@ public class vectrex
 		vectrex_refresh_with_T2=1;
 	
 		/* artwork */
-		if (Machine->orientation & ORIENTATION_SWAP_XY)
+		if (Machine.orientation & ORIENTATION_SWAP_XY)
 		{
-			artwork_load_size(&buttons, "spec_bt.png", 64, Machine->drv->total_colors - 64, Machine->scrbitmap->height * 0.1151961, Machine->scrbitmap->height);
-			if (buttons)
-				artwork_load_size(&led, "led.png", buttons->start_pen + buttons->num_pens_used, Machine->drv->total_colors - 64 - buttons->num_pens_used, buttons->artwork->width, buttons->artwork->height / 8);
+			artwork_load_size(&buttons, "spec_bt.png", 64, Machine.drv.total_colors - 64, Machine.scrbitmap.height * 0.1151961, Machine.scrbitmap.height);
+			if (buttons != 0)
+				artwork_load_size(&led, "led.png", buttons.start_pen + buttons.num_pens_used, Machine.drv.total_colors - 64 - buttons.num_pens_used, buttons.artwork.width, buttons.artwork.height / 8);
 		}
 		else
 		{
-			artwork_load_size(&buttons, "spec_bt.png", 64, Machine->drv->total_colors - 64, Machine->scrbitmap->width, Machine->scrbitmap->width * 0.1151961);
-			if (buttons)
-				artwork_load_size(&led, "led.png", buttons->start_pen + buttons->num_pens_used, Machine->drv->total_colors - 64 - buttons->num_pens_used, buttons->artwork->width / 8, buttons->artwork->height);
+			artwork_load_size(&buttons, "spec_bt.png", 64, Machine.drv.total_colors - 64, Machine.scrbitmap.width, Machine.scrbitmap.width * 0.1151961);
+			if (buttons != 0)
+				artwork_load_size(&led, "led.png", buttons.start_pen + buttons.num_pens_used, Machine.drv.total_colors - 64 - buttons.num_pens_used, buttons.artwork.width / 8, buttons.artwork.height);
 		}
 	
 		if (buttons && led)
 		{
-			memcpy (palette+(buttons->start_pen * 3), buttons->orig_palette, 3 * buttons->num_pens_used);
-			memcpy (palette+(led->start_pen * 3), led->orig_palette, 3 * led->num_pens_used);
-			for (i = 0; i < led->num_pens_used; i++)
-				if (led->orig_palette[i*3]+led->orig_palette[i*3+1]+led->orig_palette[i*3+2] == 0)
-					transparent_pen = buttons->start_pen + buttons->num_pens_used + i;
+			memcpy (palette+(buttons.start_pen * 3), buttons.orig_palette, 3 * buttons.num_pens_used);
+			memcpy (palette+(led.start_pen * 3), led.orig_palette, 3 * led.num_pens_used);
+			for (i = 0; i < led.num_pens_used; i++)
+				if (led.orig_palette[i*3]+led.orig_palette[i*3+1]+led.orig_palette[i*3+2] == 0)
+					transparent_pen = buttons.start_pen + buttons.num_pens_used + i;
 			}
-	}
+	} };
 	
 	void raaspec_led_w (int offset, int data)
 	{
@@ -558,17 +556,17 @@ public class vectrex
 	
 		if (led && buttons)
 		{
-			if (Machine->orientation & ORIENTATION_SWAP_XY)
+			if (Machine.orientation & ORIENTATION_SWAP_XY)
 			{
-				y = clip.min_y = tmpbitmap->width - led->artwork->width-1;
-				width = led->artwork->height;
-				clip.max_y = tmpbitmap->width -1;
+				y = clip.min_y = tmpbitmap.width - led.artwork.width-1;
+				width = led.artwork.height;
+				clip.max_y = tmpbitmap.width -1;
 			}
 			else
 			{
-				y = clip.min_y = tmpbitmap->height - led->artwork->height-1;
-				width = led->artwork->width;
-				clip.max_y = tmpbitmap->height -1;
+				y = clip.min_y = tmpbitmap.height - led.artwork.height-1;
+				width = led.artwork.width;
+				clip.max_y = tmpbitmap.height -1;
 			}
 	
 			for (i=0; i<8; i++)
@@ -578,9 +576,9 @@ public class vectrex
 					clip.max_x = (i+1)*width-1;
 	
 					if ((data >> i) & 0x1)
-						copybitmap(tmpbitmap, buttons->artwork, 0, 0, 0, y, &clip, TRANSPARENCY_NONE, 0);
+						copybitmap(tmpbitmap, buttons.artwork, 0, 0, 0, y, &clip, TRANSPARENCY_NONE, 0);
 					else
-						copybitmap(tmpbitmap, led->artwork, 0,0,i*width, y,&clip,TRANSPARENCY_PEN, Machine->pens[transparent_pen]);
+						copybitmap(tmpbitmap, led.artwork, 0,0,i*width, y,&clip,TRANSPARENCY_PEN, Machine.pens[transparent_pen]);
 					osd_mark_dirty (clip.min_x,clip.min_y,clip.max_x,clip.max_y,0);
 				}
 			old_data=data;
@@ -594,11 +592,11 @@ public class vectrex
 		if (vector_vh_start())
 			return 1;
 	
-		x_center=((Machine->visible_area.max_x
-			  -Machine->visible_area.min_x)/2) << VEC_SHIFT;
-		y_center=((Machine->visible_area.max_y
-			  -Machine->visible_area.min_y)/2-10) << VEC_SHIFT;
-		x_max = Machine->visible_area.max_x << VEC_SHIFT;
+		x_center=((Machine.visible_area.max_x
+			  -Machine.visible_area.min_x)/2) << VEC_SHIFT;
+		y_center=((Machine.visible_area.max_y
+			  -Machine.visible_area.min_y)/2-10) << VEC_SHIFT;
+		x_max = Machine.visible_area.max_x << VEC_SHIFT;
 	
 		vector_set_shift (VEC_SHIFT);
 	
@@ -606,15 +604,15 @@ public class vectrex
 		via_reset();
 		z_factor =  translucency? 1.5:2;
 	
-		if (Machine->orientation & ORIENTATION_SWAP_XY)
+		if (Machine.orientation & ORIENTATION_SWAP_XY)
 		{
-			width = Machine->scrbitmap->height;
-			height = Machine->scrbitmap->width;
+			width = Machine.scrbitmap.height;
+			height = Machine.scrbitmap.width;
 		}
 		else
 		{
-			width = Machine->scrbitmap->width;
-			height = Machine->scrbitmap->height;
+			width = Machine.scrbitmap.width;
+			height = Machine.scrbitmap.height;
 		}
 	
 		if (!(tmpbitmap = bitmap_alloc(width,height)))

@@ -144,7 +144,6 @@ public class i8271H
 	#define I8271_STATUS_NON_DMA_REQUEST	0x004
 	
 	void i8271_init(i8271_interface *);
-	void i8271_reset(void);
 	READ_HANDLER(i8271_r);
 	WRITE_HANDLER(i8271_w);
 	

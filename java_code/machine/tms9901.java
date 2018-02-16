@@ -139,9 +139,7 @@ public class tms9901
 		prototypes
 	*/
 	
-	static void tms9901_field_interrupts(void);
-	static void reset_tms9901_timer(void);
-	
+	static static 
 	
 	
 	/*
@@ -221,13 +219,13 @@ public class tms9901
 	{
 		int i;
 	
-		supported_int_mask = param->supported_int_mask;
+		supported_int_mask = param.supported_int_mask;
 	
 		for (i=0; i<4; i++)
-			read_handlers[i] = param->read_handlers[i];
+			read_handlers[i] = param.read_handlers[i];
 	
 		for (i=0; i<16; i++)
-			write_handlers[i] = param->write_handlers[i];
+			write_handlers[i] = param.write_handlers[i];
 	
 		int_state = 0;
 		timer_int_pending = 0;
@@ -247,7 +245,7 @@ public class tms9901
 	
 	void tms9901_cleanup(void)
 	{
-		if (tms9901_timer)
+		if (tms9901_timer != 0)
 		{
 			timer_remove(tms9901_timer);
 			tms9901_timer = NULL;
@@ -266,7 +264,7 @@ public class tms9901
 		current_ints = int_state;
 		if (clockinvl != 0)
 		{	/* if timer is enabled, INT3 pin is overriden by timer */
-			if (timer_int_pending)
+			if (timer_int_pending != 0)
 				current_ints |= TMS9901_INT3;
 			else
 				current_ints &= ~ TMS9901_INT3;
@@ -275,7 +273,7 @@ public class tms9901
 		/* mask out all int pins currently set as output */
 		current_ints &= enabled_ints & (~ pio_direction_mirror);
 	
-		if (current_ints)
+		if (current_ints != 0)
 		{
 			int level;
 	
@@ -311,7 +309,7 @@ public class tms9901
 	*/
 	void tms9901_set_single_int(int pin_number, int state)
 	{
-		if (state)
+		if (state != 0)
 			int_state |= 1 << pin_number;		/* raise INTn* pin state mirror */
 		else
 			int_state &= ~ (1 << pin_number);
@@ -336,14 +334,14 @@ public class tms9901
 	*/
 	static void reset_tms9901_timer(void)
 	{
-		if (tms9901_timer)
+		if (tms9901_timer != 0)
 		{
 			timer_remove(tms9901_timer);
 			tms9901_timer = NULL;
 		}
 	
-		/* clock interval == 0 -> no timer */
-		if (clockinvl)
+		/* clock interval == 0 . no timer */
+		if (clockinvl != 0)
 		{
 			tms9901_timer = timer_pulse(clockinvl / 46875.L, 0, decrementer_callback);
 		}
@@ -377,7 +375,7 @@ public class tms9901
 		switch (offset)
 		{
 		case 0:
-			if (mode9901)
+			if (mode9901 != 0)
 			{	/* timer mode */
 				return ((latchedtimer & 0x7F) << 1) | 0x01;
 			}
@@ -393,7 +391,7 @@ public class tms9901
 			}
 			break;
 		case 1:
-			if (mode9901)
+			if (mode9901 != 0)
 			{	/* timer mode */
 	
 				answer = (latchedtimer & 0x3F80) >> 7;
@@ -412,11 +410,11 @@ public class tms9901
 			}
 			break;
 		case 2:
-			if (mode9901)
+			if (mode9901 != 0)
 			{	/* exit timer mode */
 				mode9901 = 0;
 	
-				if (clockinvlchanged)
+				if (clockinvlchanged != 0)
 					reset_tms9901_timer();
 			}
 	
@@ -427,11 +425,11 @@ public class tms9901
 	
 			break;
 		default:
-			if (mode9901)
+			if (mode9901 != 0)
 			{	/* exit timer mode */
 				mode9901 = 0;
 	
-				if (clockinvlchanged)
+				if (clockinvlchanged != 0)
 					reset_tms9901_timer();
 			}
 	
@@ -471,9 +469,9 @@ public class tms9901
 			{
 				mode9901 = data;
 	
-				if (mode9901)
+				if (mode9901 != 0)
 				{
-					if (tms9901_timer)
+					if (tms9901_timer != 0)
 						latchedtimer = ceil(timer_timeleft(tms9901_timer) * 46875.);
 					else
 						latchedtimer = 0;		/* timer inactive... */
@@ -481,7 +479,7 @@ public class tms9901
 				}
 				else
 				{
-					if (clockinvlchanged)
+					if (clockinvlchanged != 0)
 						reset_tms9901_timer();
 				}
 			}
@@ -506,12 +504,12 @@ public class tms9901
 				mode9901==0 ?  Disable/Enable an interrupt
 				            :  Bit in clock interval
 			*/
-			/* offset is the index of the modified bit of register (-> interrupt number -1) */
-			if (mode9901)
+			/* offset is the index of the modified bit of register (. interrupt number -1) */
+			if (mode9901 != 0)
 			{	/* modify clock interval */
 				int mask = 1 << ((offset & 0x0F) - 1);	/* corresponding mask */
 	
-				if (data)
+				if (data != 0)
 					clockinvl |= mask;			/* set bit */
 				else
 					clockinvl &= ~ mask;		/* unset bit */
@@ -522,7 +520,7 @@ public class tms9901
 			{	/* modify interrupt mask */
 				int mask = 1 << (offset & 0x0F);	/* corresponding mask */
 	
-				if (data)
+				if (data != 0)
 					enabled_ints |= mask;		/* set bit */
 				else
 					enabled_ints &= ~ mask;		/* unset bit */
@@ -534,7 +532,7 @@ public class tms9901
 			}
 			break;
 		case 0x0F:
-			if (mode9901)
+			if (mode9901 != 0)
 			{	/* clock mode */
 				if (! data)
 				{	/* TMS9901 soft reset */
@@ -545,7 +543,7 @@ public class tms9901
 			}
 			else
 			{	/* modify interrupt mask */
-				if (data)
+				if (data != 0)
 					enabled_ints |= 0x4000;		/* set bit */
 				else
 					enabled_ints &= ~0x4000;	/* unset bit */
@@ -574,17 +572,17 @@ public class tms9901
 				int mask = (1 << pin);
 	
 	
-				if (mode9901)
+				if (mode9901 != 0)
 				{	/* exit timer mode */
 					mode9901 = 0;
 	
-					if (clockinvlchanged)
+					if (clockinvlchanged != 0)
 						reset_tms9901_timer();
 				}
 	
 				pio_direction |= mask;			/* set up as output pin */
 	
-				if (data)
+				if (data != 0)
 					pio_output |= mask;
 				else
 					pio_output &= ~ mask;
@@ -596,7 +594,7 @@ public class tms9901
 	
 					pio_direction_mirror |= mask2;	/* set up as output pin */
 	
-					if (data)
+					if (data != 0)
 						pio_output_mirror |= mask2;
 					else
 						pio_output_mirror &= ~ mask2;

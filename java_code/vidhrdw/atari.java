@@ -24,7 +24,7 @@ public class atari
 	#define VERBOSE 0
 	
 	#if VERBOSE
-	#define LOG(x)	if( errorlog ) fprintf x
+	#define LOG(x)	if (errorlog != 0) fprintf x
 	#else
 	#define LOG(x)	/* x */
 	#endif
@@ -631,7 +631,7 @@ public class atari
 	        }
 	
 			/* used colors in text modes 6,7 and graphics modes 9,B,C */
-			if( i )
+			if (i != 0)
 			{
 				antic.uc_3210b2[0x000+i*2] |= PF0;
 				antic.uc_3210b2[0x200+i*2] |= PF1;
@@ -692,7 +692,7 @@ public class atari
 	        }
 	
 			/* used colors in graphics mode F */
-			if( i )
+			if (i != 0)
 				antic.uc_1b[i] |= PF1;
 	
 			/* used colors in GTIA graphics modes */
@@ -721,7 +721,7 @@ public class atari
 	 * atari_vh_start
 	 * Initialize the ATARI800 video emulation
 	 ************************************************************************/
-	int atari_vh_start(void)
+	public static VhStartPtr atari_vh_start = new VhStartPtr() { public int handler() 
 	{
 		int i;
 	
@@ -763,7 +763,7 @@ public class atari
 	
 		/* reset the ANTIC color tables */
 		for( i = 0; i < 256; i ++ )
-	        antic.color_lookup[i] = (Machine->pens[0] << 8) + Machine->pens[0];
+	        antic.color_lookup[i] = (Machine.pens[0] << 8) + Machine.pens[0];
 	
 		LOG((errorlog, "atari cclk_init\n"));
 	    cclk_init();
@@ -782,7 +782,7 @@ public class atari
 		LOG((errorlog, "atari prio_init\n"));
 	    prio_init();
 	
-		for( i = 0; i < Machine->drv->screen_height; i++ )
+		for( i = 0; i < Machine.drv.screen_height; i++ )
 	    {
 			antic.video[i] = malloc(sizeof(VIDEO));
 			if( !antic.video[i] )
@@ -795,13 +795,13 @@ public class atari
 	    }
 	
 	    return 0;
-	}
+	} };
 	
 	/************************************************************************
 	 * atari_vh_stop
 	 * Shutdown the ATARI800 video emulation
 	 ************************************************************************/
-	void atari_vh_stop(void)
+	public static VhStopPtr atari_vh_stop = new VhStopPtr() { public void handler() 
 	{
 		int i;
 	
@@ -813,7 +813,7 @@ public class atari
 				antic.prio_table[i] = 0;
 			}
 		}
-		for( i = 0; i < Machine->drv->screen_height; i++ )
+		for( i = 0; i < Machine.drv.screen_height; i++ )
 		{
 			if (antic.video[i])
 			{
@@ -827,14 +827,14 @@ public class atari
 			free(antic.cclk_expand);
 			antic.cclk_expand = 0;
 		}
-	}
+	} };
 	
 	/************************************************************************
 	 * atari_vh_screenrefresh
 	 * Refresh screen bitmap.
 	 * Note: Actual drawing is done scanline wise during atari_interrupt
 	 ************************************************************************/
-	void atari_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr atari_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 		if( tv_artifacts != (readinputport(0) & 0x40) )
 		{
@@ -846,11 +846,11 @@ public class atari
 			if( --atari_frame_counter == 0 )
 				full_refresh = 1;
 			else
-				ui_text(bitmap, atari_frame_message, 0, Machine->uiheight - 10);
+				ui_text(bitmap, atari_frame_message, 0, Machine.uiheight - 10);
 		}
-	    if( full_refresh )
-			fillbitmap(Machine->scrbitmap, Machine->pens[0], &Machine->visible_area);
-	}
+	    if (full_refresh != 0)
+			fillbitmap(Machine.scrbitmap, Machine.pens[0], &Machine.visible_area);
+	} };
 	
 	static renderer_function antic_renderer = antic_mode_0_xx;
 	
@@ -860,10 +860,10 @@ public class atari
 		UINT8 n, bits = 0;
 		UINT8 b = gtia.w.colbk & 0xf0;
 		UINT8 c = gtia.w.colpf1 & 0x0f;
-		UINT8 _A = Machine->remapped_colortable[((b+0x30)&0xf0)+c];
-		UINT8 _B = Machine->remapped_colortable[((b+0x70)&0xf0)+c];
-		UINT8 _C = Machine->remapped_colortable[b+c];
-		UINT8 _D = Machine->remapped_colortable[gtia.w.colbk];
+		UINT8 _A = Machine.remapped_colortable[((b+0x30)&0xf0)+c];
+		UINT8 _B = Machine.remapped_colortable[((b+0x70)&0xf0)+c];
+		UINT8 _C = Machine.remapped_colortable[b+c];
+		UINT8 _D = Machine.remapped_colortable[gtia.w.colbk];
 	
 		for( x = 0; x < width * 4; x++ )
 		{
@@ -934,10 +934,10 @@ public class atari
 		UINT8 n, bits = 0;
 		UINT8 b = gtia.w.colpf2 & 0xf0;
 		UINT8 c = gtia.w.colpf1 & 0x0f;
-		UINT8 _A = Machine->remapped_colortable[((b+0x30)&0xf0)+c];
-		UINT8 _B = Machine->remapped_colortable[((b+0x70)&0xf0)+c];
-		UINT8 _C = Machine->remapped_colortable[b+c];
-		UINT8 _D = Machine->remapped_colortable[gtia.w.colpf2];
+		UINT8 _A = Machine.remapped_colortable[((b+0x30)&0xf0)+c];
+		UINT8 _B = Machine.remapped_colortable[((b+0x70)&0xf0)+c];
+		UINT8 _C = Machine.remapped_colortable[b+c];
+		UINT8 _D = Machine.remapped_colortable[gtia.w.colpf2];
 	
 		for( x = 0; x < width * 4; x++ )
 		{
@@ -1010,7 +1010,7 @@ public class atari
 		UINT32 *dst;
 	
 		/* increment the scanline */
-	    if( ++antic.scanline == Machine->drv->screen_height )
+	    if( ++antic.scanline == Machine.drv.screen_height )
 	    {
 	        /* and return to the top if the frame was complete */
 	        antic.scanline = 0;
@@ -1024,9 +1024,9 @@ public class atari
 	
 		y = antic.scanline - MIN_Y;
 		src = &antic.cclock[PMOFFSET - antic.hscrol_old + 12];
-		dst = (UINT32 *)&Machine->scrbitmap->line[y][12];
+		dst = (UINT32 *)&Machine.scrbitmap.line[y][12];
 	
-		if( tv_artifacts )
+		if (tv_artifacts != 0)
 		{
 			if( (antic.cmd & 0x0f) == 2 || (antic.cmd & 0x0f) == 3 )
 			{
@@ -1061,7 +1061,7 @@ public class atari
 	#if VERBOSE
 	static int cycle(void)
 	{
-		return cpu_gethorzbeampos() * CYCLES_PER_LINE / Machine->drv->screen_width;
+		return cpu_gethorzbeampos() * CYCLES_PER_LINE / Machine.drv.screen_width;
 	}
 	#endif
 	
@@ -1112,7 +1112,7 @@ public class atari
 			{antic_mode_0_xx, gtia_mode_3_32, gtia_mode_3_40, gtia_mode_3_48},
 		},
 		/*	 with hscrol enabled playfield width is +32 color clocks	  */
-		/*	 no playfield	 narrow->normal  normal->wide	 wide->wide   */
+		/*	 no playfield	 narrow.normal  normal.wide	 wide.wide   */
 		{
 			{antic_mode_0_xx,antic_mode_0_xx,antic_mode_0_xx,antic_mode_0_xx},
 			{antic_mode_0_xx,antic_mode_0_xx,antic_mode_0_xx,antic_mode_0_xx},
@@ -1253,7 +1253,7 @@ public class atari
 	     * following two bytes and split it up into video page/offset.
 	     * Steal two more cycles from the CPU for fetching the address.
 	     **************************************************************/
-	    if( new_cmd & ANTIC_LMS )
+	    if ((new_cmd & ANTIC_LMS) != 0)
 	    {
 			int addr = RDANTIC();
 	        antic.doffs = ++antic.doffs & DOFFS;
@@ -1298,14 +1298,14 @@ public class atari
 	                antic.steal_cycles += 1;
 					LOG((errorlog, "           ANTIC CMD $%02x\n", new_cmd));
 					/* command 1 .. 15 ? */
-					if (new_cmd & ANTIC_MODE)
+					if ((new_cmd & ANTIC_MODE) != 0)
 					{
 						antic.w.chbasl = 0;
 						/* vertical scroll mode changed ? */
 						if( (antic.cmd ^ new_cmd) & ANTIC_VSCR )
 						{
 							/* vertical scroll activate now ? */
-							if( new_cmd & ANTIC_VSCR )
+							if ((new_cmd & ANTIC_VSCR) != 0)
 							{
 								antic.vscrol_old =
 								vscrol_subtract =
@@ -1317,7 +1317,7 @@ public class atari
 							}
 						}
 						/* does this command have horizontal scroll enabled ? */
-						if( new_cmd & ANTIC_HSCR )
+						if ((new_cmd & ANTIC_HSCR) != 0)
 						{
 							h = 1;
 							antic.hscrol_old = antic.w.hscrol;
@@ -1346,14 +1346,14 @@ public class atari
 						break;
 					case 0x01:
 						/* ANTIC "jump" with DLI: issue interrupt immediately */
-						if( new_cmd & ANTIC_DLI )
+						if ((new_cmd & ANTIC_DLI) != 0)
 						{
 							/* remove the DLI bit */
 							new_cmd &= ~ANTIC_DLI;
 							after(CYCLES_DLI_NMI, antic_issue_dli, "antic_issue_dli");
 						}
 						/* load memory scan bit set ? */
-						if( new_cmd & ANTIC_LMS )
+						if ((new_cmd & ANTIC_LMS) != 0)
 						{
 							int addr = RDANTIC();
 	                        antic.doffs = ++antic.doffs & DOFFS;
@@ -1363,7 +1363,7 @@ public class atari
 	                        /* produce empty scanlines until vblank start */
 							antic.modelines = VBL_START + 1 - antic.scanline;
 							if( antic.modelines < 0 )
-								antic.modelines = Machine->drv->screen_height - antic.scanline;
+								antic.modelines = Machine.drv.screen_height - antic.scanline;
 							LOG((errorlog, "           JVB $%04x\n", antic.dpage|antic.doffs));
 						}
 						else
@@ -1495,7 +1495,7 @@ public class atari
 	 *	ANTIC DMA to possibly access the next display list command
 	 *
 	 *****************************************************************************/
-	int  a400_interrupt(void)
+	public static InterruptPtr a400_interrupt = new InterruptPtr() { public int handler() 
 	{
 		LOG((errorlog, "ANTIC #%3d @cycle #%d scanline interrupt\n", antic.scanline, cycle()));
 	
@@ -1518,7 +1518,7 @@ public class atari
 			a800_handle_keyboard();
 	
 	        /* do nothing new for the rest of the frame */
-			antic.modelines = Machine->drv->screen_height - VBL_START;
+			antic.modelines = Machine.drv.screen_height - VBL_START;
 	        antic_renderer = antic_mode_0_xx;
 	
 	        /* if the CPU want's to be interrupted at vertical blank... */
@@ -1533,7 +1533,7 @@ public class atari
 		/* refresh the display (translate color clocks to pixels) */
 	    antic_linerefresh();
 	    return ignore_interrupt();
-	}
+	} };
 	
 	/*****************************************************************************
 	 *
@@ -1543,7 +1543,7 @@ public class atari
 	 *	ANTIC DMA to possibly access the next display list command
 	 *
 	 *****************************************************************************/
-	int  a800_interrupt(void)
+	public static InterruptPtr a800_interrupt = new InterruptPtr() { public int handler() 
 	{
 		LOG((errorlog, "ANTIC #%3d @cycle #%d scanline interrupt\n", antic.scanline, cycle()));
 	
@@ -1566,7 +1566,7 @@ public class atari
 			a800_handle_keyboard();
 	
 	        /* do nothing new for the rest of the frame */
-			antic.modelines = Machine->drv->screen_height - VBL_START;
+			antic.modelines = Machine.drv.screen_height - VBL_START;
 	        antic_renderer = antic_mode_0_xx;
 	
 	        /* if the CPU want's to be interrupted at vertical blank... */
@@ -1581,7 +1581,7 @@ public class atari
 		/* refresh the display (translate color clocks to pixels) */
 	    antic_linerefresh();
 	    return ignore_interrupt();
-	}
+	} };
 	
 	/*****************************************************************************
 	 *
@@ -1591,7 +1591,7 @@ public class atari
 	 *	ANTIC DMA to possibly access the next display list command
 	 *
 	 *****************************************************************************/
-	int  a800xl_interrupt(void)
+	public static InterruptPtr a800xl_interrupt = new InterruptPtr() { public int handler() 
 	{
 		LOG((errorlog, "ANTIC #%3d @cycle #%d scanline interrupt\n", antic.scanline, cycle()));
 	
@@ -1614,7 +1614,7 @@ public class atari
 			a800_handle_keyboard();
 	
 	        /* do nothing new for the rest of the frame */
-			antic.modelines = Machine->drv->screen_height - VBL_START;
+			antic.modelines = Machine.drv.screen_height - VBL_START;
 	        antic_renderer = antic_mode_0_xx;
 	
 	        /* if the CPU want's to be interrupted at vertical blank... */
@@ -1629,7 +1629,7 @@ public class atari
 		/* refresh the display (translate color clocks to pixels) */
 	    antic_linerefresh();
 	    return ignore_interrupt();
-	}
+	} };
 	
 	/*****************************************************************************
 	 *
@@ -1639,7 +1639,7 @@ public class atari
 	 *	ANTIC DMA to possibly access the next display list command
 	 *
 	 *****************************************************************************/
-	int  a5200_interrupt(void)
+	public static InterruptPtr a5200_interrupt = new InterruptPtr() { public int handler() 
 	{
 		LOG((errorlog, "ANTIC #%3d @cycle #%d scanline interrupt\n", antic.scanline, cycle()));
 	
@@ -1662,7 +1662,7 @@ public class atari
 			a5200_handle_keypads();
 	
 	        /* do nothing new for the rest of the frame */
-			antic.modelines = Machine->drv->screen_height - VBL_START;
+			antic.modelines = Machine.drv.screen_height - VBL_START;
 	        antic_renderer = antic_mode_0_xx;
 	
 	        /* if the CPU want's to be interrupted at vertical blank... */
@@ -1677,7 +1677,7 @@ public class atari
 		/* refresh the display (translate color clocks to pixels) */
 	    antic_linerefresh();
 	    return ignore_interrupt();
-	}
+	} };
 	
 	
 }

@@ -37,64 +37,64 @@ public class aquarius
 	
 	/* port i/o functions */
 	
-	static	struct	IOReadPort	aquarius_readport[] =
+	static IOReadPort aquarius_readport[] =
 	{
-		{0xfe, 0xfe, aquarius_port_fe_r},
-		{0xff, 0xff, aquarius_port_ff_r},
-		{-1}
+		new IOReadPort(0xfe, 0xfe, aquarius_port_fe_r),
+		new IOReadPort(0xff, 0xff, aquarius_port_ff_r),
+		new IOReadPort(-1)
 	};
 	
-	static	struct	IOWritePort	aquarius_writeport[] =
+	static IOWritePort aquarius_writeport[] =
 	{
-		{0xfc, 0xfc, aquarius_port_fc_w},
-		{0xfe, 0xfe, aquarius_port_fe_w},
-		{0xff, 0xff, aquarius_port_ff_w},
-		{-1}
+		new IOWritePort(0xfc, 0xfc, aquarius_port_fc_w),
+		new IOWritePort(0xfe, 0xfe, aquarius_port_fe_w),
+		new IOWritePort(0xff, 0xff, aquarius_port_ff_w),
+		new IOWritePort(-1)
 	};
 	
 	/* Memory w/r functions */
 	
-	static	struct	MemoryReadAddress	aquarius_readmem[] =
+	static MemoryReadAddress aquarius_readmem[] =
 	{
-		{0x0000, 0x1fff, MRA_ROM},
-		{0x2000, 0x2fff, MRA_NOP},
-		{0x3000, 0x37ff, videoram_r},
-		{0x3800, 0x3fff, MRA_RAM},
-		{0x4000, 0x7fff, MRA_NOP},
-		{0x8000, 0xffff, MRA_NOP},
+		new MemoryReadAddress(0x0000, 0x1fff, MRA_ROM),
+		new MemoryReadAddress(0x2000, 0x2fff, MRA_NOP),
+		new MemoryReadAddress(0x3000, 0x37ff, videoram_r),
+		new MemoryReadAddress(0x3800, 0x3fff, MRA_RAM),
+		new MemoryReadAddress(0x4000, 0x7fff, MRA_NOP),
+		new MemoryReadAddress(0x8000, 0xffff, MRA_NOP),
 	
-		{-1}
+		new MemoryReadAddress(-1)
 	};
 	
-	static	struct	MemoryWriteAddress	aquarius_writemem[] =
+	static MemoryWriteAddress aquarius_writemem[] =
 	{
-		{0x0000, 0x1fff, MWA_ROM},
-		{0x2000, 0x2fff, MWA_NOP},
-		{0x3000, 0x37ff, videoram_w, &videoram, &videoram_size},
-		{0x3800, 0x3fff, MWA_RAM},
-		{0x4000, 0x7fff, MWA_NOP},
-		{0x8000, 0xffff, MWA_NOP},
-		{-1}
+		new MemoryWriteAddress(0x0000, 0x1fff, MWA_ROM),
+		new MemoryWriteAddress(0x2000, 0x2fff, MWA_NOP),
+		new MemoryWriteAddress(0x3000, 0x37ff, videoram_w, videoram, videoram_size),
+		new MemoryWriteAddress(0x3800, 0x3fff, MWA_RAM),
+		new MemoryWriteAddress(0x4000, 0x7fff, MWA_NOP),
+		new MemoryWriteAddress(0x8000, 0xffff, MWA_NOP),
+		new MemoryWriteAddress(-1)
 	};
 	
 	/* graphics output */
 	
-	struct	GfxLayout	aquarius_charlayout =
-	{
+	static GfxLayout aquarius_charlayout = new GfxLayout
+	(
 		8, 8,
 		256,
 		1,
-		{ 0 },
-		{ 0, 1, 2, 3, 4, 5, 6, 7 },
-		{ 0*8, 1*8, 2*8, 3*8,
+		new int[] { 0 },
+		new int[] { 0, 1, 2, 3, 4, 5, 6, 7 },
+		new int[] { 0*8, 1*8, 2*8, 3*8,
 		  4*8, 5*8, 6*8, 7*8, },
 		8 * 8
-	};
+	);
 	
-	static	struct	GfxDecodeInfo	aquarius_gfxdecodeinfo[] =
+	static GfxDecodeInfo aquarius_gfxdecodeinfo[] =
 	{
-		{ 1, 0x0000, &aquarius_charlayout, 0, 256},
-		{-1}
+		new GfxDecodeInfo( 1, 0x0000, aquarius_charlayout, 0, 256),
+		new GfxDecodeInfo(-1)
 	};
 	
 	static	unsigned	char	aquarius_palette[] =
@@ -137,8 +137,8 @@ public class aquarius
 	    0,15, 1,15, 2,15, 3,15, 4,15, 5,15, 6,15, 7,15, 8,15, 9,15,10,15,11,15,12,15,13,15,14,15,15,15,
 	};
 	
-	static	void	aquarius_init_palette (unsigned char *sys_palette,
-				unsigned short *sys_colortable, const unsigned char *color_prom)
+	static	void	aquarius_init_palette (UBytePtr sys_palette,
+				unsigned short *sys_colortable, const UBytePtr color_prom)
 	{
 		memcpy (sys_palette, aquarius_palette, sizeof (aquarius_palette));
 		memcpy (sys_colortable, aquarius_colortable, sizeof (aquarius_colortable));
@@ -147,86 +147,86 @@ public class aquarius
 	/* Keyboard input */
 	
 	INPUT_PORTS_START (aquarius)
-		PORT_START	/* 0: count = 0 */
-		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "=", KEYCODE_EQUALS, IP_JOY_NONE)
-		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "backspace", KEYCODE_BACKSPACE, IP_JOY_NONE)
-		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, ":", KEYCODE_COLON, IP_JOY_NONE)
-		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "return", KEYCODE_ENTER, IP_JOY_NONE)
-		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, ";", KEYCODE_QUOTE, IP_JOY_NONE)
-		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, ".", KEYCODE_STOP, IP_JOY_NONE)
-		PORT_BIT (0xc0, IP_ACTIVE_LOW, IPT_UNUSED)
+		PORT_START(); 	/* 0: count = 0 */
+		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "=", KEYCODE_EQUALS, IP_JOY_NONE);
+		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "backspace", KEYCODE_BACKSPACE, IP_JOY_NONE);
+		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, ":", KEYCODE_COLON, IP_JOY_NONE);
+		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "return", KEYCODE_ENTER, IP_JOY_NONE);
+		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, ";", KEYCODE_QUOTE, IP_JOY_NONE);
+		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, ".", KEYCODE_STOP, IP_JOY_NONE);
+		PORT_BIT (0xc0, IP_ACTIVE_LOW, IPT_UNUSED);
 	
-		PORT_START	/* 1: count = 1 */
-		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "-", KEYCODE_MINUS, IP_JOY_NONE)
-		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "/", KEYCODE_SLASH, IP_JOY_NONE)
-		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "0", KEYCODE_0, IP_JOY_NONE)
-		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "p", KEYCODE_P, IP_JOY_NONE)
-		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "l", KEYCODE_L, IP_JOY_NONE)
-		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, ",", KEYCODE_COMMA, IP_JOY_NONE)
-		PORT_BIT (0xff, IP_ACTIVE_LOW, IPT_UNUSED)
+		PORT_START(); 	/* 1: count = 1 */
+		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "-", KEYCODE_MINUS, IP_JOY_NONE);
+		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "/", KEYCODE_SLASH, IP_JOY_NONE);
+		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "0", KEYCODE_0, IP_JOY_NONE);
+		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "p", KEYCODE_P, IP_JOY_NONE);
+		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "l", KEYCODE_L, IP_JOY_NONE);
+		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, ",", KEYCODE_COMMA, IP_JOY_NONE);
+		PORT_BIT (0xff, IP_ACTIVE_LOW, IPT_UNUSED);
 	
-		PORT_START	/* 2: count = 2 */
-		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "9", KEYCODE_9, IP_JOY_NONE)
-		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "o", KEYCODE_O, IP_JOY_NONE)
-		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "k", KEYCODE_K, IP_JOY_NONE)
-		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "m", KEYCODE_M, IP_JOY_NONE)
-		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "n", KEYCODE_N, IP_JOY_NONE)
-		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "j", KEYCODE_J, IP_JOY_NONE)
-		PORT_BIT (0xc0, IP_ACTIVE_LOW, IPT_UNUSED)
+		PORT_START(); 	/* 2: count = 2 */
+		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "9", KEYCODE_9, IP_JOY_NONE);
+		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "o", KEYCODE_O, IP_JOY_NONE);
+		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "k", KEYCODE_K, IP_JOY_NONE);
+		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "m", KEYCODE_M, IP_JOY_NONE);
+		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "n", KEYCODE_N, IP_JOY_NONE);
+		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "j", KEYCODE_J, IP_JOY_NONE);
+		PORT_BIT (0xc0, IP_ACTIVE_LOW, IPT_UNUSED);
 	
-		PORT_START	/* 3: count = 3 */
-		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "8", KEYCODE_8, IP_JOY_NONE)
-		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "i", KEYCODE_I, IP_JOY_NONE)
-		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "7", KEYCODE_7, IP_JOY_NONE)
-		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "u", KEYCODE_U, IP_JOY_NONE)
-		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "h", KEYCODE_H, IP_JOY_NONE)
-		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "b", KEYCODE_B, IP_JOY_NONE)
-		PORT_BIT (0xc0, IP_ACTIVE_LOW, IPT_UNUSED)
+		PORT_START(); 	/* 3: count = 3 */
+		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "8", KEYCODE_8, IP_JOY_NONE);
+		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "i", KEYCODE_I, IP_JOY_NONE);
+		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "7", KEYCODE_7, IP_JOY_NONE);
+		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "u", KEYCODE_U, IP_JOY_NONE);
+		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "h", KEYCODE_H, IP_JOY_NONE);
+		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "b", KEYCODE_B, IP_JOY_NONE);
+		PORT_BIT (0xc0, IP_ACTIVE_LOW, IPT_UNUSED);
 	
-		PORT_START	/* 4: count = 4 */
-		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "6", KEYCODE_6, IP_JOY_NONE)
-		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "y", KEYCODE_Y, IP_JOY_NONE)
-		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "g", KEYCODE_G, IP_JOY_NONE)
-		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "v", KEYCODE_V, IP_JOY_NONE)
-		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "c", KEYCODE_C, IP_JOY_NONE)
-		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "f", KEYCODE_F, IP_JOY_NONE)
-		PORT_BIT (0xc0, IP_ACTIVE_LOW, IPT_UNUSED)
+		PORT_START(); 	/* 4: count = 4 */
+		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "6", KEYCODE_6, IP_JOY_NONE);
+		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "y", KEYCODE_Y, IP_JOY_NONE);
+		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "g", KEYCODE_G, IP_JOY_NONE);
+		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "v", KEYCODE_V, IP_JOY_NONE);
+		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "c", KEYCODE_C, IP_JOY_NONE);
+		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "f", KEYCODE_F, IP_JOY_NONE);
+		PORT_BIT (0xc0, IP_ACTIVE_LOW, IPT_UNUSED);
 	
-		PORT_START	/* 5: count = 5 */
-		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "5", KEYCODE_5, IP_JOY_NONE)
-		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "t", KEYCODE_T, IP_JOY_NONE)
-		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "4", KEYCODE_4, IP_JOY_NONE)
-		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "r", KEYCODE_R, IP_JOY_NONE)
-		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "d", KEYCODE_D, IP_JOY_NONE)
-		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "x", KEYCODE_X, IP_JOY_NONE)
-		PORT_BIT (0xc0, IP_ACTIVE_LOW, IPT_UNUSED)
+		PORT_START(); 	/* 5: count = 5 */
+		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "5", KEYCODE_5, IP_JOY_NONE);
+		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "t", KEYCODE_T, IP_JOY_NONE);
+		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "4", KEYCODE_4, IP_JOY_NONE);
+		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "r", KEYCODE_R, IP_JOY_NONE);
+		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "d", KEYCODE_D, IP_JOY_NONE);
+		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "x", KEYCODE_X, IP_JOY_NONE);
+		PORT_BIT (0xc0, IP_ACTIVE_LOW, IPT_UNUSED);
 	
-		PORT_START	/* 6: count = 6 */
-		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "3", KEYCODE_3, IP_JOY_NONE)
-		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "e", KEYCODE_E, IP_JOY_NONE)
-		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "s", KEYCODE_S, IP_JOY_NONE)
-		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "z", KEYCODE_Z, IP_JOY_NONE)
-		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, " ", KEYCODE_SPACE, IP_JOY_NONE)
-		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "a", KEYCODE_A, IP_JOY_NONE)
-		PORT_BIT (0xc0, IP_ACTIVE_LOW, IPT_UNUSED)
+		PORT_START(); 	/* 6: count = 6 */
+		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "3", KEYCODE_3, IP_JOY_NONE);
+		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "e", KEYCODE_E, IP_JOY_NONE);
+		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "s", KEYCODE_S, IP_JOY_NONE);
+		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "z", KEYCODE_Z, IP_JOY_NONE);
+		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, " ", KEYCODE_SPACE, IP_JOY_NONE);
+		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "a", KEYCODE_A, IP_JOY_NONE);
+		PORT_BIT (0xc0, IP_ACTIVE_LOW, IPT_UNUSED);
 	
-		PORT_START	/* 7: count = 7 */
-		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "2", KEYCODE_2, IP_JOY_NONE)
-		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "w", KEYCODE_W, IP_JOY_NONE)
-		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "1", KEYCODE_1, IP_JOY_NONE)
-		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "q", KEYCODE_Q, IP_JOY_NONE)
-		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "shift", KEYCODE_LSHIFT, IP_JOY_NONE)
-		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "shift", KEYCODE_RSHIFT, IP_JOY_NONE)
-		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "ctl", KEYCODE_LCONTROL, IP_JOY_NONE)
-		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "ctl", KEYCODE_RCONTROL, IP_JOY_NONE)
-		PORT_BIT (0xc0, IP_ACTIVE_LOW, IPT_UNUSED)
+		PORT_START(); 	/* 7: count = 7 */
+		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "2", KEYCODE_2, IP_JOY_NONE);
+		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "w", KEYCODE_W, IP_JOY_NONE);
+		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "1", KEYCODE_1, IP_JOY_NONE);
+		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "q", KEYCODE_Q, IP_JOY_NONE);
+		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "shift", KEYCODE_LSHIFT, IP_JOY_NONE);
+		PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "shift", KEYCODE_RSHIFT, IP_JOY_NONE);
+		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "ctl", KEYCODE_LCONTROL, IP_JOY_NONE);
+		PORT_BITX(0x20, IP_ACTIVE_LOW, IPT_KEYBOARD, "ctl", KEYCODE_RCONTROL, IP_JOY_NONE);
+		PORT_BIT (0xc0, IP_ACTIVE_LOW, IPT_UNUSED);
 	
-		PORT_START	/* 8: Machine config */
-		PORT_DIPNAME(0x03, 3, "RAM Size")
-		PORT_DIPSETTING(0, "4Kb")
-		PORT_DIPSETTING(1, "20Kb")
-		PORT_DIPSETTING(2, "56Kb")
-	INPUT_PORTS_END
+		PORT_START(); 	/* 8: Machine config */
+		PORT_DIPNAME(0x03, 3, "RAM Size");
+		PORT_DIPSETTING(0, "4Kb");
+		PORT_DIPSETTING(1, "20Kb");
+		PORT_DIPSETTING(2, "56Kb");
+	INPUT_PORTS_END(); }}; 
 	
 	/* Sound output */
 	
@@ -240,16 +240,16 @@ public class aquarius
 	
 	/* Machine definition */
 	
-	static	struct	MachineDriver	machine_driver_aquarius =
-	{
-		{
-			{
+	static MachineDriver machine_driver_aquarius = new MachineDriver
+	(
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_Z80,
 				3500000,
 				aquarius_readmem, aquarius_writemem,
 				aquarius_readport, aquarius_writeport,
 				interrupt, 1,
-			},
+			),
 		},
 		60,  DEFAULT_REAL_60HZ_VBLANK_DURATION,
 		1,
@@ -257,31 +257,31 @@ public class aquarius
 		aquarius_stop_machine,
 		40 * 8,
 		24 * 8,
-		{ 0, 40 * 8 - 1, 0, 24 * 8 - 1},
+		new rectangle( 0, 40 * 8 - 1, 0, 24 * 8 - 1),
 		aquarius_gfxdecodeinfo,
 		sizeof (aquarius_palette) / 3,
 		sizeof (aquarius_colortable),
 		aquarius_init_palette,
 		VIDEO_TYPE_RASTER,
-		0,
+		null,
 		aquarius_vh_start,
 		aquarius_vh_stop,
 		aquarius_vh_screenrefresh,
 		0, 0, 0, 0,
-		{
-			{
+		new MachineSound[] {
+			new MachineSound(
 				SOUND_SPEAKER,
-				&aquarius_speaker
-			}
+				aquarius_speaker
+			)
 		}
-	};
+	);
 	
-	ROM_START(aquarius)
-		ROM_REGION(0x10000, REGION_CPU1)
-		ROM_LOAD("aq2.rom", 0x0000, 0x2000, 0xa2d15bcf)
-		ROM_REGION(0x0800, REGION_GFX1)
-		ROM_LOAD("aq2.chr", 0x0000, 0x0800, BADCRC(0x0b3edeed))
-	ROM_END
+	static RomLoadPtr rom_aquarius = new RomLoadPtr(){ public void handler(){ 
+		ROM_REGION(0x10000, REGION_CPU1);
+		ROM_LOAD("aq2.rom", 0x0000, 0x2000, 0xa2d15bcf);
+		ROM_REGION(0x0800, REGION_GFX1);
+		ROM_LOAD("aq2.chr", 0x0000, 0x0800, BADCRC(0x0b3edeed);
+	ROM_END(); }}; 
 	
 	static	const	struct	IODevice	io_aquarius[] =
 	{

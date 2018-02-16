@@ -73,13 +73,13 @@ public class vc20
 	{
 		int value = 0xff;
 	
-		if (JOYSTICK)
+		if (JOYSTICK != 0)
 			value &= readinputport (0) | JOY_VIA0_IGNORE;
-		if (PADDLES)
+		if (PADDLES != 0)
 			value &= readinputport (1) | JOY_VIA0_IGNORE;
 		/* to short to be recognized normally */
 		/* should be reduced to about 1 or 2 microseconds */
-		/*  if(LIGHTPEN_BUTTON) value&=~0x20; */
+		/*  if (LIGHTPEN_BUTTON != 0) value&=~0x20; */
 		if (!serial_clock || !cbm_serial_clock_read ())
 			value &= ~1;
 		if (!serial_data || !cbm_serial_data_read ())
@@ -156,9 +156,9 @@ public class vc20
 	{
 		int value = 0xff;
 	
-		if (JOYSTICK)
+		if (JOYSTICK != 0)
 			value &= readinputport (0) | JOY_VIA1_IGNORE;
-		if (PADDLES)
+		if (PADDLES != 0)
 			value &= readinputport (1) | JOY_VIA1_IGNORE;
 	
 		return value;
@@ -166,7 +166,7 @@ public class vc20
 	
 	static void vc20_via1_write_portb (int offset, int data)
 	{
-	/*  if( errorlog ) fprintf(errorlog, "via1_write_portb: $%02X\n", data); */
+	/*  if (errorlog != 0) fprintf(errorlog, "via1_write_portb: $%02X\n", data); */
 		vc20_tape_write (data & 8 ? 1 : 0);
 		via1_portb = data;
 	}
@@ -322,7 +322,7 @@ public class vc20
 		int i;
 		UINT8 *memory = memory_region (REGION_CPU1);
 	
-		if (inited) return;
+		if (inited != 0) return;
 	
 	/* memory[0x288]=0xff;// makes ae's graphics look correctly */
 	/* memory[0xd]=0xff; // for moneywars */
@@ -395,9 +395,9 @@ public class vc20
 		cbm_ieee_open();
 	}
 	
-	void vc20_init_machine (void)
+	public static InitMachinePtr vc20_init_machine = new InitMachinePtr() { public void handler() 
 	{
-		if (RAMIN0X0400)
+		if (RAMIN0X0400 != 0)
 		{
 			install_mem_write_handler (0, 0x400, 0xfff, MWA_RAM);
 			install_mem_read_handler (0, 0x400, 0xfff, MRA_RAM);
@@ -407,7 +407,7 @@ public class vc20
 			install_mem_write_handler (0, 0x400, 0xfff, MWA_NOP);
 			install_mem_read_handler (0, 0x400, 0xfff, MRA_ROM);
 		}
-		if (RAMIN0X2000)
+		if (RAMIN0X2000 != 0)
 		{
 			install_mem_write_handler (0, 0x2000, 0x3fff, MWA_RAM);
 			install_mem_read_handler (0, 0x2000, 0x3fff, MRA_RAM);
@@ -417,7 +417,7 @@ public class vc20
 			install_mem_write_handler (0, 0x2000, 0x3fff, MWA_NOP);
 			install_mem_read_handler (0, 0x2000, 0x3fff, MRA_ROM);
 		}
-		if (RAMIN0X4000)
+		if (RAMIN0X4000 != 0)
 		{
 			install_mem_write_handler (0, 0x4000, 0x5fff, MWA_RAM);
 			install_mem_read_handler (0, 0x4000, 0x5fff, MRA_RAM);
@@ -427,7 +427,7 @@ public class vc20
 			install_mem_write_handler (0, 0x4000, 0x5fff, MWA_NOP);
 			install_mem_read_handler (0, 0x4000, 0x5fff, MRA_ROM);
 		}
-		if (RAMIN0X6000)
+		if (RAMIN0X6000 != 0)
 		{
 			install_mem_write_handler (0, 0x6000, 0x7fff, MWA_RAM);
 			install_mem_read_handler (0, 0x6000, 0x7fff, MRA_RAM);
@@ -437,12 +437,12 @@ public class vc20
 			install_mem_write_handler (0, 0x6000, 0x7fff, MWA_NOP);
 			install_mem_read_handler (0, 0x6000, 0x7fff, MRA_ROM);
 		}
-		if (ieee)
+		if (ieee != 0)
 		{
 			install_mem_write_handler (0, 0xa000, 0xbfff, MWA_ROM);
 			install_mem_read_handler (0, 0xa000, 0xbfff, MRA_ROM);
 		}
-		else if	(RAMIN0XA000)
+		else if (RAMIN0XA000 != 0)
 		{
 			install_mem_write_handler (0, 0xa000, 0xbfff, MWA_RAM);
 			install_mem_read_handler (0, 0xa000, 0xbfff, MRA_RAM);
@@ -457,7 +457,7 @@ public class vc20
 	#ifdef VC1541
 		vc1541_reset ();
 	#endif
-		if (ieee) {
+		if (ieee != 0) {
 			cbm_drive_0_config (SERIAL8ON ? IEEE : 0, 8);
 			cbm_drive_1_config (SERIAL9ON ? IEEE : 0, 9);
 		} else {
@@ -466,7 +466,7 @@ public class vc20
 		}
 		via_reset ();
 		via_0_ca1_w (0, vc20_via0_read_ca1(0) );
-	}
+	} };
 	
 	void vc20_shutdown_machine (void)
 	{
@@ -585,7 +585,7 @@ public class vc20
 				retval = 1;
 		}
 	
-			if (retval)
+			if (retval != 0)
 				logerror("rom %s recognized\n", device_filename(IO_CARTSLOT,id));
 			else
 				logerror("rom %s not recognized\n", device_filename(IO_CARTSLOT,id));
@@ -593,7 +593,7 @@ public class vc20
 		return retval;
 	}
 	
-	int vc20_frame_interrupt (void)
+	public static InterruptPtr vc20_frame_interrupt = new InterruptPtr() { public int handler() 
 	{
 		static int quickload = 0;
 	
@@ -607,13 +607,13 @@ public class vc20
 		keyboard[1] = KEYBOARD_ROW (1);
 	
 		keyboard[2] = KEYBOARD_ROW (2);
-		if (KEYBOARD_EXTRA & KEY_CURSOR_LEFT)
+		if ((KEYBOARD_EXTRA & KEY_CURSOR_LEFT) != 0)
 			keyboard[2] &= ~0x80;		   /* CURSOR RIGHT */
 	
 		keyboard[3] = KEYBOARD_ROW (3);
-		if (KEYBOARD_EXTRA & KEY_CURSOR_UP)
+		if ((KEYBOARD_EXTRA & KEY_CURSOR_UP) != 0)
 			keyboard[3] &= ~0x80;		   /* CURSOR DOWN */
-		if (KEYBOARD_EXTRA & KEY_SHIFTLOCK)
+		if ((KEYBOARD_EXTRA & KEY_SHIFTLOCK) != 0)
 			keyboard[3] &= ~0x02;		   /* LEFT SHIFT */
 	
 		keyboard[4] = KEYBOARD_ROW (4);
@@ -631,5 +631,5 @@ public class vc20
 		osd_led_w (1 /*KB_CAPSLOCK_FLAG */ , (KEYBOARD_EXTRA & KEY_SHIFTLOCK) ? 1 : 0);
 	
 		return ignore_interrupt ();
-	}
+	} };
 }

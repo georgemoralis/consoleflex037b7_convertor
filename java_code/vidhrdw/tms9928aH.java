@@ -7,7 +7,6 @@
 extern unsigned char TMS9928A_palette[];
 extern unsigned short TMS9928A_colortable[];
 /* initialise palette function */
-void tms9928A_init_palette(unsigned char *palette, unsigned short *colortable,const unsigned char *color_prom);
 
 #define TMS9928A_PALETTE_SIZE           16
 #define TMS9928A_COLORTABLE_SIZE        32
@@ -42,8 +41,6 @@ typedef struct {
 ** The init, reset and shutdown functions
 */
 int TMS9928A_start (int model, unsigned int vram);
-void TMS9928A_reset (void);
-void TMS9928A_stop (void);
 
 /*
 ** The I/O functions
@@ -62,7 +59,6 @@ void TMS9928A_refresh (struct osd_bitmap *, int full_refresh);
 ** This next function must be called 50 or 60 times per second,
 ** to generate the necessary interrupts
 */
-int TMS9928A_interrupt (void);
 
 /*
 ** The parameter is a function pointer. This function is called whenever

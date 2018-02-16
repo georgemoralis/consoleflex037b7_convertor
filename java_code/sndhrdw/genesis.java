@@ -20,12 +20,12 @@ package sndhrdw;
 public class genesis
 {
 	////
-	int genesis_s_interrupt(void)
+	public static InterruptPtr genesis_s_interrupt = new InterruptPtr() { public int handler() 
 	{
-		// if (errorlog) fprintf(errorlog, "Z80 interrupt ");
+		// if (errorlog != 0) fprintf(errorlog, "Z80 interrupt ");
 		return 0xff;
 	
-	}
+	} };
 	
 	WRITE_HANDLER ( YM2612_68000_w )
 	{

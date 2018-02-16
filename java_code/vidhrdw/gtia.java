@@ -38,19 +38,19 @@ public class gtia
 	 * set both color clocks equal for one color
 	 **********************************************/
 	#define SETCOL_B(o,d) \
-		antic.color_lookup[o] = (Machine->remapped_colortable[d] << 8) | Machine->remapped_colortable[d]
+		antic.color_lookup[o] = (Machine.remapped_colortable[d] << 8) | Machine.remapped_colortable[d]
 	
 	/**********************************************
 	 * set left color clock for one color
 	 **********************************************/
 	#define SETCOL_L(o,d) \
-		*((UINT8*)&antic.color_lookup[o] + 0) = Machine->remapped_colortable[d]
+		*((UINT8*)&antic.color_lookup[o] + 0) = Machine.remapped_colortable[d]
 	
 	/**********************************************
 	 * set right color clock for one color
 	 **********************************************/
 	#define SETCOL_R(o,d) \
-		*((UINT8*)&antic.color_lookup[o] + 1) = Machine->remapped_colortable[d]
+		*((UINT8*)&antic.color_lookup[o] + 1) = Machine.remapped_colortable[d]
 	
 	/**************************************************************
 	 *
@@ -65,7 +65,7 @@ public class gtia
 		for (i = 0; i < 32; i++)
 			MWA_GTIA(i,0);
 	    memset(&gtia.r, 0, sizeof(gtia.r));
-		if( Machine->drv->frames_per_second > 55 )
+		if( Machine.drv.frames_per_second > 55 )
 			gtia.r.pal = 0xff;
 		else
 			gtia.r.pal = 0xf1;
@@ -388,7 +388,7 @@ public class gtia
 				break;
 			gtia.w.colpm0 = data;
 	#ifdef VERBOSE
-			if (errorlog) fprintf(errorlog, "atari colpm0 $%02x\n", data);
+			if (errorlog != 0) fprintf(errorlog, "atari colpm0 $%02x\n", data);
 	#endif
 			SETCOL_B(PL0,data); 	/* set player 0 color */
 			SETCOL_B(MI0,data); 	/* set missile 0 color */
@@ -408,7 +408,7 @@ public class gtia
 				break;
 			gtia.w.colpm1 = data;
 	#ifdef VERBOSE
-			if (errorlog) fprintf(errorlog, "atari colpm1 $%02x\n", data);
+			if (errorlog != 0) fprintf(errorlog, "atari colpm1 $%02x\n", data);
 	#endif
 			SETCOL_B(PL1,data); 	/* set player color 1 */
 			SETCOL_B(MI1,data); 	/* set missile color 1 */
@@ -428,7 +428,7 @@ public class gtia
 				break;
 			gtia.w.colpm2 = data;
 	#ifdef VERBOSE
-			if (errorlog) fprintf(errorlog, "atari colpm2 $%02x\n", data);
+			if (errorlog != 0) fprintf(errorlog, "atari colpm2 $%02x\n", data);
 	#endif
 			SETCOL_B(PL2,data); 	/* set player 2 color */
 			SETCOL_B(MI2,data); 	/* set missile 2 color */
@@ -448,7 +448,7 @@ public class gtia
 				break;
 			gtia.w.colpm3 = data;
 	#ifdef VERBOSE
-			if (errorlog) fprintf(errorlog, "atari colpm3 $%02x\n", data);
+			if (errorlog != 0) fprintf(errorlog, "atari colpm3 $%02x\n", data);
 	#endif
 			SETCOL_B(PL3,data); 	/* set player 3 color */
 			SETCOL_B(MI3,data); 	/* set missile 3 color */
@@ -468,7 +468,7 @@ public class gtia
 				break;
 			gtia.w.colpf0 = data;
 	#ifdef VERBOSE
-			if (errorlog) fprintf(errorlog, "atari colpf0 $%02x\n", data);
+			if (errorlog != 0) fprintf(errorlog, "atari colpf0 $%02x\n", data);
 	#endif
 			SETCOL_B(PF0,data); 	/* set playfield 0 color */
 			SETCOL_B(GT2+4,data);	/* set GTIA mode 2 color 4 */
@@ -479,7 +479,7 @@ public class gtia
 				break;
 			gtia.w.colpf1 = data;
 	#ifdef VERBOSE
-			if (errorlog) fprintf(errorlog, "atari colpf1 $%02x\n", data);
+			if (errorlog != 0) fprintf(errorlog, "atari colpf1 $%02x\n", data);
 	#endif
 			SETCOL_B(PF1,data); 	/* set playfield 1 color */
 			SETCOL_B(GT2+5,data);	/* set GTIA mode 2 color 5 */
@@ -519,7 +519,7 @@ public class gtia
 				break;
 			gtia.w.colpf2 = data;
 	#ifdef VERBOSE
-			if (errorlog) fprintf(errorlog, "atari colpf2 $%02x\n", data);
+			if (errorlog != 0) fprintf(errorlog, "atari colpf2 $%02x\n", data);
 	#endif
 			SETCOL_B(PF2,data); 	/* set playfield color 2 */
 			SETCOL_B(GT2+6,data);	/* set GTIA mode 2 color 6 */
@@ -538,7 +538,7 @@ public class gtia
 				break;
 			gtia.w.colpf3 = data;
 	#ifdef VERBOSE
-			if (errorlog) fprintf(errorlog, "atari colpf3 $%02x\n", data);
+			if (errorlog != 0) fprintf(errorlog, "atari colpf3 $%02x\n", data);
 	#endif
 			SETCOL_B(PF3,data); 	/* set playfield color 3 */
 			SETCOL_B(GT2+7,data);	/* set GTIA mode 2 color 7 */
@@ -557,7 +557,7 @@ public class gtia
 				break;
 			gtia.w.colbk = data;
 	#ifdef VERBOSE
-			if (errorlog) fprintf(errorlog, "atari colbk  $%02x\n", data);
+			if (errorlog != 0) fprintf(errorlog, "atari colbk  $%02x\n", data);
 	#endif
 			SETCOL_B(PBK,data); 	/* set background color */
 			SETCOL_B(GT2+8,data);	/* set GTIA mode 2 color 8 */
@@ -932,17 +932,17 @@ public class gtia
 			/* get the current playfield color */
 			pc = *dst;
 			pf = pf_collision[pc];
-			if (pm&P0) { gtia.r.p0pf |= pf; gtia.r.p0pl |= pm&(   P1|P2|P3); }
-			if (pm&P1) { gtia.r.p1pf |= pf; gtia.r.p1pl |= pm&(P0|	 P2|P3); }
-			if (pm&P2) { gtia.r.p2pf |= pf; gtia.r.p2pl |= pm&(P0|P1|	P3); }
-			if (pm&P3) { gtia.r.p3pf |= pf; gtia.r.p3pl |= pm&(P0|P1|P2   ); }
-			if (pm&M0) { gtia.r.m0pf |= pf; gtia.r.m0pl |= pm&(P0|P1|P2|P3); }
-			if (pm&M1) { gtia.r.m1pf |= pf; gtia.r.m1pl |= pm&(P0|P1|P2|P3); }
-			if (pm&M2) { gtia.r.m2pf |= pf; gtia.r.m2pl |= pm&(P0|P1|P2|P3); }
-			if (pm&M3) { gtia.r.m3pf |= pf; gtia.r.m3pl |= pm&(P0|P1|P2|P3); }
+			if ((pm & P0) != 0) { gtia.r.p0pf |= pf; gtia.r.p0pl |= pm&(   P1|P2|P3); }
+			if ((pm & P1) != 0) { gtia.r.p1pf |= pf; gtia.r.p1pl |= pm&(P0|	 P2|P3); }
+			if ((pm & P2) != 0) { gtia.r.p2pf |= pf; gtia.r.p2pl |= pm&(P0|P1|	P3); }
+			if ((pm & P3) != 0) { gtia.r.p3pf |= pf; gtia.r.p3pl |= pm&(P0|P1|P2   ); }
+			if ((pm & M0) != 0) { gtia.r.m0pf |= pf; gtia.r.m0pl |= pm&(P0|P1|P2|P3); }
+			if ((pm & M1) != 0) { gtia.r.m1pf |= pf; gtia.r.m1pl |= pm&(P0|P1|P2|P3); }
+			if ((pm & M2) != 0) { gtia.r.m2pf |= pf; gtia.r.m2pl |= pm&(P0|P1|P2|P3); }
+			if ((pm & M3) != 0) { gtia.r.m3pf |= pf; gtia.r.m3pl |= pm&(P0|P1|P2|P3); }
 			/* color with higher priority? change playfield */
 			pc = prio[pf_prioindex[pc] | pm];
-			if (pc) *dst = pc;
+			if (pc != 0) *dst = pc;
 		}
 		/* copy player/missile graphics in case of vdelay */
 		gtia.w.grafp0[1] = gtia.w.grafp0[0];
@@ -955,7 +955,7 @@ public class gtia
 	/*************  ANTIC mode 0F : GTIA mode 1 ********************
 	 * graphics mode 8x1:16 (32/40/48 byte per line)
 	 ***************************************************************/
-	#define GTIA1(s) COPY4(dst, antic.pf_gtia1[video->data[s]])
+	#define GTIA1(s) COPY4(dst, antic.pf_gtia1[video.data[s]])
 	
 	void gtia_mode_1_32(VIDEO *video)
 	{
@@ -979,7 +979,7 @@ public class gtia
 	/*************  ANTIC mode 0F : GTIA mode 2 ********************
 	 * graphics mode 8x1:16 (32/40/48 byte per line)
 	 ***************************************************************/
-	#define GTIA2(s) COPY4(dst, antic.pf_gtia2[video->data[s]])
+	#define GTIA2(s) COPY4(dst, antic.pf_gtia2[video.data[s]])
 	
 	void gtia_mode_2_32(VIDEO *video)
 	{
@@ -1003,7 +1003,7 @@ public class gtia
 	/*************  ANTIC mode 0F : GTIA mode 3 ********************
 	 * graphics mode 8x1:16 (32/40/48 byte per line)
 	 ***************************************************************/
-	#define GTIA3(s) COPY4(dst, antic.pf_gtia3[video->data[s]])
+	#define GTIA3(s) COPY4(dst, antic.pf_gtia3[video.data[s]])
 	
 	void gtia_mode_3_32(VIDEO *video)
 	{

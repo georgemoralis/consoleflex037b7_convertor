@@ -22,14 +22,14 @@ public class avigo
 	
 	/* mem size = 0x017c0 */
 	
-	static unsigned char *avigo_video_memory;
+	static UBytePtr avigo_video_memory;
 	
 	/* current column to read/write */
 	static UINT8 avigo_screen_column = 0;
 	
 	READ_HANDLER(avigo_vid_memory_r)
 	{
-	        unsigned char *ptr;
+	        UBytePtr ptr;
 	
 	        if (offset==0)
 	        {
@@ -72,7 +72,7 @@ public class avigo
 	
 	        if ((offset>=0x0100) && (offset<=0x01f0))
 	        {
-	                unsigned char *ptr;
+	                UBytePtr ptr;
 	
 	                /* 0x0100-0x01f0 contains data for selected column */
 	                ptr = avigo_video_memory + avigo_screen_column + ((offset-0x0100)*(AVIGO_SCREEN_WIDTH>>3));
@@ -84,7 +84,7 @@ public class avigo
 	}
 	
 	
-	int avigo_vh_start(void)
+	public static VhStartPtr avigo_vh_start = new VhStartPtr() { public int handler() 
 	{
 	        /* current selected column to read/write */
 	        avigo_screen_column = 0;
@@ -93,16 +93,16 @@ public class avigo
 	        avigo_video_memory = malloc(((AVIGO_SCREEN_WIDTH>>3)*AVIGO_SCREEN_HEIGHT));
 	
 		return 0;
-	}
+	} };
 	
-	void    avigo_vh_stop(void)
+	public static VhStopPtr avigo_vh_stop = new VhStopPtr() { public void handler() 
 	{
 	        if (avigo_video_memory!=NULL)
 	        {
 	                free(avigo_video_memory);
 	                avigo_video_memory = NULL;
 	        }
-	}
+	} };
 	
 	/* two colours */
 	static unsigned short avigo_colour_table[AVIGO_NUM_COLOURS] =
@@ -119,7 +119,7 @@ public class avigo
 	
 	
 	/* Initialise the palette */
-	void avigo_init_palette(unsigned char *sys_palette, unsigned short *sys_colortable, const unsigned char *color_prom)
+	void avigo_init_palette(UBytePtr sys_palette, unsigned short *sys_colortable, const UBytePtr color_prom)
 	{
 	        memcpy(sys_palette, avigo_palette, sizeof (avigo_palette));
 	        memcpy(sys_colortable, avigo_colour_table, sizeof (avigo_colour_table));
@@ -132,21 +132,21 @@ public class avigo
 	  Do NOT call osd_update_display() from this function,
 	  it will be called by the main emulation engine.
 	***************************************************************************/
-	void avigo_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr avigo_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 	        int y;
 	        int b;
 	        int x;
 	        int pen0, pen1;
 	
-	        pen0 = Machine->pens[0];
-	        pen1 = Machine->pens[1];
+	        pen0 = Machine.pens[0];
+	        pen1 = Machine.pens[1];
 	
 	        for (y=0; y<AVIGO_SCREEN_HEIGHT; y++)
 	        {
 	                int by;
 	
-	                unsigned char *line_ptr = avigo_video_memory +  (y*(AVIGO_SCREEN_WIDTH>>3));
+	                UBytePtr line_ptr = avigo_video_memory +  (y*(AVIGO_SCREEN_WIDTH>>3));
 					
 	                x = 0;
 	                for (by=0; by<AVIGO_SCREEN_WIDTH>>3; by++)
@@ -157,7 +157,7 @@ public class avigo
 	        
 	                        for (b=0; b<8; b++)
 	                        {
-	                                if (byte & 0x080)
+	                                if ((byte & 0x080) != 0)
 	                                {
 	                                        plot_pixel(bitmap,x+b, y, pen1);
 	                                }
@@ -174,5 +174,5 @@ public class avigo
 	                        line_ptr = line_ptr+1;
 	                }
 	         }
-	}
+	} };
 }

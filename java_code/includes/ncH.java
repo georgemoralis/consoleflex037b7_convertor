@@ -14,10 +14,7 @@ public class ncH
 	#define NC200_SCREEN_WIDTH		480
 	#define NC200_SCREEN_HEIGHT		128
 	
-	int nc_vh_start(void);
-	void nc_vh_stop(void);
-	void nc_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh);
-	void nc_init_palette(unsigned char *sys_palette, unsigned short *sys_colortable, const unsigned char *color_prom);
+	void nc_init_palette(UBytePtr sys_palette, unsigned short *sys_colortable, const UBytePtr color_prom);
 	
 	void    nc_set_card_present_state(int);
 	void    nc_set_card_write_protect_state(int);

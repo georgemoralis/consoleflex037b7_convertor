@@ -29,90 +29,90 @@ package systems;
 public class advision
 {
 	
-	static struct MemoryReadAddress readmem[] =
+	static MemoryReadAddress readmem[] =
 	{
-	    { 0x0000, 0x03FF,  MRA_BANK1 },
-	    { 0x0400, 0x0fff,  MRA_ROM },
-		{ 0x2000, 0x23ff,  MRA_RAM },	/* MAINRAM four banks */
-		{ -1 }  /* end of table */
+	    new MemoryReadAddress( 0x0000, 0x03FF,  MRA_BANK1 ),
+	    new MemoryReadAddress( 0x0400, 0x0fff,  MRA_ROM ),
+		new MemoryReadAddress( 0x2000, 0x23ff,  MRA_RAM ),	/* MAINRAM four banks */
+		new MemoryReadAddress( -1 )  /* end of table */
 	};
 	
-	static struct MemoryWriteAddress writemem[] =
+	static MemoryWriteAddress writemem[] =
 	{
-	    { 0x0000, 0x0fff, MWA_ROM },
-		{ 0x2000, 0x23ff, MWA_RAM },	/* MAINRAM four banks */
-	    { -1 }  /* end of table */
+	    new MemoryWriteAddress( 0x0000, 0x0fff, MWA_ROM ),
+		new MemoryWriteAddress( 0x2000, 0x23ff, MWA_RAM ),	/* MAINRAM four banks */
+	    new MemoryWriteAddress( -1 )  /* end of table */
 	};
 	
-	static struct IOReadPort readport[] =
+	static IOReadPort readport[] =
 	{
-	    { 0x00,     0xff,     advision_MAINRAM_r},
-	    { I8039_p1, I8039_p1, advision_getp1 },
-	    { I8039_p2, I8039_p2, advision_getp2 },
-	    { I8039_t0, I8039_t0, advision_gett0 },
-	    { I8039_t1, I8039_t1, advision_gett1 },
-		{ -1 }	/* end of table */
+	    new IOReadPort( 0x00,     0xff,     advision_MAINRAM_r),
+	    new IOReadPort( I8039_p1, I8039_p1, advision_getp1 ),
+	    new IOReadPort( I8039_p2, I8039_p2, advision_getp2 ),
+	    new IOReadPort( I8039_t0, I8039_t0, advision_gett0 ),
+	    new IOReadPort( I8039_t1, I8039_t1, advision_gett1 ),
+		new IOReadPort( -1 )	/* end of table */
 	};
 	
-	static struct IOWritePort writeport[] =
+	static IOWritePort writeport[] =
 	{
-	    { 0x00,     0xff,     advision_MAINRAM_w },
-	    { I8039_p1, I8039_p1, advision_putp1 },
-	    { I8039_p2, I8039_p2, advision_putp2 },
-		{ -1 }	/* end of table */
+	    new IOWritePort( 0x00,     0xff,     advision_MAINRAM_w ),
+	    new IOWritePort( I8039_p1, I8039_p1, advision_putp1 ),
+	    new IOWritePort( I8039_p2, I8039_p2, advision_putp2 ),
+		new IOWritePort( -1 )	/* end of table */
 	};
 	
 	
-	INPUT_PORTS_START( advision )
-		PORT_START      /* IN0 */
-	    PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_BUTTON4)
-	    PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_BUTTON3)
-	    PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_BUTTON2)
-	    PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_BUTTON1)
-	    PORT_BIT ( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN)
-	    PORT_BIT ( 0x20, IP_ACTIVE_LOW, IPT_JOYSTICK_UP)
-	    PORT_BIT ( 0x40, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT)
-	    PORT_BIT ( 0x80, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT)
-	INPUT_PORTS_END
+	static InputPortPtr input_ports_advision = new InputPortPtr(){ public void handler() { 
+		PORT_START();       /* IN0 */
+	    PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_BUTTON4);
+	    PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_BUTTON3);
+	    PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_BUTTON2);
+	    PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_BUTTON1);
+	    PORT_BIT ( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN);
+	    PORT_BIT ( 0x20, IP_ACTIVE_LOW, IPT_JOYSTICK_UP);
+	    PORT_BIT ( 0x40, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT);
+	    PORT_BIT ( 0x80, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT);
+	INPUT_PORTS_END(); }}; 
 	
-	static struct MachineDriver machine_driver_advision =
-	{
+	static MachineDriver machine_driver_advision = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 	            CPU_I8048,
 	            14000000/15,
 	            readmem,writemem,readport,writeport,
 				ignore_interrupt,1
-			}
+			)
 		},
 		8*15, DEFAULT_REAL_60HZ_VBLANK_DURATION,
 		1,
 		advision_init_machine,	/* init_machine */
-		0,						/* stop_machine */
+		null,						/* stop_machine */
 	
 		/* video hardware */
-		320,200, {0,320-1,0,200-1},
+		320,200, new rectangle(0,320-1,0,200-1),
 		NULL,
 		(8+2)*3,
 		8*2,
 		advision_vh_init_palette,
 	
 		VIDEO_TYPE_RASTER,
-		0,
+		null,
 	    advision_vh_start,
 	    advision_vh_stop,
 	    advision_vh_screenrefresh,
 	
 		/* sound hardware */
 		0,0,0,0,
-	};
+	);
 	
 	
 	ROM_START (advision)
-		ROM_REGION(0x2800,REGION_CPU1)
-	    ROM_LOAD ("avbios.rom", 0x1000, 0x400, 0x279e33d1)
-	ROM_END
+		ROM_REGION(0x2800,REGION_CPU1);
+	    ROM_LOAD ("avbios.rom", 0x1000, 0x400, 0x279e33d1);
+	ROM_END(); }}; 
 	
 	static const struct IODevice io_advision[] = {
 		{

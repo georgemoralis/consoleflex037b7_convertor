@@ -30,7 +30,7 @@ public class amstrad
 	  Start the video hardware emulation.
 	***************************************************************************/
 	
-	/* this contains the colours in Machine->pens form.*/
+	/* this contains the colours in Machine.pens form.*/
 	/* this is updated from the eventlist and reflects the current state
 	of the render colours - these may be different to the current colour palette values */
 	/* colours can be changed at any time and will take effect immediatly */
@@ -82,7 +82,7 @@ public class amstrad
 		}
 	}
 	
-	extern unsigned char *Amstrad_Memory;
+	extern UBytePtr Amstrad_Memory;
 	
 	static int x_screen_offset=0;
 	
@@ -95,8 +95,8 @@ public class amstrad
 	static int amstrad_DE=0;
 	
 	
-	//static unsigned char *amstrad_Video_RAM;
-	static unsigned char *amstrad_display;
+	//static UBytePtr amstrad_Video_RAM;
+	static UBytePtr amstrad_display;
 	//static struct osd_bitmap *amstrad_bitmap;
 	
 	static int x_screen_pos;
@@ -353,7 +353,7 @@ public class amstrad
 	/* Select the Function to draw the screen area */
 	void amstrad_Set_VideoULA_DE(void)
 	{
-		if (amstrad_DE)
+		if (amstrad_DE != 0)
 		{
 			draw_function=*amstrad_draw_screen_enabled;
 		} 
@@ -379,7 +379,7 @@ public class amstrad
 	by the length of the HSYNC and the position of the hsync */
 	void amstrad_Set_HSync(int offset, int data)
 	{
-	//	if (amstrad_rendering)
+	//	if (amstrad_rendering != 0)
 	//	{
 	
 			/* hsync changed state? */
@@ -409,7 +409,7 @@ public class amstrad
 								if ((y_screen_pos>=0) && (y_screen_pos<AMSTRAD_SCREEN_HEIGHT))
 								{
 										x_screen_pos=x_screen_offset;
-										amstrad_display=(amstrad_bitmap->line[y_screen_pos])+x_screen_pos;
+										amstrad_display=(amstrad_bitmap.line[y_screen_pos])+x_screen_pos;
 								}
 						}
 			}
@@ -431,13 +431,13 @@ public class amstrad
 		{
 	        if (data!=0)
 	        {
-		//		if (amstrad_rendering)
+		//		if (amstrad_rendering != 0)
 		//		{
 					y_screen_pos=y_screen_offset;
 	
 				   if ((y_screen_pos>=0) && (y_screen_pos<=AMSTRAD_SCREEN_HEIGHT))
 				   {
-						amstrad_display=(amstrad_bitmap->line[y_screen_pos])+x_screen_pos;
+						amstrad_display=(amstrad_bitmap.line[y_screen_pos])+x_screen_pos;
 					}
 		//		}
 		//		else
@@ -479,7 +479,7 @@ public class amstrad
 	/* update the amstrad colours */
 	void amstrad_vh_update_colour(int PenIndex, int hw_colour_index)
 	{
-		amstrad_render_colours[PenIndex] = Machine->pens[hw_colour_index];
+		amstrad_render_colours[PenIndex] = Machine.pens[hw_colour_index];
 	}
 	
 	/* update mode */
@@ -522,7 +522,7 @@ public class amstrad
 	 * resfresh the amstrad video screen
 	 ************************************************************************/
 	
-	void amstrad_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr amstrad_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 	#ifndef AMSTRAD_VIDEO_EVENT_LIST
 		struct rectangle rect;
@@ -552,7 +552,7 @@ public class amstrad
 	        num_cycles_remaining = cpu_getcurrentcycles()>>2;	//get19968; //cpu_getfperiod();
 	
 		amstrad_bitmap=bitmap;
-		amstrad_display = amstrad_bitmap->line[0];
+		amstrad_display = amstrad_bitmap.line[0];
 		c=0;
 	
 		// video_refresh is set if any of the 6845 or Video ULA registers are changed
@@ -574,7 +574,7 @@ public class amstrad
 				int time_delta;
 	
 				/* calculate time between last event and this event */
-				time_delta = pItem->Event_Time - previous_time;
+				time_delta = pItem.Event_Time - previous_time;
 			
 				crtc_execute_cycles = time_delta/4;
 	
@@ -586,12 +586,12 @@ public class amstrad
 	
 			if (NumItemsRemaining!=0)
 			{
-				switch ((pItem->Event_ID>>6) & 0x03)
+				switch ((pItem.Event_ID>>6) & 0x03)
 				{
 					case EVENT_LIST_CODE_GA_COLOUR:
 					{
-						int PenIndex = pItem->Event_ID & 0x03f;
-						int Colour = pItem->Event_Data;
+						int PenIndex = pItem.Event_ID & 0x03f;
+						int Colour = pItem.Event_Data;
 	
 						amstrad_vh_update_colour(PenIndex, Colour);
 					}
@@ -599,20 +599,20 @@ public class amstrad
 	
 					case EVENT_LIST_CODE_GA_MODE:
 					{
-						amstrad_vh_update_mode(pItem->Event_Data);
+						amstrad_vh_update_mode(pItem.Event_Data);
 					}
 					break;
 	
 					case EVENT_LIST_CODE_CRTC_INDEX_WRITE:
 					{
 						/* register select */
-						crtc6845_address_w(0,pItem->Event_Data);
+						crtc6845_address_w(0,pItem.Event_Data);
 					}
 					break;
 	
 					case EVENT_LIST_CODE_CRTC_WRITE:
 					{
-						crtc6845_register_w(0, pItem->Event_Data);
+						crtc6845_register_w(0, pItem.Event_Data);
 					}
 					break;
 	
@@ -621,7 +621,7 @@ public class amstrad
 				}
 			
 				/* store time for next calculation */
-				previous_time = pItem->Event_Time;
+				previous_time = pItem.Event_Time;
 				pItem++;
 				NumItemsRemaining--;		
 			}
@@ -635,7 +635,7 @@ public class amstrad
 		crtc6845_get_state(0, &amstrad_vidhrdw_6845_state);
 		amstrad_rendering = 0;
 	#endif
-	}
+	} };
 	
 	
 	/************************************************************************
@@ -643,7 +643,7 @@ public class amstrad
 	 * Initialize the amstrad video emulation
 	 ************************************************************************/
 	
-	int amstrad_vh_start(void)
+	public static VhStartPtr amstrad_vh_start = new VhStartPtr() { public int handler() 
 	{
 	        int i;
 	
@@ -670,30 +670,30 @@ public class amstrad
 		EventList_Initialise(19968);
 	#else
 		amstrad_bitmap = osd_alloc_bitmap(AMSTRAD_SCREEN_WIDTH, AMSTRAD_SCREEN_HEIGHT,8);
-		amstrad_display = amstrad_bitmap->line[0];
+		amstrad_display = amstrad_bitmap.line[0];
 	#endif
 	
 		return 0;
 	
-	}
+	} };
 	
 	/************************************************************************
 	 * amstrad_vh_stop
 	 * Shutdown the amstrad video emulation
 	 ************************************************************************/
 	
-	void amstrad_vh_stop(void)
+	public static VhStopPtr amstrad_vh_stop = new VhStopPtr() { public void handler() 
 	{
 		crtc6845_stop();
 	#ifdef AMSTRAD_VIDEO_EVENT_LIST
 		EventList_Finish();
 	#else
-		if (amstrad_bitmap)
+		if (amstrad_bitmap != 0)
 		{
 			osd_free_bitmap(amstrad_bitmap);
 			amstrad_bitmap = NULL;
 		}
 	#endif
 	
-	}
+	} };
 }

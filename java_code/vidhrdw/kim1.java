@@ -17,13 +17,13 @@ public class kim1
 	
 	static struct artwork_info *kim1_backdrop;
 	
-	void kim1_init_colors (unsigned char *palette, unsigned short *colortable, const unsigned char *color_prom)
+	public static VhConvertColorPromPtr kim1_init_colors = new VhConvertColorPromPtr() { public void handler(char []palette, char []colortable, UBytePtr color_prom) 
 	{
 		char backdrop_name[200];
 	    int i, nextfree;
 	
 	    /* try to load a backdrop for the machine */
-	    sprintf (backdrop_name, "%s.png", Machine->gamedrv->name);
+	    sprintf (backdrop_name, "%s.png", Machine.gamedrv.name);
 	
 		/* initialize 16 colors with shades of red (orange) */
 	    for (i = 0; i < 16; i++)
@@ -68,64 +68,64 @@ public class kim1
 	
 	    nextfree = 21;
 	
-	    artwork_load (&kim1_backdrop, backdrop_name, nextfree, Machine->drv->total_colors - nextfree);
-		if (kim1_backdrop)
+	    artwork_load (&kim1_backdrop, backdrop_name, nextfree, Machine.drv.total_colors - nextfree);
+		if (kim1_backdrop != 0)
 	    {
 	        logerror("backdrop %s successfully loaded\n", backdrop_name);
-	        memcpy (&palette[nextfree * 3], kim1_backdrop->orig_palette, kim1_backdrop->num_pens_used * 3 * sizeof (unsigned char));
+	        memcpy (&palette[nextfree * 3], kim1_backdrop.orig_palette, kim1_backdrop.num_pens_used * 3 * sizeof (unsigned char));
 	    }
 	    else
 	    {
 	        logerror("no backdrop loaded\n");
 	    }
-	}
+	} };
 	
-	int kim1_vh_start (void)
+	public static VhStartPtr kim1_vh_start = new VhStartPtr() { public int handler() 
 	{
-	    videoram_size = 6 * 2 + 24;
-	    videoram = malloc (videoram_size);
+	    videoram_size[0] = 6 * 2 + 24;
+	    videoram = malloc (videoram_size[0]);
 		if (!videoram)
 	        return 1;
-	    if (kim1_backdrop)
+	    if (kim1_backdrop != 0)
 	        backdrop_refresh (kim1_backdrop);
 	    if (generic_vh_start () != 0)
 	        return 1;
 	
 	    return 0;
-	}
+	} };
 	
-	void kim1_vh_stop (void)
+	public static VhStopPtr kim1_vh_stop = new VhStopPtr() { public void handler() 
 	{
-	    if (kim1_backdrop)
+	    if (kim1_backdrop != 0)
 	        artwork_free (&kim1_backdrop);
 	    kim1_backdrop = NULL;
-	    if (videoram)
+	    if (videoram != 0)
 	        free (videoram);
 	    videoram = NULL;
 	    generic_vh_stop ();
-	}
+	} };
 	
-	void kim1_vh_screenrefresh (struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr kim1_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 	    int x, y;
 	
-	    if (full_refresh)
+	    if (full_refresh != 0)
 	    {
-	        osd_mark_dirty (0, 0, bitmap->width, bitmap->height, 0);
-	        memset (videoram, 0x0f, videoram_size);
+	        osd_mark_dirty (0, 0, bitmap.width, bitmap.height, 0);
+	        memset (videoram, 0x0f, videoram_size[0]);
 	    }
-	    if (kim1_backdrop)
-	        copybitmap (bitmap, kim1_backdrop->artwork, 0, 0, 0, 0, NULL, TRANSPARENCY_NONE, 0);
+	    if (kim1_backdrop != 0)
+	        copybitmap (bitmap, kim1_backdrop.artwork, 0, 0, 0, 0, NULL, TRANSPARENCY_NONE, 0);
 		else
-			fillbitmap (bitmap, Machine->pens[0], &Machine->visible_area);
+			fillbitmap (bitmap, Machine.pens[0], &Machine.visible_area);
 	
 	    for (x = 0; x < 6; x++)
 	    {
 	        int sy = 408;
-	        int sx = Machine->drv->screen_width - 212 + x * 30 + ((x >= 4) ? 6 : 0);
+	        int sx = Machine.drv.screen_width - 212 + x * 30 + ((x >= 4) ? 6 : 0);
 	
-			drawgfx (bitmap, Machine->gfx[0], videoram[2 * x + 0], videoram[2 * x + 1],
-				0, 0, sx, sy, &Machine->visible_area, TRANSPARENCY_PEN, 0);
+			drawgfx (bitmap, Machine.gfx[0], videoram.read(2 * x + 0), videoram.read(2 * x + 1),
+				0, 0, sx, sy, &Machine.visible_area, TRANSPARENCY_PEN, 0);
 	    }
 	
 	    for (y = 0; y < 6; y++)
@@ -143,18 +143,18 @@ public class kim1
 					{ 4,  5,  6,  7},
 					{ 0,  1,  2,  3}
 	            };
-	            int sx = Machine->drv->screen_width - 182 + x * 37;
+	            int sx = Machine.drv.screen_width - 182 + x * 37;
 	            int color, code = layout[y][x];
 	
 	            color = (readinputport (code / 7) & (0x40 >> (code % 7))) ? 0 : 1;
 	
-	            videoram[6 * 2 + code] = color;
-				drawgfx (bitmap, Machine->gfx[1], layout[y][x], color,
-					0, 0, sx, sy, &Machine->visible_area, TRANSPARENCY_NONE, 0);
+	            videoram.write(6 * 2 + code,color);
+				drawgfx (bitmap, Machine.gfx[1], layout[y][x], color,
+					0, 0, sx, sy, &Machine.visible_area, TRANSPARENCY_NONE, 0);
 	        }
 	    }
 	
-	}
+	} };
 	
 	
 }

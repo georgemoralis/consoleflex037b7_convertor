@@ -54,7 +54,7 @@ public class avigo
 	*/
 	static UINT8 avigo_irq;
 	/* 128k ram */
-	unsigned char *avigo_memory;
+	UBytePtr avigo_memory;
 	
 	/* bit 3 = speaker state */
 	static UINT8 avigo_speaker_data;
@@ -182,7 +182,7 @@ public class avigo
 	
 	static void avigo_refresh_memory(void)
 	{
-	        unsigned char *addr;
+	        UBytePtr addr;
 	
 	        switch (avigo_rom_bank_h)
 	        {
@@ -203,7 +203,7 @@ public class avigo
 	              break;
 	        }
 	
-	        addr = (unsigned char *)flash_get_base(avigo_flash_at_0x4000);
+	        addr = (UBytePtr )flash_get_base(avigo_flash_at_0x4000);
 	        addr = addr + (avigo_rom_bank_l<<14);
 	        cpu_setbank(2, addr);
 	        cpu_setbank(6, addr);
@@ -239,7 +239,7 @@ public class avigo
 	                        avigo_flash_at_0x8000 = 1;
 	
 	
-	                        addr = (unsigned char *)flash_get_base(avigo_flash_at_0x8000);
+	                        addr = (UBytePtr )flash_get_base(avigo_flash_at_0x8000);
 	                        addr = addr + (avigo_ram_bank_l<<14);
 	                        cpu_setbank(3, addr);
 	                        cpu_setbank(7, addr);
@@ -257,7 +257,7 @@ public class avigo
 	                        avigo_flash_at_0x8000 = 0;
 	
 	
-	                        addr = (unsigned char *)flash_get_base(avigo_flash_at_0x8000);
+	                        addr = (UBytePtr )flash_get_base(avigo_flash_at_0x8000);
 	                        addr = addr + (avigo_ram_bank_l<<14);
 	                        cpu_setbank(3, addr);
 	                        cpu_setbank(7, addr);
@@ -281,7 +281,7 @@ public class avigo
 	
 		avigo_irq &= ~(1<<3);
 	
-		if (state)
+		if (state != 0)
 		{
 			avigo_irq |= (1<<3);
 		}
@@ -303,9 +303,9 @@ public class avigo
 	};     
 	
 	
-	void avigo_init_machine(void)
+	public static InitMachinePtr avigo_init_machine = new InitMachinePtr() { public void handler() 
 	{
-	        unsigned char *addr;
+	        UBytePtr addr;
 	
 		/* initialise flash memory */
 		flash_init(0);
@@ -344,14 +344,14 @@ public class avigo
 	        uart8250_reset(0);
 	
 		/* allocate memory */
-		avigo_memory = (unsigned char *)malloc(128*1024);
+		avigo_memory = (UBytePtr )malloc(128*1024);
 	
 	        if (avigo_memory!=NULL)
 	        {
 	                memset(avigo_memory, 0, 128*1024);
 	        }
 	
-	        addr = (unsigned char *)flash_get_base(0);
+	        addr = (UBytePtr )flash_get_base(0);
 	        cpu_setbank(1, addr);
 	        cpu_setbank(5, addr);
 	
@@ -370,7 +370,7 @@ public class avigo
 		/* 0x08000 is specially banked! */
 	
 	        avigo_refresh_memory();
-	}
+	} };
 	
 	void avigo_shutdown_machine(void)
 	{
@@ -396,23 +396,23 @@ public class avigo
 	}
 	
 	
-	static struct MemoryReadAddress readmem_avigo[] =
+	static MemoryReadAddress readmem_avigo[] =
 	{
-	        {0x00000, 0x03fff, MRA_BANK1},
-	        {0x04000, 0x07fff, MRA_BANK2},
-	        {0x08000, 0x0bfff, MRA_BANK3},
-	        {0x0c000, 0x0ffff, MRA_BANK4},
-		{-1}							   /* end of table */
+	        new MemoryReadAddress(0x00000, 0x03fff, MRA_BANK1),
+	        new MemoryReadAddress(0x04000, 0x07fff, MRA_BANK2),
+	        new MemoryReadAddress(0x08000, 0x0bfff, MRA_BANK3),
+	        new MemoryReadAddress(0x0c000, 0x0ffff, MRA_BANK4),
+		new MemoryReadAddress(-1)							   /* end of table */
 	};
 	
 	
-	static struct MemoryWriteAddress writemem_avigo[] =
+	static MemoryWriteAddress writemem_avigo[] =
 	{
-	        {0x00000, 0x03fff, MWA_BANK4},
-	        {0x04000, 0x07fff, MWA_BANK5},
-	        {0x08000, 0x0bfff, MWA_BANK6},
-	        {0x0c000, 0x0ffff, MWA_BANK7},
-		{-1}							   /* end of table */
+	        new MemoryWriteAddress(0x00000, 0x03fff, MWA_BANK4),
+	        new MemoryWriteAddress(0x04000, 0x07fff, MWA_BANK5),
+	        new MemoryWriteAddress(0x08000, 0x0bfff, MWA_BANK6),
+	        new MemoryWriteAddress(0x0c000, 0x0ffff, MWA_BANK7),
+		new MemoryWriteAddress(-1)							   /* end of table */
 	};
 	
 	
@@ -428,17 +428,17 @@ public class avigo
 		data = 0x0ff;
 	
 	
-		if (avigo_key_line & 0x01)
+		if ((avigo_key_line & 0x01) != 0)
 		{
 			data &= readinputport(0);
 		}
 	
-		if (avigo_key_line & 0x02)
+		if ((avigo_key_line & 0x02) != 0)
 		{
 			data &= readinputport(1);
 		}
 	
-		if (avigo_key_line & 0x04)
+		if ((avigo_key_line & 0x04) != 0)
 		{
 			data &= readinputport(2);
 	
@@ -579,54 +579,54 @@ public class avigo
 		}
 	}
 	
-	static struct IOReadPort readport_avigo[] =
+	static IOReadPort readport_avigo[] =
 	{
-	        {0x001, 0x001, avigo_key_data_read_r},
-		{0x003, 0x003, avigo_irq_r},
-		{0x005, 0x005, avigo_rom_bank_l_r},
-		{0x006, 0x006, avigo_rom_bank_h_r},
-		{0x007, 0x007, avigo_ram_bank_l_r},
-		{0x008, 0x008, avigo_ram_bank_h_r},
-	        {0x009, 0x009, avigo_ad_control_status_r},
-		{0x010, 0x01f, tc8521_r},
-	        {0x02d, 0x02d, avigo_ad_data_r},
-		{0x030, 0x037, uart8250_0_r},
-		{-1}							   /* end of table */
+	        new IOReadPort(0x001, 0x001, avigo_key_data_read_r),
+		new IOReadPort(0x003, 0x003, avigo_irq_r),
+		new IOReadPort(0x005, 0x005, avigo_rom_bank_l_r),
+		new IOReadPort(0x006, 0x006, avigo_rom_bank_h_r),
+		new IOReadPort(0x007, 0x007, avigo_ram_bank_l_r),
+		new IOReadPort(0x008, 0x008, avigo_ram_bank_h_r),
+	        new IOReadPort(0x009, 0x009, avigo_ad_control_status_r),
+		new IOReadPort(0x010, 0x01f, tc8521_r),
+	        new IOReadPort(0x02d, 0x02d, avigo_ad_data_r),
+		new IOReadPort(0x030, 0x037, uart8250_0_r),
+		new IOReadPort(-1)							   /* end of table */
 	};
 	
-	static struct IOWritePort writeport_avigo[] =
+	static IOWritePort writeport_avigo[] =
 	{
-	        {0x001, 0x001, avigo_set_key_line_w},
-	        {0x003, 0x003, avigo_irq_w},
-		{0x005, 0x005, avigo_rom_bank_l_w},
-		{0x006, 0x006, avigo_rom_bank_h_w},
-		{0x007, 0x007, avigo_ram_bank_l_w},
-		{0x008, 0x008, avigo_ram_bank_h_w},
-	        {0x009, 0x009, avigo_ad_control_status_w},
-	   	{0x010, 0x01f, tc8521_w},
-		{0x028, 0x028, avigo_speaker_w},
-		{0x030, 0x037, uart8250_0_w},
-		{-1}                                                       /* end of table */
+	        new IOWritePort(0x001, 0x001, avigo_set_key_line_w),
+	        new IOWritePort(0x003, 0x003, avigo_irq_w),
+		new IOWritePort(0x005, 0x005, avigo_rom_bank_l_w),
+		new IOWritePort(0x006, 0x006, avigo_rom_bank_h_w),
+		new IOWritePort(0x007, 0x007, avigo_ram_bank_l_w),
+		new IOWritePort(0x008, 0x008, avigo_ram_bank_h_w),
+	        new IOWritePort(0x009, 0x009, avigo_ad_control_status_w),
+	   	new IOWritePort(0x010, 0x01f, tc8521_w),
+		new IOWritePort(0x028, 0x028, avigo_speaker_w),
+		new IOWritePort(0x030, 0x037, uart8250_0_w),
+		new IOWritePort(-1)                                                       /* end of table */
 	        
 	};
 	
-	INPUT_PORTS_START(avigo)
-		PORT_START
-	        PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "PAGE UP", KEYCODE_PGUP, IP_JOY_NONE)
-	        PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "PAGE DOWN", KEYCODE_PGDN, IP_JOY_NONE)
-	        PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "LIGHT", KEYCODE_L, IP_JOY_NONE)
-	        PORT_BIT (0x0f7, 0xf7, IPT_UNUSED)
+	static InputPortPtr input_ports_avigo = new InputPortPtr(){ public void handler() { 
+		PORT_START(); 
+	        PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "PAGE UP", KEYCODE_PGUP, IP_JOY_NONE);
+	        PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "PAGE DOWN", KEYCODE_PGDN, IP_JOY_NONE);
+	        PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "LIGHT", KEYCODE_L, IP_JOY_NONE);
+	        PORT_BIT (0x0f7, 0xf7, IPT_UNUSED);
 		
-		PORT_START
-	        PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "TO DO", KEYCODE_T, IP_JOY_NONE)
-	        PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "ADDRESS", KEYCODE_A, IP_JOY_NONE)
-	        PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "SCHEDULE", KEYCODE_S, IP_JOY_NONE)
-	        PORT_BIT (0x0f7, 0xf7, IPT_UNUSED)
+		PORT_START(); 
+	        PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "TO DO", KEYCODE_T, IP_JOY_NONE);
+	        PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "ADDRESS", KEYCODE_A, IP_JOY_NONE);
+	        PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "SCHEDULE", KEYCODE_S, IP_JOY_NONE);
+	        PORT_BIT (0x0f7, 0xf7, IPT_UNUSED);
 	
-		PORT_START
-	        PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "MEMO", KEYCODE_M, IP_JOY_NONE)
-	        PORT_BIT (0x0fe, 0xfe, IPT_UNUSED)
-	INPUT_PORTS_END
+		PORT_START(); 
+	        PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "MEMO", KEYCODE_M, IP_JOY_NONE);
+	        PORT_BIT (0x0fe, 0xfe, IPT_UNUSED);
+	INPUT_PORTS_END(); }}; 
 	
 	static struct Speaker_interface avigo_speaker_interface=
 	{
@@ -634,23 +634,23 @@ public class avigo
 	 {50},
 	};
 	
-	static struct MachineDriver machine_driver_avigo =
-	{
+	static MachineDriver machine_driver_avigo = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
+		new MachineCPU[] {
 			/* MachineCPU */
-			{
+			new MachineCPU(
 	                        CPU_Z80 ,  /* type */
 	                        4000000, /* clock: See Note Above */
 	                        readmem_avigo,                   /* MemoryReadAddress */
 	                        writemem_avigo,                  /* MemoryWriteAddress */
 	                        readport_avigo,                  /* IOReadPort */
 	                        writeport_avigo,                 /* IOWritePort */
-				0,						   /*amstrad_frame_interrupt, *//* VBlank
+				null,						   /*amstrad_frame_interrupt, *//* VBlank
 											* Interrupt */
 				0 /*1 */ ,				   /* vblanks per frame */
 	                        0, 0,   /* every scanline */
-			},
+			),
 		},
 	        50,                                                     /* frames per second */
 		DEFAULT_60HZ_VBLANK_DURATION,	   /* vblank duration */
@@ -660,15 +660,15 @@ public class avigo
 		/* video hardware */
 	        AVIGO_SCREEN_WIDTH, /* screen width */
 	        AVIGO_SCREEN_HEIGHT,  /* screen height */
-	        {0, (AVIGO_SCREEN_WIDTH - 1), 0, (AVIGO_SCREEN_HEIGHT - 1)},        /* rectangle: visible_area */
-		0,								   /*amstrad_gfxdecodeinfo, 			 *//* graphics
+	        new rectangle(0, (AVIGO_SCREEN_WIDTH - 1), 0, (AVIGO_SCREEN_HEIGHT - 1)),        /* rectangle: visible_area */
+		null,								   /*amstrad_gfxdecodeinfo, 			 *//* graphics
 											* decode info */
 	        AVIGO_NUM_COLOURS,                                                        /* total colours */
 	        AVIGO_NUM_COLOURS,                                                        /* color table len */
 	        avigo_init_palette,                      /* init palette */
 	
 	        VIDEO_TYPE_RASTER,                                  /* video attributes */
-	        0,                                                                 /* MachineLayer */
+	        null,                                                                 /* MachineLayer */
 	        avigo_vh_start,
 	        avigo_vh_stop,
 	        avigo_vh_screenrefresh,
@@ -678,13 +678,13 @@ public class avigo
 		0,								   /* sh start */
 		0,								   /* sh stop */
 		0,								   /* sh update */
-		{
-			{
+		new MachineSound[] {
+			new MachineSound(
 	                SOUND_SPEAKER,
-	                &avigo_speaker_interface
-	        },
+	                avigo_speaker_interface
+	        ),
 		}
-	};
+	);
 	
 	
 	
@@ -695,11 +695,11 @@ public class avigo
 	
 	***************************************************************************/
 	
-	ROM_START(avigo)
-	/*        ROM_REGION(((64*1024)+(1024*1024)+), REGION_CPU1)
-	        ROM_LOAD("avigo.rom", 0x010000, 0x020000, 0x0000)
+	static RomLoadPtr rom_avigo = new RomLoadPtr(){ public void handler(){ 
+	/*        ROM_REGION(((64*1024);(1024*1024)+), REGION_CPU1)
+	        ROM_LOAD("avigo.rom", 0x010000, 0x020000, 0x0000);
 	*/
-	ROM_END
+	ROM_END(); }}; 
 	
 	static const struct IODevice io_avigo[] =
 	{

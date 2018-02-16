@@ -347,11 +347,11 @@ public class crt
 		STREAM *file_handle;
 		int size;
 		int modified;
-		unsigned char *data;
+		UBytePtr data;
 	} crt_image;
 	
-	#define HEADER(image) ((crt_header*)image->data)
-	#define PACKET(image, pos) ((crt_packet*)(image->data+pos))
+	#define HEADER(image) ((crt_header*)image.data)
+	#define PACKET(image, pos) ((crt_packet*)(image.data+pos))
 	
 	typedef struct {
 		IMAGEENUM base;
@@ -407,13 +407,13 @@ public class crt
 		if (!image) return IMGTOOLERR_OUTOFMEMORY;
 	
 		memset(image, 0, sizeof(crt_image));
-		image->base.module = &imgmod_c64crt;
-		image->size=stream_size(f);
-		image->file_handle=f;
+		image.base.module = &imgmod_c64crt;
+		image.size=stream_size(f);
+		image.file_handle=f;
 	
-		image->data = (unsigned char *) malloc(image->size);
-		if ( (!image->data)
-			 ||(stream_read(f, image->data, image->size)!=image->size) ) {
+		image.data = (UBytePtr ) malloc(image.size);
+		if ( (!image.data)
+			 ||(stream_read(f, image.data, image.size)!=image.size) ) {
 			free(image);
 			*outimg=NULL;
 			return IMGTOOLERR_OUTOFMEMORY;
@@ -425,12 +425,12 @@ public class crt
 	static void crt_image_exit(IMAGE *img)
 	{
 		crt_image *image=(crt_image*)img;
-		if (image->modified) {
-			stream_clear(image->file_handle);
-			stream_write(image->file_handle, image->data, image->size);
+		if (image.modified) {
+			stream_clear(image.file_handle);
+			stream_write(image.file_handle, image.data, image.size);
 		}
-		stream_close(image->file_handle);
-		free(image->data);
+		stream_close(image.file_handle);
+		free(image.data);
 		free(image);
 	}
 	
@@ -438,11 +438,11 @@ public class crt
 	{
 		crt_image *image=(crt_image*)img;
 		sprintf(string, "%-32s\nversion:%.4x type:%d:%s exrom:%d game:%d",
-				HEADER(image)->name,
-				GET_UWORD(HEADER(image)->version),
-				GET_UWORD(HEADER(image)->hardware_type),
-				hardware_types[GET_UWORD(HEADER(image)->hardware_type)],
-				HEADER(image)->exrom_line, HEADER(image)->game_line);
+				HEADER(image).name,
+				GET_UWORD(HEADER(image).version),
+				GET_UWORD(HEADER(image).hardware_type),
+				hardware_types[GET_UWORD(HEADER(image).hardware_type)],
+				HEADER(image).exrom_line, HEADER(image).game_line);
 		return;
 	}
 	
@@ -454,11 +454,11 @@ public class crt
 		iter=*(crt_iterator**)outenum = (crt_iterator *) malloc(sizeof(crt_iterator));
 		if (!iter) return IMGTOOLERR_OUTOFMEMORY;
 	
-		iter->base.module = &imgmod_c64crt;
+		iter.base.module = &imgmod_c64crt;
 	
-		iter->image=image;
-		iter->pos = GET_ULONG( HEADER(image)->length );
-		iter->number = 0;
+		iter.image=image;
+		iter.pos = GET_ULONG( HEADER(image).length );
+		iter.number = 0;
 		return 0;
 	}
 	
@@ -466,20 +466,20 @@ public class crt
 	{
 		crt_iterator *iter=(crt_iterator*)enumeration;
 	
-		ent->corrupt=0;
+		ent.corrupt=0;
 		
-		if (!(ent->eof=(iter->pos>=iter->image->size))) {
-			sprintf(ent->fname,"%d", iter->number);
-			if (ent->attr)
-				sprintf(ent->attr,"%-4s %s bank:%-2d addr:%.4x",
-						(char*)PACKET(iter->image, iter->pos),
-						chip_types[GET_UWORD(PACKET(iter->image,iter->pos)->chip_type)],
-						GET_UWORD( PACKET(iter->image,iter->pos)->bank),
-						GET_UWORD( PACKET(iter->image,iter->pos)->address) );
-			ent->filesize=GET_UWORD( PACKET(iter->image, iter->pos)->length );
-			iter->number++;
+		if (!(ent.eof=(iter.pos>=iter.image.size))) {
+			sprintf(ent.fname,"%d", iter.number);
+			if (ent.attr)
+				sprintf(ent.attr,"%-4s %s bank:%-2d addr:%.4x",
+						(char*)PACKET(iter.image, iter.pos),
+						chip_types[GET_UWORD(PACKET(iter.image,iter.pos).chip_type)],
+						GET_UWORD( PACKET(iter.image,iter.pos).bank),
+						GET_UWORD( PACKET(iter.image,iter.pos).address) );
+			ent.filesize=GET_UWORD( PACKET(iter.image, iter.pos).length );
+			iter.number++;
 	
-			iter->pos+=GET_ULONG( PACKET(iter->image, iter->pos)->packet_length );
+			iter.pos+=GET_ULONG( PACKET(iter.image, iter.pos).packet_length );
 		}
 		return 0;
 	}
@@ -497,7 +497,7 @@ public class crt
 		size_t s = 0;
 	
 		for (i = 0; i < GRANULE_COUNT; i++)
-			if (rsimg->granulemap[i] == 0xff)
+			if (rsimg.granulemap[i] == 0xff)
 				s += (9 * 256);
 		return s;
 	}
@@ -509,10 +509,10 @@ public class crt
 		char name[6];
 		int i=sizeof(crt_header);
 	
-		while (i<image->size) {
+		while (i<image.size) {
 			sprintf(name, "%d",nr);
 			if (!strcmp(fname, name) ) return i;
-			i+=GET_ULONG( PACKET(image, i)->packet_length );
+			i+=GET_ULONG( PACKET(image, i).packet_length );
 			nr++;
 		}
 		return 0;
@@ -527,8 +527,8 @@ public class crt
 		if (!(pos=crt_image_findfile(image, fname)) ) 
 			return IMGTOOLERR_MODULENOTFOUND;
 	
-		size=GET_UWORD( PACKET(image, pos)->length );
-		if (stream_write(destf, image->data+pos+sizeof(crt_packet), size)!=size) {
+		size=GET_UWORD( PACKET(image, pos).length );
+		if (stream_write(destf, image.data+pos+sizeof(crt_packet), size)!=size) {
 			return IMGTOOLERR_WRITEERROR;
 		}
 	
@@ -545,33 +545,33 @@ public class crt
 		size=stream_size(sourcef);
 		if (!(pos=crt_image_findfile(image, fname)) ) {
 			// appending
-			pos=image->size;
-			if (!(image->data=realloc(image->data, image->size+size+sizeof(crt_packet))) )
+			pos=image.size;
+			if (!(image.data=realloc(image.data, image.size+size+sizeof(crt_packet))) )
 				return IMGTOOLERR_OUTOFMEMORY;
-			image->size+=size+sizeof(crt_packet);
+			image.size+=size+sizeof(crt_packet);
 		} else {
-			int oldsize=GET_ULONG(PACKET(image,pos)->packet_length);
+			int oldsize=GET_ULONG(PACKET(image,pos).packet_length);
 			// overwritting
-			if (!(image->data=realloc(image->data, image->size+size+sizeof(crt_packet)-oldsize) ) )
+			if (!(image.data=realloc(image.data, image.size+size+sizeof(crt_packet)-oldsize) ) )
 				return IMGTOOLERR_OUTOFMEMORY;
-			if (image->size-pos-oldsize!=0) {
-				memmove(image->data+pos+size+sizeof(crt_packet), image->data+pos+oldsize, 
-						image->size-pos-oldsize);
+			if (image.size-pos-oldsize!=0) {
+				memmove(image.data+pos+size+sizeof(crt_packet), image.data+pos+oldsize, 
+						image.size-pos-oldsize);
 			}
-			image->size+=size+sizeof(crt_packet)-oldsize;
+			image.size+=size+sizeof(crt_packet)-oldsize;
 		}
-		if (stream_read(sourcef, image->data+pos+sizeof(crt_packet), size)!=size) {
+		if (stream_read(sourcef, image.data+pos+sizeof(crt_packet), size)!=size) {
 			return IMGTOOLERR_READERROR;
 		}
-		memset(image->data+pos, 0, sizeof(crt_packet));
-		memcpy(PACKET(image,pos)->id,"CHIP",4);
-		SET_ULONG( PACKET(image, pos)->packet_length, size+sizeof(crt_packet));
-		SET_UWORD(PACKET(image, pos)->chip_type, options->ftype);
-		SET_UWORD( PACKET(image, pos)->address, options->faddr);
-		SET_UWORD( PACKET(image, pos)->bank, options->fbank);
-		SET_UWORD( PACKET(image, pos)->length, size);
+		memset(image.data+pos, 0, sizeof(crt_packet));
+		memcpy(PACKET(image,pos).id,"CHIP",4);
+		SET_ULONG( PACKET(image, pos).packet_length, size+sizeof(crt_packet));
+		SET_UWORD(PACKET(image, pos).chip_type, options.ftype);
+		SET_UWORD( PACKET(image, pos).address, options.faddr);
+		SET_UWORD( PACKET(image, pos).bank, options.fbank);
+		SET_UWORD( PACKET(image, pos).length, size);
 	
-		image->modified=1;
+		image.modified=1;
 	
 		return 0;
 	}
@@ -585,11 +585,11 @@ public class crt
 		if (!(pos=crt_image_findfile(image, fname)) ) {
 			return IMGTOOLERR_MODULENOTFOUND;
 		}
-		size=GET_ULONG(PACKET(image, pos)->packet_length);
-		if (image->size-pos-size>0)
-			memmove(image->data+pos, image->data+pos+size, image->size-pos-size);
-		image->size-=size;
-		image->modified=1;
+		size=GET_ULONG(PACKET(image, pos).packet_length);
+		if (image.size-pos-size>0)
+			memmove(image.data+pos, image.data+pos+size, image.size-pos-size);
+		image.size-=size;
+		image.modified=1;
 	
 		return 0;
 	}
@@ -599,10 +599,10 @@ public class crt
 		crt_header header={ "C64 CARTRIDGE   " };
 		SET_ULONG(header.length, sizeof(header));
 		SET_UWORD(header.version, 0x100);
-		SET_UWORD(header.hardware_type, options->hardware_type);
-		header.game_line=options->game_line;
-		header.exrom_line=options->exrom_line;
-		if (options->label) strcpy(header.name, options->label);
+		SET_UWORD(header.hardware_type, options.hardware_type);
+		header.game_line=options.game_line;
+		header.exrom_line=options.exrom_line;
+		if (options.label) strcpy(header.name, options.label);
 		return (stream_write(f, &header, sizeof(crt_header)) == sizeof(crt_header)) 
 			? 0 : IMGTOOLERR_WRITEERROR;
 	}

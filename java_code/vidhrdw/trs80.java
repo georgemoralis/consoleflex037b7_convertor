@@ -25,25 +25,25 @@ public class trs80
 	/***************************************************************************
 	  Start the video hardware emulation.
 	***************************************************************************/
-	int trs80_vh_start(void)
+	public static VhStartPtr trs80_vh_start = new VhStartPtr() { public int handler() 
 	{
 		if (generic_vh_start() != 0)
 			return 1;
 	
 		return 0;
-	}
+	} };
 	
-	void trs80_vh_stop(void)
+	public static VhStopPtr trs80_vh_stop = new VhStopPtr() { public void handler() 
 	{
 		generic_vh_stop();
-	}
+	} };
 	
 	/***************************************************************************
 	  Draw the game screen in the given osd_bitmap.
 	  Do NOT call osd_update_display() from this function,
 	  it will be called by the main emulation engine.
 	***************************************************************************/
-	void trs80_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr trs80_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 	/* Special translation if video RAM with only 7 bits is present
 	 * I don't know if it's entirely correct, but it's close ;-)
@@ -103,14 +103,14 @@ public class trs80
 		 * called osd_clearbitmap or color change / scanline change
 		 */
 		if( palette_recalc() || full_refresh )
-			memset(dirtybuffer, 1, videoram_size);
+			memset(dirtybuffer, 1, videoram_size[0]);
 	
 		/* do we have double width characters enabled ? */
-		if( trs80_port_ff & 0x08 )
+		if ((trs80_port_ff & 0x08) != 0)
 		{
 			/* for every second character in the Video RAM, check if it has
 			   been modified since last time and update it accordingly. */
-			for (offs = videoram_size - 2; offs >= 0; offs -= 2)
+			for (offs = videoram_size[0] - 2; offs >= 0; offs -= 2)
 			{
 				if (dirtybuffer[offs])
 				{
@@ -119,8 +119,8 @@ public class trs80
 					dirtybuffer[offs] = 0;
 					sx = (offs % 64) * FW * 2;
 					sy = (offs / 64) * FH;
-					drawgfx(bitmap, Machine->gfx[1], translate_videoram[translate][videoram[offs]],
-						color,0,0, sx,sy, &Machine->visible_area, TRANSPARENCY_NONE,0);
+					drawgfx(bitmap, Machine.gfx[1], translate_videoram[translate][videoram.read(offs)],
+						color,0,0, sx,sy, &Machine.visible_area, TRANSPARENCY_NONE,0);
 				}
 			}
 		}
@@ -129,7 +129,7 @@ public class trs80
 		{
 			/* for every character in the Video RAM, check if it has
 			* been modified since last time and update it accordingly. */
-			for (offs = videoram_size - 1; offs >= 0; offs--)
+			for (offs = videoram_size[0] - 1; offs >= 0; offs--)
 			{
 				if (dirtybuffer[offs])
 				{
@@ -138,11 +138,11 @@ public class trs80
 	                dirtybuffer[offs] = 0;
 					sx = (offs % 64) * FW;
 					sy = (offs / 64) * FH;
-					drawgfx(bitmap, Machine->gfx[0], translate_videoram[translate][videoram[offs]],
-						color,0,0, sx,sy, &Machine->visible_area, TRANSPARENCY_NONE,0);
+					drawgfx(bitmap, Machine.gfx[0], translate_videoram[translate][videoram.read(offs)],
+						color,0,0, sx,sy, &Machine.visible_area, TRANSPARENCY_NONE,0);
 	            }
 			}
 		}
-	}
+	} };
 	
 }

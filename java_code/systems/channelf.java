@@ -29,18 +29,18 @@ public class channelf
 	#define LOG(x)	/* x */
 	#endif
 	
-	void channelf_init_machine(void)
+	public static InitMachinePtr channelf_init_machine = new InitMachinePtr() { public void handler() 
 	{
-	}
+	} };
 	
-	void init_channelf(void)
+	public static InitDriverPtr init_channelf = new InitDriverPtr() { public void handler() 
 	{
 		UINT8 *mem = memory_region(REGION_GFX1);
 		int i;
 	
 	    for (i = 0; i < 256; i++)
 			mem[i] = i;
-	}
+	} };
 	
 	int channelf_id_rom(int id)
 	{
@@ -67,22 +67,22 @@ public class channelf
 	    return INIT_FAILED;
 	}
 	
-	int channelf_vh_start(void)
+	public static VhStartPtr channelf_vh_start = new VhStartPtr() { public int handler() 
 	{
-		videoram_size = 0x2000;
-		videoram = malloc(videoram_size);
+		videoram_size[0] = 0x2000;
+		videoram = malloc(videoram_size[0]);
 	
 	    if (generic_vh_start())
 	        return 1;
 	
 	    return 0;
-	}
+	} };
 	
-	void channelf_vh_stop(void)
+	public static VhStopPtr channelf_vh_stop = new VhStopPtr() { public void handler() 
 	{
 		free(videoram);
 		generic_vh_stop();
-	}
+	} };
 	
 	#define BLACK	0
 	#define WHITE   1
@@ -104,21 +104,21 @@ public class channelf
 	{
 		int pen;
 	
-		if (x < Machine->visible_area.min_x ||
-			x + 1 >= Machine->visible_area.max_x ||
-			y < Machine->visible_area.min_y ||
-			y + 1 >= Machine->visible_area.max_y)
+		if (x < Machine.visible_area.min_x ||
+			x + 1 >= Machine.visible_area.max_x ||
+			y < Machine.visible_area.min_y ||
+			y + 1 >= Machine.visible_area.max_y)
 			return;
 	
 		if (color >= 16)
 			return;
 	
-	    pen = Machine->pens[colormap[color]];
+	    pen = Machine.pens[colormap[color]];
 	
-		plot_pixel(Machine->scrbitmap, x, y, pen);
-		plot_pixel(Machine->scrbitmap, x+1, y, pen);
-		plot_pixel(Machine->scrbitmap, x, y+1, pen);
-		plot_pixel(Machine->scrbitmap, x+1, y+1, pen);
+		plot_pixel(Machine.scrbitmap, x, y, pen);
+		plot_pixel(Machine.scrbitmap, x+1, y, pen);
+		plot_pixel(Machine.scrbitmap, x, y+1, pen);
+		plot_pixel(Machine.scrbitmap, x+1, y+1, pen);
 	}
 	
 	int recalc_palette_offset(int reg1, int reg2)
@@ -141,58 +141,58 @@ public class channelf
 		}
 	}
 	
-	void channelf_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr channelf_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 		int x,y,offset, palette_offset;
 	
 		for(y=0;y<64;y++)
 		{
-			palette_offset = recalc_palette_offset(videoram[y*128+125]&3,videoram[y*128+126]&3);
+			palette_offset = recalc_palette_offset(videoram.read(y*128+125)&3,videoram.read(y*128+126)&3);
 			for (x=0;x<128;x++)
 			{
 				offset = y*128+x;
 				if ( full_refresh || dirtybuffer[offset] )
-					plot_4_pixel(x*2, y*2, palette_offset+(videoram[offset]&3));
+					plot_4_pixel(x*2, y*2, palette_offset+(videoram.read(offset)&3));
 			}
 		}
-	}
+	} };
 	
 	static UINT8 latch[4];
 	static int val;
 	static int row;
 	static int col;
 	
-	READ_HANDLER( channelf_port_0_r )
+	public static ReadHandlerPtr channelf_port_0_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		data_t data = readinputport(0);
 		data = (data ^ 0xff) | latch[0];
 	    LOG(("port_0_r: $%02x\n",data));
 		return data;
-	}
+	} };
 	
-	READ_HANDLER( channelf_port_1_r )
+	public static ReadHandlerPtr channelf_port_1_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		data_t data = readinputport(1);
 		data = (data ^ 0xff) | latch[1];
 	    LOG(("port_1_r: $%02x\n",data));
 		return data;
-	}
+	} };
 	
-	READ_HANDLER( channelf_port_4_r )
+	public static ReadHandlerPtr channelf_port_4_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		data_t data = readinputport(2);
 		data = (data ^ 0xff) | latch[2];
 	    LOG(("port_4_r: $%02x\n",data));
 		return data;
-	}
+	} };
 	
-	READ_HANDLER( channelf_port_5_r )
+	public static ReadHandlerPtr channelf_port_5_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		data_t data = 0xff;
 		data = (data ^ 0xff) | latch[3];
 	    LOG(("port_5_r: $%02x\n",data));
 		return data;
-	}
+	} };
 	
 	static UINT8 palette[] = {
 		0x00, 0x00, 0x00,	/* black */
@@ -205,22 +205,22 @@ public class channelf
 		0xbf, 0xbf, 0xff	/* ltblue  */
 	};
 	
-	WRITE_HANDLER( channelf_port_0_w )
+	public static WriteHandlerPtr channelf_port_0_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		LOG(("port_0_w: $%02x\n",data));
 	
 	/*
-		if (data & 0x40)
+		if ((data & 0x40) != 0)
 			controller_enable = 1;
 		else
 			controller_enable = 0;
 	*/
 	
-	    if (data & 0x20)
+	    if ((data & 0x20) != 0)
 		{
-			if (videoram[row*128+col] != val)
+			if (videoram.read(row*128+col)!= val)
 			{
-				videoram[row*128+col] = val;
+				videoram.write(row*128+col,val);
 	        	if (col == 0x7d)
 				{
 				}
@@ -235,27 +235,27 @@ public class channelf
 			}
 		}
 		latch[0] = data;
-	}
+	} };
 	
-	WRITE_HANDLER( channelf_port_1_w )
+	public static WriteHandlerPtr channelf_port_1_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		LOG(("port_1_w: $%02x\n",data));
 	
 	    val = ((data ^ 0xff) >> 6) & 0x03;
 	
 		latch[1] = data;
-	}
+	} };
 	
-	WRITE_HANDLER( channelf_port_4_w )
+	public static WriteHandlerPtr channelf_port_4_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		LOG(("port_4_w: $%02x\n",data));
 	
 	    col = (data | 0x80) ^ 0xff;
 	
 	    latch[2] = data;
-	}
+	} };
 	
-	WRITE_HANDLER( channelf_port_5_w )
+	public static WriteHandlerPtr channelf_port_5_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		LOG(("port_5_w: $%02x\n",data));
 	
@@ -273,87 +273,87 @@ public class channelf
 	    row = (data | 0xc0) ^ 0xff;
 	
 	    latch[3] = data;
-	}
+	} };
 	
-	static struct MemoryReadAddress readmem[] =
+	static MemoryReadAddress readmem[] =
 	{
-		{ 0x0000, 0x07ff, MRA_ROM },
-		{ 0x0800, 0x0fff, MRA_ROM },
-	    {-1}
+		new MemoryReadAddress( 0x0000, 0x07ff, MRA_ROM ),
+		new MemoryReadAddress( 0x0800, 0x0fff, MRA_ROM ),
+	    new MemoryReadAddress(-1)
 	};
 	
-	static struct MemoryWriteAddress writemem[] =
+	static MemoryWriteAddress writemem[] =
 	{
-		{ 0x0000, 0x03ff, MWA_ROM },
-		{ 0x0400, 0x07ff, MWA_ROM },
-	    {-1}
+		new MemoryWriteAddress( 0x0000, 0x03ff, MWA_ROM ),
+		new MemoryWriteAddress( 0x0400, 0x07ff, MWA_ROM ),
+	    new MemoryWriteAddress(-1)
 	};
 	
-	static struct IOReadPort readport[] =
+	static IOReadPort readport[] =
 	{
-		{ 0x00, 0x00,	channelf_port_0_r }, /* Front panel switches */
-		{ 0x01, 0x01,	channelf_port_1_r }, /* Right controller     */
-		{ 0x04, 0x04,	channelf_port_4_r }, /* Left controller      */
-		{ 0x05, 0x05,	channelf_port_5_r }, /* ???                  */
-	    {-1}
+		new IOReadPort( 0x00, 0x00,	channelf_port_0_r ), /* Front panel switches */
+		new IOReadPort( 0x01, 0x01,	channelf_port_1_r ), /* Right controller     */
+		new IOReadPort( 0x04, 0x04,	channelf_port_4_r ), /* Left controller      */
+		new IOReadPort( 0x05, 0x05,	channelf_port_5_r ), /* ???                  */
+	    new IOReadPort(-1)
 	};
 	
-	static struct IOWritePort writeport[] =
+	static IOWritePort writeport[] =
 	{
-		{ 0x00, 0x00,	channelf_port_0_w }, /* Enable Controllers & ARM WRT */
-		{ 0x01, 0x01,	channelf_port_1_w }, /* Video Write Data */
-		{ 0x04, 0x04,	channelf_port_4_w }, /* Video Horiz */
-		{ 0x05, 0x05,	channelf_port_5_w }, /* Video Vert & Sound */
-	    {-1}
+		new IOWritePort( 0x00, 0x00,	channelf_port_0_w ), /* Enable Controllers  ARM WRT */
+		new IOWritePort( 0x01, 0x01,	channelf_port_1_w ), /* Video Write Data */
+		new IOWritePort( 0x04, 0x04,	channelf_port_4_w ), /* Video Horiz */
+		new IOWritePort( 0x05, 0x05,	channelf_port_5_w ), /* Video Vert  Sound */
+	    new IOWritePort(-1)
 	};
 	
-	INPUT_PORTS_START( channelf )
-		PORT_START /* Front panel buttons */
-		PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_SELECT1 )	/* START (1) */
-		PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_SELECT2 )	/* HOLD  (2) */
-		PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_SELECT3 )	/* MODE  (3) */
-		PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_SELECT4 )	/* TIME  (4) */
-		PORT_BIT ( 0xf0, IP_ACTIVE_HIGH, IPT_UNUSED )
+	static InputPortPtr input_ports_channelf = new InputPortPtr(){ public void handler() { 
+		PORT_START();  /* Front panel buttons */
+		PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_SELECT1 );/* START (1) */
+		PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_SELECT2 );/* HOLD  (2) */
+		PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_SELECT3 );/* MODE  (3) */
+		PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_SELECT4 );/* TIME  (4) */
+		PORT_BIT ( 0xf0, IP_ACTIVE_HIGH, IPT_UNUSED );
 	
-		PORT_START /* Right controller */
-		PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT | IPF_PLAYER1 )
-		PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT  | IPF_PLAYER1 )
-		PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN  | IPF_PLAYER1 )
-		PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP    | IPF_PLAYER1 )
-		PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON4 	   | IPF_PLAYER1 ) /* C-CLOCKWISE */
-		PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_BUTTON3 	   | IPF_PLAYER1 ) /* CLOCKWISE   */
-		PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_BUTTON2 	   | IPF_PLAYER1 ) /* PULL UP     */
-		PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_BUTTON1 	   | IPF_PLAYER1 ) /* PUSH DOWN   */
+		PORT_START();  /* Right controller */
+		PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT | IPF_PLAYER1 );
+		PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT  | IPF_PLAYER1 );
+		PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN  | IPF_PLAYER1 );
+		PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP    | IPF_PLAYER1 );
+		PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON4 	   | IPF_PLAYER1 );/* C-CLOCKWISE */
+		PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_BUTTON3 	   | IPF_PLAYER1 );/* CLOCKWISE   */
+		PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_BUTTON2 	   | IPF_PLAYER1 );/* PULL UP     */
+		PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_BUTTON1 	   | IPF_PLAYER1 );/* PUSH DOWN   */
 	
-		PORT_START /* Left controller */
-		PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT | IPF_PLAYER2 )
-		PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT  | IPF_PLAYER2 )
-		PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN  | IPF_PLAYER2 )
-		PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP    | IPF_PLAYER2 )
-		PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON4 	   | IPF_PLAYER2 ) /* C-CLOCKWISE */
-		PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_BUTTON3 	   | IPF_PLAYER2 ) /* CLOCKWISE   */
-		PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_BUTTON2 	   | IPF_PLAYER2 ) /* PULL UP     */
-		PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_BUTTON1 	   | IPF_PLAYER2 ) /* PUSH DOWN   */
+		PORT_START();  /* Left controller */
+		PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT | IPF_PLAYER2 );
+		PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT  | IPF_PLAYER2 );
+		PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN  | IPF_PLAYER2 );
+		PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP    | IPF_PLAYER2 );
+		PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON4 	   | IPF_PLAYER2 );/* C-CLOCKWISE */
+		PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_BUTTON3 	   | IPF_PLAYER2 );/* CLOCKWISE   */
+		PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_BUTTON2 	   | IPF_PLAYER2 );/* PULL UP     */
+		PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_BUTTON1 	   | IPF_PLAYER2 );/* PUSH DOWN   */
 	
-	INPUT_PORTS_END
+	INPUT_PORTS_END(); }}; 
 	
 	/* Initialise the palette */
-	static void init_palette(unsigned char *sys_palette, unsigned short *sys_colortable,const unsigned char *color_prom)
+	static void init_palette(UBytePtr sys_palette, unsigned short *sys_colortable,const UBytePtr color_prom)
 	{
 		memcpy(sys_palette,palette,sizeof(palette));
 		memcpy(sys_colortable,colormap,0);
 	}
 	
-	static struct MachineDriver machine_driver_channelf =
-	{
+	static MachineDriver machine_driver_channelf = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_F8,
 				3579545/2,	/* Colorburst/2 */
 				readmem,writemem,readport,writeport,
 				ignore_interrupt, 1
-	        }
+	        )
 		},
 		/* frames per second, VBL duration */
 		60, DEFAULT_60HZ_VBLANK_DURATION,
@@ -362,28 +362,28 @@ public class channelf
 		NULL,					/* stop machine */
 	
 		/* video hardware */
-		128*2, 64*2, { 1, 112*2 - 1, 0, 64*2 - 1},
+		128*2, 64*2, new rectangle( 1, 112*2 - 1, 0, 64*2 - 1),
 		NULL,
-		8, 0,
+		8, null,
 		init_palette,			/* convert color prom */
 	
 		VIDEO_TYPE_RASTER | VIDEO_SUPPORTS_DIRTY,	/* video flags */
-		0,						/* obsolete */
+		null,						/* obsolete */
 		channelf_vh_start,
 		channelf_vh_stop,
 		channelf_vh_screenrefresh,
 	
 		/* sound hardware */
 		0,0,0,0,
-	};
+	);
 	
-	ROM_START(channelf)
-		ROM_REGION(0x10000,REGION_CPU1)
-			ROM_LOAD("sl31253.rom",  0x0000, 0x0400, 0x04694ed9)
-			ROM_LOAD("sl31254.rom",  0x0400, 0x0400, 0x9c047ba3)
-		ROM_REGION(0x00100,REGION_GFX1)
+	static RomLoadPtr rom_channelf = new RomLoadPtr(){ public void handler(){ 
+		ROM_REGION(0x10000,REGION_CPU1);
+			ROM_LOAD("sl31253.rom",  0x0000, 0x0400, 0x04694ed9);
+			ROM_LOAD("sl31254.rom",  0x0400, 0x0400, 0x9c047ba3);
+		ROM_REGION(0x00100,REGION_GFX1);
 			/* bit pattern is stored here */
-	ROM_END
+	ROM_END(); }}; 
 	
 	static const struct IODevice io_channelf[] = {
 		{

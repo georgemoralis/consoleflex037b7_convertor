@@ -1,6 +1,6 @@
 /* machine/coleco.c */
-extern unsigned char *coleco_ram;
-extern unsigned char *coleco_cartridge_rom;
+extern UBytePtr coleco_ram;
+extern UBytePtr coleco_cartridge_rom;
 
 extern int coleco_id_rom (int id);
 extern int coleco_load_rom (int id);
@@ -14,9 +14,6 @@ extern WRITE_HANDLER ( coleco_VDP_w );
 
 
 /* vidhrdw/coleco.c */
-extern int coleco_vh_start(void);
-extern void coleco_vh_stop(void);
-extern void coleco_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh);
-
+extern extern extern 
 
 

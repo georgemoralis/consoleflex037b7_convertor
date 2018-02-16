@@ -30,12 +30,7 @@ public class nes
 	int nes_id_rom (int id);
 	void nes_exit_disk(int id);
 	
-	void init_nes (void);
-	void init_nespal (void);
-	void nes_init_machine (void);
-	void nes_stop_machine (void);
-	int nes_interrupt (void);
-	UINT32 nes_partialcrc(const unsigned char *,unsigned int);
+	UINT32 nes_partialcrc(const UBytePtr ,unsigned int);
 	READ_HANDLER  ( nes_ppu_r );
 	READ_HANDLER  ( nes_IN0_r );
 	READ_HANDLER  ( nes_IN1_r );
@@ -48,14 +43,11 @@ public class nes
 	WRITE_HANDLER ( nes_mapper_w );
 	
 	/* vidhrdw/nes.c */
-	void nes_init_palette(unsigned char *sys_palette, unsigned short *sys_colortable,const unsigned char *color_prom);
-	int nes_vh_start (void);
-	void nes_vh_stop (void);
-	void nes_vh_screenrefresh (struct osd_bitmap *bitmap, int full_refresh);
+	void nes_init_palette(UBytePtr sys_palette, unsigned short *sys_colortable,const UBytePtr color_prom);
 	WRITE_HANDLER ( nes_vh_sprite_dma_w );
 	
-	unsigned char *battery_ram;
-	unsigned char *main_ram;
+	UBytePtr battery_ram;
+	UBytePtr main_ram;
 	
 	READ_HANDLER ( nes_mirrorram_r )
 	{
@@ -75,285 +67,285 @@ public class nes
 		return val;
 	}
 	
-	static struct MemoryReadAddress readmem[] =
+	static MemoryReadAddress readmem[] =
 	{
-		{ 0x0000, 0x07ff, MRA_RAM },				/* RAM */
-		{ 0x0800, 0x1fff, nes_mirrorram_r },		/* mirrors of RAM */
-		{ 0x2000, 0x3fff, nes_ppu_r },				/* PPU registers */
-		{ 0x4016, 0x4016, nes_IN0_r },				/* IN0 - input port 1 */
-		{ 0x4017, 0x4017, nes_IN1_r },				/* IN1 - input port 2 */
-		{ 0x4015, 0x4015, nes_bogus_r },			/* ?? sound status ?? */
-		{ 0x4100, 0x5fff, nes_low_mapper_r },		/* Perform unholy acts on the machine */
-	//	{ 0x6000, 0x7fff, MRA_BANK5 },				/* RAM (also trainer ROM) */
-	//	{ 0x8000, 0x9fff, MRA_BANK1 },				/* 4 16k NES_ROM banks */
-	//	{ 0xa000, 0xbfff, MRA_BANK2 },
-	//	{ 0xc000, 0xdfff, MRA_BANK3 },
-	//	{ 0xe000, 0xffff, MRA_BANK4 },
-		{ -1 }	/* end of table */
+		new MemoryReadAddress( 0x0000, 0x07ff, MRA_RAM ),				/* RAM */
+		new MemoryReadAddress( 0x0800, 0x1fff, nes_mirrorram_r ),		/* mirrors of RAM */
+		new MemoryReadAddress( 0x2000, 0x3fff, nes_ppu_r ),				/* PPU registers */
+		new MemoryReadAddress( 0x4016, 0x4016, nes_IN0_r ),				/* IN0 - input port 1 */
+		new MemoryReadAddress( 0x4017, 0x4017, nes_IN1_r ),				/* IN1 - input port 2 */
+		new MemoryReadAddress( 0x4015, 0x4015, nes_bogus_r ),			/* ?? sound status ?? */
+		new MemoryReadAddress( 0x4100, 0x5fff, nes_low_mapper_r ),		/* Perform unholy acts on the machine */
+	//	new MemoryReadAddress( 0x6000, 0x7fff, MRA_BANK5 ),				/* RAM (also trainer ROM) */
+	//	new MemoryReadAddress( 0x8000, 0x9fff, MRA_BANK1 ),				/* 4 16k NES_ROM banks */
+	//	new MemoryReadAddress( 0xa000, 0xbfff, MRA_BANK2 ),
+	//	new MemoryReadAddress( 0xc000, 0xdfff, MRA_BANK3 ),
+	//	new MemoryReadAddress( 0xe000, 0xffff, MRA_BANK4 ),
+		new MemoryReadAddress( -1 )	/* end of table */
 	};
 	
-	static struct MemoryWriteAddress writemem[] =
+	static MemoryWriteAddress writemem[] =
 	{
-		{ 0x0000, 0x07ff, MWA_RAM, &main_ram },
-		{ 0x0800, 0x1fff, nes_mirrorram_w },		/* mirrors of RAM */
-		{ 0x2000, 0x3fff, nes_ppu_w },				/* PPU registers */
-		{ 0x4000, 0x4015, NESPSG_0_w },
-		{ 0x4016, 0x4016, nes_IN0_w },				/* IN0 - input port 1 */
-		{ 0x4017, 0x4017, nes_IN1_w },				/* IN1 - input port 2 */
-		{ 0x4100, 0x5fff, nes_low_mapper_w },		/* Perform unholy acts on the machine */
-	//	{ 0x6000, 0x7fff, nes_mid_mapper_w },		/* RAM (sometimes battery-backed) */
-	//	{ 0x8000, 0xffff, nes_mapper_w },			/* Perform unholy acts on the machine */
-		{ -1 }	/* end of table */
+		new MemoryWriteAddress( 0x0000, 0x07ff, MWA_RAM, main_ram ),
+		new MemoryWriteAddress( 0x0800, 0x1fff, nes_mirrorram_w ),		/* mirrors of RAM */
+		new MemoryWriteAddress( 0x2000, 0x3fff, nes_ppu_w ),				/* PPU registers */
+		new MemoryWriteAddress( 0x4000, 0x4015, NESPSG_0_w ),
+		new MemoryWriteAddress( 0x4016, 0x4016, nes_IN0_w ),				/* IN0 - input port 1 */
+		new MemoryWriteAddress( 0x4017, 0x4017, nes_IN1_w ),				/* IN1 - input port 2 */
+		new MemoryWriteAddress( 0x4100, 0x5fff, nes_low_mapper_w ),		/* Perform unholy acts on the machine */
+	//	new MemoryWriteAddress( 0x6000, 0x7fff, nes_mid_mapper_w ),		/* RAM (sometimes battery-backed) */
+	//	new MemoryWriteAddress( 0x8000, 0xffff, nes_mapper_w ),			/* Perform unholy acts on the machine */
+		new MemoryWriteAddress( -1 )	/* end of table */
 	};
 	
 	
-	INPUT_PORTS_START( nes )
-		PORT_START	/* IN0 */
-		PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_BUTTON1 )
-		PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_BUTTON2 )
-		PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_SELECT1 )
-		PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_START1 )
-		PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP )
-		PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN )
-		PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT )
-		PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT )
+	static InputPortPtr input_ports_nes = new InputPortPtr(){ public void handler() { 
+		PORT_START(); 	/* IN0 */
+		PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_BUTTON1 );
+		PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_BUTTON2 );
+		PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_SELECT1 );
+		PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_START1 );
+		PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP );
+		PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN );
+		PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT );
+		PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT );
 	
-		PORT_START	/* IN1 */
-		PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_BUTTON1 | IPF_PLAYER2 )
-		PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_BUTTON2 | IPF_PLAYER2 )
-		PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_SELECT2 )
-		PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_START2 )
-		PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP | IPF_PLAYER2 )
-		PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN | IPF_PLAYER2 )
-		PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT | IPF_PLAYER2 )
-		PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT | IPF_PLAYER2 )
+		PORT_START(); 	/* IN1 */
+		PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_BUTTON1 | IPF_PLAYER2 );
+		PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_BUTTON2 | IPF_PLAYER2 );
+		PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_SELECT2 );
+		PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_START2 );
+		PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP | IPF_PLAYER2 );
+		PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN | IPF_PLAYER2 );
+		PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT | IPF_PLAYER2 );
+		PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT | IPF_PLAYER2 );
 	
-		PORT_START	/* IN2 - fake */
-		PORT_DIPNAME( 0x0f, 0x00, "P1 Controller")
-		PORT_DIPSETTING(    0x00, "Joypad" )
-		PORT_DIPSETTING(    0x01, "Zapper" )
-		PORT_DIPSETTING(    0x02, "P1/P3 multi-adapter" )
-		PORT_DIPNAME( 0xf0, 0x00, "P2 Controller")
-		PORT_DIPSETTING(    0x00, "Joypad" )
-		PORT_DIPSETTING(    0x10, "Zapper" )
-		PORT_DIPSETTING(    0x20, "P2/P4 multi-adapter" )
-		PORT_DIPSETTING(    0x30, "Arkanoid paddle" )
+		PORT_START(); 	/* IN2 - fake */
+		PORT_DIPNAME( 0x0f, 0x00, "P1 Controller");
+		PORT_DIPSETTING(    0x00, "Joypad" );
+		PORT_DIPSETTING(    0x01, "Zapper" );
+		PORT_DIPSETTING(    0x02, "P1/P3 multi-adapter" );
+		PORT_DIPNAME( 0xf0, 0x00, "P2 Controller");
+		PORT_DIPSETTING(    0x00, "Joypad" );
+		PORT_DIPSETTING(    0x10, "Zapper" );
+		PORT_DIPSETTING(    0x20, "P2/P4 multi-adapter" );
+		PORT_DIPSETTING(    0x30, "Arkanoid paddle" );
 	
-		PORT_START	/* IN3 - generic analog */
-		PORT_ANALOG( 0xff, 0x80, IPT_AD_STICK_X, 70, 30, 0, 255 )
+		PORT_START(); 	/* IN3 - generic analog */
+		PORT_ANALOG( 0xff, 0x80, IPT_AD_STICK_X, 70, 30, 0, 255 );
 	
-		PORT_START	/* IN4 - generic analog */
-		PORT_ANALOG( 0xff, 0x80, IPT_AD_STICK_Y, 50, 30, 0, 255 )
+		PORT_START(); 	/* IN4 - generic analog */
+		PORT_ANALOG( 0xff, 0x80, IPT_AD_STICK_Y, 50, 30, 0, 255 );
 	
-		PORT_START	/* IN5 - generic analog */
-		PORT_ANALOG( 0xff, 0x80, IPT_AD_STICK_X | IPF_PLAYER2, 70, 30, 0, 255 )
+		PORT_START(); 	/* IN5 - generic analog */
+		PORT_ANALOG( 0xff, 0x80, IPT_AD_STICK_X | IPF_PLAYER2, 70, 30, 0, 255 );
 	
-		PORT_START	/* IN6 - generic analog */
-		PORT_ANALOG( 0xff, 0x80, IPT_AD_STICK_Y | IPF_PLAYER2, 50, 30, 0, 255 )
+		PORT_START(); 	/* IN6 - generic analog */
+		PORT_ANALOG( 0xff, 0x80, IPT_AD_STICK_Y | IPF_PLAYER2, 50, 30, 0, 255 );
 	
-		PORT_START	/* IN7 - fake dips */
-		PORT_DIPNAME( 0x01, 0x00, "Draw Top/Bottom 8 Lines")
-		PORT_DIPSETTING(    0x01, DEF_STR(No) )
-		PORT_DIPSETTING(    0x00, DEF_STR(Yes) )
-		PORT_DIPNAME( 0x02, 0x00, "Enforce 8 Sprites/line")
-		PORT_DIPSETTING(    0x02, DEF_STR(No) )
-		PORT_DIPSETTING(    0x00, DEF_STR(Yes) )
+		PORT_START(); 	/* IN7 - fake dips */
+		PORT_DIPNAME( 0x01, 0x00, "Draw Top/Bottom 8 Lines");
+		PORT_DIPSETTING(    0x01, DEF_STR(No);
+		PORT_DIPSETTING(    0x00, DEF_STR(Yes);
+		PORT_DIPNAME( 0x02, 0x00, "Enforce 8 Sprites/line");
+		PORT_DIPSETTING(    0x02, DEF_STR(No);
+		PORT_DIPSETTING(    0x00, DEF_STR(Yes);
 	
-		PORT_START	/* IN8 */
-		PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_BUTTON1 | IPF_PLAYER3 )
-		PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_BUTTON2 | IPF_PLAYER3 )
-		PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_SELECT3 )
-		PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_START3 )
-		PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP | IPF_PLAYER3 )
-		PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN | IPF_PLAYER3 )
-		PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT | IPF_PLAYER3 )
-		PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT | IPF_PLAYER3 )
+		PORT_START(); 	/* IN8 */
+		PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_BUTTON1 | IPF_PLAYER3 );
+		PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_BUTTON2 | IPF_PLAYER3 );
+		PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_SELECT3 );
+		PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_START3 );
+		PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP | IPF_PLAYER3 );
+		PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN | IPF_PLAYER3 );
+		PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT | IPF_PLAYER3 );
+		PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT | IPF_PLAYER3 );
 	
-		PORT_START	/* IN9 */
-		PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_BUTTON1 | IPF_PLAYER4 )
-		PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_BUTTON2 | IPF_PLAYER4 )
-		PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_SELECT4 )
-		PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_START4 )
-		PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP | IPF_PLAYER4 )
-		PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN | IPF_PLAYER4 )
-		PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT | IPF_PLAYER4 )
-		PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT | IPF_PLAYER4 )
+		PORT_START(); 	/* IN9 */
+		PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_BUTTON1 | IPF_PLAYER4 );
+		PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_BUTTON2 | IPF_PLAYER4 );
+		PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_SELECT4 );
+		PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_START4 );
+		PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP | IPF_PLAYER4 );
+		PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN | IPF_PLAYER4 );
+		PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT | IPF_PLAYER4 );
+		PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT | IPF_PLAYER4 );
 	
-		PORT_START	/* IN10 - arkanoid paddle */
-		PORT_ANALOG( 0xff, 0x7f, IPT_PADDLE, 25, 3, 0x62, 0xf2 )
-	INPUT_PORTS_END
+		PORT_START(); 	/* IN10 - arkanoid paddle */
+		PORT_ANALOG( 0xff, 0x7f, IPT_PADDLE, 25, 3, 0x62, 0xf2 );
+	INPUT_PORTS_END(); }}; 
 	
-	INPUT_PORTS_START( famicom )
-		PORT_START	/* IN0 */
-		PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_BUTTON1 )
-		PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_BUTTON2 )
-		PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_SELECT1 )
-		PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_START1 )
-		PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP )
-		PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN )
-		PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT )
-		PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT )
+	static InputPortPtr input_ports_famicom = new InputPortPtr(){ public void handler() { 
+		PORT_START(); 	/* IN0 */
+		PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_BUTTON1 );
+		PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_BUTTON2 );
+		PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_SELECT1 );
+		PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_START1 );
+		PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP );
+		PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN );
+		PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT );
+		PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT );
 	
-		PORT_START	/* IN1 */
-		PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_BUTTON1 | IPF_PLAYER2 )
-		PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_BUTTON2 | IPF_PLAYER2 )
-		PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_SELECT2 )
-		PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_START2 )
-		PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP | IPF_PLAYER2 )
-		PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN | IPF_PLAYER2 )
-		PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT | IPF_PLAYER2 )
-		PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT | IPF_PLAYER2 )
+		PORT_START(); 	/* IN1 */
+		PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_BUTTON1 | IPF_PLAYER2 );
+		PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_BUTTON2 | IPF_PLAYER2 );
+		PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_SELECT2 );
+		PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_START2 );
+		PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP | IPF_PLAYER2 );
+		PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN | IPF_PLAYER2 );
+		PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT | IPF_PLAYER2 );
+		PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT | IPF_PLAYER2 );
 	
-		PORT_START	/* IN2 - fake */
-		PORT_DIPNAME( 0x0f, 0x00, "P1 Controller")
-		PORT_DIPSETTING(    0x00, "Joypad" )
-		PORT_DIPSETTING(    0x01, "Zapper" )
-		PORT_DIPSETTING(    0x02, "P1/P3 multi-adapter" )
-		PORT_DIPNAME( 0xf0, 0x00, "P2 Controller")
-		PORT_DIPSETTING(    0x00, "Joypad" )
-		PORT_DIPSETTING(    0x10, "Zapper" )
-		PORT_DIPSETTING(    0x20, "P2/P4 multi-adapter" )
-		PORT_DIPSETTING(    0x30, "Arkanoid paddle" )
+		PORT_START(); 	/* IN2 - fake */
+		PORT_DIPNAME( 0x0f, 0x00, "P1 Controller");
+		PORT_DIPSETTING(    0x00, "Joypad" );
+		PORT_DIPSETTING(    0x01, "Zapper" );
+		PORT_DIPSETTING(    0x02, "P1/P3 multi-adapter" );
+		PORT_DIPNAME( 0xf0, 0x00, "P2 Controller");
+		PORT_DIPSETTING(    0x00, "Joypad" );
+		PORT_DIPSETTING(    0x10, "Zapper" );
+		PORT_DIPSETTING(    0x20, "P2/P4 multi-adapter" );
+		PORT_DIPSETTING(    0x30, "Arkanoid paddle" );
 	
-		PORT_START	/* IN3 - generic analog */
-		PORT_ANALOG( 0xff, 0x80, IPT_AD_STICK_X, 70, 30, 0, 255 )
+		PORT_START(); 	/* IN3 - generic analog */
+		PORT_ANALOG( 0xff, 0x80, IPT_AD_STICK_X, 70, 30, 0, 255 );
 	
-		PORT_START	/* IN4 - generic analog */
-		PORT_ANALOG( 0xff, 0x80, IPT_AD_STICK_Y, 50, 30, 0, 255 )
+		PORT_START(); 	/* IN4 - generic analog */
+		PORT_ANALOG( 0xff, 0x80, IPT_AD_STICK_Y, 50, 30, 0, 255 );
 	
-		PORT_START	/* IN5 - generic analog */
-		PORT_ANALOG( 0xff, 0x80, IPT_AD_STICK_X | IPF_PLAYER2, 70, 30, 0, 255 )
+		PORT_START(); 	/* IN5 - generic analog */
+		PORT_ANALOG( 0xff, 0x80, IPT_AD_STICK_X | IPF_PLAYER2, 70, 30, 0, 255 );
 	
-		PORT_START	/* IN6 - generic analog */
-		PORT_ANALOG( 0xff, 0x80, IPT_AD_STICK_Y | IPF_PLAYER2, 50, 30, 0, 255 )
+		PORT_START(); 	/* IN6 - generic analog */
+		PORT_ANALOG( 0xff, 0x80, IPT_AD_STICK_Y | IPF_PLAYER2, 50, 30, 0, 255 );
 	
-		PORT_START	/* IN7 - fake dips */
-		PORT_DIPNAME( 0x01, 0x00, "Draw Top/Bottom 8 Lines")
-		PORT_DIPSETTING(    0x01, DEF_STR(No) )
-		PORT_DIPSETTING(    0x00, DEF_STR(Yes) )
-		PORT_DIPNAME( 0x02, 0x00, "Enforce 8 Sprites/line")
-		PORT_DIPSETTING(    0x02, DEF_STR(No) )
-		PORT_DIPSETTING(    0x00, DEF_STR(Yes) )
+		PORT_START(); 	/* IN7 - fake dips */
+		PORT_DIPNAME( 0x01, 0x00, "Draw Top/Bottom 8 Lines");
+		PORT_DIPSETTING(    0x01, DEF_STR(No);
+		PORT_DIPSETTING(    0x00, DEF_STR(Yes);
+		PORT_DIPNAME( 0x02, 0x00, "Enforce 8 Sprites/line");
+		PORT_DIPSETTING(    0x02, DEF_STR(No);
+		PORT_DIPSETTING(    0x00, DEF_STR(Yes);
 	
-		PORT_START	/* IN8 */
-		PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_BUTTON1 | IPF_PLAYER3 )
-		PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_BUTTON2 | IPF_PLAYER3 )
-		PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_SELECT3 )
-		PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_START3 )
-		PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP | IPF_PLAYER3 )
-		PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN | IPF_PLAYER3 )
-		PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT | IPF_PLAYER3 )
-		PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT | IPF_PLAYER3 )
+		PORT_START(); 	/* IN8 */
+		PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_BUTTON1 | IPF_PLAYER3 );
+		PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_BUTTON2 | IPF_PLAYER3 );
+		PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_SELECT3 );
+		PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_START3 );
+		PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP | IPF_PLAYER3 );
+		PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN | IPF_PLAYER3 );
+		PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT | IPF_PLAYER3 );
+		PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT | IPF_PLAYER3 );
 	
-		PORT_START	/* IN9 */
-		PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_BUTTON1 | IPF_PLAYER4 )
-		PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_BUTTON2 | IPF_PLAYER4 )
-		PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_SELECT4 )
-		PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_START4 )
-		PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP | IPF_PLAYER4 )
-		PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN | IPF_PLAYER4 )
-		PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT | IPF_PLAYER4 )
-		PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT | IPF_PLAYER4 )
+		PORT_START(); 	/* IN9 */
+		PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_BUTTON1 | IPF_PLAYER4 );
+		PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_BUTTON2 | IPF_PLAYER4 );
+		PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_SELECT4 );
+		PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_START4 );
+		PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP | IPF_PLAYER4 );
+		PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN | IPF_PLAYER4 );
+		PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT | IPF_PLAYER4 );
+		PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT | IPF_PLAYER4 );
 	
-		PORT_START	/* IN10 - arkanoid paddle */
-		PORT_ANALOG( 0xff, 0x7f, IPT_PADDLE, 25, 3, 0x62, 0xf2 )
+		PORT_START(); 	/* IN10 - arkanoid paddle */
+		PORT_ANALOG( 0xff, 0x7f, IPT_PADDLE, 25, 3, 0x62, 0xf2 );
 	
-		PORT_START /* IN11 - fake keys */
-	//	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_BUTTON3 )
-		PORT_BITX ( 0x01, IP_ACTIVE_HIGH, IPT_BUTTON3, "Change Disk Side", IP_KEY_DEFAULT, IP_JOY_DEFAULT )
+		PORT_START();  /* IN11 - fake keys */
+	//	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_BUTTON3 );
+		PORT_BITX ( 0x01, IP_ACTIVE_HIGH, IPT_BUTTON3, "Change Disk Side", IP_KEY_DEFAULT, IP_JOY_DEFAULT );
 	
-	INPUT_PORTS_END
+	INPUT_PORTS_END(); }}; 
 	
 	/* !! Warning: the charlayout is changed by nes_load_rom !! */
-	struct GfxLayout nes_charlayout =
-	{
+	static GfxLayout nes_charlayout = new GfxLayout
+	(
 		8,8,	/* 8*8 characters */
 		512,	/* 512 characters - changed at runtime */
 		2,	/* 2 bits per pixel */
-		{ 8*8, 0 },	/* the two bitplanes are separated */
-		{ 0, 1, 2, 3, 4, 5, 6, 7 },
-		{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8 },
+		new int[] { 8*8, 0 },	/* the two bitplanes are separated */
+		new int[] { 0, 1, 2, 3, 4, 5, 6, 7 },
+		new int[] { 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8 },
 		16*8	/* every char takes 16 consecutive bytes */
-	};
+	);
 	
 	/* This layout is not changed at runtime */
-	struct GfxLayout nes_vram_charlayout =
-	{
+	static GfxLayout nes_vram_charlayout = new GfxLayout
+	(
 		8,8,	/* 8*8 characters */
 		512,	/* 512 characters */
 		2,	/* 2 bits per pixel */
-		{ 8*8, 0 },	/* the two bitplanes are separated */
-		{ 0, 1, 2, 3, 4, 5, 6, 7 },
-		{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8 },
+		new int[] { 8*8, 0 },	/* the two bitplanes are separated */
+		new int[] { 0, 1, 2, 3, 4, 5, 6, 7 },
+		new int[] { 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8 },
 		16*8	/* every char takes 16 consecutive bytes */
+	);
+	
+	
+	static GfxDecodeInfo nes_gfxdecodeinfo[] =
+	{
+		new GfxDecodeInfo( REGION_GFX1, 0x0000, nes_charlayout,        0, 8 ),
+		new GfxDecodeInfo( REGION_GFX2, 0x0000, nes_vram_charlayout,   0, 8 ),
+		new GfxDecodeInfo( -1 ) /* end of array */
 	};
 	
 	
-	static struct GfxDecodeInfo nes_gfxdecodeinfo[] =
-	{
-		{ REGION_GFX1, 0x0000, &nes_charlayout,        0, 8 },
-		{ REGION_GFX2, 0x0000, &nes_vram_charlayout,   0, 8 },
-		{ -1 } /* end of array */
-	};
-	
-	
-	static struct NESinterface nes_interface =
-	{
+	static NESinterface nes_interface = new NESinterface
+	(
 		1,
-		{ REGION_CPU1 },
-		{ 100 },
+		new int[] { REGION_CPU1 },
+		new int[] { 100 },
 		N2A03_DEFAULTCLOCK,
 		{ nes_vh_sprite_dma_w },
 		{ NULL }
-	};
+	);
 	
-	static struct NESinterface nespal_interface =
-	{
+	static NESinterface nespal_interface = new NESinterface
+	(
 		1,
-		{ REGION_CPU1 },
-		{ 100 },
+		new int[] { REGION_CPU1 },
+		new int[] { 100 },
 		26601712/15,
 		{ nes_vh_sprite_dma_w },
 		{ NULL }
-	};
+	);
 	
-	ROM_START( nes )
-		ROM_REGION( 0x10000, REGION_CPU1 )  /* Main RAM + program banks */
-		ROM_REGION( 0x2000,  REGION_GFX1 )  /* VROM */
-		ROM_REGION( 0x2000,  REGION_GFX2 )  /* VRAM */
-		ROM_REGION( 0x10000, REGION_USER1 ) /* WRAM */
-	ROM_END
+	static RomLoadPtr rom_nes = new RomLoadPtr(){ public void handler(){ 
+		ROM_REGION( 0x10000, REGION_CPU1 ); /* Main RAM + program banks */
+		ROM_REGION( 0x2000,  REGION_GFX1 ); /* VROM */
+		ROM_REGION( 0x2000,  REGION_GFX2 ); /* VRAM */
+		ROM_REGION( 0x10000, REGION_USER1 );/* WRAM */
+	ROM_END(); }}; 
 	
-	ROM_START( nespal )
-		ROM_REGION( 0x10000, REGION_CPU1 )  /* Main RAM + program banks */
-		ROM_REGION( 0x2000,  REGION_GFX1 )  /* VROM */
-		ROM_REGION( 0x2000,  REGION_GFX2 )  /* VRAM */
-		ROM_REGION( 0x10000, REGION_USER1 ) /* WRAM */
-	ROM_END
+	static RomLoadPtr rom_nespal = new RomLoadPtr(){ public void handler(){ 
+		ROM_REGION( 0x10000, REGION_CPU1 ); /* Main RAM + program banks */
+		ROM_REGION( 0x2000,  REGION_GFX1 ); /* VROM */
+		ROM_REGION( 0x2000,  REGION_GFX2 ); /* VRAM */
+		ROM_REGION( 0x10000, REGION_USER1 );/* WRAM */
+	ROM_END(); }}; 
 	
-	ROM_START( famicom )
-		ROM_REGION( 0x10000, REGION_CPU1 )  /* Main RAM + program banks */
-	    ROM_LOAD_OPTIONAL ("disksys.rom", 0xe000, 0x2000, 0x5e607dcf)
+	static RomLoadPtr rom_famicom = new RomLoadPtr(){ public void handler(){ 
+		ROM_REGION( 0x10000, REGION_CPU1 ); /* Main RAM + program banks */
+	    ROM_LOAD_OPTIONAL ("disksys.rom", 0xe000, 0x2000, 0x5e607dcf);
 	
-		ROM_REGION( 0x2000,  REGION_GFX1 )  /* VROM */
+		ROM_REGION( 0x2000,  REGION_GFX1 ); /* VROM */
 	
-		ROM_REGION( 0x2000,  REGION_GFX2 )  /* VRAM */
+		ROM_REGION( 0x2000,  REGION_GFX2 ); /* VRAM */
 	
-		ROM_REGION( 0x10000, REGION_USER1 ) /* WRAM */
-	ROM_END
+		ROM_REGION( 0x10000, REGION_USER1 );/* WRAM */
+	ROM_END(); }}; 
 	
 	
 	
-	static struct MachineDriver machine_driver_nes =
-	{
+	static MachineDriver machine_driver_nes = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_N2A03,
 				N2A03_DEFAULTCLOCK,	/* 1.79 Mhz - good timing test is Bayou Billy startup wave */
-				readmem,writemem,0,0,
+				readmem,writemem,null,null,
 				nes_interrupt,NTSC_SCANLINES_PER_FRAME /* one for each scanline */
-			}
+			)
 		},
 		60, 114*(NTSC_SCANLINES_PER_FRAME-BOTTOM_VISIBLE_SCANLINE),	/* frames per second, vblank duration */
 		1,
@@ -362,7 +354,7 @@ public class nes
 	
 		/* video hardware */
 	#ifdef BIG_SCREEN
-		32*8*2, 30*8*2, { 0*8, 32*8*2-1, 0*8, 30*8*2-1 },
+		32*8*2, 30*8*2, new rectangle( 0*8, 32*8*2-1, 0*8, 30*8*2-1 ),
 	#else
 		32*8, 30*8, { 0*8, 32*8-1, 0*8, 30*8-1 },
 	#endif
@@ -385,21 +377,21 @@ public class nes
 		{
 			{
 				SOUND_NES,
-				&nes_interface
+				nes_interface
 			}
 		}
-	};
+	);
 	
-	static struct MachineDriver machine_driver_nespal =
-	{
+	static MachineDriver machine_driver_nespal = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_N2A03,
 				26601712/15,	/* 1.773 Mhz - good timing test is Bayou Billy startup wave */
-				readmem,writemem,0,0,
+				readmem,writemem,null,null,
 				nes_interrupt,PAL_SCANLINES_PER_FRAME /* one for each scanline */
-			}
+			)
 		},
 		50, 114*(PAL_SCANLINES_PER_FRAME-BOTTOM_VISIBLE_SCANLINE),	/* frames per second, vblank duration */
 		1,
@@ -408,7 +400,7 @@ public class nes
 	
 		/* video hardware */
 	#ifdef BIG_SCREEN
-		32*8*2, 30*8*2, { 0*8, 32*8*2-1, 0*8, 30*8*2-1 },
+		32*8*2, 30*8*2, new rectangle( 0*8, 32*8*2-1, 0*8, 30*8*2-1 ),
 	#else
 		32*8, 30*8, { 0*8, 32*8-1, 0*8, 30*8-1 },
 	#endif
@@ -431,10 +423,10 @@ public class nes
 		{
 			{
 				SOUND_NES,
-				&nespal_interface
+				nespal_interface
 			}
 		}
-	};
+	);
 	
 	
 	static const struct IODevice io_famicom[] = {

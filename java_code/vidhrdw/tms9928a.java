@@ -170,12 +170,12 @@ public class tms9928a
 	
 	
 	/* initial the palette */
-	void tms9928A_init_palette(unsigned char *palette, unsigned short *colortable,const unsigned char *color_prom)
+	public static VhConvertColorPromPtr tms9928A_init_palette = new VhConvertColorPromPtr() { public void handler(char []palette, char []colortable, UBytePtr color_prom) 
 	{
 	    memcpy(palette, & TMS9928A_palette, sizeof(TMS9928A_palette));
 		memcpy(colortable, & TMS9928A_colortable, sizeof(TMS9928A_colortable));
 		color_prom=malloc(1*sizeof(char));
-	}
+	} };
 	
 	
 	/*
@@ -333,7 +333,7 @@ public class tms9928a
 	
 	void TMS9928A_register_w (UINT8 val) {
 	    if (tms.FirstByte >= 0) {
-	        if (val & 0x80) {
+	        if ((val & 0x80) != 0) {
 	            /* register write */
 	            _TMS9928A_change_register ((int)(val & 7), (UINT8)tms.FirstByte);
 	        } else {
@@ -372,7 +372,7 @@ public class tms9928a
 	    case 0:
 	        if ( (val ^ oldval) & 2) {
 	            /* re-calculate masks and pattern generator & colour */
-	            if (val & 2) {
+	            if ((val & 2) != 0) {
 	                tms.colour = ((tms.Regs[3] & 0x80) * 64) & (tms.vramsize - 1);
 	                tms.colourmask = (tms.Regs[3] & 0x7f) * 8 | 7;
 	                tms.pattern = ((tms.Regs[4] & 4) * 2048) & (tms.vramsize - 1);
@@ -476,13 +476,13 @@ public class tms9928a
 	
 	    if (tms.Change || full_refresh) {
 	        if (! (tms.Regs[1] & 0x40) ) {
-	            fillbitmap (bmp, Machine->pens[tms.BackColour],
-	                &Machine->visible_area);
+	            fillbitmap (bmp, Machine.pens[tms.BackColour],
+	                &Machine.visible_area);
 	        } else {
 	            if (tms.Change) ModeHandlers[tms.mode] (tms.tmpbmp);
 	            copybitmap (bmp, tms.tmpbmp, 0, 0, 0, 0,
-	                &Machine->visible_area, TRANSPARENCY_NONE, 0);
-	            if (TMS_SPRITES_ENABLED) {
+	                &Machine.visible_area, TRANSPARENCY_NONE, 0);
+	            if (TMS_SPRITES_ENABLED != 0) {
 	                _TMS9928A_sprites (bmp);
 	            }
 	        }
@@ -503,7 +503,7 @@ public class tms9928a
 	    /* when skipping frames, calculate sprite collision */
 	    if (osd_skip_this_frame()) {
 	        if (tms.Change) {
-	            if (TMS_SPRITES_ENABLED) {
+	            if (TMS_SPRITES_ENABLED != 0) {
 	                _TMS9928A_sprites (NULL);
 	            }
 	        } else {
@@ -528,8 +528,8 @@ public class tms9928a
 	    if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
 	         return;
 	
-	    fg = Machine->pens[tms.Regs[7] / 16];
-	    bg = Machine->pens[tms.Regs[7] & 15];
+	    fg = Machine.pens[tms.Regs[7] / 16];
+	    bg = Machine.pens[tms.Regs[7] & 15];
 	
 	    if (tms.anyDirtyColour) {
 		/* colours at sides must be reset */
@@ -567,8 +567,8 @@ public class tms9928a
 	    if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
 	         return;
 	
-	    fg = Machine->pens[tms.Regs[7] / 16];
-	    bg = Machine->pens[tms.Regs[7] & 15];
+	    fg = Machine.pens[tms.Regs[7] / 16];
+	    bg = Machine.pens[tms.Regs[7] & 15];
 	
 	    if (tms.anyDirtyColour) {
 		/* colours at sides must be reset */
@@ -612,8 +612,8 @@ public class tms9928a
 	                continue;
 	            patternptr = tms.vMem + tms.pattern + charcode*8;
 	            colour = tms.vMem[tms.colour+charcode/8];
-	            fg = Machine->pens[colour / 16];
-	            bg = Machine->pens[colour & 15];
+	            fg = Machine.pens[colour / 16];
+	            bg = Machine.pens[colour & 15];
 	            for (yy=0;yy<8;yy++) {
 	                pattern=*patternptr++;
 	                for (xx=0;xx<8;xx++) {
@@ -649,8 +649,8 @@ public class tms9928a
 	            for (yy=0;yy<8;yy++) {
 	                pattern = *patternptr++;
 	                colour = *colourptr++;
-	                fg = Machine->pens[colour / 16];
-	                bg = Machine->pens[colour & 15];
+	                fg = Machine.pens[colour / 16];
+	                bg = Machine.pens[colour & 15];
 	                for (xx=0;xx<8;xx++) {
 			    plot_pixel (bmp, x*8+xx, y*8+yy,
 				(pattern & 0x80) ? fg : bg);
@@ -678,8 +678,8 @@ public class tms9928a
 	                continue;
 	            patternptr = tms.vMem+tms.pattern+charcode*8+(y&3)*2;
 	            for (yy=0;yy<2;yy++) {
-	                fg = Machine->pens[(*patternptr / 16)];
-	                bg = Machine->pens[((*patternptr++) & 15)];
+	                fg = Machine.pens[(*patternptr / 16)];
+	                bg = Machine.pens[((*patternptr++) & 15)];
 	                for (yyy=0;yyy<4;yyy++) {
 			    plot_pixel (bmp, x*8+0, y*8+yy*4+yyy, fg);
 			    plot_pixel (bmp, x*8+1, y*8+yy*4+yyy, fg);
@@ -713,8 +713,8 @@ public class tms9928a
 	            patternptr = tms.vMem + tms.pattern +
 	                ((charcode+(y&3)*2+(y/8)*256)&tms.patternmask)*8;
 	            for (yy=0;yy<2;yy++) {
-	                fg = Machine->pens[(*patternptr / 16)];
-	                bg = Machine->pens[((*patternptr++) & 15)];
+	                fg = Machine.pens[(*patternptr / 16)];
+	                bg = Machine.pens[((*patternptr++) & 15)];
 	                for (yyy=0;yyy<4;yyy++) {
 			    plot_pixel (bmp, x*8+0, y*8+yy*4+yyy, fg);
 			    plot_pixel (bmp, x*8+1, y*8+yy*4+yyy, fg);
@@ -738,8 +738,8 @@ public class tms9928a
 	    if ( !(tms.anyDirtyColour || tms.anyDirtyName || tms.anyDirtyPattern) )
 	         return;
 	
-	    fg = Machine->pens[tms.Regs[7] / 16];
-	    bg = Machine->pens[tms.Regs[7] & 15];
+	    fg = Machine.pens[tms.Regs[7] / 16];
+	    bg = Machine.pens[tms.Regs[7] & 15];
 	
 	    for (y=0;y<192;y++) {
 	        xx=0;
@@ -813,14 +813,14 @@ public class tms9928a
 	                } else limit[yy]--;
 	                line = 256*patternptr[yy-y] + patternptr[yy-y+16];
 	                for (xx=x;xx<(x+size);xx++) {
-	                    if (line & 0x8000) {
+	                    if ((line & 0x8000) != 0) {
 	                        if ((xx >= 0) && (xx < 256)) {
 	                            if (tms.dBackMem[yy*256+xx]) {
 	                                tms.StatusReg |= 0x20;
 	                            } else {
 	                                tms.dBackMem[yy*256+xx] = 0xff;
 	                                if (c && bmp) plot_pixel (bmp, xx, yy,
-					    Machine->pens[c]);
+					    Machine.pens[c]);
 	                            }
 	                        }
 	                    }
@@ -848,14 +848,14 @@ public class tms9928a
 	                        } else limit[yy]--;
 	                        line = line2;
 	                        for (xx=x;xx<(x+size*2);xx+=2) {
-	                            if (line & 0x8000) {
+	                            if ((line & 0x8000) != 0) {
 	                                if ((xx >=0) && (xx < 256)) {
 	                                    if (tms.dBackMem[yy*256+xx]) {
 	                                        tms.StatusReg |= 0x20;
 	                                    } else {
 	                                        tms.dBackMem[yy*256+xx] = 0xff;
 	                                        if (c && bmp) plot_pixel (bmp, xx, yy,
-	                                            Machine->pens[c]);
+	                                            Machine.pens[c]);
 	                                    }
 	                                }
 	                                if (((xx+1) >=0) && ((xx+1) < 256)) {
@@ -864,7 +864,7 @@ public class tms9928a
 	                                    } else {
 	                                        tms.dBackMem[yy*256+xx+1] = 0xff;
 	                                        if (c && bmp) plot_pixel (bmp, xx+1, yy,
-	                                            Machine->pens[c]);
+	                                            Machine.pens[c]);
 	                                    }
 	                                }
 	                            }

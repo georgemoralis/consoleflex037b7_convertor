@@ -62,12 +62,12 @@ public class ti99_4x
 	/*
 		pointers in RAM areas
 	*/
-	unsigned char *ti99_scratch_RAM;
-	unsigned char *ti99_xRAM_low;
-	unsigned char *ti99_xRAM_high;
+	UBytePtr ti99_scratch_RAM;
+	UBytePtr ti99_xRAM_low;
+	UBytePtr ti99_xRAM_high;
 	
-	unsigned char *ti99_cart_mem;
-	unsigned char *ti99_DSR_mem;
+	UBytePtr ti99_cart_mem;
+	UBytePtr ti99_DSR_mem;
 	
 	/*
 		GROM support.
@@ -123,7 +123,7 @@ public class ti99_4x
 		override the system GROMs and use custom code instead...)
 	
 		The question is : which pieces of hardware do use this ? I can only make guesses :
-		* p-code card (-> UCSD Pascal system) contains 8 GROMs, so it must use two ports.
+		* p-code card (. UCSD Pascal system) contains 8 GROMs, so it must use two ports.
 		* TI99/4 reportedly has 4 GROMs, whereas 1979's Statistics module has 5 GROMs.  So either
 		  the console or the module uses an extra port.  I suspect Equation Editor is located in GPL
 		  port 1.
@@ -143,10 +143,10 @@ public class ti99_4x
 	/*static int GPL_lookup_table[16][8];
 	static int GPL_reverse_lookup_table[16][8];
 	static unsigned int GPL_address_pointer;
-	static unsigned char *GPL_data[16][8];
+	static UBytePtr GPL_data[16][8];
 	static int is_GRAM[16][8];*/
 	
-	static unsigned char *GPL_data;
+	static UBytePtr GPL_data;
 	
 	/*
 		DSR support
@@ -195,10 +195,10 @@ public class ti99_4x
 		initialization, cart loading, etc.
 	================================================================*/
 	
-	static unsigned char *cartidge_pages[2] = {NULL, NULL};
+	static UBytePtr cartidge_pages[2] = {NULL, NULL};
 	static int cartidge_minimemory = FALSE;
 	static int cartidge_paged = FALSE;
-	static unsigned char *current_page_ptr;
+	static UBytePtr current_page_ptr;
 	/* tells the cart file types - needed for cleanup... */
 	typedef enum slot_type_t { SLOT_EMPTY = -1, SLOT_GROM = 0, SLOT_CROM = 1, SLOT_DROM = 2, SLOT_MINIMEM = 3 } slot_type_t;
 	static slot_type_t slot_type[3] = { SLOT_EMPTY, SLOT_EMPTY, SLOT_EMPTY};
@@ -222,7 +222,7 @@ public class ti99_4x
 	
 	#if 1
 		file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-		if (file)
+		if (file != 0)
 		{
 			struct wave_args wa = {0,};
 			wa.file = file;
@@ -237,7 +237,7 @@ public class ti99_4x
 	
 		/* HJB 02/18: no file, create a new file instead */
 		file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_WRITE);
-		if (file)
+		if (file != 0)
 		{
 			struct wave_args wa = {0,};
 			wa.file = file;
@@ -274,12 +274,12 @@ public class ti99_4x
 		cartidge_pages[0] = memory_region(REGION_CPU1)+0x06000;
 		cartidge_pages[1] = memory_region(REGION_CPU1)+0x10000;
 	
-		if (slot_empty)
+		if (slot_empty != 0)
 			slot_type[id] = SLOT_EMPTY;
 	
 		if (! slot_empty)
 		{
-			cartfile = osd_fopen(Machine->gamedrv->name, name, OSD_FILETYPE_IMAGE_R, 0);
+			cartfile = osd_fopen(Machine.gamedrv.name, name, OSD_FILETYPE_IMAGE_R, 0);
 			if (cartfile == NULL)
 			{
 				logerror("TI99 - Unable to locate cartridge: %s\n", name);
@@ -287,7 +287,7 @@ public class ti99_4x
 			}
 	
 			/* Trick - we identify file types according to their extension */
-			/* Note that if we do not recognize the extension, we revert to the slot location <-> type
+			/* Note that if we do not recognize the extension, we revert to the slot location <. type
 			scheme.  I do this because the extension concept is quite unfamiliar to mac people
 			(I am dead serious). */
 			/* Original idea by Norberto Bensa <nbensa@hotmail.com> */
@@ -299,7 +299,7 @@ public class ti99_4x
 			ch = strrchr(name, '.');
 			ch2 = (ch-1 >= name) ? ch-1 : "";
 	
-			if (ch)
+			if (ch != 0)
 			{
 				if ((! stricmp(ch2, "g.bin")) || (! stricmp(ch, ".grom")) || (! stricmp(ch, ".g")))
 				{
@@ -431,7 +431,7 @@ public class ti99_4x
 		tms9901_set_single_int(2, state);
 	}
 	
-	void ti99_init_machine(void)
+	public static InitMachinePtr ti99_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		int i;
 	
@@ -447,13 +447,13 @@ public class ti99_4x
 		for (i = 0; i < 3; i++)
 		{
 			wd179x_set_geometry(i, 40, 1, 9, 256, 0, 0, 0);
-			wd[i]->density = DEN_FM_LO;
+			wd[i].density = DEN_FM_LO;
 		}
 	
 		tms9901_init(& tms9901reset_param_ti99);
 	
 		current_page_ptr = cartidge_pages[0];
-	}
+	} };
 	
 	void ti99_stop_machine(void)
 	{
@@ -476,26 +476,26 @@ public class ti99_4x
 	/*
 		video initialization.
 	*/
-	int ti99_4_vh_start(void)
+	public static VhStartPtr ti99_4_vh_start = new VhStartPtr() { public int handler() 
 	{
 		return TMS9928A_start(TMS99x8, 0x4000);		/* tms9918/28/29 with 16 kb of video RAM */
-	}
+	} };
 	
-	int ti99_4a_vh_start(void)
+	public static VhStartPtr ti99_4a_vh_start = new VhStartPtr() { public int handler() 
 	{
 		return TMS9928A_start(TMS99x8A, 0x4000);	/* tms9918a/28a/29a with 16 kb of video RAM */
-	}
+	} };
 	
 	/*
 		VBL interrupt  (mmm... actually, it happens when the beam enters the lower border, so it is not
 		a genuine VBI, but who cares ?)
 	*/
-	int ti99_vblank_interrupt(void)
+	public static InterruptPtr ti99_vblank_interrupt = new InterruptPtr() { public int handler() 
 	{
 		TMS9928A_interrupt();
 	
 		return ignore_interrupt();
-	}
+	} };
 	
 	
 	
@@ -577,7 +577,7 @@ public class ti99_4x
 	
 		if (cartidge_minimemory && offset >= 0x1000)
 			WRITE_WORD(current_page_ptr+offset, data | (READ_WORD(current_page_ptr+offset) & (data >> 16)));
-		else if (cartidge_paged)
+		else if (cartidge_paged != 0)
 			current_page_ptr = cartidge_pages[( offset >> 1 )& 1];
 	}
 	
@@ -650,7 +650,7 @@ public class ti99_4x
 	{
 		tms9900_ICount -= 4;
 	
-		if (offset & 2)
+		if ((offset & 2) != 0)
 		{	/* read VDP status */
 			return (TMS9928A_register_r() << 8);
 		}
@@ -667,7 +667,7 @@ public class ti99_4x
 	{
 		tms9900_ICount -= 4;
 	
-		if (offset & 2)
+		if ((offset & 2) != 0)
 		{	/* write VDP adress */
 			TMS9928A_register_w((data >> 8) & 0xff);
 		}
@@ -709,7 +709,7 @@ public class ti99_4x
 	
 	/*int page = (offset & 0x3C) >> 2; *//* GROM/GRAM can be paged */
 	
-		if (offset & 2)
+		if ((offset & 2) != 0)
 		{	/* read GPL adress */
 			int value;
 	
@@ -740,7 +740,7 @@ public class ti99_4x
 	
 	/*int page = (offset & 0x3C) >> 2; *//* GROM/GRAM can be paged */
 	
-		if (offset & 2)
+		if ((offset & 2) != 0)
 		{	/* write GPL adress */
 			gpl_addr = ((gpl_addr & 0xFF) << 8) | (data & 0xFF);
 		}
@@ -936,7 +936,7 @@ public class ti99_4x
 	*/
 	static void ti99_KeyC2(int offset, int data)
 	{
-		if (data)
+		if (data != 0)
 			KeyCol |= 1;
 		else
 			KeyCol &= (~1);
@@ -947,7 +947,7 @@ public class ti99_4x
 	*/
 	static void ti99_KeyC1(int offset, int data)
 	{
-		if (data)
+		if (data != 0)
 			KeyCol |= 2;
 		else
 			KeyCol &= (~2);
@@ -958,7 +958,7 @@ public class ti99_4x
 	*/
 	static void ti99_KeyC0(int offset, int data)
 	{
-		if (data)
+		if (data != 0)
 			KeyCol |= 4;
 		else
 			KeyCol &= (~4);
@@ -999,7 +999,7 @@ public class ti99_4x
 	*/
 	static void ti99_audio_gate(int offset, int data)
 	{
-		if (data)
+		if (data != 0)
 			DAC_data_w(0, 0xFF);
 		else
 			DAC_data_w(0, 0);
@@ -1049,7 +1049,7 @@ public class ti99_4x
 	*/
 	WRITE_HANDLER ( ti99_DSKROM )
 	{
-		if (data & 1)
+		if ((data & 1) != 0)
 		{
 			diskromon = 1;
 		}
@@ -1135,7 +1135,7 @@ public class ti99_4x
 	{
 		int drive = offset;					/* drive # (0-2) */
 	
-		if (data & 1)
+		if ((data & 1) != 0)
 		{
 			if (drive != DSKnum)			/* turn on drive... already on ? */
 			{

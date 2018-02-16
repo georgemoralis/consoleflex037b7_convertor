@@ -121,10 +121,7 @@ public class spectrum
 	
 	
 	
-	extern void spectrum_128_update_memory(void);
-	extern void spectrum_plus3_update_memory(void);
-	extern void ts2068_update_memory(void);
-	
+	extern extern extern 
 	int spectrum_128_port_7ffd_data = -1;
 	int spectrum_plus3_port_1ffd_data = -1;
 	/* Initialisation values used when determining which model is being emulated.
@@ -132,12 +129,12 @@ public class spectrum
 	   128K/+2 Bank switches with port 7ffd only.
 	   +3/+2a  Bank switches with both ports. */
 	
-	static unsigned char *spectrum_128_ram = NULL;
-	unsigned char *spectrum_128_screen_location = NULL;
+	static UBytePtr spectrum_128_ram = NULL;
+	UBytePtr spectrum_128_screen_location = NULL;
 	
 	int ts2068_port_ff_data = -1; /* Display enhancement control */
 	int ts2068_port_f4_data = -1; /* Horizontal Select Register */
-	unsigned char *ts2068_ram = NULL;
+	UBytePtr ts2068_ram = NULL;
 	
 	
 	static nec765_interface spectrum_plus3_nec765_interface =
@@ -148,9 +145,9 @@ public class spectrum
 	
 	
 	
-	void spectrum_128_init_machine(void)
+	public static InitMachinePtr spectrum_128_init_machine = new InitMachinePtr() { public void handler() 
 	{
-			spectrum_128_ram = (unsigned char *)malloc(128*1024);
+			spectrum_128_ram = (UBytePtr )malloc(128*1024);
 			if(!spectrum_128_ram) return;
 			memset(spectrum_128_ram, 0, 128*1024);
 	
@@ -179,12 +176,12 @@ public class spectrum
 			spectrum_128_update_memory();
 	
 			spectrum_init_machine();
-	}
+	} };
 	
 	
-	void spectrum_plus3_init_machine(void)
+	public static InitMachinePtr spectrum_plus3_init_machine = new InitMachinePtr() { public void handler() 
 	{
-			spectrum_128_ram = (unsigned char *)malloc(128*1024);
+			spectrum_128_ram = (UBytePtr )malloc(128*1024);
 			if(!spectrum_128_ram) return;
 			memset(spectrum_128_ram, 0, 128*1024);
 	
@@ -211,7 +208,7 @@ public class spectrum
 			spectrum_plus3_update_memory();
 	
 			spectrum_init_machine();
-	}
+	} };
 	
 	void  spectrum_128_exit_machine(void)
 	{
@@ -220,9 +217,9 @@ public class spectrum
 	}
 	
 	
-	void ts2068_init_machine(void)
+	public static InitMachinePtr ts2068_init_machine = new InitMachinePtr() { public void handler() 
 	{
-			ts2068_ram = (unsigned char *)malloc(48*1024);
+			ts2068_ram = (UBytePtr )malloc(48*1024);
 			if(!ts2068_ram) return;
 			memset(ts2068_ram, 0, 48*1024);
 	
@@ -250,11 +247,11 @@ public class spectrum
 			ts2068_update_memory();
 	
 			spectrum_init_machine();
-	}
+	} };
 	
-	void tc2048_init_machine(void)
+	public static InitMachinePtr tc2048_init_machine = new InitMachinePtr() { public void handler() 
 	{
-			ts2068_ram = (unsigned char *)malloc(48*1024);
+			ts2068_ram = (UBytePtr )malloc(48*1024);
 			if(!ts2068_ram) return;
 			memset(ts2068_ram, 0, 48*1024);
 	
@@ -265,7 +262,7 @@ public class spectrum
 			ts2068_port_ff_data = 0;
 	
 			spectrum_init_machine();
-	}
+	} };
 	
 	
 	void ts2068_exit_machine(void)
@@ -382,10 +379,10 @@ public class spectrum
 	
 	extern void spectrum_128_update_memory(void)
 	{
-			unsigned char *ChosenROM;
+			UBytePtr ChosenROM;
 			int ROMSelection;
 	
-			if (spectrum_128_port_7ffd_data & 8)
+			if ((spectrum_128_port_7ffd_data & 8) != 0)
 			{
 					logerror("SCREEN 1: BLOCK 7\n");
 					spectrum_128_screen_location = spectrum_128_ram + (7<<14);
@@ -399,7 +396,7 @@ public class spectrum
 			/* select ram at 0x0c000-0x0ffff */
 			{
 					int ram_page;
-					unsigned char *ram_data;
+					UBytePtr ram_data;
 	
 					ram_page = spectrum_128_port_7ffd_data & 0x07;
 					ram_data = spectrum_128_ram + (ram_page<<14);
@@ -425,7 +422,7 @@ public class spectrum
 	
 	extern void spectrum_plus3_update_memory(void)
 	{
-			if (spectrum_128_port_7ffd_data & 8)
+			if ((spectrum_128_port_7ffd_data & 8) != 0)
 			{
 					logerror("+3 SCREEN 1: BLOCK 7\n");
 					spectrum_128_screen_location = spectrum_128_ram + (7<<14);
@@ -439,10 +436,10 @@ public class spectrum
 			if ((spectrum_plus3_port_1ffd_data & 0x01)==0)
 			{
 					int ram_page;
-					unsigned char *ram_data;
+					UBytePtr ram_data;
 	
 					/* ROM switching */
-					unsigned char *ChosenROM;
+					UBytePtr ChosenROM;
 					int ROMSelection;
 	
 					/* select ram at 0x0c000-0x0ffff */
@@ -482,7 +479,7 @@ public class spectrum
 	
 					int *memory_selection;
 					int MemorySelection;
-					unsigned char *ram_data;
+					UBytePtr ram_data;
 	
 					MemorySelection = (spectrum_plus3_port_1ffd_data>>1) & 0x03;
 	
@@ -531,12 +528,12 @@ public class spectrum
 	 *******************************************************************/
 	extern void ts2068_update_memory(void)
 	{
-			unsigned char *ChosenROM, *ExROM;
+			UBytePtr ChosenROM, *ExROM;
 	
 			ExROM = memory_region(REGION_CPU1) + 0x014000;
-			if (ts2068_port_f4_data & 0x01)
+			if ((ts2068_port_f4_data & 0x01) != 0)
 			{
-					if (ts2068_port_ff_data & 0x80)
+					if ((ts2068_port_ff_data & 0x80) != 0)
 					{
 							cpu_setbank(1, ExROM);
 							cpu_setbankhandler_r(1, MRA_BANK1);
@@ -557,9 +554,9 @@ public class spectrum
 					logerror("0000-1fff HOME\n");
 			}
 	
-			if (ts2068_port_f4_data & 0x02)
+			if ((ts2068_port_f4_data & 0x02) != 0)
 			{
-					if (ts2068_port_ff_data & 0x80)
+					if ((ts2068_port_ff_data & 0x80) != 0)
 					{
 							cpu_setbank(2, ExROM);
 							cpu_setbankhandler_r(2, MRA_BANK2);
@@ -579,9 +576,9 @@ public class spectrum
 					logerror("2000-3fff HOME\n");
 			}
 	
-			if (ts2068_port_f4_data & 0x04)
+			if ((ts2068_port_f4_data & 0x04) != 0)
 			{
-					if (ts2068_port_ff_data & 0x80)
+					if ((ts2068_port_ff_data & 0x80) != 0)
 					{
 							cpu_setbank(3, ExROM);
 							cpu_setbankhandler_r(3, MRA_BANK3);
@@ -604,9 +601,9 @@ public class spectrum
 					logerror("4000-5fff RAM\n");
 			}
 	
-			if (ts2068_port_f4_data & 0x08)
+			if ((ts2068_port_f4_data & 0x08) != 0)
 			{
-					if (ts2068_port_ff_data & 0x80)
+					if ((ts2068_port_ff_data & 0x80) != 0)
 					{
 							cpu_setbank(4, ExROM);
 							cpu_setbankhandler_r(4, MRA_BANK4);
@@ -629,9 +626,9 @@ public class spectrum
 					logerror("6000-7fff RAM\n");
 			}
 	
-			if (ts2068_port_f4_data & 0x10)
+			if ((ts2068_port_f4_data & 0x10) != 0)
 			{
-					if (ts2068_port_ff_data & 0x80)
+					if ((ts2068_port_ff_data & 0x80) != 0)
 					{
 							cpu_setbank(5, ExROM);
 							cpu_setbankhandler_r(5, MRA_BANK5);
@@ -654,9 +651,9 @@ public class spectrum
 					logerror("8000-9fff RAM\n");
 			}
 	
-			if (ts2068_port_f4_data & 0x20)
+			if ((ts2068_port_f4_data & 0x20) != 0)
 			{
-					if (ts2068_port_ff_data & 0x80)
+					if ((ts2068_port_ff_data & 0x80) != 0)
 					{
 							cpu_setbank(6, ExROM);
 							cpu_setbankhandler_r(6, MRA_BANK6);
@@ -679,9 +676,9 @@ public class spectrum
 					logerror("a000-bfff RAM\n");
 			}
 	
-			if (ts2068_port_f4_data & 0x40)
+			if ((ts2068_port_f4_data & 0x40) != 0)
 			{
-					if (ts2068_port_ff_data & 0x80)
+					if ((ts2068_port_ff_data & 0x80) != 0)
 					{
 							cpu_setbank(7, ExROM);
 							cpu_setbankhandler_r(7, MRA_BANK7);
@@ -704,9 +701,9 @@ public class spectrum
 					logerror("c000-dfff RAM\n");
 			}
 	
-			if (ts2068_port_f4_data & 0x80)
+			if ((ts2068_port_f4_data & 0x80) != 0)
 			{
-					if (ts2068_port_ff_data & 0x80)
+					if ((ts2068_port_ff_data & 0x80) != 0)
 					{
 							cpu_setbank(8, ExROM);
 							cpu_setbankhandler_r(8, MRA_BANK8);
@@ -738,7 +735,7 @@ public class spectrum
 		   /* D5 - Disable paging */
 	
 			/* disable paging? */
-			if (spectrum_128_port_7ffd_data & 0x20)
+			if ((spectrum_128_port_7ffd_data & 0x20) != 0)
 					return;
 	
 			/* store new state */
@@ -756,7 +753,7 @@ public class spectrum
 		   /* D5 - Disable paging */
 	
 			/* disable paging? */
-			if (spectrum_128_port_7ffd_data & 0x20)
+			if ((spectrum_128_port_7ffd_data & 0x20) != 0)
 					return;
 	
 			/* store new state */
@@ -791,72 +788,72 @@ public class spectrum
 	
 	
 	
-	static struct MemoryReadAddress spectrum_readmem[] = {
-		{ 0x0000, 0x3fff, MRA_ROM },
-		{ 0x4000, 0x57ff, spectrum_characterram_r },
-		{ 0x5800, 0x5aff, spectrum_colorram_r },
-		{ 0x5b00, 0xffff, MRA_RAM },
-		{ -1 }	/* end of table */
+	static MemoryReadAddress spectrum_readmem[] ={
+		new MemoryReadAddress( 0x0000, 0x3fff, MRA_ROM ),
+		new MemoryReadAddress( 0x4000, 0x57ff, spectrum_characterram_r ),
+		new MemoryReadAddress( 0x5800, 0x5aff, spectrum_colorram_r ),
+		new MemoryReadAddress( 0x5b00, 0xffff, MRA_RAM ),
+		new MemoryReadAddress( -1 )	/* end of table */
 	};
 	
-	static struct MemoryWriteAddress spectrum_writemem[] = {
-		{ 0x0000, 0x3fff, MWA_ROM },
-		{ 0x4000, 0x57ff, spectrum_characterram_w },
-		{ 0x5800, 0x5aff, spectrum_colorram_w },
-		{ 0x5b00, 0xffff, MWA_RAM },
-		{ -1 }	/* end of table */
+	static MemoryWriteAddress spectrum_writemem[] ={
+		new MemoryWriteAddress( 0x0000, 0x3fff, MWA_ROM ),
+		new MemoryWriteAddress( 0x4000, 0x57ff, spectrum_characterram_w ),
+		new MemoryWriteAddress( 0x5800, 0x5aff, spectrum_colorram_w ),
+		new MemoryWriteAddress( 0x5b00, 0xffff, MWA_RAM ),
+		new MemoryWriteAddress( -1 )	/* end of table */
 	};
 	
-	static struct MemoryReadAddress spectrum_128_readmem[] = {
-			{ 0x0000, 0x3fff, MRA_BANK1 },
-			{ 0x4000, 0x7fff, MRA_BANK2 },
-			{ 0x8000, 0xbfff, MRA_BANK3 },
-			{ 0xc000, 0xffff, MRA_BANK4 },
-		{ -1 }	/* end of table */
+	static MemoryReadAddress spectrum_128_readmem[] ={
+			new MemoryReadAddress( 0x0000, 0x3fff, MRA_BANK1 ),
+			new MemoryReadAddress( 0x4000, 0x7fff, MRA_BANK2 ),
+			new MemoryReadAddress( 0x8000, 0xbfff, MRA_BANK3 ),
+			new MemoryReadAddress( 0xc000, 0xffff, MRA_BANK4 ),
+		new MemoryReadAddress( -1 )	/* end of table */
 	};
 	
-	static struct MemoryWriteAddress spectrum_128_writemem[] = {
-			{ 0x0000, 0x3fff, MWA_BANK5 },
-			{ 0x4000, 0x7fff, MWA_BANK6 },
-			{ 0x8000, 0xbfff, MWA_BANK7 },
-			{ 0xc000, 0xffff, MWA_BANK8 },
-		{ -1 }	/* end of table */
+	static MemoryWriteAddress spectrum_128_writemem[] ={
+			new MemoryWriteAddress( 0x0000, 0x3fff, MWA_BANK5 ),
+			new MemoryWriteAddress( 0x4000, 0x7fff, MWA_BANK6 ),
+			new MemoryWriteAddress( 0x8000, 0xbfff, MWA_BANK7 ),
+			new MemoryWriteAddress( 0xc000, 0xffff, MWA_BANK8 ),
+		new MemoryWriteAddress( -1 )	/* end of table */
 	};
 	
-	static struct MemoryReadAddress ts2068_readmem[] = {
-			{ 0x0000, 0x1fff, MRA_BANK1 },
-			{ 0x2000, 0x3fff, MRA_BANK2 },
-			{ 0x4000, 0x5fff, MRA_BANK3 },
-			{ 0x6000, 0x7fff, MRA_BANK4 },
-			{ 0x8000, 0x9fff, MRA_BANK5 },
-			{ 0xa000, 0xbfff, MRA_BANK6 },
-			{ 0xc000, 0xdfff, MRA_BANK7 },
-			{ 0xe000, 0xffff, MRA_BANK8 },
-		{ -1 }	/* end of table */
+	static MemoryReadAddress ts2068_readmem[] ={
+			new MemoryReadAddress( 0x0000, 0x1fff, MRA_BANK1 ),
+			new MemoryReadAddress( 0x2000, 0x3fff, MRA_BANK2 ),
+			new MemoryReadAddress( 0x4000, 0x5fff, MRA_BANK3 ),
+			new MemoryReadAddress( 0x6000, 0x7fff, MRA_BANK4 ),
+			new MemoryReadAddress( 0x8000, 0x9fff, MRA_BANK5 ),
+			new MemoryReadAddress( 0xa000, 0xbfff, MRA_BANK6 ),
+			new MemoryReadAddress( 0xc000, 0xdfff, MRA_BANK7 ),
+			new MemoryReadAddress( 0xe000, 0xffff, MRA_BANK8 ),
+		new MemoryReadAddress( -1 )	/* end of table */
 	};
 	
-	static struct MemoryWriteAddress ts2068_writemem[] = {
-			{ 0x0000, 0x1fff, MWA_BANK9 },
-			{ 0x2000, 0x3fff, MWA_BANK10 },
-			{ 0x4000, 0x5fff, MWA_BANK11 },
-			{ 0x6000, 0x7fff, MWA_BANK12 },
-			{ 0x8000, 0x9fff, MWA_BANK13 },
-			{ 0xa000, 0xbfff, MWA_BANK14 },
-			{ 0xc000, 0xdfff, MWA_BANK15 },
-			{ 0xe000, 0xffff, MWA_BANK16 },
-		{ -1 }	/* end of table */
+	static MemoryWriteAddress ts2068_writemem[] ={
+			new MemoryWriteAddress( 0x0000, 0x1fff, MWA_BANK9 ),
+			new MemoryWriteAddress( 0x2000, 0x3fff, MWA_BANK10 ),
+			new MemoryWriteAddress( 0x4000, 0x5fff, MWA_BANK11 ),
+			new MemoryWriteAddress( 0x6000, 0x7fff, MWA_BANK12 ),
+			new MemoryWriteAddress( 0x8000, 0x9fff, MWA_BANK13 ),
+			new MemoryWriteAddress( 0xa000, 0xbfff, MWA_BANK14 ),
+			new MemoryWriteAddress( 0xc000, 0xdfff, MWA_BANK15 ),
+			new MemoryWriteAddress( 0xe000, 0xffff, MWA_BANK16 ),
+		new MemoryWriteAddress( -1 )	/* end of table */
 	};
 	
-	static struct MemoryReadAddress tc2048_readmem[] = {
-		{ 0x0000, 0x3fff, MRA_ROM },
-			{ 0x4000, 0xffff, MRA_BANK1 },
-		{ -1 }	/* end of table */
+	static MemoryReadAddress tc2048_readmem[] ={
+		new MemoryReadAddress( 0x0000, 0x3fff, MRA_ROM ),
+			new MemoryReadAddress( 0x4000, 0xffff, MRA_BANK1 ),
+		new MemoryReadAddress( -1 )	/* end of table */
 	};
 	
-	static struct MemoryWriteAddress tc2048_writemem[] = {
-		{ 0x0000, 0x3fff, MWA_ROM },
-			{ 0x4000, 0xffff, MWA_BANK2 },
-		{ -1 }	/* end of table */
+	static MemoryWriteAddress tc2048_writemem[] ={
+		new MemoryWriteAddress( 0x0000, 0x3fff, MWA_ROM ),
+			new MemoryWriteAddress( 0x4000, 0xffff, MWA_BANK2 ),
+		new MemoryWriteAddress( -1 )	/* end of table */
 	};
 	
 	/* KT: more accurate keyboard reading */
@@ -981,16 +978,16 @@ public class spectrum
 	
 	/* KT: Changed it to this because the ports are not decoded fully.
 	The function decodes the ports appropriately */
-	static struct IOReadPort spectrum_readport[] = {
-			{0x0000, 0xffff, spectrum_port_r},
-		{ -1 }
+	static IOReadPort spectrum_readport[] ={
+			new IOReadPort(0x0000, 0xffff, spectrum_port_r),
+		new IOReadPort( -1 )
 	};
 	
 	/* KT: Changed it to this because the ports are not decoded fully.
 	The function decodes the ports appropriately */
-	static struct IOWritePort spectrum_writeport[] = {
-			{0x0000, 0xffff, spectrum_port_w},
-		{ -1 }
+	static IOWritePort spectrum_writeport[] ={
+			new IOWritePort(0x0000, 0xffff, spectrum_port_w),
+		new IOWritePort( -1 )
 	};
 	
 	
@@ -1184,211 +1181,211 @@ public class spectrum
 			}
 	}
 	
-	static struct IOReadPort spectrum_128_readport[] = {
-			{0x0000, 0xffff, spectrum_128_port_r},
-			{ -1 }
+	static IOReadPort spectrum_128_readport[] ={
+			new IOReadPort(0x0000, 0xffff, spectrum_128_port_r),
+			new IOReadPort( -1 )
 	};
 	
-	static struct IOWritePort spectrum_128_writeport[] = {
-			{0x0000, 0xffff, spectrum_128_port_w},
-			{ -1 }
-	};
-	
-	/* KT: Changed it to this because the ports are not decoded fully.
-	The function decodes the ports appropriately */
-	static struct IOReadPort spectrum_plus3_readport[] = {
-			{0x0000, 0xffff, spectrum_plus3_port_r},
-			{ -1 }
+	static IOWritePort spectrum_128_writeport[] ={
+			new IOWritePort(0x0000, 0xffff, spectrum_128_port_w),
+			new IOWritePort( -1 )
 	};
 	
 	/* KT: Changed it to this because the ports are not decoded fully.
 	The function decodes the ports appropriately */
-	static struct IOWritePort spectrum_plus3_writeport[] = {
-			{0x0000, 0xffff, spectrum_plus3_port_w},
-			{ -1 }
+	static IOReadPort spectrum_plus3_readport[] ={
+			new IOReadPort(0x0000, 0xffff, spectrum_plus3_port_r),
+			new IOReadPort( -1 )
+	};
+	
+	/* KT: Changed it to this because the ports are not decoded fully.
+	The function decodes the ports appropriately */
+	static IOWritePort spectrum_plus3_writeport[] ={
+			new IOWritePort(0x0000, 0xffff, spectrum_plus3_port_w),
+			new IOWritePort( -1 )
 	};
 	
 	
-	static struct IOReadPort ts2068_readport[] = {
-			{0x0000, 0x0ffff, ts2068_port_r},
-		{ -1 }
+	static IOReadPort ts2068_readport[] ={
+			new IOReadPort(0x0000, 0x0ffff, ts2068_port_r),
+		new IOReadPort( -1 )
 	};
 	
-	static struct IOWritePort ts2068_writeport[] = {
-			{0x0000, 0x0ffff, ts2068_port_w},
-		{ -1 }
-	};
-	
-	
-	static struct IOReadPort tc2048_readport[] = {
-			{0x0000, 0x0ffff, tc2048_port_r},
-		{ -1 }
-	};
-	
-	static struct IOWritePort tc2048_writeport[] = {
-			{0x0000, 0x0ffff, tc2048_port_w},
-		{ -1 }
+	static IOWritePort ts2068_writeport[] ={
+			new IOWritePort(0x0000, 0x0ffff, ts2068_port_w),
+		new IOWritePort( -1 )
 	};
 	
 	
-	static struct AY8910interface spectrum_128_ay_interface =
-	{
+	static IOReadPort tc2048_readport[] ={
+			new IOReadPort(0x0000, 0x0ffff, tc2048_port_r),
+		new IOReadPort( -1 )
+	};
+	
+	static IOWritePort tc2048_writeport[] ={
+			new IOWritePort(0x0000, 0x0ffff, tc2048_port_w),
+		new IOWritePort( -1 )
+	};
+	
+	
+	static AY8910interface spectrum_128_ay_interface = new AY8910interface
+	(
 			1,
 			1000000,
-			{25,25},
-			{0},
-			{0},
-			{0}
-	};
+			new int[] {25,25},
+			new ReadHandlerPtr[] {0},
+			new ReadHandlerPtr[] {0},
+			new WriteHandlerPtr[] {0}
+	);
 	
 	
-	static struct GfxLayout spectrum_charlayout = {
+	static GfxLayout spectrum_charlayout = new GfxLayout(
 		8,8,
 		256,
 		1,						/* 1 bits per pixel */
 	
-		{ 0 },					/* no bitplanes; 1 bit per pixel */
+		new int[] { 0 },					/* no bitplanes; 1 bit per pixel */
 	
-		{ 0, 1, 2, 3, 4, 5, 6, 7 },
-		{ 0, 8*256, 16*256, 24*256, 32*256, 40*256, 48*256, 56*256 },
+		new int[] { 0, 1, 2, 3, 4, 5, 6, 7 },
+		new int[] { 0, 8*256, 16*256, 24*256, 32*256, 40*256, 48*256, 56*256 },
 	
 		8				/* every char takes 1 consecutive byte */
+	);
+	
+	static GfxDecodeInfo spectrum_gfxdecodeinfo[] ={
+		new GfxDecodeInfo( 0, 0x0, spectrum_charlayout, 0, 0x80 ),
+		new GfxDecodeInfo( 0, 0x0, spectrum_charlayout, 0, 0x80 ),
+		new GfxDecodeInfo( 0, 0x0, spectrum_charlayout, 0, 0x80 ),
+		new GfxDecodeInfo( -1 ) /* end of array */
 	};
 	
-	static struct GfxDecodeInfo spectrum_gfxdecodeinfo[] = {
-		{ 0, 0x0, &spectrum_charlayout, 0, 0x80 },
-		{ 0, 0x0, &spectrum_charlayout, 0, 0x80 },
-		{ 0, 0x0, &spectrum_charlayout, 0, 0x80 },
-		{ -1 } /* end of array */
-	};
+	static InputPortPtr input_ports_spectrum = new InputPortPtr(){ public void handler() { 
+		PORT_START();  /* 0xFEFE */
+			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "CAPS SHIFT",                       KEYCODE_LSHIFT,  IP_JOY_NONE );
+			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "Z  COPY    :      LN       BEEP",  KEYCODE_Z,  IP_JOY_NONE );
+			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "X  CLEAR   Pound  EXP      INK",   KEYCODE_X,  IP_JOY_NONE );
+			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "C  CONT    ?      LPRINT   PAPER", KEYCODE_C,  IP_JOY_NONE );
+			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "V  CLS     /      LLIST    FLASH", KEYCODE_V,  IP_JOY_NONE );
 	
-	INPUT_PORTS_START( spectrum )
-		PORT_START /* 0xFEFE */
-			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "CAPS SHIFT",                       KEYCODE_LSHIFT,  IP_JOY_NONE )
-			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "Z  COPY    :      LN       BEEP",  KEYCODE_Z,  IP_JOY_NONE )
-			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "X  CLEAR   Pound  EXP      INK",   KEYCODE_X,  IP_JOY_NONE )
-			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "C  CONT    ?      LPRINT   PAPER", KEYCODE_C,  IP_JOY_NONE )
-			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "V  CLS     /      LLIST    FLASH", KEYCODE_V,  IP_JOY_NONE )
+		PORT_START();  /* 0xFDFE */
+			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "A  NEW     STOP   READ     ~",  KEYCODE_A,  IP_JOY_NONE );
+			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "S  SAVE    NOT    RESTORE  |",  KEYCODE_S,  IP_JOY_NONE );
+			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "D  DIM     STEP   DATA     \\", KEYCODE_D,  IP_JOY_NONE );
+			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "F  FOR     TO     SGN      {",  KEYCODE_F,  IP_JOY_NONE );
+			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "G  GOTO    THEN   ABS      }",  KEYCODE_G,  IP_JOY_NONE );
 	
-		PORT_START /* 0xFDFE */
-			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "A  NEW     STOP   READ     ~",  KEYCODE_A,  IP_JOY_NONE )
-			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "S  SAVE    NOT    RESTORE  |",  KEYCODE_S,  IP_JOY_NONE )
-			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "D  DIM     STEP   DATA     \\", KEYCODE_D,  IP_JOY_NONE )
-			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "F  FOR     TO     SGN      {",  KEYCODE_F,  IP_JOY_NONE )
-			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "G  GOTO    THEN   ABS      }",  KEYCODE_G,  IP_JOY_NONE )
-	
-		PORT_START /* 0xFBFE */
-			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "Q  PLOT    <=     SIN      ASN",    KEYCODE_Q,  IP_JOY_NONE )
-			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "W  DRAW    <>     COS      ACS",    KEYCODE_W,  IP_JOY_NONE )
-			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "E  REM     >=     TAN      ATN",    KEYCODE_E,  IP_JOY_NONE )
-			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "R  RUN     <      INT      VERIFY", KEYCODE_R,  IP_JOY_NONE )
-			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "T  RAND    >      RND      MERGE",  KEYCODE_T,  IP_JOY_NONE )
+		PORT_START();  /* 0xFBFE */
+			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "Q  PLOT    <=     SIN      ASN",    KEYCODE_Q,  IP_JOY_NONE );
+			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "W  DRAW    <>     COS      ACS",    KEYCODE_W,  IP_JOY_NONE );
+			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "E  REM     >=     TAN      ATN",    KEYCODE_E,  IP_JOY_NONE );
+			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "R  RUN     <      INT      VERIFY", KEYCODE_R,  IP_JOY_NONE );
+			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "T  RAND    >      RND      MERGE",  KEYCODE_T,  IP_JOY_NONE );
 	
 			/* interface II uses this port for joystick */
-		PORT_START /* 0xF7FE */
-			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "1          !      BLUE     DEF FN", KEYCODE_1,  IP_JOY_NONE )
-			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "2          @      RED      FN",     KEYCODE_2,  IP_JOY_NONE )
-			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "3          #      MAGENTA  LINE",   KEYCODE_3,  IP_JOY_NONE )
-			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "4          $      GREEN    OPEN#",  KEYCODE_4,  IP_JOY_NONE )
-			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "5          %      CYAN     CLOSE#", KEYCODE_5,  IP_JOY_NONE )
+		PORT_START();  /* 0xF7FE */
+			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "1          !      BLUE     DEF FN", KEYCODE_1,  IP_JOY_NONE );
+			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "2          @      RED      FN",     KEYCODE_2,  IP_JOY_NONE );
+			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "3          #      MAGENTA  LINE",   KEYCODE_3,  IP_JOY_NONE );
+			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "4          $      GREEN    OPEN#",  KEYCODE_4,  IP_JOY_NONE );
+			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "5          %      CYAN     CLOSE#", KEYCODE_5,  IP_JOY_NONE );
 	
 			/* protek clashes with interface II! uses 5 = left, 6 = down, 7 = up, 8 = right, 0 = fire */
-		PORT_START /* 0xEFFE */
-			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "0          _      BLACK    FORMAT", KEYCODE_0,  IP_JOY_NONE )
-			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "9          )               POINT",  KEYCODE_9,  IP_JOY_NONE )
-			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "8          (               CAT",    KEYCODE_8,  IP_JOY_NONE )
-			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "7          '      WHITE    ERASE",  KEYCODE_7,  IP_JOY_NONE )
-			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "6          &      YELLOW   MOVE",   KEYCODE_6,  IP_JOY_NONE )
+		PORT_START();  /* 0xEFFE */
+			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "0          _      BLACK    FORMAT", KEYCODE_0,  IP_JOY_NONE );
+			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "9          );              POINT",  KEYCODE_9,  IP_JOY_NONE )
+			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "8          (               CAT",    KEYCODE_8,  IP_JOY_NONE );
+			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "7          '      WHITE    ERASE",  KEYCODE_7,  IP_JOY_NONE );
+			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "6          &      YELLOW   MOVE",   KEYCODE_6,  IP_JOY_NONE );
 	
-		PORT_START /* 0xDFFE */
-			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "P  PRINT   \"      TAB      (c)", KEYCODE_P,  IP_JOY_NONE )
-			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "O  POKE    ;      PEEK     OUT", KEYCODE_O,  IP_JOY_NONE )
-			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "I  INPUT   AT     CODE     IN",  KEYCODE_I,  IP_JOY_NONE )
-			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "U  IF      OR     CHR$     ]",   KEYCODE_U,  IP_JOY_NONE )
-			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "Y  RETURN  AND    STR$     [",   KEYCODE_Y,  IP_JOY_NONE )
+		PORT_START();  /* 0xDFFE */
+			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "P  PRINT   \"      TAB      (c);, KEYCODE_P,  IP_JOY_NONE )
+			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "O  POKE    ;      PEEK     OUT", KEYCODE_O,  IP_JOY_NONE );
+			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "I  INPUT   AT     CODE     IN",  KEYCODE_I,  IP_JOY_NONE );
+			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "U  IF      OR     CHR$     ]",   KEYCODE_U,  IP_JOY_NONE );
+			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "Y  RETURN  AND    STR$     [",   KEYCODE_Y,  IP_JOY_NONE );
 	
-		PORT_START /* 0xBFFE */
-			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "ENTER",                              KEYCODE_ENTER,  IP_JOY_NONE )
-			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "L  LET     =      USR      ATTR",    KEYCODE_L,  IP_JOY_NONE )
-			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "K  LIST    +      LEN      SCREEN$", KEYCODE_K,  IP_JOY_NONE )
-			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "J  LOAD    -      VAL      VAL$",    KEYCODE_J,  IP_JOY_NONE )
-			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "H  GOSUB   ^      SQR      CIRCLE",  KEYCODE_H,  IP_JOY_NONE )
+		PORT_START();  /* 0xBFFE */
+			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "ENTER",                              KEYCODE_ENTER,  IP_JOY_NONE );
+			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "L  LET     =      USR      ATTR",    KEYCODE_L,  IP_JOY_NONE );
+			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "K  LIST    +      LEN      SCREEN$", KEYCODE_K,  IP_JOY_NONE );
+			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "J  LOAD    -      VAL      VAL$",    KEYCODE_J,  IP_JOY_NONE );
+			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "H  GOSUB   ^      SQR      CIRCLE",  KEYCODE_H,  IP_JOY_NONE );
 	
-		PORT_START /* 0x7FFE */
-			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "SPACE",                              KEYCODE_SPACE,   IP_JOY_NONE )
-			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "SYMBOL SHIFT",                       KEYCODE_RSHIFT,  IP_JOY_NONE )
-			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "M  PAUSE   .      PI       INVERSE", KEYCODE_M,  IP_JOY_NONE )
-			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "N  NEXT    ,      INKEY$   OVER",    KEYCODE_N,  IP_JOY_NONE )
-			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "B  BORDER  *      BIN      BRIGHT",  KEYCODE_B,  IP_JOY_NONE )
+		PORT_START();  /* 0x7FFE */
+			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "SPACE",                              KEYCODE_SPACE,   IP_JOY_NONE );
+			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "SYMBOL SHIFT",                       KEYCODE_RSHIFT,  IP_JOY_NONE );
+			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "M  PAUSE   .      PI       INVERSE", KEYCODE_M,  IP_JOY_NONE );
+			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "N  NEXT    ,      INKEY$   OVER",    KEYCODE_N,  IP_JOY_NONE );
+			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "B  BORDER  *      BIN      BRIGHT",  KEYCODE_B,  IP_JOY_NONE );
 	
-			PORT_START /* Spectrum+ Keys (set CAPS + 1-5) */
-			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "EDIT          (CAPS + 1)",  KEYCODE_F1,         IP_JOY_NONE )
-			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "CAPS LOCK     (CAPS + 2)",  KEYCODE_CAPSLOCK,   IP_JOY_NONE )
-			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "TRUE VID      (CAPS + 3)",  KEYCODE_F2,         IP_JOY_NONE )
-			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "INV VID       (CAPS + 4)",  KEYCODE_F3,         IP_JOY_NONE )
-			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "Cursor left   (CAPS + 5)",  KEYCODE_LEFT,       IP_JOY_NONE )
-			PORT_BIT(0xe0, IP_ACTIVE_LOW, IPT_UNUSED)
+			PORT_START();  /* Spectrum+ Keys (set CAPS + 1-5) */
+			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "EDIT          (CAPS + 1);,  KEYCODE_F1,         IP_JOY_NONE )
+			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "CAPS LOCK     (CAPS + 2);,  KEYCODE_CAPSLOCK,   IP_JOY_NONE )
+			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "TRUE VID      (CAPS + 3);,  KEYCODE_F2,         IP_JOY_NONE )
+			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "INV VID       (CAPS + 4);,  KEYCODE_F3,         IP_JOY_NONE )
+			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "Cursor left   (CAPS + 5);,  KEYCODE_LEFT,       IP_JOY_NONE )
+			PORT_BIT(0xe0, IP_ACTIVE_LOW, IPT_UNUSED);
 	
-			PORT_START /* Spectrum+ Keys (set CAPS + 6-0) */
-			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "DEL           (CAPS + 0)",  KEYCODE_BACKSPACE,  IP_JOY_NONE )
-			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "GRAPH         (CAPS + 9)",  KEYCODE_LALT,       IP_JOY_NONE )
-			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "Cursor right  (CAPS + 8)",  KEYCODE_RIGHT,      IP_JOY_NONE )
-			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "Cursor up     (CAPS + 7)",  KEYCODE_UP,         IP_JOY_NONE )
-			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "Cursor down   (CAPS + 6)",  KEYCODE_DOWN,       IP_JOY_NONE )
-			PORT_BIT(0xe0, IP_ACTIVE_LOW, IPT_UNUSED)
+			PORT_START();  /* Spectrum+ Keys (set CAPS + 6-0) */
+			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "DEL           (CAPS + 0);,  KEYCODE_BACKSPACE,  IP_JOY_NONE )
+			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "GRAPH         (CAPS + 9);,  KEYCODE_LALT,       IP_JOY_NONE )
+			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "Cursor right  (CAPS + 8);,  KEYCODE_RIGHT,      IP_JOY_NONE )
+			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "Cursor up     (CAPS + 7);,  KEYCODE_UP,         IP_JOY_NONE )
+			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "Cursor down   (CAPS + 6);,  KEYCODE_DOWN,       IP_JOY_NONE )
+			PORT_BIT(0xe0, IP_ACTIVE_LOW, IPT_UNUSED);
 	
-			PORT_START /* Spectrum+ Keys (set CAPS + SPACE and CAPS + SYMBOL */
-			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "BREAK",                     KEYCODE_PAUSE,      IP_JOY_NONE )
-			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "EXT MODE",                  KEYCODE_LCONTROL,   IP_JOY_NONE )
-			PORT_BIT(0xfc, IP_ACTIVE_LOW, IPT_UNUSED)
+			PORT_START();  /* Spectrum+ Keys (set CAPS + SPACE and CAPS + SYMBOL */
+			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "BREAK",                     KEYCODE_PAUSE,      IP_JOY_NONE );
+			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "EXT MODE",                  KEYCODE_LCONTROL,   IP_JOY_NONE );
+			PORT_BIT(0xfc, IP_ACTIVE_LOW, IPT_UNUSED);
 	
-			PORT_START /* Spectrum+ Keys (set SYMBOL SHIFT + O/P */
-			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "\"", KEYCODE_F4,  IP_JOY_NONE )
-	/*		  PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "\"", KEYCODE_QUOTE,  IP_JOY_NONE ) */
-			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, ";", KEYCODE_COLON,  IP_JOY_NONE )
-			PORT_BIT(0xfc, IP_ACTIVE_LOW, IPT_UNUSED)
+			PORT_START();  /* Spectrum+ Keys (set SYMBOL SHIFT + O/P */
+			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "\"", KEYCODE_F4,  IP_JOY_NONE );
+	/*		  PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "\"", KEYCODE_QUOTE,  IP_JOY_NONE );*/
+			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, ";", KEYCODE_COLON,  IP_JOY_NONE );
+			PORT_BIT(0xfc, IP_ACTIVE_LOW, IPT_UNUSED);
 	
-			PORT_START /* Spectrum+ Keys (set SYMBOL SHIFT + N/M */
-			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, ".", KEYCODE_STOP,   IP_JOY_NONE )
-			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, ",", KEYCODE_COMMA,  IP_JOY_NONE )
-			PORT_BIT(0xf3, IP_ACTIVE_LOW, IPT_UNUSED)
+			PORT_START();  /* Spectrum+ Keys (set SYMBOL SHIFT + N/M */
+			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, ".", KEYCODE_STOP,   IP_JOY_NONE );
+			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, ",", KEYCODE_COMMA,  IP_JOY_NONE );
+			PORT_BIT(0xf3, IP_ACTIVE_LOW, IPT_UNUSED);
 	
-			PORT_START /* Kempston joystick interface */
-			PORT_BITX(0x01, IP_ACTIVE_HIGH, IPT_KEYBOARD, "KEMPSTON JOYSTICK RIGHT",     IP_KEY_NONE,    JOYCODE_1_RIGHT )
-			PORT_BITX(0x02, IP_ACTIVE_HIGH, IPT_KEYBOARD, "KEMPSTON JOYSTICK LEFT",      IP_KEY_NONE,   JOYCODE_1_LEFT )
-			PORT_BITX(0x04, IP_ACTIVE_HIGH, IPT_KEYBOARD, "KEMPSTON JOYSTICK DOWN",         IP_KEY_NONE,        JOYCODE_1_DOWN )
-			PORT_BITX(0x08, IP_ACTIVE_HIGH, IPT_KEYBOARD, "KEMPSTON JOYSTICK UP",         IP_KEY_NONE,        JOYCODE_1_UP)
-			PORT_BITX(0x10, IP_ACTIVE_HIGH, IPT_KEYBOARD, "KEMPSTON JOYSTICK FIRE",         IP_KEY_NONE,        JOYCODE_1_BUTTON1 )
+			PORT_START();  /* Kempston joystick interface */
+			PORT_BITX(0x01, IP_ACTIVE_HIGH, IPT_KEYBOARD, "KEMPSTON JOYSTICK RIGHT",     IP_KEY_NONE,    JOYCODE_1_RIGHT );
+			PORT_BITX(0x02, IP_ACTIVE_HIGH, IPT_KEYBOARD, "KEMPSTON JOYSTICK LEFT",      IP_KEY_NONE,   JOYCODE_1_LEFT );
+			PORT_BITX(0x04, IP_ACTIVE_HIGH, IPT_KEYBOARD, "KEMPSTON JOYSTICK DOWN",         IP_KEY_NONE,        JOYCODE_1_DOWN );
+			PORT_BITX(0x08, IP_ACTIVE_HIGH, IPT_KEYBOARD, "KEMPSTON JOYSTICK UP",         IP_KEY_NONE,        JOYCODE_1_UP);
+			PORT_BITX(0x10, IP_ACTIVE_HIGH, IPT_KEYBOARD, "KEMPSTON JOYSTICK FIRE",         IP_KEY_NONE,        JOYCODE_1_BUTTON1 );
 	
-			PORT_START /* Fuller joystick interface */
-			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "FULLER JOYSTICK UP",     IP_KEY_NONE,    JOYCODE_1_UP )
-			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "FULLER JOYSTICK DOWN",      IP_KEY_NONE,   JOYCODE_1_DOWN )
-			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "FULLER JOYSTICK LEFT",         IP_KEY_NONE,        JOYCODE_1_LEFT )
-			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "FULLER JOYSTICK RIGHT",         IP_KEY_NONE,        JOYCODE_1_RIGHT)
-			PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "FULLER JOYSTICK FIRE",         IP_KEY_NONE,        JOYCODE_1_BUTTON1)
+			PORT_START();  /* Fuller joystick interface */
+			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "FULLER JOYSTICK UP",     IP_KEY_NONE,    JOYCODE_1_UP );
+			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "FULLER JOYSTICK DOWN",      IP_KEY_NONE,   JOYCODE_1_DOWN );
+			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "FULLER JOYSTICK LEFT",         IP_KEY_NONE,        JOYCODE_1_LEFT );
+			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "FULLER JOYSTICK RIGHT",         IP_KEY_NONE,        JOYCODE_1_RIGHT);
+			PORT_BITX(0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "FULLER JOYSTICK FIRE",         IP_KEY_NONE,        JOYCODE_1_BUTTON1);
 	
-			PORT_START /* Mikrogen joystick interface */
-			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "MIKROGEN JOYSTICK UP",     IP_KEY_NONE,    JOYCODE_1_UP )
-			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "MIKROGEN JOYSTICK DOWN",      IP_KEY_NONE,   JOYCODE_1_DOWN )
-			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "MIKROGEN JOYSTICK RIGHT",         IP_KEY_NONE,        JOYCODE_1_RIGHT )
-			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "MIKROGEN JOYSTICK LEFT",         IP_KEY_NONE,        JOYCODE_1_LEFT)
-			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "MIKROGEN JOYSTICK FIRE",         IP_KEY_NONE,        JOYCODE_1_BUTTON1)
+			PORT_START();  /* Mikrogen joystick interface */
+			PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "MIKROGEN JOYSTICK UP",     IP_KEY_NONE,    JOYCODE_1_UP );
+			PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "MIKROGEN JOYSTICK DOWN",      IP_KEY_NONE,   JOYCODE_1_DOWN );
+			PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "MIKROGEN JOYSTICK RIGHT",         IP_KEY_NONE,        JOYCODE_1_RIGHT );
+			PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "MIKROGEN JOYSTICK LEFT",         IP_KEY_NONE,        JOYCODE_1_LEFT);
+			PORT_BITX(0x10, IP_ACTIVE_LOW, IPT_KEYBOARD, "MIKROGEN JOYSTICK FIRE",         IP_KEY_NONE,        JOYCODE_1_BUTTON1);
 	
 	
-			PORT_START
-			PORT_BITX(0x8000, IP_ACTIVE_HIGH, IPT_KEYBOARD, "Quickload", KEYCODE_F8, IP_JOY_NONE)
-			PORT_DIPNAME(0x80, 0x00, "Hardware Version")
-			PORT_DIPSETTING(0x00, "Issue 2" )
-			PORT_DIPSETTING(0x80, "Issue 3" )
-			PORT_DIPNAME(0x40, 0x00, "End of .TAP action")
-			PORT_DIPSETTING(0x00, "Disable .TAP support" )
-			PORT_DIPSETTING(0x40, "Rewind tape to start (to reload earlier levels)" )
-			PORT_DIPNAME(0x20, 0x00, "+3/+2a etc. Disk Drive")
-			PORT_DIPSETTING(0x00, "Enabled" )
-			PORT_DIPSETTING(0x20, "Disabled" )
-			PORT_BIT(0x1f, IP_ACTIVE_LOW, IPT_UNUSED)
+			PORT_START(); 
+			PORT_BITX(0x8000, IP_ACTIVE_HIGH, IPT_KEYBOARD, "Quickload", KEYCODE_F8, IP_JOY_NONE);
+			PORT_DIPNAME(0x80, 0x00, "Hardware Version");
+			PORT_DIPSETTING(0x00, "Issue 2" );
+			PORT_DIPSETTING(0x80, "Issue 3" );
+			PORT_DIPNAME(0x40, 0x00, "End of .TAP action");
+			PORT_DIPSETTING(0x00, "Disable .TAP support" );
+			PORT_DIPSETTING(0x40, "Rewind tape to start (to reload earlier levels); )
+			PORT_DIPNAME(0x20, 0x00, "+3/+2a etc. Disk Drive");
+			PORT_DIPSETTING(0x00, "Enabled" );
+			PORT_DIPSETTING(0x20, "Disabled" );
+			PORT_BIT(0x1f, IP_ACTIVE_LOW, IPT_UNUSED);
 	
-	INPUT_PORTS_END
+	INPUT_PORTS_END(); }}; 
 	
 	static unsigned char spectrum_palette[16*3] = {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0xbf,
@@ -1422,13 +1419,13 @@ public class spectrum
 		15,8, 15,9, 15,10, 15,11, 15,12, 15,13, 15,14, 15,15
 	};
 	/* Initialise the palette */
-	static void spectrum_init_palette(unsigned char *sys_palette, unsigned short *sys_colortable,const unsigned char *color_prom)
+	static void spectrum_init_palette(UBytePtr sys_palette, unsigned short *sys_colortable,const UBytePtr color_prom)
 	{
 		memcpy(sys_palette,spectrum_palette,sizeof(spectrum_palette));
 		memcpy(sys_colortable,spectrum_colortable,sizeof(spectrum_colortable));
 	}
 	
-	int spec_interrupt (void)
+	public static InterruptPtr spec_interrupt = new InterruptPtr() { public int handler() 
 	{
 		static int quickload = 0;
 	
@@ -1441,7 +1438,7 @@ public class spectrum
 					quickload = 0;
 	
 			return interrupt ();
-	}
+	} };
 	
 	static struct Speaker_interface spectrum_speaker_interface=
 	{
@@ -1456,17 +1453,17 @@ public class spectrum
 	
 	};
 	
-	static struct MachineDriver machine_driver_spectrum =
-	{
+	static MachineDriver machine_driver_spectrum = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_Z80|CPU_16BIT_PORT,
 				3500000,		/* 3.5 Mhz */
 							spectrum_readmem,spectrum_writemem,
 				spectrum_readport,spectrum_writeport,
 							spec_interrupt,1,
-			},
+			),
 		},
 		50, 2500,		/* frames per second, vblank duration */
 		1,
@@ -1476,7 +1473,7 @@ public class spectrum
 		/* video hardware */
 			SPEC_SCREEN_WIDTH,				/* screen width */
 			SPEC_SCREEN_HEIGHT, 			/* screen height */
-			{ 0, SPEC_SCREEN_WIDTH-1, 0, SPEC_SCREEN_HEIGHT-1},  /* visible_area */
+			new rectangle( 0, SPEC_SCREEN_WIDTH-1, 0, SPEC_SCREEN_HEIGHT-1),  /* visible_area */
 		spectrum_gfxdecodeinfo, 			 /* graphics decode info */
 		16, 256,							 /* colors used for the characters */
 		spectrum_init_palette,				 /* initialise palette */
@@ -1489,33 +1486,33 @@ public class spectrum
 	
 		/* sound hardware */
 		0,0,0,0,
-			{
+			new MachineSound[] {
 					/* standard spectrum sound */
-					{
+					new MachineSound(
 							SOUND_SPEAKER,
-							&spectrum_speaker_interface
-					},
+							spectrum_speaker_interface
+					),
 					/*-----------------27/02/00 10:40-------------------
 					 cassette wave interface
 					--------------------------------------------------*/
-					{
+					new MachineSound(
 							SOUND_WAVE,
-							&spectrum_wave_interface,
-					}
+							spectrum_wave_interface,
+					)
 			}
-	};
+	);
 	
-	static struct MachineDriver machine_driver_spectrum_128 =
-	{
+	static MachineDriver machine_driver_spectrum_128 = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_Z80|CPU_16BIT_PORT,
 							3546900,		/* 3.54690 Mhz */
 							spectrum_128_readmem,spectrum_128_writemem,
 							spectrum_128_readport,spectrum_128_writeport,
 							spec_interrupt,1,
-			},
+			),
 		},
 		50, 2500,		/* frames per second, vblank duration */
 		1,
@@ -1525,7 +1522,7 @@ public class spectrum
 		/* video hardware */
 			SPEC_SCREEN_WIDTH,				/* screen width */
 			SPEC_SCREEN_HEIGHT, 			/* screen height */
-			{ 0, SPEC_SCREEN_WIDTH-1, 0, SPEC_SCREEN_HEIGHT-1},  /* visible_area */
+			new rectangle( 0, SPEC_SCREEN_WIDTH-1, 0, SPEC_SCREEN_HEIGHT-1),  /* visible_area */
 		spectrum_gfxdecodeinfo, 			 /* graphics decode info */
 		16, 256,							 /* colors used for the characters */
 		spectrum_init_palette,				 /* initialise palette */
@@ -1538,38 +1535,38 @@ public class spectrum
 	
 		/* sound hardware */
 		0,0,0,0,
-			{
+			new MachineSound[] {
 					/* +3 Ay-3-8912 sound */
-					{
+					new MachineSound(
 							SOUND_AY8910,
-							&spectrum_128_ay_interface,
-					},
+							spectrum_128_ay_interface,
+					),
 					/* standard spectrum buzzer sound */
-					{
+					new MachineSound(
 							SOUND_SPEAKER,
-							&spectrum_speaker_interface,
-					},
+							spectrum_speaker_interface,
+					),
 					/*-----------------27/02/00 10:40-------------------
 					 cassette wave interface
 					--------------------------------------------------*/
-					{
+					new MachineSound(
 							SOUND_WAVE,
-							&spectrum_wave_interface,
-					}
+							spectrum_wave_interface,
+					)
 			}
-	};
+	);
 	
-	static struct MachineDriver machine_driver_spectrum_plus3 =
-	{
+	static MachineDriver machine_driver_spectrum_plus3 = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_Z80|CPU_16BIT_PORT,
 							3546900,		/* 3.54690 Mhz */
 							spectrum_128_readmem,spectrum_128_writemem,
 							spectrum_plus3_readport,spectrum_plus3_writeport,
 							spec_interrupt,1,
-			},
+			),
 		},
 		50, 2500,		/* frames per second, vblank duration */
 		1,
@@ -1579,7 +1576,7 @@ public class spectrum
 		/* video hardware */
 			SPEC_SCREEN_WIDTH,				/* screen width */
 			SPEC_SCREEN_HEIGHT, 			/* screen height */
-			{ 0, SPEC_SCREEN_WIDTH-1, 0, SPEC_SCREEN_HEIGHT-1},  /* visible_area */
+			new rectangle( 0, SPEC_SCREEN_WIDTH-1, 0, SPEC_SCREEN_HEIGHT-1),  /* visible_area */
 		spectrum_gfxdecodeinfo, 			 /* graphics decode info */
 		16, 256,							 /* colors used for the characters */
 		spectrum_init_palette,				 /* initialise palette */
@@ -1592,38 +1589,38 @@ public class spectrum
 	
 		/* sound hardware */
 		0,0,0,0,
-			{
+			new MachineSound[] {
 					/* +3 Ay-3-8912 sound */
-					{
+					new MachineSound(
 							SOUND_AY8910,
-							&spectrum_128_ay_interface,
-					},
+							spectrum_128_ay_interface,
+					),
 					/* standard spectrum buzzer sound */
-					{
+					new MachineSound(
 							SOUND_SPEAKER,
-							&spectrum_speaker_interface,
-					},
+							spectrum_speaker_interface,
+					),
 					/*-----------------27/02/00 10:40-------------------
 					 cassette wave interface
 					--------------------------------------------------*/
-					{
+					new MachineSound(
 							SOUND_WAVE,
-							&spectrum_wave_interface,
-					}
+							spectrum_wave_interface,
+					)
 			}
-	};
+	);
 	
-	static struct MachineDriver machine_driver_ts2068 =
-	{
+	static MachineDriver machine_driver_ts2068 = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_Z80|CPU_16BIT_PORT,
 							3580000,		/* 3.58 Mhz */
 							ts2068_readmem,ts2068_writemem,
 							ts2068_readport,ts2068_writeport,
 							spec_interrupt,1,
-			},
+			),
 		},
 			60, 2500,		/* frames per second, vblank duration */
 		1,
@@ -1633,7 +1630,7 @@ public class spectrum
 		/* video hardware */
 			TS2068_SCREEN_WIDTH,			/* screen width */
 			TS2068_SCREEN_HEIGHT,			/* screen height */
-			{ 0, TS2068_SCREEN_WIDTH-1, 0, TS2068_SCREEN_HEIGHT-1},  /* visible_area */
+			new rectangle( 0, TS2068_SCREEN_WIDTH-1, 0, TS2068_SCREEN_HEIGHT-1),  /* visible_area */
 		spectrum_gfxdecodeinfo, 			 /* graphics decode info */
 		16, 256,							 /* colors used for the characters */
 		spectrum_init_palette,				 /* initialise palette */
@@ -1646,38 +1643,38 @@ public class spectrum
 	
 		/* sound hardware */
 		0,0,0,0,
-			{
+			new MachineSound[] {
 					/* +3 Ay-3-8912 sound */
-					{
+					new MachineSound(
 							SOUND_AY8910,
-							&spectrum_128_ay_interface,
-					},
+							spectrum_128_ay_interface,
+					),
 					/* standard spectrum sound */
-					{
+					new MachineSound(
 							SOUND_SPEAKER,
-							&spectrum_speaker_interface
-					},
+							spectrum_speaker_interface
+					),
 					/*-----------------27/02/00 10:40-------------------
 					 cassette wave interface
 					--------------------------------------------------*/
-					{
+					new MachineSound(
 							SOUND_WAVE,
-							&spectrum_wave_interface,
-					}
+							spectrum_wave_interface,
+					)
 			}
-	};
+	);
 	
-	static struct MachineDriver machine_driver_tc2048 =
-	{
+	static MachineDriver machine_driver_tc2048 = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_Z80|CPU_16BIT_PORT,
 				3500000,		/* 3.5 Mhz */
 							tc2048_readmem,tc2048_writemem,
 							tc2048_readport,tc2048_writeport,
 							spec_interrupt,1,
-			},
+			),
 		},
 		50, 2500,		/* frames per second, vblank duration */
 		1,
@@ -1687,7 +1684,7 @@ public class spectrum
 		/* video hardware */
 			TS2068_SCREEN_WIDTH,			/* screen width */
 			SPEC_SCREEN_HEIGHT, 			/* screen height */
-			{ 0, TS2068_SCREEN_WIDTH-1, 0, SPEC_SCREEN_HEIGHT-1},  /* visible_area */
+			new rectangle( 0, TS2068_SCREEN_WIDTH-1, 0, SPEC_SCREEN_HEIGHT-1),  /* visible_area */
 		spectrum_gfxdecodeinfo, 			 /* graphics decode info */
 		16, 256,							 /* colors used for the characters */
 		spectrum_init_palette,				 /* initialise palette */
@@ -1700,21 +1697,21 @@ public class spectrum
 	
 		/* sound hardware */
 		0,0,0,0,
-			{
+			new MachineSound[] {
 					/* standard spectrum sound */
-					{
+					new MachineSound(
 							SOUND_SPEAKER,
-							&spectrum_speaker_interface
-					},
+							spectrum_speaker_interface
+					),
 					/*-----------------27/02/00 10:40-------------------
 					 cassette wave interface
 					--------------------------------------------------*/
-					{
+					new MachineSound(
 							SOUND_WAVE,
-							&spectrum_wave_interface,
-					}
+							spectrum_wave_interface,
+					)
 			}
-	};
+	);
 	
 	
 	/***************************************************************************
@@ -1723,121 +1720,121 @@ public class spectrum
 	
 	***************************************************************************/
 	
-	ROM_START(spectrum)
-		ROM_REGION(0x10000,REGION_CPU1)
-		ROM_LOAD("spectrum.rom", 0x0000, 0x4000, 0xddee531f)
-	ROM_END
+	static RomLoadPtr rom_spectrum = new RomLoadPtr(){ public void handler(){ 
+		ROM_REGION(0x10000,REGION_CPU1);
+		ROM_LOAD("spectrum.rom", 0x0000, 0x4000, 0xddee531f);
+	ROM_END(); }}; 
 	
-	ROM_START(specbusy)
-		ROM_REGION(0x10000,REGION_CPU1)
-		ROM_LOAD("48-busy.rom", 0x0000, 0x4000, 0x1511cddb)
-	ROM_END
+	static RomLoadPtr rom_specbusy = new RomLoadPtr(){ public void handler(){ 
+		ROM_REGION(0x10000,REGION_CPU1);
+		ROM_LOAD("48-busy.rom", 0x0000, 0x4000, 0x1511cddb);
+	ROM_END(); }}; 
 	
-	ROM_START(specgrot)
-		ROM_REGION(0x10000,REGION_CPU1)
-		ROM_LOAD("48-groot.rom", 0x0000, 0x4000, 0xabf18c45)
-	ROM_END
+	static RomLoadPtr rom_specgrot = new RomLoadPtr(){ public void handler(){ 
+		ROM_REGION(0x10000,REGION_CPU1);
+		ROM_LOAD("48-groot.rom", 0x0000, 0x4000, 0xabf18c45);
+	ROM_END(); }}; 
 	
-	ROM_START(specimc)
-		ROM_REGION(0x10000,REGION_CPU1)
-		ROM_LOAD("48-imc.rom", 0x0000, 0x4000, 0xd1be99ee)
-	ROM_END
+	static RomLoadPtr rom_specimc = new RomLoadPtr(){ public void handler(){ 
+		ROM_REGION(0x10000,REGION_CPU1);
+		ROM_LOAD("48-imc.rom", 0x0000, 0x4000, 0xd1be99ee);
+	ROM_END(); }}; 
 	
-	ROM_START(speclec)
-		ROM_REGION(0x10000,REGION_CPU1)
-		ROM_LOAD("80-lec.rom", 0x0000, 0x4000, 0x5b5c92b1)
-	ROM_END
+	static RomLoadPtr rom_speclec = new RomLoadPtr(){ public void handler(){ 
+		ROM_REGION(0x10000,REGION_CPU1);
+		ROM_LOAD("80-lec.rom", 0x0000, 0x4000, 0x5b5c92b1);
+	ROM_END(); }}; 
 	
-	ROM_START(spec128)
-			ROM_REGION(0x18000,REGION_CPU1)
-		ROM_LOAD("zx128_0.rom",0x10000,0x4000, 0xe76799d2)
-		ROM_LOAD("zx128_1.rom",0x14000,0x4000, 0xb96a36be)
-	ROM_END
+	static RomLoadPtr rom_spec128 = new RomLoadPtr(){ public void handler(){ 
+			ROM_REGION(0x18000,REGION_CPU1);
+		ROM_LOAD("zx128_0.rom",0x10000,0x4000, 0xe76799d2);
+		ROM_LOAD("zx128_1.rom",0x14000,0x4000, 0xb96a36be);
+	ROM_END(); }}; 
 	
-	ROM_START(spec128s)
-			ROM_REGION(0x18000,REGION_CPU1)
-		ROM_LOAD("zx128s0.rom",0x10000,0x4000, 0x453d86b2)
-		ROM_LOAD("zx128s1.rom",0x14000,0x4000, 0x6010e796)
-	ROM_END
+	static RomLoadPtr rom_spec128s = new RomLoadPtr(){ public void handler(){ 
+			ROM_REGION(0x18000,REGION_CPU1);
+		ROM_LOAD("zx128s0.rom",0x10000,0x4000, 0x453d86b2);
+		ROM_LOAD("zx128s1.rom",0x14000,0x4000, 0x6010e796);
+	ROM_END(); }}; 
 	
-	ROM_START(specpls2)
-			ROM_REGION(0x18000,REGION_CPU1)
-		ROM_LOAD("zxp2_0.rom",0x10000,0x4000, 0x5d2e8c66)
-		ROM_LOAD("zxp2_1.rom",0x14000,0x4000, 0x98b1320b)
-	ROM_END
+	static RomLoadPtr rom_specpls2 = new RomLoadPtr(){ public void handler(){ 
+			ROM_REGION(0x18000,REGION_CPU1);
+		ROM_LOAD("zxp2_0.rom",0x10000,0x4000, 0x5d2e8c66);
+		ROM_LOAD("zxp2_1.rom",0x14000,0x4000, 0x98b1320b);
+	ROM_END(); }}; 
 	
-	ROM_START(specpl2a)
-			ROM_REGION(0x20000,REGION_CPU1)
-			ROM_LOAD("p2a41_0.rom",0x10000,0x4000, 0x30c9f490)
-			ROM_LOAD("p2a41_1.rom",0x14000,0x4000, 0xa7916b3f)
-			ROM_LOAD("p2a41_2.rom",0x18000,0x4000, 0xc9a0b748)
-			ROM_LOAD("p2a41_3.rom",0x1c000,0x4000, 0xb88fd6e3)
-	ROM_END
+	static RomLoadPtr rom_specpl2a = new RomLoadPtr(){ public void handler(){ 
+			ROM_REGION(0x20000,REGION_CPU1);
+			ROM_LOAD("p2a41_0.rom",0x10000,0x4000, 0x30c9f490);
+			ROM_LOAD("p2a41_1.rom",0x14000,0x4000, 0xa7916b3f);
+			ROM_LOAD("p2a41_2.rom",0x18000,0x4000, 0xc9a0b748);
+			ROM_LOAD("p2a41_3.rom",0x1c000,0x4000, 0xb88fd6e3);
+	ROM_END(); }}; 
 	
-	ROM_START(specpls3)
-			ROM_REGION(0x20000,REGION_CPU1)
-		ROM_LOAD("pl3-0.rom",0x10000,0x4000, 0x17373da2)
-		ROM_LOAD("pl3-1.rom",0x14000,0x4000, 0xf1d1d99e)
-		ROM_LOAD("pl3-2.rom",0x18000,0x4000, 0x3dbf351d)
-		ROM_LOAD("pl3-3.rom",0x1c000,0x4000, 0x04448eaa)
-	ROM_END
+	static RomLoadPtr rom_specpls3 = new RomLoadPtr(){ public void handler(){ 
+			ROM_REGION(0x20000,REGION_CPU1);
+		ROM_LOAD("pl3-0.rom",0x10000,0x4000, 0x17373da2);
+		ROM_LOAD("pl3-1.rom",0x14000,0x4000, 0xf1d1d99e);
+		ROM_LOAD("pl3-2.rom",0x18000,0x4000, 0x3dbf351d);
+		ROM_LOAD("pl3-3.rom",0x1c000,0x4000, 0x04448eaa);
+	ROM_END(); }}; 
 	
-	ROM_START(specpls4)
-			ROM_REGION(0x10000,REGION_CPU1)
-			ROM_LOAD("plus4.rom",0x0000,0x4000, 0x7e0f47cb)
-	ROM_END
+	static RomLoadPtr rom_specpls4 = new RomLoadPtr(){ public void handler(){ 
+			ROM_REGION(0x10000,REGION_CPU1);
+			ROM_LOAD("plus4.rom",0x0000,0x4000, 0x7e0f47cb);
+	ROM_END(); }}; 
 	
-	ROM_START(tk90x)
-			ROM_REGION(0x10000,REGION_CPU1)
-			ROM_LOAD("tk90x.rom",0x0000,0x4000, 0x3e785f6f)
-	ROM_END
+	static RomLoadPtr rom_tk90x = new RomLoadPtr(){ public void handler(){ 
+			ROM_REGION(0x10000,REGION_CPU1);
+			ROM_LOAD("tk90x.rom",0x0000,0x4000, 0x3e785f6f);
+	ROM_END(); }}; 
 	
-	ROM_START(tk95)
-			ROM_REGION(0x10000,REGION_CPU1)
-			ROM_LOAD("tk95.rom",0x0000,0x4000, 0x17368e07)
-	ROM_END
+	static RomLoadPtr rom_tk95 = new RomLoadPtr(){ public void handler(){ 
+			ROM_REGION(0x10000,REGION_CPU1);
+			ROM_LOAD("tk95.rom",0x0000,0x4000, 0x17368e07);
+	ROM_END(); }}; 
 	
-	ROM_START(inves)
-			ROM_REGION(0x10000,REGION_CPU1)
-			ROM_LOAD("inves.rom",0x0000,0x4000, 0x8ff7a4d1)
-	ROM_END
+	static RomLoadPtr rom_inves = new RomLoadPtr(){ public void handler(){ 
+			ROM_REGION(0x10000,REGION_CPU1);
+			ROM_LOAD("inves.rom",0x0000,0x4000, 0x8ff7a4d1);
+	ROM_END(); }}; 
 	
-	ROM_START(tc2048)
-			ROM_REGION(0x10000,REGION_CPU1)
-			ROM_LOAD("tc2048.rom",0x0000,0x4000, 0xf1b5fa67)
-	ROM_END
+	static RomLoadPtr rom_tc2048 = new RomLoadPtr(){ public void handler(){ 
+			ROM_REGION(0x10000,REGION_CPU1);
+			ROM_LOAD("tc2048.rom",0x0000,0x4000, 0xf1b5fa67);
+	ROM_END(); }}; 
 	
-	ROM_START(ts2068)
-			ROM_REGION(0x16000,REGION_CPU1)
-			ROM_LOAD("ts2068_h.rom",0x10000,0x4000, 0xbf44ec3f)
-			ROM_LOAD("ts2068_x.rom",0x14000,0x2000, 0xae16233a)
-	ROM_END
+	static RomLoadPtr rom_ts2068 = new RomLoadPtr(){ public void handler(){ 
+			ROM_REGION(0x16000,REGION_CPU1);
+			ROM_LOAD("ts2068_h.rom",0x10000,0x4000, 0xbf44ec3f);
+			ROM_LOAD("ts2068_x.rom",0x14000,0x2000, 0xae16233a);
+	ROM_END(); }}; 
 	
-	ROM_START(specp2fr)
-			ROM_REGION(0x18000,REGION_CPU1)
-			ROM_LOAD("plus2fr0.rom",0x10000,0x4000, 0xc684c535)
-			ROM_LOAD("plus2fr1.rom",0x14000,0x4000, 0xf5e509c5)
-	ROM_END
+	static RomLoadPtr rom_specp2fr = new RomLoadPtr(){ public void handler(){ 
+			ROM_REGION(0x18000,REGION_CPU1);
+			ROM_LOAD("plus2fr0.rom",0x10000,0x4000, 0xc684c535);
+			ROM_LOAD("plus2fr1.rom",0x14000,0x4000, 0xf5e509c5);
+	ROM_END(); }}; 
 	
-	ROM_START(specp2sp)
-			ROM_REGION(0x18000,REGION_CPU1)
-			ROM_LOAD("plus2sp0.rom",0x10000,0x4000, 0xe807d06e)
-			ROM_LOAD("plus2sp1.rom",0x14000,0x4000, 0x41981d4b)
-	ROM_END
+	static RomLoadPtr rom_specp2sp = new RomLoadPtr(){ public void handler(){ 
+			ROM_REGION(0x18000,REGION_CPU1);
+			ROM_LOAD("plus2sp0.rom",0x10000,0x4000, 0xe807d06e);
+			ROM_LOAD("plus2sp1.rom",0x14000,0x4000, 0x41981d4b);
+	ROM_END(); }}; 
 	
-	ROM_START(specp3sp)
-			ROM_REGION(0x20000,REGION_CPU1)
-			ROM_LOAD("plus3sp0.rom",0x10000,0x4000, 0x1f86147a)
-			ROM_LOAD("plus3sp1.rom",0x14000,0x4000, 0xa8ac4966)
-			ROM_LOAD("plus3sp2.rom",0x18000,0x4000, 0xf6bb0296)
-			ROM_LOAD("plus3sp3.rom",0x1c000,0x4000, 0xf6d25389)
-	ROM_END
+	static RomLoadPtr rom_specp3sp = new RomLoadPtr(){ public void handler(){ 
+			ROM_REGION(0x20000,REGION_CPU1);
+			ROM_LOAD("plus3sp0.rom",0x10000,0x4000, 0x1f86147a);
+			ROM_LOAD("plus3sp1.rom",0x14000,0x4000, 0xa8ac4966);
+			ROM_LOAD("plus3sp2.rom",0x18000,0x4000, 0xf6bb0296);
+			ROM_LOAD("plus3sp3.rom",0x1c000,0x4000, 0xf6d25389);
+	ROM_END(); }}; 
 	
-	ROM_START(specpl3e)
-			ROM_REGION(0x20000,REGION_CPU1)
-			ROM_LOAD("roma.bin",0x10000,0x8000, 0x7c20e2c9)
-			ROM_LOAD("romb.bin",0x18000,0x8000, 0x4a700c7e)
-	ROM_END
+	static RomLoadPtr rom_specpl3e = new RomLoadPtr(){ public void handler(){ 
+			ROM_REGION(0x20000,REGION_CPU1);
+			ROM_LOAD("roma.bin",0x10000,0x8000, 0x7c20e2c9);
+			ROM_LOAD("romb.bin",0x18000,0x8000, 0x4a700c7e);
+	ROM_END(); }}; 
 	
 	#define IODEVICE_SPEC_QUICK \
 	{\

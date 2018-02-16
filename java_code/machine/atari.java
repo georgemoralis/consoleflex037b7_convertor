@@ -20,7 +20,7 @@ public class atari
 	#define VERBOSE_TIMERS	0
 	#define VERBOSE_CHKSUM	0
 	
-	//#define LOG(x) if (errorlog) fprintf x
+	//#define LOG(x) if (errorlog != 0) fprintf x
 	
 	ATARI_FDC atari_fdc;
 	ATARI_PIA atari_pia;
@@ -41,10 +41,7 @@ public class atari
 	
 	static DRIVE drv[4] = {{0}, };
 	
-	extern void a800_serial_command(void);
-	extern void a800_serial_write(void);
-	extern void a800_serial_read(void);
-	
+	extern extern extern 
 	static int atari = 0;
 	#define ATARI_5200	0
 	#define ATARI_400	1
@@ -56,15 +53,8 @@ public class atari
 	
 	void a800xl_mmu(UINT8 old_mmu, UINT8 new_mmu);
 	
-	void gtia_reset(void);
-	void pokey_reset(void);
-	void atari_pia_reset(void);
-	void antic_reset(void);
 	
-	static void open_floppy(int drive);
 	static void make_chksum(UINT8 * chksum, UINT8 data);
-	static void clr_serout(int expect_data);
-	static void clr_serin(int ser_delay);
 	static void add_serin(UINT8 data, int with_checksum);
 	
 	void a800_setbank(int n)
@@ -99,7 +89,7 @@ public class atari
 		}
 	}
 	
-	void a400_init_machine(void)
+	public static InitMachinePtr a400_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		atari = ATARI_400;
 	
@@ -108,11 +98,11 @@ public class atari
 		atari_pia_reset();
 		antic_reset();
 	
-		if( a800_cart_loaded )
+		if (a800_cart_loaded != 0)
 			a800_setbank(1);
-	}
+	} };
 	
-	void a800_init_machine(void)
+	public static InitMachinePtr a800_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		atari = ATARI_800;
 	
@@ -121,9 +111,9 @@ public class atari
 		atari_pia_reset();
 		antic_reset();
 	
-		if( a800_cart_loaded )
+		if (a800_cart_loaded != 0)
 			a800_setbank(1);
-	}
+	} };
 	
 	int a800_floppy_init(int id)
 	{
@@ -148,30 +138,30 @@ public class atari
 	
 		/* load an optional monitor.rom */
 		filename = "monitor.rom";
-		file = osd_fopen(Machine->gamedrv->name, filename, OSD_FILETYPE_IMAGE_R, 0);
-		if (file)
+		file = osd_fopen(Machine.gamedrv.name, filename, OSD_FILETYPE_IMAGE_R, 0);
+		if (file != 0)
 		{
-			logerror("%s loading optional image '%s' to C000-CFFF\n", Machine->gamedrv->name, filename);
+			logerror("%s loading optional image '%s' to C000-CFFF\n", Machine.gamedrv.name, filename);
 			size = osd_fread(file, &mem[0xc000], 0x1000);
 			osd_fclose(file);
 		}
 		else
 		{
-			logerror("%s optional image '%s' not found\n", Machine->gamedrv->name, filename);
+			logerror("%s optional image '%s' not found\n", Machine.gamedrv.name, filename);
 		}
 	
 		/* load an optional (dual) cartridge (e.g. basic.rom) */
 		if( device_filename(IO_CARTSLOT,id) && strlen(device_filename(IO_CARTSLOT,id) ) )
 		{
 			file = image_fopen(IO_CARTSLOT, id, OSD_FILETYPE_IMAGE_R, 0);
-			if( file )
+			if (file != 0)
 			{
 				if( id > 0 )
 				{
 					size = osd_fread(file, &mem[0x12000], 0x2000);
 					a800_cart_is_16k = (size == 0x2000);
 					osd_fclose(file);
-					logerror("%s loaded right cartridge '%s' size 16K\n", Machine->gamedrv->name, device_filename(IO_CARTSLOT,id) );
+					logerror("%s loaded right cartridge '%s' size 16K\n", Machine.gamedrv.name, device_filename(IO_CARTSLOT,id) );
 				}
 				else
 				{
@@ -180,14 +170,14 @@ public class atari
 					size = osd_fread(file, &mem[0x12000], 0x2000);
 					a800_cart_is_16k = size > 0x2000;
 					osd_fclose(file);
-					logerror("%s loaded left cartridge '%s' size %s\n", Machine->gamedrv->name, device_filename(IO_CARTSLOT,id) , (a800_cart_is_16k) ? "16K":"8K");
+					logerror("%s loaded left cartridge '%s' size %s\n", Machine.gamedrv.name, device_filename(IO_CARTSLOT,id) , (a800_cart_is_16k) ? "16K":"8K");
 				}
-				if( a800_cart_loaded )
+				if (a800_cart_loaded != 0)
 					a800_setbank(1);
 			}
 			else
 			{
-				logerror("%s cartridge '%s' not found\n", Machine->gamedrv->name, device_filename(IO_CARTSLOT,id) );
+				logerror("%s cartridge '%s' not found\n", Machine.gamedrv.name, device_filename(IO_CARTSLOT,id) );
 			}
 		}
 		return INIT_OK;
@@ -218,7 +208,7 @@ public class atari
 	 *
 	 **************************************************************/
 	
-	void a800xl_init_machine(void)
+	public static InitMachinePtr a800xl_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		atari = ATARI_800XL;
 	
@@ -227,7 +217,7 @@ public class atari
 		atari_pia_reset();
 		antic_reset();
 		a800xl_mmu(atari_pia.w.pbout, atari_pia.w.pbout);
-	}
+	} };
 	
 	
 	int a800xl_load_rom(int id)
@@ -238,14 +228,14 @@ public class atari
 		unsigned size;
 	
 		filename = "basic.rom";
-		file = osd_fopen(Machine->gamedrv->name, filename, OSD_FILETYPE_ROM, 0);
-		if( file )
+		file = osd_fopen(Machine.gamedrv.name, filename, OSD_FILETYPE_ROM, 0);
+		if (file != 0)
 		{
 			size = osd_fread(file, &mem[0x14000], 0x2000);
 			osd_fclose(file);
 			if( size < 0x2000 )
 			{
-				logerror("%s image '%s' load failed (less than 8K)\n", Machine->gamedrv->name, filename);
+				logerror("%s image '%s' load failed (less than 8K)\n", Machine.gamedrv.name, filename);
 				return 2;
 			}
 		}
@@ -254,7 +244,7 @@ public class atari
 		if( device_filename(IO_CARTSLOT,id) && strlen(device_filename(IO_CARTSLOT,id)) )
 		{
 			file = image_fopen(IO_CARTSLOT, id, OSD_FILETYPE_IMAGE_R, 0);
-			if( file )
+			if (file != 0)
 			{
 				size = osd_fread(file, &mem[0x14000], 0x2000);
 				a800_cart_loaded = size / 0x2000;
@@ -262,11 +252,11 @@ public class atari
 				a800_cart_is_16k = size / 0x2000;
 				osd_fclose(file);
 				logerror("%s loaded cartridge '%s' size %s\n",
-						Machine->gamedrv->name, device_filename(IO_CARTSLOT,id), (a800_cart_is_16k) ? "16K":"8K");
+						Machine.gamedrv.name, device_filename(IO_CARTSLOT,id), (a800_cart_is_16k) ? "16K":"8K");
 			}
 			else
 			{
-				logerror("%s cartridge '%s' not found\n", Machine->gamedrv->name, device_filename(IO_CARTSLOT,id));
+				logerror("%s cartridge '%s' not found\n", Machine.gamedrv.name, device_filename(IO_CARTSLOT,id));
 			}
 		}
 	
@@ -284,13 +274,13 @@ public class atari
 	 *
 	 **************************************************************/
 	
-	void a5200_init_machine(void)
+	public static InitMachinePtr a5200_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		atari = ATARI_5200;
 		gtia_reset();
 		pokey_reset();
 		antic_reset();
-	}
+	} };
 	
 	int a5200_rom_init(int id)
 	{
@@ -302,7 +292,7 @@ public class atari
 		if( device_filename(IO_CARTSLOT,id) && strlen(device_filename(IO_CARTSLOT,id) ) )
 		{
 			file = image_fopen(IO_CARTSLOT, id, OSD_FILETYPE_IMAGE_R, 0);
-			if (file)
+			if (file != 0)
 			{
 				size = osd_fread(file, &mem[0x4000], 0x8000);
 				osd_fclose(file);
@@ -317,11 +307,11 @@ public class atari
 					memcpy(&mem[0x7000], &mem[0x5000], 0x1000);
 				}
 				logerror("%s loaded cartridge '%s' size %dK\n",
-					Machine->gamedrv->name, device_filename(IO_CARTSLOT,id) , size/1024);
+					Machine.gamedrv.name, device_filename(IO_CARTSLOT,id) , size/1024);
 			}
 			else
 			{
-				logerror("%s %s not found\n", Machine->gamedrv->name, device_filename(IO_CARTSLOT,id) );
+				logerror("%s %s not found\n", Machine.gamedrv.name, device_filename(IO_CARTSLOT,id) );
 			}
 		}
 		return INIT_OK;
@@ -443,7 +433,7 @@ public class atari
 				/* if this fails, try to open it read only */
 				drv[id].mode = 1;
 				file = image_fopen(IO_FLOPPY, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_RW_CREATE);
-				if( file )
+				if (file != 0)
 				{
 					int sector;
 					char buff[256];
@@ -595,10 +585,10 @@ public class atari
 				{
 					dsk_format *dsk = (dsk_format *) drv[id].image;
 	
-					drv[id].tracks = dsk->tracks;
-					drv[id].spt = dsk->spt;
-					drv[id].heads = (dsk->doublesided) ? 2 : 1;
-					drv[id].seclen = 256 * dsk->seclen_hi + dsk->seclen_lo;
+					drv[id].tracks = dsk.tracks;
+					drv[id].spt = dsk.spt;
+					drv[id].heads = (dsk.doublesided) ? 2 : 1;
+					drv[id].seclen = 256 * dsk.seclen_hi + dsk.seclen_lo;
 					drv[id].bseclen = drv[id].seclen;
 					drv[id].sectors = drv[id].tracks * drv[id].heads * drv[id].spt;
 				}
@@ -635,7 +625,7 @@ public class atari
 		if (new < *chksum)
 			new++;
 	#if VERBOSE_CHKSUM
-		logerror("atari chksum old $%02x + data $%02x -> new $%02x\n", *chksum, data, new);
+		logerror("atari chksum old $%02x + data $%02x . new $%02x\n", *chksum, data, new);
 	#endif
 		*chksum = new;
 	}
@@ -664,7 +654,7 @@ public class atari
 	static	void add_serin(UINT8 data, int with_checksum)
 	{
 		atari_fdc.serin_buff[atari_fdc.serin_count++] = data;
-		if (with_checksum)
+		if (with_checksum != 0)
 			make_chksum(&atari_fdc.serin_chksum, data);
 	}
 	
@@ -673,9 +663,9 @@ public class atari
 	 * This is a description of the data flow between Atari (A) and the
 	 * Floppy (F) for the supported commands.
 	 *
-	 * A->F 	DEV  CMD  AUX1 AUX2 CKS
+	 * A.F 	DEV  CMD  AUX1 AUX2 CKS
 	 *			'1'  'S'  00   00                 get status
-	 * F->A 	ACK  CPL  04   FF	E0	 00   CKS
+	 * F.A 	ACK  CPL  04   FF	E0	 00   CKS
 	 *					   ^	^
 	 *					   |	|
 	 *					   |	bit 7 : door closed
@@ -684,43 +674,43 @@ public class atari
 	 *					   bit5  : DD 256 bytes/sector, 18 sectors/track
 	 *					   else  : SD 128 bytes/sector, 18 sectors/track
 	 *
-	 * A->F 	DEV  CMD  AUX1 AUX2 CKS
+	 * A.F 	DEV  CMD  AUX1 AUX2 CKS
 	 *			'1'  'R'  SECL SECH               read sector
-	 * F->A 	ACK 							  command acknowledge
+	 * F.A 	ACK 							  command acknowledge
 	 *				 ***						  now read the sector
-	 * F->A 			 CPL					  complete: sector read
-	 * F->A 				 128/256 byte CKS
+	 * F.A 			 CPL					  complete: sector read
+	 * F.A 				 128/256 byte CKS
 	 *
-	 * A->F 	DEV  CMD  AUX1 AUX2 CKS
+	 * A.F 	DEV  CMD  AUX1 AUX2 CKS
 	 *			'1'  'W'  SECL SECH               write with verify
-	 * F->A 	ACK 							  command acknowledge
-	 * A->F 		 128/256 data CKS
-	 * F->A 						   CPL		  complete: CKS okay
+	 * F.A 	ACK 							  command acknowledge
+	 * A.F 		 128/256 data CKS
+	 * F.A 						   CPL		  complete: CKS okay
 	 *			execute writing the sector
-	 * F->A 								CPL   complete: sector written
+	 * F.A 								CPL   complete: sector written
 	 *
-	 * A->F 	DEV  CMD  AUX1 AUX2 CKS
+	 * A.F 	DEV  CMD  AUX1 AUX2 CKS
 	 *			'1'  'P'  SECL SECH               put sector
-	 * F->A 	ACK 							  command acknowledge
-	 * A->F 		 128/256 data CKS
-	 * F->A 						   CPL		  complete: CKS okay
+	 * F.A 	ACK 							  command acknowledge
+	 * A.F 		 128/256 data CKS
+	 * F.A 						   CPL		  complete: CKS okay
 	 *			execute writing the sector
-	 * F->A 								CPL   complete: sector written
+	 * F.A 								CPL   complete: sector written
 	 *
-	 * A->F 	DEV  CMD  AUX1 AUX2 CKS
+	 * A.F 	DEV  CMD  AUX1 AUX2 CKS
 	 *			 '1' '!'  xx   xx                 single density format
-	 * F->A 	ACK 							  command acknowledge
+	 * F.A 	ACK 							  command acknowledge
 	 *			execute formatting
-	 * F->A 			  CPL					  complete: format
-	 * F->A 				   128/256 byte CKS   bad sector table
+	 * F.A 			  CPL					  complete: format
+	 * F.A 				   128/256 byte CKS   bad sector table
 	 *
 	 *
-	 * A->F 	DEV  CMD  AUX1 AUX2 CKS
+	 * A.F 	DEV  CMD  AUX1 AUX2 CKS
 	 *			'1'  '"'  xx   xx                 double density format
-	 * F->A 	ACK 							  command acknowledge
+	 * F.A 	ACK 							  command acknowledge
 	 *			execute formatting
-	 * F->A 			  CPL					  complete: format
-	 * F->A 				   128/256 byte CKS   bad sector table
+	 * F.A 			  CPL					  complete: format
+	 * F.A 				   128/256 byte CKS   bad sector table
 	 *
 	 *****************************************************************************/
 	
@@ -753,7 +743,7 @@ public class atari
 			{
 				logerror("atari unsupported drive #%d\n", drive+1);
 				sprintf(atari_frame_message, "DRIVE #%d not supported", drive+1);
-				atari_frame_counter = Machine->drv->frames_per_second/2;
+				atari_frame_counter = Machine.drv.frames_per_second/2;
 				return;
 			}
 	
@@ -764,7 +754,7 @@ public class atari
 			{
 				case 'S':   /* status */
 					sprintf(atari_frame_message, "DRIVE #%d STATUS", drive+1);
-					atari_frame_counter = Machine->drv->frames_per_second/2;
+					atari_frame_counter = Machine.drv.frames_per_second/2;
 	#if VERBOSE_SERIAL
 					logerror("atari status\n");
 	#endif
@@ -806,7 +796,7 @@ public class atari
 					if( sector < 1 || sector > drv[drive].sectors )
 					{
 						sprintf(atari_frame_message, "DRIVE #%d READ SECTOR #%3d - ERR", drive+1, sector);
-						atari_frame_counter = Machine->drv->frames_per_second/2;
+						atari_frame_counter = Machine.drv.frames_per_second/2;
 	#if VERBOSE_SERIAL
 						logerror("atari bad sector #\n");
 	#endif
@@ -818,7 +808,7 @@ public class atari
 					if (sector < 4) 	/* sector 1 .. 3 might be different length */
 					{
 						sprintf(atari_frame_message, "DRIVE #%d READ SECTOR #%3d - SD", drive+1, sector);
-	                    atari_frame_counter = Machine->drv->frames_per_second/2;
+	                    atari_frame_counter = Machine.drv.frames_per_second/2;
 	                    offset = (sector - 1) * drv[drive].bseclen + drv[drive].header_skip;
 						for (i = 0; i < 128; i++)
 							add_serin(drv[drive].image[offset++],1);
@@ -826,7 +816,7 @@ public class atari
 					else
 					{
 						sprintf(atari_frame_message, "DRIVE #%d READ SECTOR #%3d - %cD", drive+1, sector, (drv[drive].seclen == 128) ? 'S' : 'D');
-	                    atari_frame_counter = Machine->drv->frames_per_second/2;
+	                    atari_frame_counter = Machine.drv.frames_per_second/2;
 	                    offset = (sector - 1) * drv[drive].seclen + drv[drive].header_skip;
 						for (i = 0; i < drv[drive].seclen; i++)
 							add_serin(drv[drive].image[offset++],1);
@@ -843,13 +833,13 @@ public class atari
 					{
 						add_serout(drv[drive].bseclen);
 						sprintf(atari_frame_message, "DRIVE #%d WRITE SECTOR #%3d - SD", drive+1, sector);
-						atari_frame_counter = Machine->drv->frames_per_second/2;
+						atari_frame_counter = Machine.drv.frames_per_second/2;
 	                }
 					else
 					{
 						add_serout(drv[drive].seclen);
 						sprintf(atari_frame_message, "DRIVE #%d WRITE SECTOR #%3d - %cD", drive+1, sector, (drv[drive].seclen == 128) ? 'S' : 'D');
-	                    atari_frame_counter = Machine->drv->frames_per_second/2;
+	                    atari_frame_counter = Machine.drv.frames_per_second/2;
 	                }
 					break;
 	
@@ -862,13 +852,13 @@ public class atari
 					{
 						add_serout(drv[drive].bseclen);
 						sprintf(atari_frame_message, "DRIVE #%d PUT SECTOR #%3d - SD", drive+1, sector);
-	                    atari_frame_counter = Machine->drv->frames_per_second/2;
+	                    atari_frame_counter = Machine.drv.frames_per_second/2;
 	                }
 					else
 					{
 						add_serout(drv[drive].seclen);
 						sprintf(atari_frame_message, "DRIVE #%d PUT SECTOR #%3d - %cD", drive+1, sector, (drv[drive].seclen == 128) ? 'S' : 'D');
-	                    atari_frame_counter = Machine->drv->frames_per_second/2;
+	                    atari_frame_counter = Machine.drv.frames_per_second/2;
 	                }
 					break;
 	
@@ -877,7 +867,7 @@ public class atari
 					logerror("atari format SD drive #%d\n", drive+1);
 	#endif
 					sprintf(atari_frame_message, "DRIVE #%d FORMAT SD", drive+1);
-					atari_frame_counter = Machine->drv->frames_per_second/2;
+					atari_frame_counter = Machine.drv.frames_per_second/2;
 	                add_serin('A',0);   /* acknowledge */
 					add_serin('C',0);   /* completed */
 					for (i = 0; i < 128; i++)
@@ -890,7 +880,7 @@ public class atari
 					logerror("atari format DD drive #%d\n", drive+1);
 	#endif
 					sprintf(atari_frame_message, "DRIVE #%d FORMAT DD", drive+1);
-	                atari_frame_counter = Machine->drv->frames_per_second/2;
+	                atari_frame_counter = Machine.drv.frames_per_second/2;
 	                add_serin('A',0);   /* acknowledge */
 					add_serin('C',0);   /* completed */
 					for (i = 0; i < 256; i++)
@@ -903,14 +893,14 @@ public class atari
 					logerror("atari unknown command #%c\n", atari_fdc.serout_buff[1]);
 	#endif
 					sprintf(atari_frame_message, "DRIVE #%d UNKNOWN CMD '%c'", drive+1, atari_fdc.serout_buff[1]);
-	                atari_frame_counter = Machine->drv->frames_per_second/2;
+	                atari_frame_counter = Machine.drv.frames_per_second/2;
 	                add_serin('N',0);   /* negative acknowledge */
 			}
 		}
 		else
 		{
 			sprintf(atari_frame_message, "serial cmd chksum error");
-			atari_frame_counter = Machine->drv->frames_per_second/2;
+			atari_frame_counter = Machine.drv.frames_per_second/2;
 	#if VERBOSE_SERIAL
 			logerror("BAD\n");
 	#endif
@@ -951,7 +941,7 @@ public class atari
 					for (i = 0; i < 128; i++)
 						drv[drive].image[offset++] = atari_fdc.serout_buff[5+i];
 					sprintf(atari_frame_message, "DRIVE #%d WROTE SECTOR #%3d - SD", drive+1, sector);
-					atari_frame_counter = Machine->drv->frames_per_second/2;
+					atari_frame_counter = Machine.drv.frames_per_second/2;
 	            }
 				else
 				{
@@ -962,7 +952,7 @@ public class atari
 					for (i = 0; i < drv[drive].seclen; i++)
 						drv[drive].image[offset++] = atari_fdc.serout_buff[5+i];
 					sprintf(atari_frame_message, "DRIVE #%d WROTE SECTOR #%3d - %cD", drive+1, sector, (drv[drive].seclen == 128) ? 'S' : 'D');
-	                atari_frame_counter = Machine->drv->frames_per_second/2;
+	                atari_frame_counter = Machine.drv.frames_per_second/2;
 	            }
 				add_serin('C',0);
 			}
@@ -1002,7 +992,7 @@ public class atari
 				pokey1_serin_ready(ser_delay);
 		}
 	#if VERBOSE_SERIAL
-		logerror("atari serin[$%04x] -> $%02x; delay %d\n", atari_fdc.serin_offs, data, ser_delay);
+		logerror("atari serin[$%04x] . $%02x; delay %d\n", atari_fdc.serin_offs, data, ser_delay);
 	#endif
 		return data;
 	}
@@ -1039,25 +1029,25 @@ public class atari
 	{
 	
 	#if VERBOSE_POKEY
-			if (mask & 0x80)
+			if ((mask & 0x80) != 0)
 				logerror("atari interrupt_cb BREAK\n");
-			if (mask & 0x40)
+			if ((mask & 0x40) != 0)
 				logerror("atari interrupt_cb KBCOD\n");
 	#endif
 	#if VERBOSE_SERIAL
-			if (mask & 0x20)
+			if ((mask & 0x20) != 0)
 				logerror("atari interrupt_cb SERIN\n");
-			if (mask & 0x10)
+			if ((mask & 0x10) != 0)
 				logerror("atari interrupt_cb SEROR\n");
-			if (mask & 0x08)
+			if ((mask & 0x08) != 0)
 				logerror("atari interrupt_cb SEROC\n");
 	#endif
 	#if VERBOSE_TIMERS
-			if (mask & 0x04)
+			if ((mask & 0x04) != 0)
 				logerror("atari interrupt_cb TIMR4\n");
-			if (mask & 0x02)
+			if ((mask & 0x02) != 0)
 				logerror("atari interrupt_cb TIMR2\n");
-			if (mask & 0x01)
+			if ((mask & 0x01) != 0)
 				logerror("atari interrupt_cb TIMR1\n");
 	#endif
 	
@@ -1158,14 +1148,14 @@ public class atari
 		if( changes == 0 )
 			return;
 	
-		logerror("%s MMU old:%02x new:%02x\n", Machine->gamedrv->name, old_mmu, new_mmu);
+		logerror("%s MMU old:%02x new:%02x\n", Machine.gamedrv.name, old_mmu, new_mmu);
 	
 		/* check if memory C000-FFFF changed */
-		if( changes & 0x01 )
+		if ((changes & 0x01) != 0)
 		{
-			if( new_mmu & 0x01 )
+			if ((new_mmu & 0x01) != 0)
 			{
-				logerror("%s MMU BIOS ROM\n", Machine->gamedrv->name);
+				logerror("%s MMU BIOS ROM\n", Machine.gamedrv.name);
 				cpu_setbankhandler_r(3, MRA_BANK3);
 				cpu_setbankhandler_w(3, MWA_ROM);
 				cpu_setbank(3, memory_region(REGION_CPU1)+0x14000);  /* 8K lo BIOS */
@@ -1175,7 +1165,7 @@ public class atari
 			}
 			else
 			{
-				logerror("%s MMU BIOS RAM\n", Machine->gamedrv->name);
+				logerror("%s MMU BIOS RAM\n", Machine.gamedrv.name);
 				cpu_setbankhandler_r(3, MRA_RAM);
 				cpu_setbankhandler_w(3, MWA_RAM);
 				cpu_setbank(3, memory_region(REGION_CPU1)+0x0c000);  /* 8K RAM */
@@ -1185,36 +1175,36 @@ public class atari
 			}
 		}
 		/* check if BASIC changed */
-		if( changes & 0x02 )
+		if ((changes & 0x02) != 0)
 		{
-			if( new_mmu & 0x02 )
+			if ((new_mmu & 0x02) != 0)
 			{
-				logerror("%s MMU BASIC RAM\n", Machine->gamedrv->name);
+				logerror("%s MMU BASIC RAM\n", Machine.gamedrv.name);
 				cpu_setbankhandler_r(1, MRA_RAM);
 				cpu_setbankhandler_w(1, MWA_RAM);
 				cpu_setbank(1, memory_region(REGION_CPU1)+0x0a000);  /* 8K RAM */
 			}
 			else
 			{
-				logerror("%s MMU BASIC ROM\n", Machine->gamedrv->name);
+				logerror("%s MMU BASIC ROM\n", Machine.gamedrv.name);
 				cpu_setbankhandler_r(1, MRA_BANK2);
 				cpu_setbankhandler_w(1, MWA_ROM);
 				cpu_setbank(1, memory_region(REGION_CPU1)+0x10000);  /* 8K BASIC */
 			}
 		}
 		/* check if self-test ROM changed */
-		if( changes & 0x80 )
+		if ((changes & 0x80) != 0)
 		{
-			if( new_mmu & 0x80 )
+			if ((new_mmu & 0x80) != 0)
 			{
-				logerror("%s MMU SELFTEST RAM\n", Machine->gamedrv->name);
+				logerror("%s MMU SELFTEST RAM\n", Machine.gamedrv.name);
 				cpu_setbankhandler_r(2, MRA_RAM);
 				cpu_setbankhandler_w(2, MWA_RAM);
 				cpu_setbank(2, memory_region(REGION_CPU1)+0x05000);  /* 0x0800 bytes */
 			}
 			else
 			{
-				logerror("%s MMU SELFTEST ROM\n", Machine->gamedrv->name);
+				logerror("%s MMU SELFTEST ROM\n", Machine.gamedrv.name);
 				cpu_setbankhandler_r(2, MRA_BANK1);
 				cpu_setbankhandler_w(2, MWA_ROM);
 				cpu_setbank(2, memory_region(REGION_CPU1)+0x15000);  /* 0x0800 bytes */
@@ -1528,7 +1518,7 @@ public class atari
 		if( joystick != (readinputport(0) & 0x80) )
 		{
 			joystick = readinputport(0) & 0x80;
-			if( joystick )
+			if (joystick != 0)
 				sprintf(atari_frame_message, "Cursor Keys JOYSTICK");
 			else
 				sprintf(atari_frame_message, "Cursor Keys KEYBOARD");

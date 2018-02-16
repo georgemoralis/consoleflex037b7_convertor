@@ -37,7 +37,7 @@ public class config
 	{
 		unsigned val = 0, digit;
 	
-		if (size)
+		if (size != 0)
 			*size = 0;
 		while (isxdigit(**p))
 		{
@@ -45,13 +45,13 @@ public class config
 			if (digit > 9)
 				digit -= 7;
 			val = (val << 4) | digit;
-			if (size)
+			if (size != 0)
 				(*size)++;
 			*p += 1;
 		}
 		while (isspace(**p))
 			*p += 1;
-		if (size)
+		if (size != 0)
 			(*size) >>= 1;
 		return val;
 	}
@@ -128,18 +128,18 @@ public class config
 		struct config_hdl *cfg = (struct config_hdl *) config;
 		struct config_var *this, *next;
 	
-		next = cfg->list;
+		next = cfg.list;
 		while (next)
 		{
-			if (next->name)
-				free(next->name);
-			if (next->data)
-				free(next->data);
+			if (next.name)
+				free(next.name);
+			if (next.data)
+				free(next.data);
 			this = next;
-			next = next->next;
+			next = next.next;
 			free(this);
 		}
-		cfg->list = NULL;
+		cfg.list = NULL;
 	}
 	
 	void *config_create(const char *name)
@@ -155,8 +155,8 @@ public class config
 			return cfg;
 		}
 		memset(cfg, 0, sizeof(struct config_hdl));
-		cfg->file = fopen(name, "w");
-		if (!cfg->file)
+		cfg.file = fopen(name, "w");
+		if (!cfg.file)
 		{
 			LOG(("config_create: couldn't create file '%s'\n", name));
 			free(cfg);
@@ -180,8 +180,8 @@ public class config
 			return cfg;
 		}
 		memset(cfg, 0, sizeof(struct config_hdl));
-		cfg->file = fopen(name, "r");
-		if (!cfg->file)
+		cfg.file = fopen(name, "r");
+		if (!cfg.file)
 		{
 			LOG(("config_open: couldn't open file '%s'\n", name));
 	        free(cfg);
@@ -198,8 +198,8 @@ public class config
 		if (!cfg)
 			return;
 		config_free_section(cfg);
-		if (cfg->file)
-			fclose(cfg->file);
+		if (cfg.file)
+			fclose(cfg.file);
 		free(cfg);
 	}
 	
@@ -215,7 +215,7 @@ public class config
 		length = vsprintf(buffer, fmt, arg);
 		va_end(arg);
 	
-		if (fwrite(buffer, 1, length, cfg->file) != length)
+		if (fwrite(buffer, 1, length, cfg.file) != length)
 		{
 			LOG(("config_printf: Error while saving cfg '%s'\n", buffer));
 		}
@@ -225,15 +225,15 @@ public class config
 	{
 		struct config_hdl *cfg = (struct config_hdl *) config;
 	
-		if (!cfg->section ||
-			(cfg->section && findstr(cfg->section, section)) ||
-			cfg->instance != instance)
+		if (!cfg.section ||
+			(cfg.section && findstr(cfg.section, section)) ||
+			cfg.instance != instance)
 		{
-			if (cfg->section)
+			if (cfg.section)
 				config_printf(cfg, "\n");
-			cfg->section = section;
-			cfg->instance = instance;
-			if (instance)
+			cfg.section = section;
+			cfg.instance = instance;
+			if (instance != 0)
 				config_printf(cfg, "[%s.%d]\n", section, instance);
 			else
 				config_printf(cfg, "[%s]\n", section);
@@ -290,7 +290,7 @@ public class config
 				else
 					config_printf(cfg, " ");
 			}
-			if (offs & 15)
+			if ((offs & 15) != 0)
 				config_printf(cfg, "\n");
 		}
 		else
@@ -299,7 +299,7 @@ public class config
 			while (size-- > 0)
 			{
 				config_printf(cfg, "%s", ultox(*val++, 2));
-				if (size)
+				if (size != 0)
 					config_printf(cfg, " ");
 			}
 			config_printf(cfg, "\n");
@@ -334,7 +334,7 @@ public class config
 				else
 					config_printf(cfg, " ");
 			}
-			if (offs & 7)
+			if ((offs & 7) != 0)
 				config_printf(cfg, "\n");
 		}
 		else
@@ -343,7 +343,7 @@ public class config
 			while (size-- > 0)
 			{
 				config_printf(cfg, "%s", ultox(*val++, 4));
-				if (size)
+				if (size != 0)
 					config_printf(cfg, " ");
 			}
 			config_printf(cfg, "\n");
@@ -378,7 +378,7 @@ public class config
 				else
 					config_printf(cfg, " ");
 			}
-			if (offs & 3)
+			if ((offs & 3) != 0)
 				config_printf(cfg, "\n");
 		}
 		else
@@ -387,7 +387,7 @@ public class config
 			while (size-- > 0)
 			{
 				config_printf(cfg, "%s", ultox(*val++, 8));
-				if (size)
+				if (size != 0)
 					config_printf(cfg, " ");
 			}
 			config_printf(cfg, "\n");
@@ -412,14 +412,14 @@ public class config
 		int element_size;
 		unsigned offs, data;
 	
-		if (cfg->section && !findstr(cfg->section, section) &&
-			cfg->instance == instance)
+		if (cfg.section && !findstr(cfg.section, section) &&
+			cfg.instance == instance)
 			return;						   /* fine, we already got it */
 	
-		if (!cfg->list)
+		if (!cfg.list)
 			config_free_section(cfg);
 	
-		if (instance)
+		if (instance != 0)
 			sprintf(searching, "[%s.%d]", section, instance);
 		else
 			sprintf(searching, "[%s]", section);
@@ -428,20 +428,20 @@ public class config
 		for (;;)
 		{
 			buffer[0] = '\0';
-			fgets(buffer, sizeof(buffer), cfg->file);
+			fgets(buffer, sizeof(buffer), cfg.file);
 			if (!buffer[0])
 				return;
 			if (findstr(buffer, searching) == 0)
 			{
-				cfg->section = section;
-				cfg->instance = instance;
+				cfg.section = section;
+				cfg.instance = instance;
 				/* now read all config_vars until the next section or end of cfg */
 				for (;;)
 				{
 					struct config_var *v;
 	
 					buffer[0] = '\0';
-	                fgets(buffer, sizeof (buffer), cfg->file);
+	                fgets(buffer, sizeof (buffer), cfg.file);
 					if (!buffer[0])
 						return;
 	
@@ -456,10 +456,10 @@ public class config
 	
 					*p = '\0';			   /* cut buffer here */
 					p = strchr(buffer, '\n');	/* do we still have a CR? */
-					if (p)
+					if (p != 0)
 						*p = '\0';
 					p = strchr(buffer, '\r');	/* do we still have a LF? */
-					if (p)
+					if (p != 0)
 						*p = '\0';
 	
 					if (*buffer == '[')    /* next section ? */
@@ -484,16 +484,16 @@ public class config
 						*p++ = '\0';
 					/* is there an offs defined ? */
 					d = strchr(buffer, '.');
-					if (d)
+					if (d != 0)
 					{
 						/* buffer = config_var, d = offs, p = data */
 						*d++ = '\0';
 						offs = xtoul(&d, NULL);
-						if (offs)
+						if (offs != 0)
 						{
-							v = cfg->list;
-							while (v && findstr(v->name, buffer))
-								v = v->next;
+							v = cfg.list;
+							while (v && findstr(v.name, buffer))
+								v = v.next;
 							if (!v)
 							{
 								LOG(("config_load_section: Invalid variable continuation found '%s.%04X'\n", buffer, offs));
@@ -510,20 +510,20 @@ public class config
 					}
 					LOG(("config_load_section: reading %s.%d=%s\n", buffer, offs, p));
 	
-	                if (cfg->list)
+	                if (cfg.list)
 					{
 						/* next config_var */
-						v = cfg->list;
-						while (v->next)
-							v = v->next;
-						v->next = malloc(sizeof (struct config_var));
-						v = v->next;
+						v = cfg.list;
+						while (v.next)
+							v = v.next;
+						v.next = malloc(sizeof (struct config_var));
+						v = v.next;
 					}
 					else
 					{
 						/* first config_var */
-						cfg->list = malloc(sizeof (struct config_var));
-						v = cfg->list;
+						cfg.list = malloc(sizeof (struct config_var));
+						v = cfg.list;
 					}
 					if (!v)
 					{
@@ -531,15 +531,15 @@ public class config
 						return;
 					}
 					memset(v, 0, sizeof(struct config_var));
-	                v->name = malloc(strlen(buffer) + 1);
-					if (!v->name)
+	                v.name = malloc(strlen(buffer) + 1);
+					if (!v.name)
 					{
 						LOG(("config_load_section: out of memory while reading '%s'\n", searching));
 						return;
 					}
-					strcpy(v->name, buffer);
-					v->size = 0;
-					v->data = NULL;
+					strcpy(v.name, buffer);
+					v.size = 0;
+					v.data = NULL;
 	
 					/* only xdigits and whitespace on this line? */
 					if (xdigits_only(p))
@@ -548,18 +548,18 @@ public class config
 						data = xtoul(&p, &element_size);
 						do
 						{
-							v->size++;
+							v.size++;
 							/* need to allocate first/next chunk of memory? */
-							if (v->size * element_size >= v->chunk)
+							if (v.size * element_size >= v.chunk)
 							{
-								v->chunk += CHUNK_SIZE;
-								if (v->data)
-									v->data = realloc(v->data, v->chunk);
+								v.chunk += CHUNK_SIZE;
+								if (v.data)
+									v.data = realloc(v.data, v.chunk);
 								else
-									v->data = malloc(v->chunk);
+									v.data = malloc(v.chunk);
 							}
 							/* check if the (re-)allocation failed */
-							if (!v->data)
+							if (!v.data)
 							{
 								LOG(("config_load_section: out of memory while reading '%s'\n", searching));
 								return;
@@ -568,11 +568,11 @@ public class config
 							switch (element_size)
 							{
 							case 1:
-								*((UINT8 *)v->data + v->size) = data;
+								*((UINT8 *)v.data + v.size) = data;
 							case 2:
-								*((UINT16 *)v->data + v->size) = data;
+								*((UINT16 *)v.data + v.size) = data;
 							case 4:
-								*((UINT32 *)v->data + v->size) = data;
+								*((UINT32 *)v.data + v.size) = data;
 							}
 							data = xtoul(&p, NULL);
 						} while (*p);
@@ -584,22 +584,22 @@ public class config
 						{
 							data = ctoul(&p);
 							/* need to allocate first/next chunk of memory? */
-							if (v->size * element_size >= v->chunk)
+							if (v.size * element_size >= v.chunk)
 							{
-								v->chunk += CHUNK_SIZE;
-								if (v->data)
-									v->data = realloc(v->data, v->chunk);
+								v.chunk += CHUNK_SIZE;
+								if (v.data)
+									v.data = realloc(v.data, v.chunk);
 								else
-									v->data = malloc(v->chunk);
+									v.data = malloc(v.chunk);
 							}
 							/* check if the (re-)allocation failed */
-							if (!v->data)
+							if (!v.data)
 							{
 								LOG(("config_load_section: Out of memory while reading '%s'\n", searching));
 								return;
 							}
-							*((UINT8 *)v->data + v->size) = data;
-	                        v->size++;
+							*((UINT8 *)v.data + v.size) = data;
+	                        v.size++;
 						} while (data);
 	                }
 				}
@@ -615,15 +615,15 @@ public class config
 	
 		config_load_section(cfg, section, instance);
 	
-		v = cfg->list;
-		while (v && findstr(v->name, name))
-			v = v->next;
+		v = cfg.list;
+		while (v && findstr(v.name, name))
+			v = v.next;
 	
-		if (v)
+		if (v != 0)
 		{
-			if( size > v->size )
-				size = v->size;
-			memcpy(dst, v->data, size - 1);
+			if( size > v.size )
+				size = v.size;
+			memcpy(dst, v.data, size - 1);
 			dst[size-1] = '\0';
 			LOG(("config_load_string: '%s' is '%s'\n", name, dst));
 	    }
@@ -642,16 +642,16 @@ public class config
 	
 		config_load_section(cfg, section, instance);
 	
-		v = cfg->list;
-		while (v && findstr(v->name, name))
-			v = v->next;
+		v = cfg.list;
+		while (v && findstr(v.name, name))
+			v = v.next;
 	
-		if (v)
+		if (v != 0)
 		{
 			unsigned offs;
 	
-			for (offs = 0; offs < size && offs < v->size; offs++)
-				*val++ = *((UINT8 *)v->data + offs);
+			for (offs = 0; offs < size && offs < v.size; offs++)
+				*val++ = *((UINT8 *)v.data + offs);
 		}
 		else
 		{
@@ -668,16 +668,16 @@ public class config
 	
 		config_load_section(cfg, section, instance);
 	
-		v = cfg->list;
-		while (v && findstr(v->name, name))
-			v = v->next;
+		v = cfg.list;
+		while (v && findstr(v.name, name))
+			v = v.next;
 	
-		if (v)
+		if (v != 0)
 		{
 			unsigned offs;
 	
-			for (offs = 0; offs < size && offs < v->size; offs++)
-				*val++ = *((INT8 *)v->data + offs);
+			for (offs = 0; offs < size && offs < v.size; offs++)
+				*val++ = *((INT8 *)v.data + offs);
 		}
 		else
 		{
@@ -694,16 +694,16 @@ public class config
 	
 		config_load_section(cfg, section, instance);
 	
-		v = cfg->list;
-		while (v && findstr(v->name, name))
-			v = v->next;
+		v = cfg.list;
+		while (v && findstr(v.name, name))
+			v = v.next;
 	
-		if (v)
+		if (v != 0)
 		{
 			unsigned offs;
 	
-			for (offs = 0; offs < size && offs < v->size; offs++)
-				*val++ = *((UINT16 *)v->data + offs);
+			for (offs = 0; offs < size && offs < v.size; offs++)
+				*val++ = *((UINT16 *)v.data + offs);
 		}
 		else
 		{
@@ -720,16 +720,16 @@ public class config
 	
 		config_load_section(cfg, section, instance);
 	
-		v = cfg->list;
-		while (v && findstr(v->name, name))
-			v = v->next;
+		v = cfg.list;
+		while (v && findstr(v.name, name))
+			v = v.next;
 	
-		if (v)
+		if (v != 0)
 		{
 			unsigned offs;
 	
-			for (offs = 0; offs < size && offs < v->size; offs++)
-				*val++ = *((INT16 *)v->data + offs);
+			for (offs = 0; offs < size && offs < v.size; offs++)
+				*val++ = *((INT16 *)v.data + offs);
 		}
 		else
 		{
@@ -746,16 +746,16 @@ public class config
 	
 		config_load_section(cfg, section, instance);
 	
-		v = cfg->list;
-		while (v && findstr(v->name, name))
-			v = v->next;
+		v = cfg.list;
+		while (v && findstr(v.name, name))
+			v = v.next;
 	
-		if (v)
+		if (v != 0)
 		{
 			unsigned offs;
 	
-			for (offs = 0; offs < size && offs < v->size; offs++)
-				*val++ = *((UINT32 *)v->data + offs);
+			for (offs = 0; offs < size && offs < v.size; offs++)
+				*val++ = *((UINT32 *)v.data + offs);
 		}
 		else
 		{
@@ -772,16 +772,16 @@ public class config
 	
 		config_load_section(cfg, section, instance);
 	
-		v = cfg->list;
-		while (v && findstr(v->name, name))
-			v = v->next;
+		v = cfg.list;
+		while (v && findstr(v.name, name))
+			v = v.next;
 	
-		if (v)
+		if (v != 0)
 		{
 			unsigned offs;
 	
-			for (offs = 0; offs < size && offs < v->size; offs++)
-				*val++ = *((INT32 *)v->data + offs);
+			for (offs = 0; offs < size && offs < v.size; offs++)
+				*val++ = *((INT32 *)v.data + offs);
 		}
 		else
 		{

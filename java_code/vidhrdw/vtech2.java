@@ -56,21 +56,21 @@ public class vtech2
 	static int laser_bg_mode = 0;
 	static int laser_two_color = 0;
 	
-	int laser_vh_start(void)
+	public static VhStartPtr laser_vh_start = new VhStartPtr() { public int handler() 
 	{
-		videoram_size = 0x04000;
-		dirtybuffer = malloc(videoram_size);
+		videoram_size[0] = 0x04000;
+		dirtybuffer = malloc(videoram_size[0]);
 		if (!dirtybuffer)
 			return 1;
 		return 0;
-	}
+	} };
 	
-	void laser_vh_stop(void)
+	public static VhStopPtr laser_vh_stop = new VhStopPtr() { public void handler() 
 	{
-		if (dirtybuffer)
+		if (dirtybuffer != 0)
 			free(dirtybuffer);
 		dirtybuffer = NULL;
-	}
+	} };
 	
 	static int offs_2[192] = {
 		0x0000,0x0800,0x1000,0x1800,0x2000,0x2800,0x3000,0x3800,
@@ -141,20 +141,20 @@ public class vtech2
 		0x26a0,0x2ea0,0x36a0,0x3ea0,0x27a0,0x2fa0,0x37a0,0x3fa0
 	};
 	
-	void laser_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr laser_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 		int offs, x, y;
 	
 		if( palette_recalc() )
 			full_refresh = 1;
 	
-	    if( full_refresh )
+	    if (full_refresh != 0)
 		{
-			fillbitmap(Machine->scrbitmap, Machine->pens[(laser_bg_mode >> 4) & 15], &Machine->visible_area);
-			memset(dirtybuffer, 1, videoram_size);
+			fillbitmap(Machine.scrbitmap, Machine.pens[(laser_bg_mode >> 4) & 15], &Machine.visible_area);
+			memset(dirtybuffer, 1, videoram_size[0]);
 	    }
 	
-		if (laser_latch & 0x08)
+		if ((laser_latch & 0x08) != 0)
 		{
 			/* graphics modes */
 			switch (laser_bg_mode & 7)
@@ -175,9 +175,9 @@ public class vtech2
 							int sx, sy, code, color = laser_two_color;
 							sy = BORDER_V/2 + y;
 							sx = BORDER_H/2 + x * 8;
-	                        code = videoram[offs];
-							drawgfx(bitmap,Machine->gfx[2],code,color,0,0,sx,sy,
-	                            &Machine->visible_area,TRANSPARENCY_NONE,0);
+	                        code = videoram.read(offs);
+							drawgfx(bitmap,Machine.gfx[2],code,color,0,0,sx,sy,
+	                            &Machine.visible_area,TRANSPARENCY_NONE,0);
 	                        dirtybuffer[offs] = 0;
 	                    }
 	                }
@@ -199,10 +199,10 @@ public class vtech2
 							int sx, sy, code, color;
 							sy = BORDER_V/2 + y;
 							sx = BORDER_H/2 + x * 16;
-	                        code = videoram[offs];
-							color = videoram[offs+1];
-							drawgfx(bitmap,Machine->gfx[3],code,color,0,0,sx,sy,
-	                            &Machine->visible_area,TRANSPARENCY_NONE,0);
+	                        code = videoram.read(offs);
+							color = videoram.read(offs+1);
+							drawgfx(bitmap,Machine.gfx[3],code,color,0,0,sx,sy,
+	                            &Machine.visible_area,TRANSPARENCY_NONE,0);
 							dirtybuffer[offs] = dirtybuffer[offs+1] = 0;
 	                    }
 	                }
@@ -224,9 +224,9 @@ public class vtech2
 							int sx, sy, code;
 							sy = BORDER_V/2 + y;
 							sx = BORDER_H/2 + x * 8;
-	                        code = videoram[offs];
-							drawgfx(bitmap,Machine->gfx[5],code,0,0,0,sx,sy,
-	                            &Machine->visible_area,TRANSPARENCY_NONE,0);
+	                        code = videoram.read(offs);
+							drawgfx(bitmap,Machine.gfx[5],code,0,0,0,sx,sy,
+	                            &Machine.visible_area,TRANSPARENCY_NONE,0);
 							dirtybuffer[offs] = 0;
 	                    }
 	                }
@@ -249,9 +249,9 @@ public class vtech2
 							int sx, sy, code;
 							sy = BORDER_V/2 + y * 2;
 							sx = BORDER_H/2 + x * 8;
-	                        code = videoram[offs];
-							drawgfx(bitmap,Machine->gfx[6],code,0,0,0,sx,sy,
-	                            &Machine->visible_area,TRANSPARENCY_NONE,0);
+	                        code = videoram.read(offs);
+							drawgfx(bitmap,Machine.gfx[6],code,0,0,0,sx,sy,
+	                            &Machine.visible_area,TRANSPARENCY_NONE,0);
 							dirtybuffer[offs] = 0;
 	                    }
 	                }
@@ -273,9 +273,9 @@ public class vtech2
 	                        int sx, sy, code, color = laser_two_color;
 							sy = BORDER_V/2 + y;
 							sx = BORDER_H/2 + x * 16;
-	                        code = videoram[offs];
-							drawgfx(bitmap,Machine->gfx[3],code,color,0,0,sx,sy,
-	                            &Machine->visible_area,TRANSPARENCY_NONE,0);
+	                        code = videoram.read(offs);
+							drawgfx(bitmap,Machine.gfx[3],code,color,0,0,sx,sy,
+	                            &Machine.visible_area,TRANSPARENCY_NONE,0);
 	                        dirtybuffer[offs] = 0;
 	                    }
 	                }
@@ -297,10 +297,10 @@ public class vtech2
 							int sx, sy, code, color;
 							sy = BORDER_V/2 + y;
 							sx = BORDER_H/2 + x * 32;
-	                        code = videoram[offs];
-							color = videoram[offs+1];
-							drawgfx(bitmap,Machine->gfx[4],code,color,0,0,sx,sy,
-	                            &Machine->visible_area,TRANSPARENCY_NONE,0);
+	                        code = videoram.read(offs);
+							color = videoram.read(offs+1);
+							drawgfx(bitmap,Machine.gfx[4],code,color,0,0,sx,sy,
+	                            &Machine.visible_area,TRANSPARENCY_NONE,0);
 							dirtybuffer[offs] = dirtybuffer[offs+1] = 0;
 	                    }
 	                }
@@ -311,7 +311,7 @@ public class vtech2
 		else
 		{
 			/* text modes */
-	        if (laser_bg_mode & 1)
+	        if ((laser_bg_mode & 1) != 0)
 	        {
 	            /* 80 columns text mode */
 	            for( y = 0; y < 24; y++ )
@@ -324,9 +324,9 @@ public class vtech2
 							int sx, sy, code, color = laser_two_color;
 							sy = BORDER_V/2 + y * 8;
 							sx = BORDER_H/2 + x * 8;
-	                        code = videoram[0x3800+offs];
-							drawgfx(bitmap,Machine->gfx[0],code,color,0,0,sx,sy,
-	                            &Machine->visible_area,TRANSPARENCY_NONE,0);
+	                        code = videoram.read(0x3800+offs);
+							drawgfx(bitmap,Machine.gfx[0],code,color,0,0,sx,sy,
+	                            &Machine.visible_area,TRANSPARENCY_NONE,0);
 	                        dirtybuffer[offs] = 0;
 	                    }
 	                }
@@ -345,10 +345,10 @@ public class vtech2
 	                        int sx, sy, code, color = 0;
 							sy = BORDER_V/2 + y * 8;
 							sx = BORDER_H/2 + x * 16;
-	                        code = videoram[0x3800+offs];
-	                        color = videoram[0x3801+offs];
-							drawgfx(bitmap,Machine->gfx[1],code,color,0,0,sx,sy,
-	                            &Machine->visible_area,TRANSPARENCY_NONE,0);
+	                        code = videoram.read(0x3800+offs);
+	                        color = videoram.read(0x3801+offs);
+							drawgfx(bitmap,Machine.gfx[1],code,color,0,0,sx,sy,
+	                            &Machine.visible_area,TRANSPARENCY_NONE,0);
 	                        dirtybuffer[0x3800+offs] = dirtybuffer[0x3801+offs] = 0;
 	                    }
 	                }
@@ -358,12 +358,12 @@ public class vtech2
 	
 		if( laser_frame_time > 0 )
 		{
-			ui_text(bitmap, laser_frame_message, 2, Machine->visible_area.max_y - 9);
+			ui_text(bitmap, laser_frame_message, 2, Machine.visible_area.max_y - 9);
 			/* if the message timed out, clear it on the next frame */
 			if( --laser_frame_time == 0 )
 				bitmap_dirty = 1;
 		}
-	}
+	} };
 	
 	void laser_bg_mode_w(int offs, int data)
 	{

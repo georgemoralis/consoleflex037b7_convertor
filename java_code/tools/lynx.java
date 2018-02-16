@@ -39,7 +39,7 @@ public class lynx
 		IMAGE base;
 		STREAM *file_handle;
 		int size;
-		unsigned char *data;
+		UBytePtr data;
 		int count;
 		LYNX_ENTRY *entries;
 	} lynx_image;
@@ -86,8 +86,8 @@ public class lynx
 	static int lynx_read_line(lynx_image *image, int pos)
 	{
 		int i;
-		for (i=0; (pos+i<image->size)&&(image->data[pos+i]!=0xd); i++ ) ;
-		if (pos+i<image->size) i++;
+		for (i=0; (pos+i<image.size)&&(image.data[pos+i]!=0xd); i++ ) ;
+		if (pos+i<image.size) i++;
 		return i;
 	}
 	
@@ -100,46 +100,46 @@ public class lynx
 		i+=n;
 	
 		n=lynx_read_line(image, i);
-		j=atoi((char *)image->data+i); /* begin of data */
+		j=atoi((char *)image.data+i); /* begin of data */
 		if ((n==0)) return IMGTOOLERR_CORRUPTIMAGE;
 		i+=n;
 	
 		n=lynx_read_line(image, i);
-		image->count=atoi((char *)image->data+i);
-		if ((n==0)||(image->count==0)) return IMGTOOLERR_CORRUPTIMAGE;
+		image.count=atoi((char *)image.data+i);
+		if ((n==0)||(image.count==0)) return IMGTOOLERR_CORRUPTIMAGE;
 		i+=n;
 	
-		image->entries=malloc(sizeof(LYNX_ENTRY)*image->count);
-		if (!image->entries) return IMGTOOLERR_OUTOFMEMORY;
+		image.entries=malloc(sizeof(LYNX_ENTRY)*image.count);
+		if (!image.entries) return IMGTOOLERR_OUTOFMEMORY;
 	
-		image->entries[0].offset=j*254;
+		image.entries[0].offset=j*254;
 	
-		for (j=0; j<image->count; j++) {
+		for (j=0; j<image.count; j++) {
 			int a,b;
 	
 			n=lynx_read_line(image, i);
 			if ((n==0)) return IMGTOOLERR_CORRUPTIMAGE;
-			strncpy(image->entries[j].name,(char *)image->data+i, n-1);
+			strncpy(image.entries[j].name,(char *)image.data+i, n-1);
 			i+=n;
 	
 			n=lynx_read_line(image, i);
-			a=atoi((char *)image->data+i);
+			a=atoi((char *)image.data+i);
 			if ((n==0)) return IMGTOOLERR_CORRUPTIMAGE;
 			i+=n;
 	
 			n=lynx_read_line(image, i);
-			image->entries[j].filetype=image->data[i];
+			image.entries[j].filetype=image.data[i];
 			if ((n==0)) return IMGTOOLERR_CORRUPTIMAGE;
 			i+=n;
 	
 			n=lynx_read_line(image, i);
-			b=atoi((char *)image->data+i);
+			b=atoi((char *)image.data+i);
 			if ((n==0)) return IMGTOOLERR_CORRUPTIMAGE;
 			i+=n;
 	
-			image->entries[j].size=(a-1)*254+b-1;
-			if (j+1<image->count)
-				image->entries[j+1].offset=image->entries[j].offset+254*a;
+			image.entries[j].size=(a-1)*254+b-1;
+			if (j+1<image.count)
+				image.entries[j+1].offset=image.entries[j].offset+254*a;
 		}
 	
 		return 0;
@@ -154,19 +154,19 @@ public class lynx
 		if (!image) return IMGTOOLERR_OUTOFMEMORY;
 	
 		memset(image, 0, sizeof(lynx_image));
-		image->base.module = &imgmod_lynx;
-		image->size=stream_size(f);
-		image->file_handle=f;
+		image.base.module = &imgmod_lynx;
+		image.size=stream_size(f);
+		image.file_handle=f;
 	
-		image->data = (unsigned char *) malloc(image->size);
-		if ( (!image->data)
-			 ||(stream_read(f, image->data, image->size)!=image->size) ) {
+		image.data = (UBytePtr ) malloc(image.size);
+		if ( (!image.data)
+			 ||(stream_read(f, image.data, image.size)!=image.size) ) {
 			free(image);
 			*outimg=NULL;
 			return IMGTOOLERR_OUTOFMEMORY;
 		}
 		if ( (rc=lynx_read_image(image)) ) {
-			if (image->entries) free(image->entries);
+			if (image.entries) free(image.entries);
 			free(image);
 			*outimg=NULL;
 			return rc;
@@ -178,9 +178,9 @@ public class lynx
 	static void lynx_image_exit(IMAGE *img)
 	{
 		lynx_image *image=(lynx_image*)img;
-		stream_close(image->file_handle);
-		free(image->entries);
-		free(image->data);
+		stream_close(image.file_handle);
+		free(image.entries);
+		free(image.data);
 		free(image);
 	}
 	
@@ -190,13 +190,13 @@ public class lynx
 		lynx_image *image=(lynx_image*)img;
 		char dostext_with_null[33]= { 0 };
 		char name_with_null[25]={ 0 };
-		strncpy(dostext_with_null, HEADER(image)->dostext, 32);
-		strncpy(name_with_null, HEADER(image)->description, 24);
+		strncpy(dostext_with_null, HEADER(image).dostext, 32);
+		strncpy(name_with_null, HEADER(image).description, 24);
 		sprintf(string,"%s\n%s\nversion:%.4x max entries:%d",
 				dostext_with_null,
 				name_with_null, 
-				GET_UWORD(HEADER(image)->version),
-				HEADER(image)->max_entries);
+				GET_UWORD(HEADER(image).version),
+				HEADER(image).max_entries);
 	}
 	#endif
 	
@@ -208,34 +208,34 @@ public class lynx
 		iter=*(lynx_iterator**)outenum = (lynx_iterator *) malloc(sizeof(lynx_iterator));
 		if (!iter) return IMGTOOLERR_OUTOFMEMORY;
 	
-		iter->base.module = &imgmod_lynx;
+		iter.base.module = &imgmod_lynx;
 	
-		iter->image=image;
-		iter->index = 0;
+		iter.image=image;
+		iter.index = 0;
 		return 0;
 	}
 	
 	static int lynx_image_nextenum(IMAGEENUM *enumeration, imgtool_dirent *ent)
 	{
 		lynx_iterator *iter=(lynx_iterator*)enumeration;
-		ent->corrupt=0;
+		ent.corrupt=0;
 		
-		ent->eof=iter->index>=iter->image->count;
-		if (!ent->eof) {
-			strcpy(ent->fname, iter->image->entries[iter->index].name);
-			if (ent->attr) {
-				switch (iter->image->entries[iter->index].filetype) {
-				case 'P': strcpy(ent->attr,"PRG");break;
-				case 'S': strcpy(ent->attr,"SEQ");break;
-				case 'R': strcpy(ent->attr,"REL");break;
-				case 'U': strcpy(ent->attr,"USR");break;
+		ent.eof=iter.index>=iter.image.count;
+		if (!ent.eof) {
+			strcpy(ent.fname, iter.image.entries[iter.index].name);
+			if (ent.attr) {
+				switch (iter.image.entries[iter.index].filetype) {
+				case 'P': strcpy(ent.attr,"PRG");break;
+				case 'S': strcpy(ent.attr,"SEQ");break;
+				case 'R': strcpy(ent.attr,"REL");break;
+				case 'U': strcpy(ent.attr,"USR");break;
 				default: 
-					sprintf(ent->attr,"type:%c",
-							iter->image->entries[iter->index].filetype );
+					sprintf(ent.attr,"type:%c",
+							iter.image.entries[iter.index].filetype );
 				}
 			}
-			ent->filesize=iter->image->entries[iter->index].size;
-			iter->index++;
+			ent.filesize=iter.image.entries[iter.index].size;
+			iter.index++;
 		}
 		return 0;
 	}
@@ -249,8 +249,8 @@ public class lynx
 	{
 		int i;
 	
-		for (i=0; i<image->count; i++) {
-			if (!stricmp(fname, image->entries[i].name) ) return image->entries+i;
+		for (i=0; i<image.count; i++) {
+			if (!stricmp(fname, image.entries[i].name) ) return image.entries+i;
 		}
 		return NULL;
 	}
@@ -262,7 +262,7 @@ public class lynx
 	
 		if ((entry=lynx_image_findfile(image, fname))==NULL ) return IMGTOOLERR_MODULENOTFOUND;
 	
-		if (stream_write(destf, image->data+entry->offset, entry->size)!=entry->size) {
+		if (stream_write(destf, image.data+entry.offset, entry.size)!=entry.size) {
 			return IMGTOOLERR_WRITEERROR;
 		}
 	

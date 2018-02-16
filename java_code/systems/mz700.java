@@ -78,259 +78,259 @@ public class mz700
 	
 	#if VERBOSE
 	#define LOG(N,M,A)	\
-		if(VERBOSE>=N){ if( M )logerror("%11.6f: %-24s",timer_get_time(),(char*)M ); logerror A; }
+		if(VERBOSE>=N){ if (M != 0)logerror("%11.6f: %-24s",timer_get_time(),(char*)M ); logerror A; }
 	#else
 	#define LOG(N,M,A)
 	#endif
 	
-	static struct MemoryReadAddress readmem_mz700[] =
+	static MemoryReadAddress readmem_mz700[] =
 	{
-		{ 0x00000, 0x00fff, MRA_BANK1 },
-		{ 0x01000, 0x0cfff, MRA_RAM },
-		{ 0x0d000, 0x0d7ff, MRA_BANK6 },
-		{ 0x0d800, 0x0dfff, MRA_BANK7 },
-		{ 0x0e000, 0x0ffff, MRA_BANK8 },
-		{ 0x10000, 0x10fff, MRA_ROM },
-		{ 0x12000, 0x127ff, MRA_RAM },
-		{ 0x12800, 0x12fff, MRA_RAM },
-		{ 0x16000, 0x16fff, MRA_RAM },
-	    {-1}
+		new MemoryReadAddress( 0x00000, 0x00fff, MRA_BANK1 ),
+		new MemoryReadAddress( 0x01000, 0x0cfff, MRA_RAM ),
+		new MemoryReadAddress( 0x0d000, 0x0d7ff, MRA_BANK6 ),
+		new MemoryReadAddress( 0x0d800, 0x0dfff, MRA_BANK7 ),
+		new MemoryReadAddress( 0x0e000, 0x0ffff, MRA_BANK8 ),
+		new MemoryReadAddress( 0x10000, 0x10fff, MRA_ROM ),
+		new MemoryReadAddress( 0x12000, 0x127ff, MRA_RAM ),
+		new MemoryReadAddress( 0x12800, 0x12fff, MRA_RAM ),
+		new MemoryReadAddress( 0x16000, 0x16fff, MRA_RAM ),
+	    new MemoryReadAddress(-1)
 	};
 	
-	static struct MemoryWriteAddress writemem_mz700[] =
+	static MemoryWriteAddress writemem_mz700[] =
 	{
-		{ 0x00000, 0x00fff, MWA_BANK1 },
-		{ 0x01000, 0x0cfff, MWA_RAM },
-		{ 0x0d000, 0x0d7ff, MWA_BANK6 },
-		{ 0x0d800, 0x0dfff, MWA_BANK7 },
-		{ 0x0e000, 0x0ffff, MWA_BANK8 },
-		{ 0x12000, 0x127ff, videoram_w, &videoram, &videoram_size },
-		{ 0x12800, 0x12fff, colorram_w, &colorram },
-		{ 0x16000, 0x16fff, pcgram_w },
-	    {-1}
+		new MemoryWriteAddress( 0x00000, 0x00fff, MWA_BANK1 ),
+		new MemoryWriteAddress( 0x01000, 0x0cfff, MWA_RAM ),
+		new MemoryWriteAddress( 0x0d000, 0x0d7ff, MWA_BANK6 ),
+		new MemoryWriteAddress( 0x0d800, 0x0dfff, MWA_BANK7 ),
+		new MemoryWriteAddress( 0x0e000, 0x0ffff, MWA_BANK8 ),
+		new MemoryWriteAddress( 0x12000, 0x127ff, videoram_w, videoram, videoram_size ),
+		new MemoryWriteAddress( 0x12800, 0x12fff, colorram_w, colorram ),
+		new MemoryWriteAddress( 0x16000, 0x16fff, pcgram_w ),
+	    new MemoryWriteAddress(-1)
 	};
 	
-	static struct IOReadPort readport_mz700[] =
+	static IOReadPort readport_mz700[] =
 	{
-		{-1}
+		new IOReadPort(-1)
 	};
 	
-	static struct IOWritePort writeport_mz700[] =
+	static IOWritePort writeport_mz700[] =
 	{
-		{ 0xe0, 0xe6, mz700_bank_w },
-		{-1}
+		new IOWritePort( 0xe0, 0xe6, mz700_bank_w ),
+		new IOWritePort(-1)
 	};
 	
-	static struct MemoryReadAddress readmem_mz800[] =
+	static MemoryReadAddress readmem_mz800[] =
 	{
-		{ 0x00000, 0x00fff, MRA_BANK1 },
-		{ 0x01000, 0x01fff, MRA_BANK2 },
-		{ 0x02000, 0x07fff, MRA_RAM },
-		{ 0x08000, 0x09fff, MRA_BANK3 },
-		{ 0x0a000, 0x0bfff, MRA_BANK4 },
-		{ 0x0c000, 0x0cfff, MRA_BANK5 },
-		{ 0x0d000, 0x0d7ff, MRA_BANK6 },
-		{ 0x0d800, 0x0dfff, MRA_BANK7 },
-		{ 0x0e000, 0x0ffff, MRA_BANK8 },
-		{ 0x10000, 0x10fff, MRA_ROM },
-		{ 0x11000, 0x11fff, MRA_ROM },
-		{ 0x12000, 0x15fff, MRA_RAM },
-	    {-1}
+		new MemoryReadAddress( 0x00000, 0x00fff, MRA_BANK1 ),
+		new MemoryReadAddress( 0x01000, 0x01fff, MRA_BANK2 ),
+		new MemoryReadAddress( 0x02000, 0x07fff, MRA_RAM ),
+		new MemoryReadAddress( 0x08000, 0x09fff, MRA_BANK3 ),
+		new MemoryReadAddress( 0x0a000, 0x0bfff, MRA_BANK4 ),
+		new MemoryReadAddress( 0x0c000, 0x0cfff, MRA_BANK5 ),
+		new MemoryReadAddress( 0x0d000, 0x0d7ff, MRA_BANK6 ),
+		new MemoryReadAddress( 0x0d800, 0x0dfff, MRA_BANK7 ),
+		new MemoryReadAddress( 0x0e000, 0x0ffff, MRA_BANK8 ),
+		new MemoryReadAddress( 0x10000, 0x10fff, MRA_ROM ),
+		new MemoryReadAddress( 0x11000, 0x11fff, MRA_ROM ),
+		new MemoryReadAddress( 0x12000, 0x15fff, MRA_RAM ),
+	    new MemoryReadAddress(-1)
 	};
 	
-	static struct MemoryWriteAddress writemem_mz800[] =
+	static MemoryWriteAddress writemem_mz800[] =
 	{
-		{ 0x00000, 0x00fff, MWA_BANK1 },
-		{ 0x01000, 0x01fff, MWA_BANK2 },
-		{ 0x02000, 0x07fff, MWA_RAM },
-		{ 0x08000, 0x09fff, MWA_BANK3 },
-		{ 0x0a000, 0x0bfff, MWA_BANK4 },
-		{ 0x0c000, 0x0cfff, MWA_BANK5 },
-		{ 0x0d000, 0x0d7ff, MWA_BANK6 },
-		{ 0x0d800, 0x0dfff, MWA_BANK7 },
-		{ 0x0e000, 0x0ffff, MWA_BANK8 },
-		{ 0x10000, 0x10fff, MWA_ROM },
-		{ 0x11000, 0x11fff, MWA_ROM },
-	    { 0x12000, 0x16fff, videoram_w, &videoram, &videoram_size },
-		{ 0x12800, 0x12fff, colorram_w, &colorram },
-	    {-1}
+		new MemoryWriteAddress( 0x00000, 0x00fff, MWA_BANK1 ),
+		new MemoryWriteAddress( 0x01000, 0x01fff, MWA_BANK2 ),
+		new MemoryWriteAddress( 0x02000, 0x07fff, MWA_RAM ),
+		new MemoryWriteAddress( 0x08000, 0x09fff, MWA_BANK3 ),
+		new MemoryWriteAddress( 0x0a000, 0x0bfff, MWA_BANK4 ),
+		new MemoryWriteAddress( 0x0c000, 0x0cfff, MWA_BANK5 ),
+		new MemoryWriteAddress( 0x0d000, 0x0d7ff, MWA_BANK6 ),
+		new MemoryWriteAddress( 0x0d800, 0x0dfff, MWA_BANK7 ),
+		new MemoryWriteAddress( 0x0e000, 0x0ffff, MWA_BANK8 ),
+		new MemoryWriteAddress( 0x10000, 0x10fff, MWA_ROM ),
+		new MemoryWriteAddress( 0x11000, 0x11fff, MWA_ROM ),
+	    new MemoryWriteAddress( 0x12000, 0x16fff, videoram_w, videoram, videoram_size ),
+		new MemoryWriteAddress( 0x12800, 0x12fff, colorram_w, colorram ),
+	    new MemoryWriteAddress(-1)
 	};
 	
-	static struct IOReadPort readport_mz800[] =
+	static IOReadPort readport_mz800[] =
 	{
-		{ 0xce, 0xce, mz800_crtc_r },
-		{ 0xd0, 0xd7, mz800_mmio_r },
-		{ 0xe0, 0xe9, mz800_bank_r },
-		{ 0xea, 0xea, mz800_ramdisk_r },
-	    {-1}
+		new IOReadPort( 0xce, 0xce, mz800_crtc_r ),
+		new IOReadPort( 0xd0, 0xd7, mz800_mmio_r ),
+		new IOReadPort( 0xe0, 0xe9, mz800_bank_r ),
+		new IOReadPort( 0xea, 0xea, mz800_ramdisk_r ),
+	    new IOReadPort(-1)
 	};
 	
-	static struct IOWritePort writeport_mz800[] =
+	static IOWritePort writeport_mz800[] =
 	{
-		{ 0xcc, 0xcc, mz800_write_format_w },
-		{ 0xcd, 0xcd, mz800_read_format_w },
-		{ 0xce, 0xce, mz800_display_mode_w },
-		{ 0xcf, 0xcf, mz800_scroll_border_w },
-		{ 0xd0, 0xd7, mz800_mmio_w },
-		{ 0xe0, 0xe9, mz800_bank_w },
-		{ 0xea, 0xea, mz800_ramdisk_w },
-		{ 0xeb, 0xeb, mz800_ramaddr_w },
-		{ 0xf0, 0xf0, mz800_palette_w },
-	    {-1}
+		new IOWritePort( 0xcc, 0xcc, mz800_write_format_w ),
+		new IOWritePort( 0xcd, 0xcd, mz800_read_format_w ),
+		new IOWritePort( 0xce, 0xce, mz800_display_mode_w ),
+		new IOWritePort( 0xcf, 0xcf, mz800_scroll_border_w ),
+		new IOWritePort( 0xd0, 0xd7, mz800_mmio_w ),
+		new IOWritePort( 0xe0, 0xe9, mz800_bank_w ),
+		new IOWritePort( 0xea, 0xea, mz800_ramdisk_w ),
+		new IOWritePort( 0xeb, 0xeb, mz800_ramaddr_w ),
+		new IOWritePort( 0xf0, 0xf0, mz800_palette_w ),
+	    new IOWritePort(-1)
 	};
 	
-	INPUT_PORTS_START( mz700 )
-		PORT_START /* status */
-		PORT_BIT(0x80, 0x80, IPT_VBLANK)
-		PORT_BIT(0x7f, 0x00, IPT_UNUSED)
+	static InputPortPtr input_ports_mz700 = new InputPortPtr(){ public void handler() { 
+		PORT_START();  /* status */
+		PORT_BIT(0x80, 0x80, IPT_VBLANK);
+		PORT_BIT(0x7f, 0x00, IPT_UNUSED);
 	
-	    PORT_START /* KEY ROW 0 */
-		PORT_BITX(0x01, 0x01, IPT_KEYBOARD, "CR",        KEYCODE_ENTER,       IP_JOY_NONE )
-		PORT_BITX(0x02, 0x02, IPT_KEYBOARD, ":  *",      KEYCODE_COLON,       IP_JOY_NONE )
-		PORT_BITX(0x04, 0x04, IPT_KEYBOARD, ";  +",      KEYCODE_QUOTE,       IP_JOY_NONE )
-		PORT_BIT (0x08, 0x08, IPT_UNUSED )
-		PORT_BITX(0x10, 0x10, IPT_KEYBOARD, "Alpha",     KEYCODE_PGUP,        IP_JOY_NONE )
-		PORT_BITX(0x20, 0x20, IPT_KEYBOARD, "~  ^",      KEYCODE_TILDE,       IP_JOY_NONE )
-		PORT_BITX(0x40, 0x40, IPT_KEYBOARD, "Graph",     KEYCODE_PGDN,        IP_JOY_NONE )
-		PORT_BITX(0x80, 0x80, IPT_KEYBOARD, "#  '",      KEYCODE_BACKSLASH2,  IP_JOY_NONE )
+	    PORT_START();  /* KEY ROW 0 */
+		PORT_BITX(0x01, 0x01, IPT_KEYBOARD, "CR",        KEYCODE_ENTER,       IP_JOY_NONE );
+		PORT_BITX(0x02, 0x02, IPT_KEYBOARD, ":  *",      KEYCODE_COLON,       IP_JOY_NONE );
+		PORT_BITX(0x04, 0x04, IPT_KEYBOARD, ";  +",      KEYCODE_QUOTE,       IP_JOY_NONE );
+		PORT_BIT (0x08, 0x08, IPT_UNUSED );
+		PORT_BITX(0x10, 0x10, IPT_KEYBOARD, "Alpha",     KEYCODE_PGUP,        IP_JOY_NONE );
+		PORT_BITX(0x20, 0x20, IPT_KEYBOARD, "~  ^",      KEYCODE_TILDE,       IP_JOY_NONE );
+		PORT_BITX(0x40, 0x40, IPT_KEYBOARD, "Graph",     KEYCODE_PGDN,        IP_JOY_NONE );
+		PORT_BITX(0x80, 0x80, IPT_KEYBOARD, "#  '",      KEYCODE_BACKSLASH2,  IP_JOY_NONE );
 	
-		PORT_START /* KEY ROW 1 */
-		PORT_BIT (0x07, 0x07, IPT_UNUSED )
-		PORT_BITX(0x08, 0x08, IPT_KEYBOARD, "] }",       KEYCODE_CLOSEBRACE,  IP_JOY_NONE )
-		PORT_BITX(0x10, 0x10, IPT_KEYBOARD, "[ {",       KEYCODE_OPENBRACE,   IP_JOY_NONE )
-		PORT_BITX(0x20, 0x20, IPT_KEYBOARD, "@  ",       KEYCODE_ASTERISK,    IP_JOY_NONE )
-		PORT_BITX(0x40, 0x40, IPT_KEYBOARD, "z Z",       KEYCODE_Z,           IP_JOY_NONE )
-		PORT_BITX(0x80, 0x80, IPT_KEYBOARD, "y Y",       KEYCODE_Y,           IP_JOY_NONE )
+		PORT_START();  /* KEY ROW 1 */
+		PORT_BIT (0x07, 0x07, IPT_UNUSED );
+		PORT_BITX(0x08, 0x08, IPT_KEYBOARD, "] }",       KEYCODE_CLOSEBRACE,  IP_JOY_NONE );
+		PORT_BITX(0x10, 0x10, IPT_KEYBOARD, "[ {",       KEYCODE_OPENBRACE,   IP_JOY_NONE );
+		PORT_BITX(0x20, 0x20, IPT_KEYBOARD, "@  ",       KEYCODE_ASTERISK,    IP_JOY_NONE );
+		PORT_BITX(0x40, 0x40, IPT_KEYBOARD, "z Z",       KEYCODE_Z,           IP_JOY_NONE );
+		PORT_BITX(0x80, 0x80, IPT_KEYBOARD, "y Y",       KEYCODE_Y,           IP_JOY_NONE );
 	
-		PORT_START /* KEY ROW 2 */
-		PORT_BITX(0x01, 0x01, IPT_KEYBOARD, "x  X",      KEYCODE_X,           IP_JOY_NONE )
-		PORT_BITX(0x02, 0x02, IPT_KEYBOARD, "w  W",      KEYCODE_W,           IP_JOY_NONE )
-		PORT_BITX(0x04, 0x04, IPT_KEYBOARD, "v  V",      KEYCODE_V,           IP_JOY_NONE )
-		PORT_BITX(0x08, 0x08, IPT_KEYBOARD, "u  U",      KEYCODE_U,           IP_JOY_NONE )
-		PORT_BITX(0x10, 0x10, IPT_KEYBOARD, "t  T",      KEYCODE_T,           IP_JOY_NONE )
-		PORT_BITX(0x20, 0x20, IPT_KEYBOARD, "s  S",      KEYCODE_S,           IP_JOY_NONE )
-		PORT_BITX(0x40, 0x40, IPT_KEYBOARD, "r  R",      KEYCODE_R,           IP_JOY_NONE )
-		PORT_BITX(0x80, 0x80, IPT_KEYBOARD, "q  Q",      KEYCODE_Q,           IP_JOY_NONE )
+		PORT_START();  /* KEY ROW 2 */
+		PORT_BITX(0x01, 0x01, IPT_KEYBOARD, "x  X",      KEYCODE_X,           IP_JOY_NONE );
+		PORT_BITX(0x02, 0x02, IPT_KEYBOARD, "w  W",      KEYCODE_W,           IP_JOY_NONE );
+		PORT_BITX(0x04, 0x04, IPT_KEYBOARD, "v  V",      KEYCODE_V,           IP_JOY_NONE );
+		PORT_BITX(0x08, 0x08, IPT_KEYBOARD, "u  U",      KEYCODE_U,           IP_JOY_NONE );
+		PORT_BITX(0x10, 0x10, IPT_KEYBOARD, "t  T",      KEYCODE_T,           IP_JOY_NONE );
+		PORT_BITX(0x20, 0x20, IPT_KEYBOARD, "s  S",      KEYCODE_S,           IP_JOY_NONE );
+		PORT_BITX(0x40, 0x40, IPT_KEYBOARD, "r  R",      KEYCODE_R,           IP_JOY_NONE );
+		PORT_BITX(0x80, 0x80, IPT_KEYBOARD, "q  Q",      KEYCODE_Q,           IP_JOY_NONE );
 	
-		PORT_START /* KEY ROW 3 */
-		PORT_BITX(0x01, 0x01, IPT_KEYBOARD, "p  P",      KEYCODE_P,           IP_JOY_NONE )
-		PORT_BITX(0x02, 0x02, IPT_KEYBOARD, "o  O",      KEYCODE_O,           IP_JOY_NONE )
-		PORT_BITX(0x04, 0x04, IPT_KEYBOARD, "n  N",      KEYCODE_N,           IP_JOY_NONE )
-		PORT_BITX(0x08, 0x08, IPT_KEYBOARD, "m  M",      KEYCODE_M,           IP_JOY_NONE )
-		PORT_BITX(0x10, 0x10, IPT_KEYBOARD, "l  L",      KEYCODE_L,           IP_JOY_NONE )
-		PORT_BITX(0x20, 0x20, IPT_KEYBOARD, "k  K",      KEYCODE_K,           IP_JOY_NONE )
-		PORT_BITX(0x40, 0x40, IPT_KEYBOARD, "j  J",      KEYCODE_J,           IP_JOY_NONE )
-		PORT_BITX(0x80, 0x80, IPT_KEYBOARD, "i  I",      KEYCODE_I,           IP_JOY_NONE )
+		PORT_START();  /* KEY ROW 3 */
+		PORT_BITX(0x01, 0x01, IPT_KEYBOARD, "p  P",      KEYCODE_P,           IP_JOY_NONE );
+		PORT_BITX(0x02, 0x02, IPT_KEYBOARD, "o  O",      KEYCODE_O,           IP_JOY_NONE );
+		PORT_BITX(0x04, 0x04, IPT_KEYBOARD, "n  N",      KEYCODE_N,           IP_JOY_NONE );
+		PORT_BITX(0x08, 0x08, IPT_KEYBOARD, "m  M",      KEYCODE_M,           IP_JOY_NONE );
+		PORT_BITX(0x10, 0x10, IPT_KEYBOARD, "l  L",      KEYCODE_L,           IP_JOY_NONE );
+		PORT_BITX(0x20, 0x20, IPT_KEYBOARD, "k  K",      KEYCODE_K,           IP_JOY_NONE );
+		PORT_BITX(0x40, 0x40, IPT_KEYBOARD, "j  J",      KEYCODE_J,           IP_JOY_NONE );
+		PORT_BITX(0x80, 0x80, IPT_KEYBOARD, "i  I",      KEYCODE_I,           IP_JOY_NONE );
 	
-		PORT_START /* KEY ROW 4 */
-		PORT_BITX(0x01, 0x01, IPT_KEYBOARD, "h  H",      KEYCODE_H,           IP_JOY_NONE )
-		PORT_BITX(0x02, 0x02, IPT_KEYBOARD, "g  G",      KEYCODE_G,           IP_JOY_NONE )
-		PORT_BITX(0x04, 0x04, IPT_KEYBOARD, "f  F",      KEYCODE_F,           IP_JOY_NONE )
-		PORT_BITX(0x08, 0x08, IPT_KEYBOARD, "e  E",      KEYCODE_E,           IP_JOY_NONE )
-		PORT_BITX(0x10, 0x10, IPT_KEYBOARD, "d  D",      KEYCODE_D,           IP_JOY_NONE )
-		PORT_BITX(0x20, 0x20, IPT_KEYBOARD, "c  C",      KEYCODE_C,           IP_JOY_NONE )
-		PORT_BITX(0x40, 0x40, IPT_KEYBOARD, "b  B",      KEYCODE_B,           IP_JOY_NONE )
-		PORT_BITX(0x80, 0x80, IPT_KEYBOARD, "a  A",      KEYCODE_A,           IP_JOY_NONE )
+		PORT_START();  /* KEY ROW 4 */
+		PORT_BITX(0x01, 0x01, IPT_KEYBOARD, "h  H",      KEYCODE_H,           IP_JOY_NONE );
+		PORT_BITX(0x02, 0x02, IPT_KEYBOARD, "g  G",      KEYCODE_G,           IP_JOY_NONE );
+		PORT_BITX(0x04, 0x04, IPT_KEYBOARD, "f  F",      KEYCODE_F,           IP_JOY_NONE );
+		PORT_BITX(0x08, 0x08, IPT_KEYBOARD, "e  E",      KEYCODE_E,           IP_JOY_NONE );
+		PORT_BITX(0x10, 0x10, IPT_KEYBOARD, "d  D",      KEYCODE_D,           IP_JOY_NONE );
+		PORT_BITX(0x20, 0x20, IPT_KEYBOARD, "c  C",      KEYCODE_C,           IP_JOY_NONE );
+		PORT_BITX(0x40, 0x40, IPT_KEYBOARD, "b  B",      KEYCODE_B,           IP_JOY_NONE );
+		PORT_BITX(0x80, 0x80, IPT_KEYBOARD, "a  A",      KEYCODE_A,           IP_JOY_NONE );
 	
-		PORT_START /* KEY ROW 5 */
-		PORT_BITX(0x01, 0x01, IPT_KEYBOARD, "8  (",      KEYCODE_8,           IP_JOY_NONE )
-		PORT_BITX(0x02, 0x02, IPT_KEYBOARD, "7  '",      KEYCODE_7,           IP_JOY_NONE )
-		PORT_BITX(0x04, 0x04, IPT_KEYBOARD, "6  &",      KEYCODE_6,           IP_JOY_NONE )
-		PORT_BITX(0x08, 0x08, IPT_KEYBOARD, "5  %",      KEYCODE_5,           IP_JOY_NONE )
-		PORT_BITX(0x10, 0x10, IPT_KEYBOARD, "4  $",      KEYCODE_4,           IP_JOY_NONE )
-		PORT_BITX(0x20, 0x20, IPT_KEYBOARD, "3  #",      KEYCODE_3,           IP_JOY_NONE )
-		PORT_BITX(0x40, 0x40, IPT_KEYBOARD, "2  \"",     KEYCODE_2,           IP_JOY_NONE )
-		PORT_BITX(0x80, 0x80, IPT_KEYBOARD, "1  !",      KEYCODE_1,           IP_JOY_NONE )
+		PORT_START();  /* KEY ROW 5 */
+		PORT_BITX(0x01, 0x01, IPT_KEYBOARD, "8  (",      KEYCODE_8,           IP_JOY_NONE );
+		PORT_BITX(0x02, 0x02, IPT_KEYBOARD, "7  '",      KEYCODE_7,           IP_JOY_NONE );
+		PORT_BITX(0x04, 0x04, IPT_KEYBOARD, "6  &",      KEYCODE_6,           IP_JOY_NONE );
+		PORT_BITX(0x08, 0x08, IPT_KEYBOARD, "5  %",      KEYCODE_5,           IP_JOY_NONE );
+		PORT_BITX(0x10, 0x10, IPT_KEYBOARD, "4  $",      KEYCODE_4,           IP_JOY_NONE );
+		PORT_BITX(0x20, 0x20, IPT_KEYBOARD, "3  #",      KEYCODE_3,           IP_JOY_NONE );
+		PORT_BITX(0x40, 0x40, IPT_KEYBOARD, "2  \"",     KEYCODE_2,           IP_JOY_NONE );
+		PORT_BITX(0x80, 0x80, IPT_KEYBOARD, "1  !",      KEYCODE_1,           IP_JOY_NONE );
 	
-		PORT_START /* KEY ROW 6 */
-		PORT_BITX(0x01, 0x01, IPT_KEYBOARD, ".  <",      KEYCODE_STOP,        IP_JOY_NONE )
-		PORT_BITX(0x02, 0x02, IPT_KEYBOARD, ",  >",      KEYCODE_COMMA,       IP_JOY_NONE )
-		PORT_BITX(0x04, 0x04, IPT_KEYBOARD, "9  )",      KEYCODE_9,           IP_JOY_NONE )
-		PORT_BITX(0x08, 0x08, IPT_KEYBOARD, "0   ",      KEYCODE_0,           IP_JOY_NONE )
-		PORT_BITX(0x10, 0x10, IPT_KEYBOARD, "Space",     KEYCODE_SPACE,       IP_JOY_NONE )
-		PORT_BITX(0x20, 0x20, IPT_KEYBOARD, "-  =",      KEYCODE_EQUALS,      IP_JOY_NONE )
-		PORT_BITX(0x40, 0x40, IPT_KEYBOARD, "Up-Arrow",  KEYCODE_ESC,         IP_JOY_NONE )
-		PORT_BITX(0x80, 0x80, IPT_KEYBOARD, "\\  |",     KEYCODE_BACKSLASH,   IP_JOY_NONE )
+		PORT_START();  /* KEY ROW 6 */
+		PORT_BITX(0x01, 0x01, IPT_KEYBOARD, ".  <",      KEYCODE_STOP,        IP_JOY_NONE );
+		PORT_BITX(0x02, 0x02, IPT_KEYBOARD, ",  >",      KEYCODE_COMMA,       IP_JOY_NONE );
+		PORT_BITX(0x04, 0x04, IPT_KEYBOARD, "9  );,      KEYCODE_9,           IP_JOY_NONE )
+		PORT_BITX(0x08, 0x08, IPT_KEYBOARD, "0   ",      KEYCODE_0,           IP_JOY_NONE );
+		PORT_BITX(0x10, 0x10, IPT_KEYBOARD, "Space",     KEYCODE_SPACE,       IP_JOY_NONE );
+		PORT_BITX(0x20, 0x20, IPT_KEYBOARD, "-  =",      KEYCODE_EQUALS,      IP_JOY_NONE );
+		PORT_BITX(0x40, 0x40, IPT_KEYBOARD, "Up-Arrow",  KEYCODE_ESC,         IP_JOY_NONE );
+		PORT_BITX(0x80, 0x80, IPT_KEYBOARD, "\\  |",     KEYCODE_BACKSLASH,   IP_JOY_NONE );
 	
-		PORT_START /* KEY ROW 7 */
-		PORT_BITX(0x01, 0x01, IPT_KEYBOARD, "/   ",      KEYCODE_SLASH,       IP_JOY_NONE )
-		PORT_BITX(0x02, 0x02, IPT_KEYBOARD, "?   ",      KEYCODE_END,         IP_JOY_NONE )
-		PORT_BITX(0x04, 0x04, IPT_KEYBOARD, "Left",      KEYCODE_LEFT,        IP_JOY_NONE )
-		PORT_BITX(0x08, 0x08, IPT_KEYBOARD, "Right",     KEYCODE_RIGHT,       IP_JOY_NONE )
-		PORT_BITX(0x10, 0x10, IPT_KEYBOARD, "Down",      KEYCODE_DOWN,        IP_JOY_NONE )
-		PORT_BITX(0x20, 0x20, IPT_KEYBOARD, "Up",        KEYCODE_UP,          IP_JOY_NONE )
-		PORT_BITX(0x40, 0x40, IPT_KEYBOARD, "Del",       KEYCODE_DEL,         IP_JOY_NONE )
-		PORT_BITX(0x40, 0x40, IPT_KEYBOARD, "Backspace", KEYCODE_BACKSPACE,   IP_JOY_NONE )
-		PORT_BITX(0x80, 0x80, IPT_KEYBOARD, "Ins",       KEYCODE_INSERT,      IP_JOY_NONE )
+		PORT_START();  /* KEY ROW 7 */
+		PORT_BITX(0x01, 0x01, IPT_KEYBOARD, "/   ",      KEYCODE_SLASH,       IP_JOY_NONE );
+		PORT_BITX(0x02, 0x02, IPT_KEYBOARD, "?   ",      KEYCODE_END,         IP_JOY_NONE );
+		PORT_BITX(0x04, 0x04, IPT_KEYBOARD, "Left",      KEYCODE_LEFT,        IP_JOY_NONE );
+		PORT_BITX(0x08, 0x08, IPT_KEYBOARD, "Right",     KEYCODE_RIGHT,       IP_JOY_NONE );
+		PORT_BITX(0x10, 0x10, IPT_KEYBOARD, "Down",      KEYCODE_DOWN,        IP_JOY_NONE );
+		PORT_BITX(0x20, 0x20, IPT_KEYBOARD, "Up",        KEYCODE_UP,          IP_JOY_NONE );
+		PORT_BITX(0x40, 0x40, IPT_KEYBOARD, "Del",       KEYCODE_DEL,         IP_JOY_NONE );
+		PORT_BITX(0x40, 0x40, IPT_KEYBOARD, "Backspace", KEYCODE_BACKSPACE,   IP_JOY_NONE );
+		PORT_BITX(0x80, 0x80, IPT_KEYBOARD, "Ins",       KEYCODE_INSERT,      IP_JOY_NONE );
 	
-		PORT_START /* KEY ROW 8 */
-		PORT_BITX(0x01, 0x01, IPT_KEYBOARD, "LShift",    KEYCODE_LSHIFT,      IP_JOY_NONE )
-		PORT_BITX(0x01, 0x01, IPT_KEYBOARD, "RShift",    KEYCODE_RSHIFT,      IP_JOY_NONE )
-		PORT_BIT (0x3e, 0x3e, IPT_UNUSED)
-	    PORT_BITX(0x40, 0x40, IPT_KEYBOARD, "LCtrl",     KEYCODE_LCONTROL,    IP_JOY_NONE )
-		PORT_BITX(0x40, 0x40, IPT_KEYBOARD, "RCtrl",     KEYCODE_RCONTROL,    IP_JOY_NONE )
-		PORT_BITX(0x80, 0x80, IPT_KEYBOARD, "Break",     KEYCODE_HOME,        IP_JOY_NONE )
+		PORT_START();  /* KEY ROW 8 */
+		PORT_BITX(0x01, 0x01, IPT_KEYBOARD, "LShift",    KEYCODE_LSHIFT,      IP_JOY_NONE );
+		PORT_BITX(0x01, 0x01, IPT_KEYBOARD, "RShift",    KEYCODE_RSHIFT,      IP_JOY_NONE );
+		PORT_BIT (0x3e, 0x3e, IPT_UNUSED);
+	    PORT_BITX(0x40, 0x40, IPT_KEYBOARD, "LCtrl",     KEYCODE_LCONTROL,    IP_JOY_NONE );
+		PORT_BITX(0x40, 0x40, IPT_KEYBOARD, "RCtrl",     KEYCODE_RCONTROL,    IP_JOY_NONE );
+		PORT_BITX(0x80, 0x80, IPT_KEYBOARD, "Break",     KEYCODE_HOME,        IP_JOY_NONE );
 	
 	
-		PORT_START /* KEY ROW 9 */
-		PORT_BIT (0x07, 0x07, IPT_UNUSED)
-	    PORT_BITX(0x08, 0x08, IPT_KEYBOARD, "F5",        KEYCODE_F5,          IP_JOY_NONE )
-	    PORT_BITX(0x10, 0x10, IPT_KEYBOARD, "F4",        KEYCODE_F4,          IP_JOY_NONE )
-	    PORT_BITX(0x20, 0x20, IPT_KEYBOARD, "F3",        KEYCODE_F3,          IP_JOY_NONE )
-	    PORT_BITX(0x40, 0x40, IPT_KEYBOARD, "F2",        KEYCODE_F2,          IP_JOY_NONE )
-	    PORT_BITX(0x80, 0x80, IPT_KEYBOARD, "F1",        KEYCODE_F1,          IP_JOY_NONE )
+		PORT_START();  /* KEY ROW 9 */
+		PORT_BIT (0x07, 0x07, IPT_UNUSED);
+	    PORT_BITX(0x08, 0x08, IPT_KEYBOARD, "F5",        KEYCODE_F5,          IP_JOY_NONE );
+	    PORT_BITX(0x10, 0x10, IPT_KEYBOARD, "F4",        KEYCODE_F4,          IP_JOY_NONE );
+	    PORT_BITX(0x20, 0x20, IPT_KEYBOARD, "F3",        KEYCODE_F3,          IP_JOY_NONE );
+	    PORT_BITX(0x40, 0x40, IPT_KEYBOARD, "F2",        KEYCODE_F2,          IP_JOY_NONE );
+	    PORT_BITX(0x80, 0x80, IPT_KEYBOARD, "F1",        KEYCODE_F1,          IP_JOY_NONE );
 	
-		PORT_START /* KEY ROW 10 */
-		PORT_START /* joystick / tape control */
-		PORT_BIT( 0x01, 0x00, IPT_UNUSED												  )
-		PORT_BIT( 0x02, 0x00, IPT_JOYSTICK_UP	 | IPF_8WAY 							  )
-		PORT_BIT( 0x04, 0x00, IPT_JOYSTICK_DOWN  | IPF_8WAY 							  )
-		PORT_BIT( 0x08, 0x00, IPT_JOYSTICK_LEFT  | IPF_8WAY 							  )
-		PORT_BIT( 0x10, 0x00, IPT_JOYSTICK_RIGHT | IPF_8WAY 							  )
-	    PORT_BITX(0x20, 0x00, IPT_KEYBOARD, "TAPE STOP", KEYCODE_F5,          IP_JOY_NONE )
-		PORT_BITX(0x40, 0x00, IPT_KEYBOARD, "TAPE PLAY", KEYCODE_F6,          IP_JOY_NONE )
-		PORT_BITX(0x80, 0x00, IPT_KEYBOARD, "TAPE REW",  KEYCODE_F7,          IP_JOY_NONE )
+		PORT_START();  /* KEY ROW 10 */
+		PORT_START();  /* joystick / tape control */
+		PORT_BIT( 0x01, 0x00, IPT_UNUSED												  );
+		PORT_BIT( 0x02, 0x00, IPT_JOYSTICK_UP	 | IPF_8WAY 							  );
+		PORT_BIT( 0x04, 0x00, IPT_JOYSTICK_DOWN  | IPF_8WAY 							  );
+		PORT_BIT( 0x08, 0x00, IPT_JOYSTICK_LEFT  | IPF_8WAY 							  );
+		PORT_BIT( 0x10, 0x00, IPT_JOYSTICK_RIGHT | IPF_8WAY 							  );
+	    PORT_BITX(0x20, 0x00, IPT_KEYBOARD, "TAPE STOP", KEYCODE_F5,          IP_JOY_NONE );
+		PORT_BITX(0x40, 0x00, IPT_KEYBOARD, "TAPE PLAY", KEYCODE_F6,          IP_JOY_NONE );
+		PORT_BITX(0x80, 0x00, IPT_KEYBOARD, "TAPE REW",  KEYCODE_F7,          IP_JOY_NONE );
 	
-	INPUT_PORTS_END
+	INPUT_PORTS_END(); }}; 
 	
-	static struct GfxLayout char_layout =
-	{
+	static GfxLayout char_layout = new GfxLayout
+	(
 		8, 8,		/* 8 x 8 graphics */
 		512,		/* 512 codes */
 		1,			/* 1 bit per pixel */
-		{ 0 },		/* no bitplanes */
-		{ 7, 6, 5, 4, 3, 2, 1, 0 },
-		{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8 },
+		new int[] { 0 },		/* no bitplanes */
+		new int[] { 7, 6, 5, 4, 3, 2, 1, 0 },
+		new int[] { 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8 },
 		8 * 8		/* code takes 8 times 8 bits */
-	};
+	);
 	
-	static struct GfxDecodeInfo gfxdecodeinfo[] =
+	static GfxDecodeInfo gfxdecodeinfo[] =
 	{
-		{ REGION_GFX1, 0, &char_layout, 0, 256 },
-		{ -1 } /* end of array */
+		new GfxDecodeInfo( REGION_GFX1, 0, char_layout, 0, 256 ),
+		new GfxDecodeInfo( -1 ) /* end of array */
 	};
 	
-	static struct CustomSound_interface spkr_interface = {
+	static CustomSound_interface spkr_interface = new CustomSound_interface(
 		mz700_sh_start,
 		mz700_sh_stop,
 		mz700_sh_update
-	};
+	);
 	
 	static struct Wave_interface wave_interface = {
 		1,
 		{ 50 }
 	};
 	
-	static struct MachineDriver machine_driver_mz700 =
-	{
+	static MachineDriver machine_driver_mz700 = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_Z80,
 				3500000,	/* 3,5 MHz */
 				readmem_mz700,writemem_mz700,readport_mz700,writeport_mz700,
 				mz700_interrupt, 1
-	        }
+	        )
 		},
 		/* frames per second, VBL duration */
 		50, 2500,
@@ -339,42 +339,42 @@ public class mz700
 		mz700_stop_machine, /* stop machine */
 	
 		/* video hardware - include overscan */
-		40*8, 25*8, { 0*8, 40*8 - 1, 0*8, 25*8 - 1},
+		40*8, 25*8, new rectangle( 0*8, 40*8 - 1, 0*8, 25*8 - 1),
 		gfxdecodeinfo,
 		8,
 		2*256,
 		mz700_init_colors,		 /* convert color prom */
 	
 		VIDEO_TYPE_RASTER | VIDEO_SUPPORTS_DIRTY,	/* video flags */
-		0,						/* obsolete */
+		null,						/* obsolete */
 		mz700_vh_start,
 		mz700_vh_stop,
 		mz700_vh_screenrefresh,
 	
 		/* sound hardware */
 		0,0,0,0,
-		{
-			{
+		new MachineSound[] {
+			new MachineSound(
 				SOUND_CUSTOM,
-				&spkr_interface
-	        },
-	        {
+				spkr_interface
+	        ),
+	        new MachineSound(
 	            SOUND_WAVE,
-	            &wave_interface
-			},
+	            wave_interface
+			),
 	    }
-	};
+	);
 	
-	static struct MachineDriver machine_driver_mz800 =
-	{
+	static MachineDriver machine_driver_mz800 = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_Z80,
 				3500000,	/* 3,5 MHz */
 				readmem_mz800,writemem_mz800,readport_mz800,writeport_mz800,
 				mz700_interrupt, 1
-	        }
+	        )
 		},
 		/* frames per second, VBL duration */
 		50, 2500,
@@ -383,54 +383,54 @@ public class mz700
 		mz700_stop_machine, /* stop machine */
 	
 		/* video hardware - include overscan */
-		40*8, 25*8, { 0*8, 40*8 - 1, 0*8, 25*8 - 1},
+		40*8, 25*8, new rectangle( 0*8, 40*8 - 1, 0*8, 25*8 - 1),
 		gfxdecodeinfo,
 		8,
 		2*256,
 		mz700_init_colors,		 /* convert color prom */
 	
 		VIDEO_TYPE_RASTER | VIDEO_SUPPORTS_DIRTY,	/* video flags */
-		0,						/* obsolete */
+		null,						/* obsolete */
 		mz700_vh_start,
 		mz700_vh_stop,
 		mz700_vh_screenrefresh,
 	
 		/* sound hardware */
 		0,0,0,0,
-		{
-			{
+		new MachineSound[] {
+			new MachineSound(
 				SOUND_CUSTOM,
-				&spkr_interface
-	        },
-	        {
+				spkr_interface
+	        ),
+	        new MachineSound(
 	            SOUND_WAVE,
-	            &wave_interface
-			},
+	            wave_interface
+			),
 	    }
-	};
+	);
 	
-	ROM_START(mz700)
-		ROM_REGION(0x18000,REGION_CPU1)
-			ROM_LOAD("1z-013a.rom", 0x10000, 0x1000, 0x4c6c6b7b)
-		ROM_REGION(0x01000,REGION_GFX1)
-			ROM_LOAD("mz700fon.int",0x00000, 0x1000, 0x42b9e8fb)
-	ROM_END
+	static RomLoadPtr rom_mz700 = new RomLoadPtr(){ public void handler(){ 
+		ROM_REGION(0x18000,REGION_CPU1);
+			ROM_LOAD("1z-013a.rom", 0x10000, 0x1000, 0x4c6c6b7b);
+		ROM_REGION(0x01000,REGION_GFX1);
+			ROM_LOAD("mz700fon.int",0x00000, 0x1000, 0x42b9e8fb);
+	ROM_END(); }}; 
 	
-	ROM_START(mz700j)
-		ROM_REGION(0x18000,REGION_CPU1)
-			ROM_LOAD("1z-013a.rom", 0x10000, 0x1000, 0x4c6c6b7b)
-		ROM_REGION(0x01000,REGION_GFX1)
-			ROM_LOAD("mz700fon.jap",0x00000, 0x1000, 0x425eedf5)
-	ROM_END
+	static RomLoadPtr rom_mz700j = new RomLoadPtr(){ public void handler(){ 
+		ROM_REGION(0x18000,REGION_CPU1);
+			ROM_LOAD("1z-013a.rom", 0x10000, 0x1000, 0x4c6c6b7b);
+		ROM_REGION(0x01000,REGION_GFX1);
+			ROM_LOAD("mz700fon.jap",0x00000, 0x1000, 0x425eedf5);
+	ROM_END(); }}; 
 	
-	ROM_START(mz800)
-		ROM_REGION(0x18000,REGION_CPU1)
-			ROM_LOAD("mz800h.rom",  0x10000, 0x2000, 0x0c281675)
-		ROM_REGION(0x10000,REGION_USER1)
+	static RomLoadPtr rom_mz800 = new RomLoadPtr(){ public void handler(){ 
+		ROM_REGION(0x18000,REGION_CPU1);
+			ROM_LOAD("mz800h.rom",  0x10000, 0x2000, 0x0c281675);
+		ROM_REGION(0x10000,REGION_USER1);
 			/* RAMDISK */
-	    ROM_REGION(0x01000,REGION_GFX1)
-			ROM_LOAD("mz700fon.int",0x00000, 0x1000, 0x42b9e8fb)
-	ROM_END
+	    ROM_REGION(0x01000,REGION_GFX1);
+			ROM_LOAD("mz700fon.int",0x00000, 0x1000, 0x42b9e8fb);
+	ROM_END(); }}; 
 	
 	
 	

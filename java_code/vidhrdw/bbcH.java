@@ -8,10 +8,6 @@
 
 ******************************************************************************/
 
-int bbc_vh_starta(void);
-int bbc_vh_startb(void);
-void bbc_vh_stop(void);
-void bbc_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh);
 
 WRITE_HANDLER ( videoULA_w );
 READ_HANDLER ( videoULA_r );

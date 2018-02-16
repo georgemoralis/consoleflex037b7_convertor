@@ -77,13 +77,13 @@ public class mc6850
 		}
 	}
 	
-	READ_HANDLER( acia6850_0_r ) { return acia6850_read (0, offset); }
-	READ_HANDLER( acia6850_1_r ) { return acia6850_read (1, offset); }
-	READ_HANDLER( acia6850_2_r ) { return acia6850_read (2, offset); }
-	READ_HANDLER( acia6850_3_r ) { return acia6850_read (3, offset); }
+	public static ReadHandlerPtr acia6850_0_r  = new ReadHandlerPtr() { public int handler(int offset) { return acia6850_read (0, offset); } };
+	public static ReadHandlerPtr acia6850_1_r  = new ReadHandlerPtr() { public int handler(int offset) { return acia6850_read (1, offset); } };
+	public static ReadHandlerPtr acia6850_2_r  = new ReadHandlerPtr() { public int handler(int offset) { return acia6850_read (2, offset); } };
+	public static ReadHandlerPtr acia6850_3_r  = new ReadHandlerPtr() { public int handler(int offset) { return acia6850_read (3, offset); } };
 	
-	WRITE_HANDLER( acia6850_0_w ) { acia6850_write (0, offset, data); }
-	WRITE_HANDLER( acia6850_1_w ) { acia6850_write (1, offset, data); }
-	WRITE_HANDLER( acia6850_2_w ) { acia6850_write (2, offset, data); }
-	WRITE_HANDLER( acia6850_3_w ) { acia6850_write (3, offset, data); }
+	public static WriteHandlerPtr acia6850_0_w = new WriteHandlerPtr() {public void handler(int offset, int data) { acia6850_write (0, offset, data); } };
+	public static WriteHandlerPtr acia6850_1_w = new WriteHandlerPtr() {public void handler(int offset, int data) { acia6850_write (1, offset, data); } };
+	public static WriteHandlerPtr acia6850_2_w = new WriteHandlerPtr() {public void handler(int offset, int data) { acia6850_write (2, offset, data); } };
+	public static WriteHandlerPtr acia6850_3_w = new WriteHandlerPtr() {public void handler(int offset, int data) { acia6850_write (3, offset, data); } };
 }

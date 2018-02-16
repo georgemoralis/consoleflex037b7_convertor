@@ -19,18 +19,18 @@ public class kc
 	  Start the video hardware emulation.
 	***************************************************************************/
 	
-	extern unsigned char *kc85_4_display_video_ram;
+	extern UBytePtr kc85_4_display_video_ram;
 	
-	int kc85_4_vh_start(void)
+	public static VhStartPtr kc85_4_vh_start = new VhStartPtr() { public int handler() 
 	{
 	
 		return 0;
-	}
+	} };
 	
-	void    kc85_4_vh_stop(void) 
+	public static VhStopPtr kc85_4_vh_stop = new VhStopPtr() { public void handler()  
 	{
 	
-	}
+	} };
 	
 	
 	/***************************************************************************
@@ -38,10 +38,10 @@ public class kc
 	  Do NOT call osd_update_display() from this function,
 	  it will be called by the main emulation engine.
 	***************************************************************************/
-	void kc85_4_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr kc85_4_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
-	        unsigned char *pixel_ram = kc85_4_display_video_ram;
-	        unsigned char *colour_ram = pixel_ram + 0x04000;
+	        UBytePtr pixel_ram = kc85_4_display_video_ram;
+	        UBytePtr colour_ram = pixel_ram + 0x04000;
 	
 	        int i;
 	
@@ -71,8 +71,8 @@ public class kc
 	                background_pen = (colour&7) | 0x010;
 	                foreground_pen = (colour>>3) & 0x015;
 	
-	                background_pen = Machine->pens[background_pen];
-	                foreground_pen = Machine->pens[foreground_pen];
+	                background_pen = Machine.pens[background_pen];
+	                foreground_pen = Machine.pens[foreground_pen];
 	
 	                gfx_byte = pixel_ram[i];
 	
@@ -80,7 +80,7 @@ public class kc
 	                {
 	                        int pen;
 	
-	                        if (gfx_byte & 0x080)
+	                        if ((gfx_byte & 0x080) != 0)
 	                        {
 	                            pen = foreground_pen;
 	                        }
@@ -97,6 +97,6 @@ public class kc
 	
 	        }
 	
-	}
+	} };
 	
 }

@@ -16,10 +16,7 @@ public class samplesH
 {
 	//
 	
-	extern void sampleEmuCheckForInit(void);
-	extern void sampleEmuInit(void);          // precalculate tables + reset
-	extern void sampleEmuReset(void);         // reset some important variables
-	
+	extern extern extern 
 	extern sbyte (*sampleEmuRout)(void);
 	
 	

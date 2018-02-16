@@ -36,13 +36,13 @@ package machine;
 public class snes
 {
 	
-	unsigned char *SNES_ROM=NULL;
+	UBytePtr SNES_ROM=NULL;
 	
-	unsigned char *SNES_SRAM=NULL;				// Save ram / extra ram
-	unsigned char *SNES_WRAM=NULL;				// Work memory (ram) (4 * 32k pages)
-	unsigned char *SNES_VRAM=NULL;				// Video memory
-	unsigned char *SNES_CRAM=NULL;				// Colour memory
-	unsigned char *SNES_ORAM=NULL;				// Object memory (sprites)
+	UBytePtr SNES_SRAM=NULL;				// Save ram / extra ram
+	UBytePtr SNES_WRAM=NULL;				// Work memory (ram) (4 * 32k pages)
+	UBytePtr SNES_VRAM=NULL;				// Video memory
+	UBytePtr SNES_CRAM=NULL;				// Colour memory
+	UBytePtr SNES_ORAM=NULL;				// Object memory (sprites)
 	
 	unsigned char OAMADDRESS_L,OAMADDRESS_H;
 	
@@ -63,7 +63,7 @@ public class snes
 	
 	unsigned short fixedColour;					// Fixed color encoded into here
 	
-	void snes_init_machine(void)
+	public static InitMachinePtr snes_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		int a;
 	
@@ -76,22 +76,22 @@ public class snes
 			port43xx[a]=0;
 		}
 	
-		SNES_WRAM=(unsigned char *)malloc(0x20000);			// 128k bytes of wram
+		SNES_WRAM=(UBytePtr )malloc(0x20000);			// 128k bytes of wram
 		if (SNES_WRAM==NULL)
 			logerror("Out of ram!\n");
 		for (a=0;a<0x20000;a++)
 			SNES_WRAM[a]=0xFF;
-		SNES_VRAM=(unsigned char *)malloc(0x20000);			// 64k words of vram
+		SNES_VRAM=(UBytePtr )malloc(0x20000);			// 64k words of vram
 		if (SNES_VRAM==NULL)
 			logerror("Out of ram!\n");
 		for (a=0;a<0x20000;a++)
 			SNES_VRAM[a]=0xFF;
-		SNES_CRAM=(unsigned char *)malloc(0x200);			// 512 bytes cgram
+		SNES_CRAM=(UBytePtr )malloc(0x200);			// 512 bytes cgram
 		if (SNES_CRAM==NULL)
 			logerror("Out of ram!\n");
 		for (a=0;a<0x200;a++)
 			SNES_CRAM[a]=0xFF;
-		SNES_ORAM=(unsigned char *)malloc(0x400);			// 1024 bytes oam
+		SNES_ORAM=(UBytePtr )malloc(0x400);			// 1024 bytes oam
 		if (SNES_ORAM==NULL)
 			logerror("Out of ram!\n");
 		for (a=0;a<0x400;a++)
@@ -106,9 +106,9 @@ public class snes
 		spc700Timer=timer_pulse(TIME_IN_MSEC(15.6),0,spcTimerTick);
 		spc700TimerExtra=0;
 	#endif
-	}
+	} };
 	
-	extern unsigned char *SPCRamPtr;
+	extern UBytePtr SPCRamPtr;
 	
 	void snes_shutdown_machine(void)
 	{
@@ -255,7 +255,7 @@ public class snes
 			osd_fread(romfile,&SNES_ROM[a*0x10000 + 0x8000],0x8000);
 		}
 	
-		SNES_SRAM=(unsigned char *)malloc(0x50000);			// 5 banks of sram
+		SNES_SRAM=(UBytePtr )malloc(0x50000);			// 5 banks of sram
 		if (SNES_SRAM==NULL)
 			logerror("Out of ram!\n");
 		for (a=0;a<0x50000;a++)
@@ -263,7 +263,7 @@ public class snes
 	
 		strcat(tempPath,rom_name);
 		sramFile = fopen(tempPath, "r");
-		if (sramFile)
+		if (sramFile != 0)
 		{
 			fread(SNES_SRAM,1,0x50000,sramFile);
 			fclose(sramFile);
@@ -280,10 +280,10 @@ public class snes
 	    FILE *sramFile;
 		// De-allocate Save Ram File - saving it first
 	
-		if (rom_name) {
+		if (rom_name != 0) {
 			strcat(tempPath,rom_name);
 			sramFile = fopen(tempPath, "w");
-			if (sramFile)
+			if (sramFile != 0)
 			{
 				fwrite(SNES_SRAM,1,0x50000,sramFile);
 				fclose(sramFile);

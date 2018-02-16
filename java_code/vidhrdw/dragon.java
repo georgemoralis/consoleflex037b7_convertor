@@ -68,7 +68,7 @@ public class dragon
 		pia_0_cb1_w (0, 0);
 	}
 	
-	int dragon_vh_start(void)
+	public static VhStartPtr dragon_vh_start = new VhStartPtr() { public int handler() 
 	{
 		if (m6847_vh_start())
 			return 1;
@@ -78,7 +78,7 @@ public class dragon
 		m6847_set_artifact_dipswitch(12);
 		sam_videomode = 0;
 		return 0;
-	}
+	} };
 	
 	WRITE_HANDLER(coco_ram_w)
 	{
@@ -94,7 +94,7 @@ public class dragon
 	{
 		UINT16 d_offset = m6847_get_video_offset();
 	
-		if (offset & 0x01)
+		if ((offset & 0x01) != 0)
 			d_offset |= 0x01 << (offset/2 + 9);
 		else
 			d_offset &= ~(0x01 << (offset/2 + 9));
@@ -127,7 +127,7 @@ public class dragon
 			M6847_MODE_G4R		/* 7 */
 		};
 	
-		if (offset & 0x01)
+		if ((offset & 0x01) != 0)
 			sam_videomode |= 0x01 << (offset/2);
 		else
 			sam_videomode &= ~(0x01 << (offset/2));
@@ -142,16 +142,16 @@ public class dragon
 	struct GfxElement *build_coco3_font(void)
 	{
 		static unsigned short colortable[2];
-		static struct GfxLayout fontlayout8x8 =
-		{
+		static GfxLayout fontlayout8x8 = new GfxLayout
+		(
 			8,8,	/* 8*8 characters */
 			128+1,	 /* 128 characters + 1 "underline" */
 			1,	/* 1 bit per pixel */
-			{ 0 },
-			{ 0, 1, 2, 3, 4, 5, 6, 7, },	/* straightforward layout */
-			{ 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8 },
+			new int[] { 0 },
+			new int[] { 0, 1, 2, 3, 4, 5, 6, 7, },	/* straightforward layout */
+			new int[] { 0*8, 1*8, 2*8, 3*8, 4*8, 5*8, 6*8, 7*8 },
 			8*8	/* every char takes 12 consecutive bytes */
-		};
+		);
 	
 		unsigned char buf[129 * 8];
 		struct GfxElement *font;
@@ -181,12 +181,12 @@ public class dragon
 		buf[8 * 128 + 7] = 0xff;
 	
 		font = decodegfx(buf,&fontlayout8x8);
-		if (font)
+		if (font != 0)
 		{
 			/* colortable will be set at run time */
 			memset(colortable,0,sizeof(colortable));
-			font->colortable = colortable;
-			font->total_colors = 2;
+			font.colortable = colortable;
+			font.total_colors = 2;
 		}
 		return font;
 	}
@@ -208,7 +208,7 @@ public class dragon
 		}
 	}
 	
-	int coco3_vh_start(void)
+	public static VhStartPtr coco3_vh_start = new VhStartPtr() { public int handler() 
 	{
 	    int i;
 	
@@ -239,16 +239,16 @@ public class dragon
 		coco3_hires = coco3_somethingdirty = coco3_blinkstatus = 0;
 		coco3_borderred = coco3_bordergreen = coco3_borderblue = -1;
 		return 0;
-	}
+	} };
 	
-	void coco3_vh_stop(void)
+	public static VhStopPtr coco3_vh_stop = new VhStopPtr() { public void handler() 
 	{
 		m6847_vh_stop();
-		if (paletteram) {
+		if (paletteram != 0) {
 			free(paletteram);
 			paletteram = NULL;
 		}
-	}
+	} };
 	
 	static void coco3_compute_color(int color, int *red, int *green, int *blue)
 	{
@@ -368,7 +368,7 @@ public class dragon
 	{
 		int i;
 		for (i = 0; i < 16; i++)
-			coco3_vh_palette_change_color(i, paletteram[i]);
+			coco3_vh_palette_change_color(i, paletteram.read(i));
 	}
 	
 	static void coco3_vh_drawborder(struct osd_bitmap *bitmap, int screenx, int screeny)
@@ -399,7 +399,7 @@ public class dragon
 	
 	WRITE_HANDLER(coco3_palette_w)
 	{
-		paletteram[offset] = data;
+		paletteram.write(offset,data);
 		coco3_vh_palette_change_color(offset, data);
 	
 	#if LOG_PALETTE
@@ -412,8 +412,8 @@ public class dragon
 		int c1, c2, r1, r2, g1, g2, b1, b2;
 		static int oldc1, oldc2;
 	
-		c1 = paletteram[artifactcolors[0]];
-		c2 = paletteram[artifactcolors[3]];
+		c1 = paletteram.read(artifactcolors[0)];
+		c2 = paletteram.read(artifactcolors[3)];
 	
 		/* Have the colors actually changed? */
 		if ((oldc1 != c1) || (oldc2 != c2)) {
@@ -541,7 +541,7 @@ public class dragon
 	 * All models of the CoCo has 262 scan lines.  However, we pretend that it has
 	 * 240 so that the emulation fits on a 640x480 screen
 	 */
-	void coco3_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr coco3_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 		UINT8 *RAM = memory_region(REGION_CPU1);
 		static int coco3_metapalette[] = {
@@ -564,13 +564,13 @@ public class dragon
 			/* Reset all colors and border */
 			coco3_borderred = -1;	/* force border to redraw */
 			for (i = 0; i < 16; i++)
-				coco3_vh_palette_change_color(i, paletteram[i]);
+				coco3_vh_palette_change_color(i, paletteram.read(i));
 		}
 	
 		/* clear vblank */
 		coco3_vblank();
 	
-		if (coco3_hires) {
+		if (coco3_hires != 0) {
 			static int last_blink;
 			int blink_switch=0;
 			int vidbase, bytesperrow, linesperrow, rows = 0, x, y, basex = 0, basey, wf = 0;
@@ -592,7 +592,7 @@ public class dragon
 			rows = coco3_calculate_rows();
 			linesperrow = coco3_hires_linesperrow();
 	
-			basey = (bitmap->height - rows) / 2;
+			basey = (bitmap.height - rows) / 2;
 	
 			/* check border */
 			coco3_compute_color(coco3_gimevhreg[2] & 0x3f, &borderred, &bordergreen, &borderblue);
@@ -609,50 +609,50 @@ public class dragon
 			}
 	
 			/* Draw border if appropriate */
-			if (full_refresh)
+			if (full_refresh != 0)
 				coco3_vh_drawborder(bitmap, coco3_gimevhreg[1] & 0x04 ? 640 : 512, rows * linesperrow);
 	
 			use_mark_dirty = 1;
 	
 			switch(coco3_gimevhreg[0] & 0x80) {
 			case 0x00:	/* Text */
-				if (full_refresh)
+				if (full_refresh != 0)
 					memset(dirtybuffer, 1, MAX_HIRES_VRAM);
 	
 				use_attr = coco3_gimevhreg[1] & 1;
-				if (use_attr) {
+				if (use_attr != 0) {
 					/* Resolve blink */
 					blink_switch = coco3_blinkstatus == last_blink;
 					last_blink = coco3_blinkstatus;
 				}
 				else {
 					/* Set colortable to be default */
-					coco3font->colortable[0] = Machine->pens[0];
-					coco3font->colortable[1] = Machine->pens[1];
+					coco3font.colortable[0] = Machine.pens[0];
+					coco3font.colortable[1] = Machine.pens[1];
 					underlined = 0;
 				}
 	
-				if (coco3_somethingdirty) {
+				if (coco3_somethingdirty != 0) {
 					rows /= 8;
 					switch(coco3_gimevhreg[1] & 0x14) {
 					case 0x14:
 						charsperrow = 80;
-						basex = (bitmap->width - 640) / 2;
+						basex = (bitmap.width - 640) / 2;
 						wf = 1;
 						break;
 					case 0x10:
 						charsperrow = 64;
-						basex = (bitmap->width - 512) / 2;
+						basex = (bitmap.width - 512) / 2;
 						wf = 1;
 						break;
 					case 0x04:
 						charsperrow = 40;
-						basex = (bitmap->width - 640) / 2;
+						basex = (bitmap.width - 640) / 2;
 						wf = 2;
 						break;
 					case 0x00:
 						charsperrow = 32;
-						basex = (bitmap->width - 512) / 2;
+						basex = (bitmap.width - 512) / 2;
 						wf = 2;
 						break;
 					}
@@ -668,9 +668,9 @@ public class dragon
 							if (db[0] || (use_attr && (db[1] || (blink_switch && (vram[1] & 0x80))))) {
 								b = *vram & 0x7f;
 	
-								if (use_attr) {
-									coco3font->colortable[0] = Machine->pens[vram[1] & 7];
-									coco3font->colortable[1] = Machine->pens[8 + ((vram[1] >> 3) & 7)];
+								if (use_attr != 0) {
+									coco3font.colortable[0] = Machine.pens[vram[1] & 7];
+									coco3font.colortable[1] = Machine.pens[8 + ((vram[1] >> 3) & 7)];
 	
 									/* Are we blinking? */
 									if (coco3_blinkstatus && (vram[1] & 0x80)) {
@@ -684,13 +684,13 @@ public class dragon
 								}
 	
 								drawgfx_wf(bitmap, coco3font, b, x*8*wf+basex, y*8+basey, 0, TRANSPARENCY_NONE, 0, wf);
-								if (underlined)
+								if (underlined != 0)
 									drawgfx_wf(bitmap, coco3font, 128, x*8*wf+basex, y*8+basey, 0, TRANSPARENCY_PEN, 0, wf);
-								if (use_mark_dirty)
+								if (use_mark_dirty != 0)
 									osd_mark_dirty(x*8*wf+basex, y*8+basey, (x+1)*8*wf-1+basex, y*8+7+basey, 0);
 	
 								db[0] = 0;
-								if (use_attr)
+								if (use_attr != 0)
 									db[1] = 0;
 							}
 							vram++;
@@ -728,10 +728,10 @@ public class dragon
 	
 				if (coco3_gimevhreg[1] & 0x04) {
 					visualbytesperrow |= (visualbytesperrow / 4);
-					basex = (bitmap->width - 640) / 2;
+					basex = (bitmap.width - 640) / 2;
 				}
 				else {
-					basex = (bitmap->width - 512) / 2;
+					basex = (bitmap.width - 512) / 2;
 				}
 	
 				if (!bytesperrow)
@@ -769,7 +769,7 @@ public class dragon
 					break;
 				}
 	
-				if (full_refresh)
+				if (full_refresh != 0)
 					memset(dirtybuffer, 0, ((rows + linesperrow - 1) / linesperrow) * bytesperrow);
 				break;
 			}
@@ -781,15 +781,15 @@ public class dragon
 			full_refresh += coco3_vh_setborder(borderred, bordergreen, borderblue);
 			if (palette_recalc())
 				full_refresh = 1;
-			if (full_refresh)
+			if (full_refresh != 0)
 				coco3_vh_drawborder(bitmap, 512, 192);
 	
 			internal_m6847_vh_screenrefresh(bitmap, full_refresh, coco3_metapalette,
 				&RAM[coco3_lores_vidbase()], m6847_get_video_offset(), 0x10000,
-				TRUE, (bitmap->width - 512) / 2, (bitmap->height - 192) / 2, 2,
+				TRUE, (bitmap.width - 512) / 2, (bitmap.height - 192) / 2, 2,
 				artifacts[readinputport(12) & 3]);
 		}
-	}
+	} };
 	
 	static void coco3_ram_w(int offset, int data, int block)
 	{
@@ -800,7 +800,7 @@ public class dragon
 		offset = coco3_mmu_translate(block, offset);
 	
 		if (RAM[offset] != data) {
-			if (coco3_hires) {
+			if (coco3_hires != 0) {
 				vidbase = coco3_hires_vidbase();
 				vidbasediff = (unsigned int) (offset - vidbase) & 0x7ffff;
 				if (vidbasediff < MAX_HIRES_VRAM) {
@@ -886,14 +886,14 @@ public class dragon
 			 *		! Bit 3 H50 1 = 50 Hz power, 0 = 60 Hz power
 			 *		  Bits 0-2 LPR Lines per row
 			 */
-			if (xorval & 0xB7) {
+			if ((xorval & 0xB7) != 0) {
 				coco3_borderred = -1;	/* force border to redraw */
 				schedule_full_refresh();
 	#if LOG_GIME
 				logerror("CoCo3 GIME: $ff98 forcing refresh\n");
 	#endif
 			}
-			if (xorval & 0x10) {
+			if ((xorval & 0x10) != 0) {
 				coco3_vh_palette_recompute();
 			}
 			break;
@@ -905,7 +905,7 @@ public class dragon
 			 *		  Bits 2-4 HRES Horizontal Resolution
 			 *		  Bits 0-1 CRES Color Resolution
 			 */
-			if (xorval) {
+			if (xorval != 0) {
 				coco3_borderred = -1;	/* force border to redraw */
 				schedule_full_refresh();
 			}
@@ -923,7 +923,7 @@ public class dragon
 			 *		  Bits 4-7 Reserved
 			 *		! Bits 0-3 VSC Vertical Scroll bits
 			 */
-			if (xorval)
+			if (xorval != 0)
 				schedule_full_refresh();
 			break;
 	
@@ -939,7 +939,7 @@ public class dragon
 			 *	According to JK, if an odd value is placed in $FF9E on the 1986
 			 *	GIME, the GIME crashes
 			 */
-			if (xorval) {
+			if (xorval != 0) {
 				schedule_full_refresh();
 	#if LOG_GIME
 				logerror("CoCo3 GIME: HiRes Video at $%05x\n", coco3_hires_vidbase());

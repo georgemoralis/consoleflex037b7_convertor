@@ -25,9 +25,6 @@ typedef struct {
 } MSX;
 
 /* start/stop functions */
-void init_msx(void);
-void msx_ch_reset (void);
-void msx_ch_stop (void);
 int msx_load_rom (int id);
 int msx_id_rom (int id);
 void msx_exit_rom (int id);

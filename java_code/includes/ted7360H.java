@@ -44,10 +44,7 @@ extern void ted7360_set_dma (mem_read_handler dma_read,
 #define TED7360PAL_LINES 312
 #define TED7360_LINES (ted7360_pal?TED7360PAL_LINES:TED7360NTSC_LINES)
 
-extern int ted7360_vh_start (void);
-extern void ted7360_vh_stop (void);
-extern void ted7360_vh_screenrefresh (struct osd_bitmap *bitmap, int full_refresh);
-extern unsigned char ted7360_palette[16 * 8 * 3];
+extern extern extern extern unsigned char ted7360_palette[16 * 8 * 3];
 
 /* to be inserted in GameDriver-Structure */
 extern struct CustomSound_interface ted7360_sound_interface;
@@ -59,16 +56,12 @@ extern WRITE_HANDLER ( ted7360_port_w );
 extern READ_HANDLER  ( ted7360_port_r );
 
 /* to be called each vertical retrace */
-extern int ted7360_frame_interrupt (void);
-int ted7360_raster_interrupt (void);
-
+extern 
 /* private area */
 
 /* from sndhrdw/pc.c */
 extern int ted7360_custom_start (const struct MachineSound *driver);
-extern void ted7360_custom_stop (void);
-extern void ted7360_custom_update (void);
-extern void ted7360_soundport_w (int mode, int data);
+extern extern extern void ted7360_soundport_w (int mode, int data);
 
 extern UINT8 ted7360[0x20];
 extern bool ted7360_pal;

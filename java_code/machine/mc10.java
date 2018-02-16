@@ -18,7 +18,7 @@ public class mc10
 	
 	static int mc10_keyboard_strobe;
 	
-	void mc10_init_machine(void)
+	public static InitMachinePtr mc10_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		mc10_keyboard_strobe = 0xff;
 	
@@ -36,8 +36,8 @@ public class mc10
 		/* Install DOS ROM ? */
 		if( readinputport(7) & 0x40 )
 		{
-			void *rom = osd_fopen(Machine->gamedrv->name, "mc10ext.rom", OSD_FILETYPE_IMAGE_R, 0);
-			if( rom )
+			void *rom = osd_fopen(Machine.gamedrv.name, "mc10ext.rom", OSD_FILETYPE_IMAGE_R, 0);
+			if (rom != 0)
 			{
 				osd_fread(rom, memory_region(REGION_CPU1) + 0xc000, 0x2000);
 				osd_fclose(rom);
@@ -48,16 +48,16 @@ public class mc10
 			install_mem_read_handler(0, 0xc000, 0xdfff, MRA_NOP);
 			install_mem_write_handler(0, 0xc000, 0xdfff, MWA_NOP);
 	    }
-	}
+	} };
 	
 	void mc10_stop_machine(void)
 	{
 	}
 	
-	int mc10_interrupt(void)
+	public static InterruptPtr mc10_interrupt = new InterruptPtr() { public int handler() 
 	{
 		return ignore_interrupt();
-	}
+	} };
 	
 	READ_HANDLER ( mc10_bfff_r )
 	{
@@ -137,7 +137,7 @@ public class mc10
 	 * Video hardware
 	 * -------------------------------------------------- */
 	
-	int mc10_vh_start(void)
+	public static VhStartPtr mc10_vh_start = new VhStartPtr() { public int handler() 
 	{
 		if (m6847_vh_start())
 			return 1;
@@ -146,7 +146,7 @@ public class mc10
 		m6847_set_video_offset(0x4000);
 		m6847_set_artifact_dipswitch(7);
 		return 0;
-	}
+	} };
 	
 	WRITE_HANDLER ( mc10_bfff_w )
 	{
@@ -163,22 +163,22 @@ public class mc10
 		/* The following code merely maps the MC-10 video mode registers
 		 * onto the CoCo/Dragon registers
 		 *
-		 * GM2 --> video_mode bit 3
-		 * GM1 --> video_mode bit 2
-		 * GM0 --> video_mode bit 1
-		 * A/G --> video_mode bit 4
-		 * CSS --> video_mode bit 0
+		 * GM2 -. video_mode bit 3
+		 * GM1 -. video_mode bit 2
+		 * GM0 -. video_mode bit 1
+		 * A/G -. video_mode bit 4
+		 * CSS -. video_mode bit 0
 		 */
 	
-		if (data & 0x04)
+		if ((data & 0x04) != 0)
 			video_mode |= 0x08;
-		if (data & 0x08)
+		if ((data & 0x08) != 0)
 			video_mode |= 0x04;
-		if (data & 0x10)
+		if ((data & 0x10) != 0)
 			video_mode |= 0x02;
-		if (data & 0x20)
+		if ((data & 0x20) != 0)
 			video_mode |= 0x10;
-		if (data & 0x40)
+		if ((data & 0x40) != 0)
 			video_mode |= 0x01;
 	
 		m6847_set_mode(video_mode);

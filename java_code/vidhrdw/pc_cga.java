@@ -72,7 +72,7 @@ public class pc_cga
 	
 		for (i = 0; i < size; i++)
 		{
-			if (videoram[offs+1] & 0x80) dirtybuffer[offs+1] = 1;
+			if (videoram.read(offs+1)& 0x80) dirtybuffer[offs+1] = 1;
 			if ((offs += 2) == videoram_size) offs = 0;
 	    }
 	}
@@ -84,20 +84,20 @@ public class pc_cga
 		}
 	}
 	
-	int pc_cga_vh_start(void)
+	public static VhStartPtr pc_cga_vh_start = new VhStartPtr() { public int handler() 
 	{
 	    return generic_vh_start();
-	}
+	} };
 	
-	void pc_cga_vh_stop(void)
+	public static VhStopPtr pc_cga_vh_stop = new VhStopPtr() { public void handler() 
 	{
 	    generic_vh_stop();
-	}
+	} };
 	
 	WRITE_HANDLER ( pc_cga_videoram_w )
 	{
 		if (videoram[offset] == data) return;
-		videoram[offset] = data;
+		videoram.write(offset,data);
 		dirtybuffer[offset] = 1;
 	}
 	
@@ -361,13 +361,13 @@ public class pc_cga
 			b = (CGA_border & 0x01) ? 0x7f : 0;
 			g = (CGA_border & 0x02) ? 0x7f : 0;
 			r = (CGA_border & 0x04) ? 0x7f : 0;
-			if (CGA_border & 0x08)
+			if ((CGA_border & 0x08) != 0)
 			{
 				r <<= 1;
 				g <<= 1;
 				b <<= 1;
 			}
-			osd_modify_pen(Machine->pens[16], r, g, b);
+			osd_modify_pen(Machine.pens[16], r, g, b);
 		}
 	}
 	
@@ -480,15 +480,15 @@ public class pc_cga
 	
 	INLINE int DOCLIP(struct rectangle *r1)
 	{
-	    const struct rectangle *r2 = &Machine->visible_area;
-	    if (r1->min_x > r2->max_x) return 0;
-	    if (r1->max_x < r2->min_x) return 0;
-	    if (r1->min_y > r2->max_y) return 0;
-	    if (r1->max_y < r2->min_y) return 0;
-	    if (r1->min_x < r2->min_x) r1->min_x = r2->min_x;
-	    if (r1->max_x > r2->max_x) r1->max_x = r2->max_x;
-	    if (r1->min_y < r2->min_y) r1->min_y = r2->min_y;
-	    if (r1->max_y > r2->max_y) r1->max_y = r2->max_y;
+	    const struct rectangle *r2 = &Machine.visible_area;
+	    if (r1.min_x > r2.max_x) return 0;
+	    if (r1.max_x < r2.min_x) return 0;
+	    if (r1.min_y > r2.max_y) return 0;
+	    if (r1.max_y < r2.min_y) return 0;
+	    if (r1.min_x < r2.min_x) r1.min_x = r2.min_x;
+	    if (r1.max_x > r2.max_x) r1.max_x = r2.max_x;
+	    if (r1.min_y < r2.min_y) r1.min_y = r2.min_y;
+	    if (r1.max_y > r2.max_y) r1.max_y = r2.max_y;
 	    return 1;
 	}
 	
@@ -509,7 +509,7 @@ public class pc_cga
 			if (dirtybuffer[offs] || dirtybuffer[offs+1])
 			{
 	            struct rectangle r;
-				int code = videoram[offs], attr = videoram[offs+1];
+				int code = videoram.read(offs), attr = videoram.read(offs+1);
 	
 	            dirtybuffer[offs] = 0;
 	            dirtybuffer[offs+1] = 0;
@@ -521,7 +521,7 @@ public class pc_cga
 				if( DOCLIP(&r) )
 				{
 					/* draw the character */
-					drawgfx(bitmap, Machine->gfx[1], code, attr, 0,0,r.min_x,r.min_y,&r,TRANSPARENCY_NONE,0);
+					drawgfx(bitmap, Machine.gfx[1], code, attr, 0,0,r.min_x,r.min_y,&r,TRANSPARENCY_NONE,0);
 					if( offs == CGA_cursor && CGA_curmode != 0x20 )
 					{
 						if( CGA_curmode == 0x60 || (pc_framecnt & 32) )
@@ -532,7 +532,7 @@ public class pc_cga
 	                            r.min_y = r.max_y;
 	                        if( sy + CGA_curmaxy < r.max_y )
 								r.max_y = sy + CGA_curmaxy;
-							drawgfx(bitmap,Machine->gfx[1],219,7,0,0,sx,sy,&r,TRANSPARENCY_NONE,0);
+							drawgfx(bitmap,Machine.gfx[1],219,7,0,0,sx,sy,&r,TRANSPARENCY_NONE,0);
 	                    }
 	                    dirtybuffer[offs] = 1;
 	                }
@@ -565,7 +565,7 @@ public class pc_cga
 			if (dirtybuffer[offs] || dirtybuffer[offs+1])
 			{
 	            struct rectangle r;
-				int code = videoram[offs], attr = videoram[offs+1];
+				int code = videoram.read(offs), attr = videoram.read(offs+1);
 	
 	            dirtybuffer[offs] = 0;
 	            dirtybuffer[offs+1] = 0;
@@ -577,7 +577,7 @@ public class pc_cga
 				if( DOCLIP(&r) )
 				{
 					/* draw the character */
-					drawgfx(bitmap, Machine->gfx[0], code, attr, 0,0,r.min_x,r.min_y,&r,TRANSPARENCY_NONE,0);
+					drawgfx(bitmap, Machine.gfx[0], code, attr, 0,0,r.min_x,r.min_y,&r,TRANSPARENCY_NONE,0);
 					if( offs == CGA_cursor && CGA_curmode != 0x20 )
 					{
 						if( CGA_curmode == 0x60 || (pc_framecnt & 32) )
@@ -588,7 +588,7 @@ public class pc_cga
 	                            r.min_y = r.max_y;
 	                        if( sy + CGA_curmaxy < r.max_y )
 								r.max_y = sy + CGA_curmaxy;
-							drawgfx(bitmap,Machine->gfx[0],219,7,0,0,sx,sy,&r,TRANSPARENCY_NONE,0);
+							drawgfx(bitmap,Machine.gfx[0],219,7,0,0,sx,sy,&r,TRANSPARENCY_NONE,0);
 	                    }
 						dirtybuffer[offs] = 1;
 					}
@@ -621,14 +621,14 @@ public class pc_cga
 			if (dirtybuffer[offs] || dirtybuffer[offs+1])
 			{
 	            struct rectangle r;
-				int code = videoram[offs], attr = videoram[offs+1];
+				int code = videoram.read(offs), attr = videoram.read(offs+1);
 	
 	            dirtybuffer[offs] = 0;
 	            dirtybuffer[offs+1] = 0;
 	
-				if (attr & 0x80)	/* blinking ? */
+				if ((attr & 0x80) != 0)	/* blinking ? */
 				{
-					if (pc_blink)
+					if (pc_blink != 0)
 						attr = (attr & 0x70) | ((attr & 0x70) >> 4);
 					else
 						attr = attr & 0x7f;
@@ -641,7 +641,7 @@ public class pc_cga
 				if( DOCLIP(&r) )
 				{
 					/* draw the character */
-					drawgfx(bitmap, Machine->gfx[1], code, attr, 0,0,r.min_x,r.min_y,&r,TRANSPARENCY_NONE,0);
+					drawgfx(bitmap, Machine.gfx[1], code, attr, 0,0,r.min_x,r.min_y,&r,TRANSPARENCY_NONE,0);
 					if (offs == CGA_cursor && CGA_curmode != 0x20)
 					{
 						if( CGA_curmode == 0x60 || (pc_framecnt & 32) )
@@ -652,7 +652,7 @@ public class pc_cga
 	                            r.min_y = r.max_y;
 	                        if( sy + CGA_curmaxy < r.max_y )
 								r.max_y = sy + CGA_curmaxy;
-							drawgfx(bitmap,Machine->gfx[1],219,7,0,0,sx,sy,&r,TRANSPARENCY_NONE,0);
+							drawgfx(bitmap,Machine.gfx[1],219,7,0,0,sx,sy,&r,TRANSPARENCY_NONE,0);
 	                    }
 	                    dirtybuffer[offs] = 1;
 					}
@@ -685,14 +685,14 @@ public class pc_cga
 			if (dirtybuffer[offs] || dirtybuffer[offs+1])
 			{
 	            struct rectangle r;
-				int code = videoram[offs], attr = videoram[offs+1];
+				int code = videoram.read(offs), attr = videoram.read(offs+1);
 	
 	            dirtybuffer[offs] = 0;
 	            dirtybuffer[offs+1] = 0;
 	
-				if (attr & 0x80)	/* blinking ? */
+				if ((attr & 0x80) != 0)	/* blinking ? */
 				{
-					if (pc_blink)
+					if (pc_blink != 0)
 						attr = (attr & 0x70) | ((attr & 0x70) >> 4);
 					else
 						attr = attr & 0x7f;
@@ -705,7 +705,7 @@ public class pc_cga
 				if( DOCLIP(&r) )
 				{
 					/* draw the character */
-					drawgfx(bitmap, Machine->gfx[0], code, attr, 0,0,r.min_x,r.min_y,&r,TRANSPARENCY_NONE,0);
+					drawgfx(bitmap, Machine.gfx[0], code, attr, 0,0,r.min_x,r.min_y,&r,TRANSPARENCY_NONE,0);
 					if( offs == CGA_cursor && CGA_curmode != 0x20 )
 					{
 						if( CGA_curmode == 0x60 || (pc_framecnt & 32) )
@@ -716,7 +716,7 @@ public class pc_cga
 	                            r.min_y = r.max_y;
 	                        if( sy + CGA_curmaxy < r.max_y )
 								r.max_y = sy + CGA_curmaxy;
-							drawgfx(bitmap,Machine->gfx[0],219,7,0,0,sx,sy,&r,TRANSPARENCY_NONE,0);
+							drawgfx(bitmap,Machine.gfx[0],219,7,0,0,sx,sy,&r,TRANSPARENCY_NONE,0);
 	                    }
 	                    dirtybuffer[offs] = 1;
 	                }
@@ -751,7 +751,7 @@ public class pc_cga
 			if( dirtybuffer[offs] )
 			{
 	            struct rectangle r;
-				int code = videoram[offs];
+				int code = videoram.read(offs);
 	
 	            dirtybuffer[offs] = 0;
 	
@@ -760,7 +760,7 @@ public class pc_cga
 				r.max_x = sx + 8 - 1;
 				r.max_y = sy + CGA_maxscan / 2 - 1;
 				if( DOCLIP(&r) )
-					drawgfx(bitmap, Machine->gfx[3], code, CGA_2bpp_attr, 0,0,r.min_x,r.min_y,&r,TRANSPARENCY_NONE,0);
+					drawgfx(bitmap, Machine.gfx[3], code, CGA_2bpp_attr, 0,0,r.min_x,r.min_y,&r,TRANSPARENCY_NONE,0);
 			}
 			if( (sx += 8) == (2 * CGA_HDISP * 8) )
 			{
@@ -778,7 +778,7 @@ public class pc_cga
 			if( dirtybuffer[offs] )
 			{
 	            struct rectangle r;
-				int code = videoram[offs];
+				int code = videoram.read(offs);
 	
 	            dirtybuffer[offs] = 0;
 	
@@ -787,7 +787,7 @@ public class pc_cga
 				r.max_x = sx + 8 - 1;
 				r.max_y = sy + CGA_maxscan / 2 - 1;
 				if( DOCLIP(&r) )
-					drawgfx(bitmap, Machine->gfx[3], code, CGA_2bpp_attr, 0,0,r.min_x,r.min_y,&r,TRANSPARENCY_NONE,0);
+					drawgfx(bitmap, Machine.gfx[3], code, CGA_2bpp_attr, 0,0,r.min_x,r.min_y,&r,TRANSPARENCY_NONE,0);
 			}
 			if( (sx += 8) == (2 * CGA_HDISP * 8) )
 			{
@@ -816,7 +816,7 @@ public class pc_cga
 			if( dirtybuffer[offs] )
 			{
 	            struct rectangle r;
-				int code = videoram[offs];
+				int code = videoram.read(offs);
 	
 	            dirtybuffer[offs] = 0;
 	
@@ -825,7 +825,7 @@ public class pc_cga
 				r.max_x = sx + 8 - 1;
 				r.max_y = sy + CGA_maxscan / 2 - 1;
 				if( DOCLIP(&r) )
-					drawgfx(bitmap, Machine->gfx[2], code, 0, 0,0,r.min_x,r.min_y,&r,TRANSPARENCY_NONE,0);
+					drawgfx(bitmap, Machine.gfx[2], code, 0, 0,0,r.min_x,r.min_y,&r,TRANSPARENCY_NONE,0);
 			}
 			if( (sx += 8) == (2 * CGA_HDISP * 8) )
 			{
@@ -843,7 +843,7 @@ public class pc_cga
 			if( dirtybuffer[offs] )
 			{
 	            struct rectangle r;
-				int code = videoram[offs];
+				int code = videoram.read(offs);
 	
 	            dirtybuffer[offs] = 0;
 	
@@ -852,7 +852,7 @@ public class pc_cga
 				r.max_x = sx + 8 - 1;
 				r.max_y = sy + CGA_maxscan / 2 - 1;
 				if( DOCLIP(&r) )
-					drawgfx(bitmap, Machine->gfx[2], code, 0, 0,0,r.min_x,r.min_y,&r,TRANSPARENCY_NONE,0);
+					drawgfx(bitmap, Machine.gfx[2], code, 0, 0,0,r.min_x,r.min_y,&r,TRANSPARENCY_NONE,0);
 			}
 			if( (sx += 8) == (2 * CGA_HDISP * 8) )
 			{
@@ -874,15 +874,15 @@ public class pc_cga
 		int color, values[4];
 		int i;
 	
-		values[0]=videoram[offs|videoram_offset[0]]; // red
-		values[1]=videoram[offs|videoram_offset[1]]<<1; // green
-		values[2]=videoram[offs|videoram_offset[2]]<<2; // blue
-		values[3]=videoram[offs|videoram_offset[3]]<<3; // intensity
+		values[0]=videoram.read(offs|videoram_offset[0)]; // red
+		values[1]=videoram.read(offs|videoram_offset[1)]<<1; // green
+		values[2]=videoram.read(offs|videoram_offset[2)]<<2; // blue
+		values[3]=videoram.read(offs|videoram_offset[3)]<<3; // intensity
 	
 		for (i=7; i>=0; i--) {
 			color=(values[0]&1)|(values[1]&2)|(values[2]&4)|(values[3]&8);
-			plot_pixel(bitmap, x+i, y, Machine->pens[color]);
-			plot_pixel(bitmap, x+i, y+1, Machine->pens[color]);
+			plot_pixel(bitmap, x+i, y, Machine.pens[color]);
+			plot_pixel(bitmap, x+i, y+1, Machine.pens[color]);
 			values[0]>>=1;
 			values[1]>>=1;
 			values[2]>>=1;
@@ -945,7 +945,7 @@ public class pc_cga
 	  Do NOT call osd_update_display() from this function,
 	  it will be called by the main emulation engine.
 	***************************************************************************/
-	void pc_cga_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr pc_cga_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 		static int video_active = 0;
 	
@@ -954,10 +954,10 @@ public class pc_cga
 	
 	    /* draw entire scrbitmap because of usrintrf functions
 		   called osd_clearbitmap or attr change / scanline change */
-		if( full_refresh )
+		if (full_refresh != 0)
 		{
-			memset(dirtybuffer, 1, videoram_size);
-			fillbitmap(bitmap, Machine->pens[0], &Machine->visible_area);
+			memset(dirtybuffer, 1, videoram_size[0]);
+			fillbitmap(bitmap, Machine.pens[0], &Machine.visible_area);
 			video_active = 0;
 	    }
 	
@@ -995,7 +995,7 @@ public class pc_cga
 	
 	        default:
 				if (video_active && --video_active == 0)
-					fillbitmap(bitmap, Machine->pens[0], &Machine->visible_area);
+					fillbitmap(bitmap, Machine.pens[0], &Machine.visible_area);
 	    }
 	
 	
@@ -1005,16 +1005,16 @@ public class pc_cga
 			char text[40];
 			sprintf(text,"%.2x %.2x", input_port_16_r(0), input_port_17_r(0));
 	
-			for (x=0, i=0; text[i]; i++, x+= Machine->uifont->width)
+			for (x=0, i=0; text[i]; i++, x+= Machine.uifont.width)
 			{
-				drawgfx (bitmap, Machine->uifont, text[i], 0, 0,
+				drawgfx (bitmap, Machine.uifont, text[i], 0, 0,
 						 0, x, 100, 0,
 						 TRANSPARENCY_NONE, 0);
 			}
 	
 		}
 	#endif
-	}
+	} };
 	
 	static struct {
 		UINT8 write, read;
@@ -1043,33 +1043,33 @@ public class pc_cga
 	
 	extern WRITE_HANDLER ( pc1512_videoram_w )
 	{
-		if (pc1512.write&1) videoram[offset+videoram_offset[0]]=data; //blue plane
-		if (pc1512.write&2) videoram[offset+videoram_offset[1]]=data; //green
-		if (pc1512.write&4) videoram[offset+videoram_offset[2]]=data; //red
-		if (pc1512.write&8) videoram[offset+videoram_offset[3]]=data; //intensity (text, 4color)
+		if (pc1512.write&1) videoram.read(offset+videoram_offset[0)]=data; //blue plane
+		if (pc1512.write&2) videoram.read(offset+videoram_offset[1)]=data; //green
+		if (pc1512.write&4) videoram.read(offset+videoram_offset[2)]=data; //red
+		if (pc1512.write&8) videoram.read(offset+videoram_offset[3)]=data; //intensity (text, 4color)
 		dirtybuffer[offset]=1;
 	}
 	
-	extern int	pc1512_vh_start(void)
+	extern public static VhStartPtr pc1512_vh_start = new VhStartPtr() { public int handler() 
 	{
 		type=TYPE_PC1512;
 		videoram=malloc(0x10000);
 		if (videoram==0) return 1;
-		videoram_size=0x4000; //! used in cga this way, size of plain memory in 1 bank
+		videoram_size[0]=0x4000; //! used in cga this way, size of plain memory in 1 bank
 		cpu_setbank(1,videoram+videoram_offset[0]);
 		pc1512.write=0xf;
 		pc1512.read=0;
 		return pc_cga_vh_start();
-	}
+	} };
 	
-	extern void pc1512_vh_stop(void)
+	extern public static VhStopPtr pc1512_vh_stop = new VhStopPtr() { public void handler() 
 	{
 		free(videoram);
 		pc_cga_vh_stop();
-	}
+	} };
 	
-	extern void pc1512_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	extern public static VhUpdatePtr pc1512_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 		pc_cga_vh_screenrefresh(bitmap, full_refresh);
-	}
+	} };
 }

@@ -26,7 +26,7 @@ public class at
 	#define false FALSE
 	#define bool int
 	
-	void init_at(void)
+	public static InitDriverPtr init_at = new InitDriverPtr() { public void handler() 
 	{
 		init_pc();
 		mc146818_init(MC146818_STANDARD);
@@ -35,9 +35,9 @@ public class at
 		at_keyboard_set_scan_code_set(1);
 		at_keyboard_set_input_port_base(4);
 		at_keyboard_set_type(AT_KEYBOARD_TYPE_AT);
-	}
+	} };
 	
-	void init_at_vga(void)
+	public static InitDriverPtr init_at_vga = new InitDriverPtr() { public void handler() 
 	{
 	#if 0
 	        int i; 
@@ -70,17 +70,17 @@ public class at
 		at_keyboard_set_type(AT_KEYBOARD_TYPE_AT);
 	
 		vga_init(input_port_0_r);
-	}
+	} };
 	
 	void at_driver_close(void)
 	{
 		mc146818_close();
 	}
 	
-	void at_machine_init(void)
+	public static InitMachinePtr at_machine_init = new InitMachinePtr() { public void handler() 
 	{
 	
-	}
+	} };
 	
 	static struct {
 		UINT8 inport, outport, data;
@@ -223,7 +223,7 @@ public class at
 			case 1:
 				at_8042.operation_write_state=0;
 				at_8042.outport=data;
-				//if (data&1) cpu_set_reset_line(0, PULSE_LINE);
+				//if ((data & 1) != 0) cpu_set_reset_line(0, PULSE_LINE);
 	#if 0
 				logerror("addressmask %.6x\n",data&2?0xffffff:0xfffff);
 	#endif
@@ -255,7 +255,7 @@ public class at
 			case 0xa7: at_8042.mouse.on=false;break;
 			case 0xa8: at_8042.mouse.on=true;break;
 			case 0xa9: /* test mouse */
-				if (PS2_MOUSE_ON)
+				if (PS2_MOUSE_ON != 0)
 					at_8042_receive(0);
 				else 
 					at_8042_receive(0xff);
@@ -264,7 +264,7 @@ public class at
 				at_8042_receive(0x55);
 				break;
 			case 0xab: /* test keyboard */
-				if (KEYBOARD_ON) 
+				if (KEYBOARD_ON != 0) 
 					at_8042_receive(0);
 				else 
 					at_8042_receive(0xff);
@@ -347,7 +347,7 @@ public class at
 		return data;
 	}
 	
-	int at_cga_frame_interrupt (void)
+	public static InterruptPtr at_cga_frame_interrupt = new InterruptPtr() { public int handler() 
 	{
 		static int turboswitch=-1;
 	
@@ -367,9 +367,9 @@ public class at
 		}
 	
 	    return ignore_interrupt ();
-	}
+	} };
 	
-	int at_vga_frame_interrupt (void)
+	public static InterruptPtr at_vga_frame_interrupt = new InterruptPtr() { public int handler() 
 	{
 		static int turboswitch=-1;
 	
@@ -389,5 +389,5 @@ public class at
 		}
 	
 	    return ignore_interrupt ();
-	}
+	} };
 }

@@ -74,9 +74,9 @@ public class eventlst
 	        if (NumEvents < TotalEvents)
 	        {
 	                /* setup item only if there is space in the buffer */
-	                pCurrentItem->Event_ID = ID;
-	                pCurrentItem->Event_Data = Data;
-	                pCurrentItem->Event_Time = Time;
+	                pCurrentItem.Event_ID = ID;
+	                pCurrentItem.Event_Data = Data;
+	                pCurrentItem.Event_Time = Time;
 	
 	                pCurrentItem++;
 	                NumEvents++;
@@ -95,18 +95,18 @@ public class eventlst
 	{
 	
 	        if (!CyclesPerFrame)
-	                CyclesPerFrame = cpu_getfperiod();	//totalcycles();	//_(int)(Machine->drv->cpu[0].cpu_clock / Machine->drv->frames_per_second);
+	                CyclesPerFrame = cpu_getfperiod();	//totalcycles();	//_(int)(Machine.drv.cpu[0].cpu_clock / Machine.drv.frames_per_second);
 	
 	        if (NumEvents < TotalEvents)
 	        {
 	                /* setup item only if there is space in the buffer */
-	                pCurrentItem->Event_ID = ID;
-	                pCurrentItem->Event_Data = Data;
+	                pCurrentItem.Event_ID = ID;
+	                pCurrentItem.Event_Data = Data;
 	
 	                Time -= LastFrameStartTime;
 	                if ((Time < 0) || ((Time == 0) && NumEvents))
 	                        Time+= CyclesPerFrame;
-	                pCurrentItem->Event_Time = Time;
+	                pCurrentItem.Event_Time = Time;
 	
 	                pCurrentItem++;
 	                NumEvents++;

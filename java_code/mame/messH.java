@@ -43,8 +43,7 @@ extern "C" {
 
 int DECL_SPEC mess_printf(char *fmt, ...);
 
-extern void showmessinfo(void);
-extern int displayimageinfo(struct osd_bitmap *bitmap, int selected);
+extern extern int displayimageinfo(struct osd_bitmap *bitmap, int selected);
 extern int filemanager(struct osd_bitmap *bitmap, int selected);
 extern int tapecontrol(struct osd_bitmap *bitmap, int selected);
 
@@ -62,12 +61,12 @@ void *image_fopen(int type, int id, int filetype, int read_or_write);
 
 /* IODevice Initialisation return values.  Use these to determine if */
 /* the emulation can continue if IODevice initialisation fails */
-enum { INIT_OK, INIT_FAILED, INIT_UNKNOWN };
+static final int INIT_OK = 0, INIT_FAILED = 1, INIT_UNKNOWN = 2;
 
 
 /* IODevice ID return values.  Use these to determine if */
 /* the emulation can continue if image cannot be positively IDed */
-enum { ID_FAILED, ID_OK, ID_UNKNOWN };
+static final int ID_FAILED = 0, ID_OK = 1, ID_UNKNOWN = 2;
 
 
 /* fileio.c */
@@ -98,7 +97,7 @@ typedef struct
  *	images from within the emulation. A driver might use this
  *	if both, OSD_FOPEN_RW and OSD_FOPEN_READ modes, failed.
  */
-enum { OSD_FOPEN_READ, OSD_FOPEN_WRITE, OSD_FOPEN_RW, OSD_FOPEN_RW_CREATE };
+static final int OSD_FOPEN_READ = 0, OSD_FOPEN_WRITE = 1, OSD_FOPEN_RW = 2, OSD_FOPEN_RW_CREATE = 3;
 
 
 /* mess.c functions [for external use] */
@@ -143,17 +142,15 @@ int parse_image_types(char *arg);
  * head = logical head number (can be 0 though side 1 is to be accessed)
  *****************************************************************************/
 
-int  osd_fdc_init(void);
-void osd_fdc_exit(void);
 void osd_fdc_motors(unsigned char unit);
 void osd_fdc_density(unsigned char unit, unsigned char density, unsigned char tracks, unsigned char spt, unsigned char eot, unsigned char secl);
 void osd_fdc_interrupt(int param);
-unsigned char osd_fdc_recal(unsigned char *track);
-unsigned char osd_fdc_seek(unsigned char t, unsigned char *track);
-unsigned char osd_fdc_step(int dir, unsigned char *track);
-unsigned char osd_fdc_format(unsigned char t, unsigned char h, unsigned char spt, unsigned char *fmt);
-unsigned char osd_fdc_put_sector(unsigned char track, unsigned char side, unsigned char head, unsigned char sector, unsigned char *buff, unsigned char ddam);
-unsigned char osd_fdc_get_sector(unsigned char track, unsigned char side, unsigned char head, unsigned char sector, unsigned char *buff);
+unsigned char osd_fdc_recal(UBytePtr track);
+unsigned char osd_fdc_seek(unsigned char t, UBytePtr track);
+unsigned char osd_fdc_step(int dir, UBytePtr track);
+unsigned char osd_fdc_format(unsigned char t, unsigned char h, unsigned char spt, UBytePtr fmt);
+unsigned char osd_fdc_put_sector(unsigned char track, unsigned char side, unsigned char head, unsigned char sector, UBytePtr buff, unsigned char ddam);
+unsigned char osd_fdc_get_sector(unsigned char track, unsigned char side, unsigned char head, unsigned char sector, UBytePtr buff);
 
 #ifdef MAX_KEYS
  #undef MAX_KEYS
@@ -222,16 +219,14 @@ struct IODevice {
 	void (*output)(int id, int data);
 	int (*input_chunk)(int id, void *dst, int chunks);
 	int (*output_chunk)(int id, void *src, int chunks);
-	UINT32 (*partialcrc)(const unsigned char *buf, unsigned int size);
+	UINT32 (*partialcrc)(const UBytePtr buf, unsigned int size);
 
 };
 
 /* these are called from mame.c run_game() */
 
-extern int get_filenames(void);
-extern int init_devices(const void *game);
-extern void exit_devices(void);
-
+extern extern int init_devices(const void *game);
+extern 
 /* access mess.c internal fields for a device type (instance id) */
 
 extern int device_count(int type);

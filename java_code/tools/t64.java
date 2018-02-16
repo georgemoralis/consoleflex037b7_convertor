@@ -94,11 +94,11 @@ public class t64
 		STREAM *file_handle;
 		int size;
 		int modified;
-		unsigned char *data;
+		UBytePtr data;
 	} t64_image;
 	
-	#define HEADER(image) ((t64_header*)image->data)
-	#define ENTRY(image, index) ((t64_entry*)(image->data+sizeof(t64_header))+index)
+	#define HEADER(image) ((t64_header*)image.data)
+	#define ENTRY(image, index) ((t64_entry*)(image.data+sizeof(t64_header))+index)
 	
 	typedef struct {
 		IMAGEENUM base;
@@ -151,13 +151,13 @@ public class t64
 		if (!image) return IMGTOOLERR_OUTOFMEMORY;
 	
 		memset(image, 0, sizeof(t64_image));
-		image->base.module = &imgmod_t64;
-		image->size=stream_size(f);
-		image->file_handle=f;
+		image.base.module = &imgmod_t64;
+		image.size=stream_size(f);
+		image.file_handle=f;
 	
-		image->data = (unsigned char *) malloc(image->size);
-		if ( (!image->data)
-			 ||(stream_read(f, image->data, image->size)!=image->size) ) {
+		image.data = (UBytePtr ) malloc(image.size);
+		if ( (!image.data)
+			 ||(stream_read(f, image.data, image.size)!=image.size) ) {
 			free(image);
 			*outimg=NULL;
 			return IMGTOOLERR_OUTOFMEMORY;
@@ -169,12 +169,12 @@ public class t64
 	static void t64_image_exit(IMAGE *img)
 	{
 		t64_image *image=(t64_image*)img;
-		if (image->modified) {
-			stream_clear(image->file_handle);
-			stream_write(image->file_handle, image->data, image->size);
+		if (image.modified) {
+			stream_clear(image.file_handle);
+			stream_write(image.file_handle, image.data, image.size);
 		}
-		stream_close(image->file_handle);
-		free(image->data);
+		stream_close(image.file_handle);
+		free(image.data);
 		free(image);
 	}
 	
@@ -183,13 +183,13 @@ public class t64
 		t64_image *image=(t64_image*)img;
 		char dostext_with_null[33]= { 0 };
 		char name_with_null[25]={ 0 };
-		strncpy(dostext_with_null, HEADER(image)->dostext, 32);
-		strncpy(name_with_null, HEADER(image)->description, 24);
+		strncpy(dostext_with_null, HEADER(image).dostext, 32);
+		strncpy(name_with_null, HEADER(image).description, 24);
 		sprintf(string,"%s\n%s\nversion:%.4x max entries:%d",
 				dostext_with_null,
 				name_with_null, 
-				GET_UWORD(HEADER(image)->version),
-				HEADER(image)->max_entries);
+				GET_UWORD(HEADER(image).version),
+				HEADER(image).max_entries);
 	}
 	
 	static int t64_image_beginenum(IMAGE *img, IMAGEENUM **outenum)
@@ -200,31 +200,31 @@ public class t64
 		iter=*(t64_iterator**)outenum = (t64_iterator *) malloc(sizeof(t64_iterator));
 		if (!iter) return IMGTOOLERR_OUTOFMEMORY;
 	
-		iter->base.module = &imgmod_t64;
+		iter.base.module = &imgmod_t64;
 	
-		iter->image=image;
-		iter->index = 0;
+		iter.image=image;
+		iter.index = 0;
 		return 0;
 	}
 	
 	static int t64_image_nextenum(IMAGEENUM *enumeration, imgtool_dirent *ent)
 	{
 		t64_iterator *iter=(t64_iterator*)enumeration;
-		ent->corrupt=0;
+		ent.corrupt=0;
 		
-		for (;!(ent->eof=(iter->index>=GET_UWORD(HEADER(iter->image)->max_entries)));iter->index++ ){
-			if (ENTRY(iter->image, iter->index)->type==0) continue;
-			memset(ent->fname,0,17);
-			strncpy(ent->fname, ENTRY(iter->image, iter->index)->name, 16);
-			if (ent->attr)
-				sprintf(ent->attr,"start:%.4x end:%.4x type:%d file:%d",
-						GET_UWORD( ENTRY(iter->image,iter->index)->start_address),
-						GET_UWORD( ENTRY(iter->image,iter->index)->end_address),
-						ENTRY(iter->image,iter->index)->type,
-						ENTRY(iter->image,iter->index)->file_type );
-			ent->filesize=GET_UWORD( ENTRY(iter->image, iter->index)->end_address )
-				-GET_UWORD( ENTRY(iter->image, iter->index)->start_address );
-			iter->index++;
+		for (;!(ent.eof=(iter.index>=GET_UWORD(HEADER(iter.image).max_entries)));iter.index++ ){
+			if (ENTRY(iter.image, iter.index).type==0) continue;
+			memset(ent.fname,0,17);
+			strncpy(ent.fname, ENTRY(iter.image, iter.index).name, 16);
+			if (ent.attr)
+				sprintf(ent.attr,"start:%.4x end:%.4x type:%d file:%d",
+						GET_UWORD( ENTRY(iter.image,iter.index).start_address),
+						GET_UWORD( ENTRY(iter.image,iter.index).end_address),
+						ENTRY(iter.image,iter.index).type,
+						ENTRY(iter.image,iter.index).file_type );
+			ent.filesize=GET_UWORD( ENTRY(iter.image, iter.index).end_address )
+				-GET_UWORD( ENTRY(iter.image, iter.index).start_address );
+			iter.index++;
 			break;
 		}
 		return 0;
@@ -243,7 +243,7 @@ public class t64
 		size_t s = 0;
 	
 		for (i = 0; i < GRANULE_COUNT; i++)
-			if (rsimg->granulemap[i] == 0xff)
+			if (rsimg.granulemap[i] == 0xff)
 				s += (9 * 256);
 		return s;
 	}
@@ -253,9 +253,9 @@ public class t64
 	{
 		int i=0;
 	
-		for (i=0; i<GET_UWORD(HEADER(image)->max_entries); i++) {
-			if (ENTRY(image, i)->type==0) continue;
-			if (!strnicmp(fname, ENTRY(image,i)->name, strlen(fname)) ) return i;
+		for (i=0; i<GET_UWORD(HEADER(image).max_entries); i++) {
+			if (ENTRY(image, i).type==0) continue;
+			if (!strnicmp(fname, ENTRY(image,i).name, strlen(fname)) ) return i;
 		}
 		return -1;
 	}
@@ -268,12 +268,12 @@ public class t64
 	
 		if ((ind=t64_image_findfile(image, fname))==-1 ) return IMGTOOLERR_MODULENOTFOUND;
 	
-		size=GET_UWORD( ENTRY(image, ind)->end_address )-GET_UWORD( ENTRY(image, ind)->start_address );
+		size=GET_UWORD( ENTRY(image, ind).end_address )-GET_UWORD( ENTRY(image, ind).start_address );
 	
-		if (stream_write(destf, &ENTRY(image, ind)->start_address, 2)!=2) {
+		if (stream_write(destf, &ENTRY(image, ind).start_address, 2)!=2) {
 			return IMGTOOLERR_WRITEERROR;
 		}
-		if (stream_write(destf, image->data+GET_ULONG(ENTRY(image, ind)->offset), size)!=size) {
+		if (stream_write(destf, image.data+GET_ULONG(ENTRY(image, ind).offset), size)!=size) {
 			return IMGTOOLERR_WRITEERROR;
 		}
 	
@@ -290,52 +290,52 @@ public class t64
 		fsize=stream_size(sourcef);
 		if ((ind=t64_image_findfile(image, fname))==-1 ) {
 			// appending
-			for (ind=0; ind<GET_UWORD(HEADER(image)->max_entries)&&(ENTRY(image,ind)->type!=0); ind++) ;
-			if (ind>=GET_UWORD(HEADER(image)->max_entries)) return IMGTOOLERR_NOSPACE;
-			pos=image->size;
-			if (!(image->data=realloc(image->data, image->size+fsize-2)) )
+			for (ind=0; ind<GET_UWORD(HEADER(image).max_entries)&&(ENTRY(image,ind).type!=0); ind++) ;
+			if (ind>=GET_UWORD(HEADER(image).max_entries)) return IMGTOOLERR_NOSPACE;
+			pos=image.size;
+			if (!(image.data=realloc(image.data, image.size+fsize-2)) )
 				return IMGTOOLERR_OUTOFMEMORY;
-			image->size+=fsize-2;
-			HEADER(image)->used_entries++;
+			image.size+=fsize-2;
+			HEADER(image).used_entries++;
 		} else {
-			pos=GET_ULONG(ENTRY(image,ind)->offset);
+			pos=GET_ULONG(ENTRY(image,ind).offset);
 			// find the size of the data in this area
-			for (size=image->size-pos, i=0; i<GET_UWORD(HEADER(image)->max_entries); i++) {
-				if (ENTRY(image,i)->type==0) continue;
-				if (GET_UWORD(ENTRY(image,i)->offset)<pos) continue;
-				if (GET_ULONG(ENTRY(image,i)->offset)-pos>=size) continue;
-				size=GET_ULONG(ENTRY(image, i)->offset)-pos;
+			for (size=image.size-pos, i=0; i<GET_UWORD(HEADER(image).max_entries); i++) {
+				if (ENTRY(image,i).type==0) continue;
+				if (GET_UWORD(ENTRY(image,i).offset)<pos) continue;
+				if (GET_ULONG(ENTRY(image,i).offset)-pos>=size) continue;
+				size=GET_ULONG(ENTRY(image, i).offset)-pos;
 			}
-			if ((size!=0)&&(image->size-pos-size!=0)) 
-				memmove(image->data+pos, image->data+pos+size, image->size-pos-size);
+			if ((size!=0)&&(image.size-pos-size!=0)) 
+				memmove(image.data+pos, image.data+pos+size, image.size-pos-size);
 			// correct offset positions in other entries
-			for (i=0;i<GET_UWORD(HEADER(image)->max_entries); i++) {
+			for (i=0;i<GET_UWORD(HEADER(image).max_entries); i++) {
 				if (i==ind) continue;
-				if (ENTRY(image,i)->type==0) continue;
-				if (GET_ULONG(ENTRY(image,i)->offset)<pos) continue;
-				t=GET_ULONG(ENTRY(image,i)->offset)-size;
-				SET_ULONG( ENTRY(image,i)->offset, t);
+				if (ENTRY(image,i).type==0) continue;
+				if (GET_ULONG(ENTRY(image,i).offset)<pos) continue;
+				t=GET_ULONG(ENTRY(image,i).offset)-size;
+				SET_ULONG( ENTRY(image,i).offset, t);
 			}
 			// overwritting
-			if (!(image->data=realloc(image->data, image->size+fsize-2-size)))
+			if (!(image.data=realloc(image.data, image.size+fsize-2-size)))
 				return IMGTOOLERR_OUTOFMEMORY;
-			pos=image->size;
-			image->size=image->size+fsize-2-size;
+			pos=image.size;
+			image.size=image.size+fsize-2-size;
 		}
 		memset(ENTRY(image,ind), 0, sizeof(t64_entry));
-		if (stream_read(sourcef, &ENTRY(image,ind)->start_address, 2)!=2) {
+		if (stream_read(sourcef, &ENTRY(image,ind).start_address, 2)!=2) {
 			return IMGTOOLERR_READERROR;
 		}
-		if (stream_read(sourcef, image->data+pos, fsize-2)!=fsize-2) {
+		if (stream_read(sourcef, image.data+pos, fsize-2)!=fsize-2) {
 			return IMGTOOLERR_READERROR;
 		}
-		SET_UWORD( ENTRY(image, ind)->end_address,
-				   GET_UWORD( ENTRY(image, ind)->start_address)+fsize-2);
-		SET_ULONG( ENTRY(image, ind)->offset, pos);
-		strncpy(ENTRY(image, ind)->name, fname, 16);
-		ENTRY(image,ind)->type=1; // normal file
-		ENTRY(image,ind)->file_type=1; // prg
-		image->modified=1;
+		SET_UWORD( ENTRY(image, ind).end_address,
+				   GET_UWORD( ENTRY(image, ind).start_address)+fsize-2);
+		SET_ULONG( ENTRY(image, ind).offset, pos);
+		strncpy(ENTRY(image, ind).name, fname, 16);
+		ENTRY(image,ind).type=1; // normal file
+		ENTRY(image,ind).file_type=1; // prg
+		image.modified=1;
 	
 		return 0;
 	}
@@ -349,42 +349,42 @@ public class t64
 		if ((ind=t64_image_findfile(image, fname))==-1 ) {
 			return IMGTOOLERR_MODULENOTFOUND;
 		}
-		pos=GET_ULONG(ENTRY(image,ind)->offset);
+		pos=GET_ULONG(ENTRY(image,ind).offset);
 		// find the size of the data in this area
-		for (size=image->size-pos, i=0; i<GET_UWORD(HEADER(image)->max_entries); i++) {
-			if (ENTRY(image,i)->type==0) continue;
-			if (GET_UWORD(ENTRY(image,i)->offset)<pos) continue;
-			if (GET_ULONG(ENTRY(image,i)->offset)-pos>=size) continue;
-			size=GET_ULONG(ENTRY(image, i)->offset)-pos;
+		for (size=image.size-pos, i=0; i<GET_UWORD(HEADER(image).max_entries); i++) {
+			if (ENTRY(image,i).type==0) continue;
+			if (GET_UWORD(ENTRY(image,i).offset)<pos) continue;
+			if (GET_ULONG(ENTRY(image,i).offset)-pos>=size) continue;
+			size=GET_ULONG(ENTRY(image, i).offset)-pos;
 		}
-		if ((size!=0)&&(image->size-pos-size!=0)) 
-			memmove(image->data+pos, image->data+pos+size, image->size-pos-size);
+		if ((size!=0)&&(image.size-pos-size!=0)) 
+			memmove(image.data+pos, image.data+pos+size, image.size-pos-size);
 		// correct offset positions in other entries
-		for (i=0;i<GET_UWORD(HEADER(image)->max_entries); i++) {
+		for (i=0;i<GET_UWORD(HEADER(image).max_entries); i++) {
 			if (i==ind) continue;
-			if (ENTRY(image,i)->type==0) continue;
-			if (GET_ULONG(ENTRY(image,i)->offset)<pos) continue;
-			SET_ULONG( ENTRY(image,i)->offset, GET_ULONG(ENTRY(image,i)->offset)-size );
+			if (ENTRY(image,i).type==0) continue;
+			if (GET_ULONG(ENTRY(image,i).offset)<pos) continue;
+			SET_ULONG( ENTRY(image,i).offset, GET_ULONG(ENTRY(image,i).offset)-size );
 		}
-		image->size-=size;
-		ENTRY(image,ind)->type=0; // normal file
-		image->modified=1;
-		HEADER(image)->used_entries--;
+		image.size-=size;
+		ENTRY(image,ind).type=0; // normal file
+		image.modified=1;
+		HEADER(image).used_entries--;
 	
 		return 0;
 	}
 	
 	static int t64_image_create(STREAM *f, const geometry_options *options)
 	{
-		int entries=options->entries;
+		int entries=options.entries;
 		t64_header header={ "T64 Tape archiv created by MESS\x1a" };
 		t64_entry entry= { 0 };
 		int i;
 	
 		if (entries==0) entries=10;
 		SET_UWORD(header.version, 0x0101);
-		SET_UWORD(header.max_entries, options->entries);
-		if (options->label) strcpy(header.description, options->label);
+		SET_UWORD(header.max_entries, options.entries);
+		if (options.label) strcpy(header.description, options.label);
 		if (stream_write(f, &header, sizeof(t64_header)) != sizeof(t64_header)) 
 			return  IMGTOOLERR_WRITEERROR;
 		for (i=0; i<entries; i++) {

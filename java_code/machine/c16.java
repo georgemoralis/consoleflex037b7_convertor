@@ -134,7 +134,7 @@ public class c16
 		DBG_LOG (2, "364", ("port write %.2x %.2x\n", offset, data));
 		switch (offset) {
 		case 0:
-			if (data&0x80) {
+			if ((data & 0x80) != 0) {
 				switch (speech.command.state) {
 				case 0:
 					switch (speech.command.data) {
@@ -243,7 +243,7 @@ public class c16
 	{
 		int dat, atn, clk;
 	
-		if (offset)
+		if (offset != 0)
 		{
 			if (port7501 != data)
 				port7501 = data;
@@ -264,7 +264,7 @@ public class c16
 	
 	READ_HANDLER(c16_m7501_port_r)
 	{
-		if (offset)
+		if (offset != 0)
 		{
 			int data = (ddr7501 & port7501) | (ddr7501 ^ 0xff);
 	
@@ -347,7 +347,7 @@ public class c16
 	{
 		lowrom = offset & 3;
 		highrom = (offset & 0xc) >> 2;
-		if (ted7360_rom)
+		if (ted7360_rom != 0)
 			c16_bankswitch ();
 	}
 	
@@ -627,7 +627,7 @@ public class c16
 		c16_select_roms (0, 0);
 		c16_switch_to_rom (0, 0);
 	
-		if (REAL_C1551) {
+		if (REAL_C1551 != 0) {
 			tpi6525[2].a.read=c1551x_0_read_data;
 			tpi6525[2].a.output=c1551x_0_write_data;
 			tpi6525[2].b.read=c1551x_0_read_status;
@@ -669,11 +669,11 @@ public class c16
 		cbm_drive_attach_fs (0);
 		cbm_drive_attach_fs (1);
 	
-		if (REAL_C1551)
+		if (REAL_C1551 != 0)
 			c1551_config (0, 0, &config);
 	
 	#ifdef VC1541
-		if (REAL_VC1541)
+		if (REAL_VC1541 != 0)
 			vc1541_config (0, 0, &vc1541);
 	#endif
 		sid6581_0_init(NULL, C16_PAL);
@@ -714,7 +714,7 @@ public class c16
 		sid6581_0_port_w(offset,data);
 	}
 	
-	void c16_init_machine (void)
+	public static InitMachinePtr c16_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		int i;
 	
@@ -722,7 +722,7 @@ public class c16
 		tpi6525_3_reset();
 	
 		sid6581_0_reset();
-		if (SIDCARD) {
+		if (SIDCARD != 0) {
 			sid6581_0_configure(SIDCARD_8580);
 			install_mem_read_handler (0, 0xfd40, 0xfd5f, sid6581_0_port_r);
 			install_mem_write_handler (0, 0xfd40, 0xfd5f, sid6581_0_port_w);
@@ -735,7 +735,7 @@ public class c16
 		c16_switch_to_rom (0, 0);
 		c16_select_roms (0, 0);
 	#endif
-		if (TYPE_C16)
+		if (TYPE_C16 != 0)
 		{
 			cpu_setbank (1, (DIPMEMORY == MEMORY16K) ? c16_memory : c16_memory + 0x4000);
 			switch (DIPMEMORY)
@@ -753,7 +753,7 @@ public class c16
 	#endif
 				install_mem_write_handler (0, 0xff20, 0xff3d, c16_write_3f20);
 				install_mem_write_handler (0, 0xff40, 0xffff, c16_write_3f40);
-				if (SIDCARD) {
+				if (SIDCARD != 0) {
 					// lone07 works with sid at the c64 address???
 					// dizzy fantasy 3
 					install_mem_write_handler (0, 0xd400, 0xd41f, c16_sidcart_16k);
@@ -777,7 +777,7 @@ public class c16
 				install_mem_write_handler (0, 0xff40, 0xffff, c16_write_7f40);
 	#endif
 				ted7360_set_dma (ted7360_dma_read_32k, ted7360_dma_read_rom);
-				if (SIDCARD) {
+				if (SIDCARD != 0) {
 					// lone07 works with sid at the c64 address???
 					// dizzy fantasy 3
 					install_mem_write_handler (0, 0xd400, 0xd41f, c16_sidcart_32k);
@@ -785,7 +785,7 @@ public class c16
 				break;
 			case MEMORY64K:
 				install_mem_write_handler (0, 0x4000, 0xfcff, MWA_RAM);
-				if (SIDCARD) {
+				if (SIDCARD != 0) {
 					// lone07 works with sid at the c64 address???
 					// dizzy fantasy 3
 					install_mem_write_handler (0, 0xd400, 0xd41f, c16_sidcart_64k);
@@ -810,7 +810,7 @@ public class c16
 			install_mem_write_handler (0, 0xfee0, 0xfeff, MWA_NOP);
 			install_mem_read_handler (0, 0xfee0, 0xfeff, MRA_NOP);
 		}
-		if (IEC9ON)
+		if (IEC9ON != 0)
 		{
 			install_mem_write_handler (0, 0xfec0, 0xfedf, tpi6525_3_port_w);
 			install_mem_read_handler (0, 0xfec0, 0xfedf, tpi6525_3_port_r);
@@ -821,26 +821,26 @@ public class c16
 			install_mem_read_handler (0, 0xfec0, 0xfedf, MRA_NOP);
 		}
 	
-		if (SERIAL8ON)
+		if (SERIAL8ON != 0)
 			i = SERIAL;
-		else if (IEC8ON)
+		else if (IEC8ON != 0)
 			i = IEC;
 		else
 			i = 0;
 		cbm_drive_0_config (i, 8);
-		if (SERIAL9ON)
+		if (SERIAL9ON != 0)
 			i = SERIAL;
-		else if (IEC9ON)
+		else if (IEC9ON != 0)
 			i = IEC;
 		else
 			i = 0;
 		cbm_drive_1_config (i, 9);
 	
-		if (REAL_C1551)
+		if (REAL_C1551 != 0)
 			c1551_reset ();
 	
 	#ifdef VC1541
-		if (REAL_VC1541)
+		if (REAL_VC1541 != 0)
 			vc1541_reset ();
 	#endif
 	
@@ -849,7 +849,7 @@ public class c16
 		for (i = 0; rom_specified[i] && (i < sizeof (rom_specified) / sizeof (rom_specified[0])); i++)
 			c16_rom_load (i);
 	
-	}
+	} };
 	
 	void c16_shutdown_machine (void)
 	{
@@ -942,14 +942,14 @@ public class c16
 				retval = 1;
 		}
 	
-			if (retval)
+			if (retval != 0)
 				logerror("rom %s recognized\n", name);
 			else
 				logerror("rom %s not recognized\n", name);
 		return retval;
 	}
 	
-	int c16_frame_interrupt (void)
+	public static InterruptPtr c16_frame_interrupt = new InterruptPtr() { public int handler() 
 	{
 		static int quickload = 0;
 		int value;
@@ -961,198 +961,198 @@ public class c16
 		quickload = QUICKLOAD;
 	
 		value = 0xff;
-		if (KEY_ATSIGN)
+		if (KEY_ATSIGN != 0)
 			value &= ~0x80;
-		if (KEY_F3)
+		if (KEY_F3 != 0)
 			value &= ~0x40;
-		if (KEY_F2)
+		if (KEY_F2 != 0)
 			value &= ~0x20;
-		if (KEY_F1)
+		if (KEY_F1 != 0)
 			value &= ~0x10;
-		if (KEY_HELP)
+		if (KEY_HELP != 0)
 			value &= ~8;
-		if (KEY_POUND)
+		if (KEY_POUND != 0)
 			value &= ~4;
-		if (KEY_RETURN)
+		if (KEY_RETURN != 0)
 			value &= ~2;
-		if (KEY_DEL)
+		if (KEY_DEL != 0)
 			value &= ~1;
 		keyline[0] = value;
 	
 		value = 0xff;
-		if (KEY_SHIFT)
+		if (KEY_SHIFT != 0)
 			value &= ~0x80;
-		if (KEY_E)
+		if (KEY_E != 0)
 			value &= ~0x40;
-		if (KEY_S)
+		if (KEY_S != 0)
 			value &= ~0x20;
-		if (KEY_Z)
+		if (KEY_Z != 0)
 			value &= ~0x10;
-		if (KEY_4)
+		if (KEY_4 != 0)
 			value &= ~8;
-		if (KEY_A)
+		if (KEY_A != 0)
 			value &= ~4;
-		if (KEY_W)
+		if (KEY_W != 0)
 			value &= ~2;
-		if (KEY_3)
+		if (KEY_3 != 0)
 			value &= ~1;
 		keyline[1] = value;
 	
 		value = 0xff;
-		if (KEY_X)
+		if (KEY_X != 0)
 			value &= ~0x80;
-		if (KEY_T)
+		if (KEY_T != 0)
 			value &= ~0x40;
-		if (KEY_F)
+		if (KEY_F != 0)
 			value &= ~0x20;
-		if (KEY_C)
+		if (KEY_C != 0)
 			value &= ~0x10;
-		if (KEY_6)
+		if (KEY_6 != 0)
 			value &= ~8;
-		if (KEY_D)
+		if (KEY_D != 0)
 			value &= ~4;
-		if (KEY_R)
+		if (KEY_R != 0)
 			value &= ~2;
-		if (KEY_5)
+		if (KEY_5 != 0)
 			value &= ~1;
 		keyline[2] = value;
 	
 		value = 0xff;
-		if (KEY_V)
+		if (KEY_V != 0)
 			value &= ~0x80;
-		if (KEY_U)
+		if (KEY_U != 0)
 			value &= ~0x40;
-		if (KEY_H)
+		if (KEY_H != 0)
 			value &= ~0x20;
-		if (KEY_B)
+		if (KEY_B != 0)
 			value &= ~0x10;
-		if (KEY_8)
+		if (KEY_8 != 0)
 			value &= ~8;
-		if (KEY_G)
+		if (KEY_G != 0)
 			value &= ~4;
-		if (KEY_Y)
+		if (KEY_Y != 0)
 			value &= ~2;
-		if (KEY_7)
+		if (KEY_7 != 0)
 			value &= ~1;
 		keyline[3] = value;
 	
 		value = 0xff;
-		if (KEY_N)
+		if (KEY_N != 0)
 			value &= ~0x80;
-		if (KEY_O)
+		if (KEY_O != 0)
 			value &= ~0x40;
-		if (KEY_K)
+		if (KEY_K != 0)
 			value &= ~0x20;
-		if (KEY_M)
+		if (KEY_M != 0)
 			value &= ~0x10;
-		if (KEY_0)
+		if (KEY_0 != 0)
 			value &= ~8;
-		if (KEY_J)
+		if (KEY_J != 0)
 			value &= ~4;
-		if (KEY_I)
+		if (KEY_I != 0)
 			value &= ~2;
-		if (KEY_9)
+		if (KEY_9 != 0)
 			value &= ~1;
 		keyline[4] = value;
 	
 		value = 0xff;
-		if (KEY_COMMA)
+		if (KEY_COMMA != 0)
 			value &= ~0x80;
-		if (KEY_MINUS)
+		if (KEY_MINUS != 0)
 			value &= ~0x40;
-		if (KEY_SEMICOLON)
+		if (KEY_SEMICOLON != 0)
 			value &= ~0x20;
-		if (KEY_POINT)
+		if (KEY_POINT != 0)
 			value &= ~0x10;
-		if (KEY_UP)
+		if (KEY_UP != 0)
 			value &= ~8;
-		if (KEY_L)
+		if (KEY_L != 0)
 			value &= ~4;
-		if (KEY_P)
+		if (KEY_P != 0)
 			value &= ~2;
-		if (KEY_DOWN)
+		if (KEY_DOWN != 0)
 			value &= ~1;
 		keyline[5] = value;
 	
 		value = 0xff;
-		if (KEY_SLASH)
+		if (KEY_SLASH != 0)
 			value &= ~0x80;
-		if (KEY_PLUS)
+		if (KEY_PLUS != 0)
 			value &= ~0x40;
-		if (KEY_EQUALS)
+		if (KEY_EQUALS != 0)
 			value &= ~0x20;
-		if (KEY_ESC)
+		if (KEY_ESC != 0)
 			value &= ~0x10;
-		if (KEY_RIGHT)
+		if (KEY_RIGHT != 0)
 			value &= ~8;
-		if (KEY_COLON)
+		if (KEY_COLON != 0)
 			value &= ~4;
-		if (KEY_ASTERIX)
+		if (KEY_ASTERIX != 0)
 			value &= ~2;
-		if (KEY_LEFT)
+		if (KEY_LEFT != 0)
 			value &= ~1;
 		keyline[6] = value;
 	
 		value = 0xff;
-		if (KEY_STOP)
+		if (KEY_STOP != 0)
 			value &= ~0x80;
-		if (KEY_Q)
+		if (KEY_Q != 0)
 			value &= ~0x40;
-		if (KEY_CBM)
+		if (KEY_CBM != 0)
 			value &= ~0x20;
-		if (KEY_SPACE)
+		if (KEY_SPACE != 0)
 			value &= ~0x10;
-		if (KEY_2)
+		if (KEY_2 != 0)
 			value &= ~8;
-		if (KEY_CTRL)
+		if (KEY_CTRL != 0)
 			value &= ~4;
-		if (KEY_HOME)
+		if (KEY_HOME != 0)
 			value &= ~2;
-		if (KEY_1)
+		if (KEY_1 != 0)
 			value &= ~1;
 		keyline[7] = value;
 	
-		if (JOYSTICK1_PORT) {
+		if (JOYSTICK1_PORT != 0) {
 			value = 0xff;
-			if (JOYSTICK_1_BUTTON)
+			if (JOYSTICK_1_BUTTON != 0)
 				{
-					if (JOYSTICK_SWAP)
+					if (JOYSTICK_SWAP != 0)
 						value &= ~0x80;
 					else
 						value &= ~0x40;
 				}
-			if (JOYSTICK_1_RIGHT)
+			if (JOYSTICK_1_RIGHT != 0)
 				value &= ~8;
-			if (JOYSTICK_1_LEFT)
+			if (JOYSTICK_1_LEFT != 0)
 				value &= ~4;
-			if (JOYSTICK_1_DOWN)
+			if (JOYSTICK_1_DOWN != 0)
 				value &= ~2;
-			if (JOYSTICK_1_UP)
+			if (JOYSTICK_1_UP != 0)
 				value &= ~1;
-			if (JOYSTICK_SWAP)
+			if (JOYSTICK_SWAP != 0)
 				keyline[9] = value;
 			else
 				keyline[8] = value;
 		}
 	
-		if (JOYSTICK2_PORT) {
+		if (JOYSTICK2_PORT != 0) {
 			value = 0xff;
-			if (JOYSTICK_2_BUTTON)
+			if (JOYSTICK_2_BUTTON != 0)
 				{
-					if (JOYSTICK_SWAP)
+					if (JOYSTICK_SWAP != 0)
 						value &= ~0x40;
 					else
 						value &= ~0x80;
 				}
-			if (JOYSTICK_2_RIGHT)
+			if (JOYSTICK_2_RIGHT != 0)
 				value &= ~8;
-			if (JOYSTICK_2_LEFT)
+			if (JOYSTICK_2_LEFT != 0)
 				value &= ~4;
-			if (JOYSTICK_2_DOWN)
+			if (JOYSTICK_2_DOWN != 0)
 				value &= ~2;
-			if (JOYSTICK_2_UP)
+			if (JOYSTICK_2_UP != 0)
 				value &= ~1;
-			if (JOYSTICK_SWAP)
+			if (JOYSTICK_SWAP != 0)
 				keyline[8] = value;
 			else
 				keyline[9] = value;
@@ -1166,5 +1166,5 @@ public class c16
 		osd_led_w (0 /*KB_NUMLOCK_FLAG */ , JOYSTICK_SWAP ? 1 : 0);
 	
 		return ignore_interrupt ();
-	}
+	} };
 }

@@ -16,19 +16,19 @@ package machine;
 public class nc
 {
 	
-	unsigned char *nc_card_ram;
+	UBytePtr nc_card_ram;
 	
 	/* load image */
-	int nc_load(int type, int id, unsigned char **ptr)
+	int nc_load(int type, int id, UBytePtr *ptr)
 	{
 		void *file;
 	
 		file = image_fopen(type, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
 	
-		if (file)
+		if (file != 0)
 		{
 			int datasize;
-			unsigned char *data;
+			UBytePtr data;
 	
 			/* get file size */
 			datasize = osd_fsize(file);

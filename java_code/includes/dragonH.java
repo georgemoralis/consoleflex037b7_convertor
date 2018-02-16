@@ -35,29 +35,18 @@ extern WRITE_HANDLER ( coco3_ram_b7_w );
 extern WRITE_HANDLER ( coco3_ram_b8_w );
 extern WRITE_HANDLER ( coco3_ram_b9_w );
 extern void coco3_vh_sethires(int hires);
-extern int dragon_vh_start(void);
-extern int coco3_vh_start(void);
-extern void coco3_vh_stop(void);
-extern void coco3_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh);
-extern WRITE_HANDLER ( dragon_sam_display_offset );
+extern extern extern extern extern WRITE_HANDLER ( dragon_sam_display_offset );
 extern WRITE_HANDLER ( dragon_sam_vdg_mode );
-extern int dragon_interrupt(void);
-extern WRITE_HANDLER ( coco_ram_w );
+extern extern WRITE_HANDLER ( coco_ram_w );
 extern READ_HANDLER ( coco3_gimevh_r );
 extern WRITE_HANDLER ( coco3_gimevh_w );
 extern WRITE_HANDLER ( coco3_palette_w );
-extern void coco3_vh_blink(void);
-
+extern 
 /* ----------------------------------------------------------------------- *
  * from machine/dragon.c                                                   *
  * ----------------------------------------------------------------------- */
 
-extern void dragon32_init_machine(void);
-extern void dragon64_init_machine(void);
-extern void coco_init_machine(void);
-extern void coco3_init_machine(void);
-extern void dragon_stop_machine(void);
-extern int coco_cassette_init(int id);
+extern extern extern extern extern extern int coco_cassette_init(int id);
 extern int coco3_cassette_init(int id);
 extern void coco_cassette_exit(int id);
 extern int dragon32_rom_load(int id);
@@ -83,8 +72,7 @@ extern READ_HANDLER ( coco_floppy_r );
 extern WRITE_HANDLER ( coco_floppy_w );
 extern READ_HANDLER(dragon_floppy_r);
 extern WRITE_HANDLER ( dragon_floppy_w );
-extern void coco3_vblank(void);
-extern int coco3_mmu_translate(int block, int offset);
+extern extern int coco3_mmu_translate(int block, int offset);
 
 /* Returns whether a given piece of logical memory is contiguous or not */
 extern int coco3_mmu_ismemorycontiguous(int logicaladdr, int len);

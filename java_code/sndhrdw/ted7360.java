@@ -133,7 +133,7 @@ public class ted7360
 			}
 			if (TONE2_ON || NOISE_ON /*||(tone2pos!=0) */ )
 			{
-				if (TONE2_ON)
+				if (TONE2_ON != 0)
 				{						   /*higher priority ?! */
 					v += tone[tone2pos * tonesize / tone2samples];
 					tone2pos++;
@@ -163,7 +163,7 @@ public class ted7360
 	
 	
 	
-			if (TONE_ON)
+			if (TONE_ON != 0)
 			{
 				v = (v * VOLUME) << 2;
 				if (v > 32767)
@@ -216,21 +216,21 @@ public class ted7360
 			for (i = 0; i < noisesize; i++)
 			{
 				data = 0;
-				if (noiseshift & 0x400000)
+				if ((noiseshift & 0x400000) != 0)
 					data |= 0x80;
-				if (noiseshift & 0x100000)
+				if ((noiseshift & 0x100000) != 0)
 					data |= 0x40;
-				if (noiseshift & 0x010000)
+				if ((noiseshift & 0x010000) != 0)
 					data |= 0x20;
-				if (noiseshift & 0x002000)
+				if ((noiseshift & 0x002000) != 0)
 					data |= 0x10;
-				if (noiseshift & 0x000800)
+				if ((noiseshift & 0x000800) != 0)
 					data |= 0x08;
-				if (noiseshift & 0x000080)
+				if ((noiseshift & 0x000080) != 0)
 					data |= 0x04;
-				if (noiseshift & 0x000010)
+				if ((noiseshift & 0x000010) != 0)
 					data |= 0x02;
-				if (noiseshift & 0x000004)
+				if ((noiseshift & 0x000004) != 0)
 					data |= 0x01;
 				noise[i] = data;
 				if (((noiseshift & 0x400000) == 0) != ((noiseshift & 0x002000) == 0))

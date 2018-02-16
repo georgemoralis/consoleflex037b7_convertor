@@ -33,7 +33,6 @@ public class nec765H
 	void	nec765_set_ready_state(int);
 	
 	
-	void nec765_idle(void);
 	
 	/* read of data register */
 	READ_HANDLER(nec765_data_r);

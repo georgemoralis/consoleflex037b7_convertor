@@ -26,23 +26,15 @@ public class trs80H
 	extern int trs80_floppy_init(int id);
 	extern void trs80_floppy_exit(int id);
 	
-	extern int trs80_vh_start(void);
-	extern void trs80_vh_stop(void);
-	extern void trs80_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh);
-	
+	extern extern extern 
 	extern void trs80_sh_sound_init(const char * gamename);
 	
-	extern void init_trs80(void);
-	extern void trs80_init_machine(void);
-	extern void trs80_shutdown_machine(void);
-	
+	extern extern extern 
 	extern WRITE_HANDLER ( trs80_port_ff_w );
 	extern READ_HANDLER ( trs80_port_ff_r );
 	extern READ_HANDLER ( trs80_port_xx_r );
 	
-	extern int trs80_timer_interrupt(void);
-	extern int trs80_frame_interrupt(void);
-	
+	extern extern 
 	extern READ_HANDLER ( trs80_irq_status_r );
 	extern WRITE_HANDLER ( trs80_irq_mask_w );
 	

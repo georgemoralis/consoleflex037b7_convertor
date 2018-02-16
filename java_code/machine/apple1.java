@@ -55,7 +55,7 @@ public class apple1
 	
 	static int apple1_kbd_data;
 	
-	void apple1_init_machine(void)
+	public static InitMachinePtr apple1_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		logerror("apple1_init\r\n");
 	
@@ -70,13 +70,13 @@ public class apple1
 			install_mem_read_handler (0, 0x2000, 0xcfff, MRA_NOP);
 		}
 		pia_config(0, PIA_8BIT | PIA_AUTOSENSE, &apple1_pia0);
-	}
+	} };
 	
 	void apple1_stop_machine(void)
 	{
 	}
 	
-	int apple1_interrupt(void)
+	public static InterruptPtr apple1_interrupt = new InterruptPtr() { public int handler() 
 	{
 		int loop;
 	
@@ -115,30 +115,30 @@ public class apple1
 		}
 	
 		return (0);
-	}
+	} };
 	
 	/* || */
 	
-	READ_HANDLER( apple1_pia0_kbdin )
+	public static ReadHandlerPtr apple1_pia0_kbdin  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		return (apple1_kbd_data | 0x80);
-	}
+	} };
 	
-	READ_HANDLER( apple1_pia0_dsprdy )
+	public static ReadHandlerPtr apple1_pia0_dsprdy  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		return (0x00);					   /* Screen always ready */
-	}
+	} };
 	
-	READ_HANDLER( apple1_pia0_kbdrdy )
+	public static ReadHandlerPtr apple1_pia0_kbdrdy  = new ReadHandlerPtr() { public int handler(int offset)
 	{
-		if (apple1_kbd_data) return (1);	/* Key available */
+		if (apple1_kbd_data != 0) return (1);	/* Key available */
 	
 		return (0x00);
-	}
+	} };
 	
-	WRITE_HANDLER( apple1_pia0_dspout )
+	public static WriteHandlerPtr apple1_pia0_dspout = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		apple1_vh_dsp_w(data);
-	}
+	} };
 	
 }

@@ -318,7 +318,7 @@ public class nes_mmc
 		/* Space Shuttle will not work if they have independent variables. */
 		reg = (offset >> 13);
 	
-		if (data & 0x80)
+		if ((data & 0x80) != 0)
 		{
 			MMC1_reg_count = 0;
 			MMC1_reg = 0;
@@ -362,17 +362,17 @@ public class nes_mmc
 	#ifdef LOG_MMC
 					logerror("   MMC1 reg #1 val:%02x\n", MMC1_reg);
 						logerror("\t\tBank Size: ");
-						if (MMC1_Size_16k)
+						if (MMC1_Size_16k != 0)
 							logerror("16k\n");
 						else logerror("32k\n");
 	
 						logerror("\t\tBank Select: ");
-						if (MMC1_Switch_Low)
+						if (MMC1_Switch_Low != 0)
 							logerror("$8000\n");
 						else logerror("$C000\n");
 	
 						logerror("\t\tVROM Bankswitch Size Select: ");
-						if (MMC1_SizeVrom_4k)
+						if (MMC1_SizeVrom_4k != 0)
 							logerror("4k\n");
 						else logerror("8k\n");
 	
@@ -400,7 +400,7 @@ public class nes_mmc
 						else
 						{
 							/* Set 256k bank based on the 256k bank select register */
-							if (MMC1_extended_swap)
+							if (MMC1_extended_swap != 0)
 							{
 								MMC1_extended_base = 0x40000 * MMC1_extended_bank + 0x10000;
 								cpu_setbank (1, &nes.rom[MMC1_extended_base + MMC1_bank1]);
@@ -458,7 +458,7 @@ public class nes_mmc
 					MMC1_extended_bank = (MMC1_extended_bank & ~0x02) | ((MMC1_reg & 0x10) >> 3);
 					if (MMC1_extended == 2 && MMC1_SizeVrom_4k)
 					{
-						if (MMC1_extended_swap)
+						if (MMC1_extended_swap != 0)
 						{
 							/* Set 256k bank based on the 256k bank select register */
 							MMC1_extended_base = 0x40000 * MMC1_extended_bank + 0x10000;
@@ -474,7 +474,7 @@ public class nes_mmc
 						else
 							MMC1_extended_swap = 1;
 					}
-					if (MMC1_SizeVrom_4k)
+					if (MMC1_SizeVrom_4k != 0)
 					{
 						int bank = MMC1_reg & ((nes.chr_chunks << 1) - 1);
 	
@@ -510,7 +510,7 @@ public class nes_mmc
 					else
 					/* Switching one 16k bank */
 					{
-						if (MMC1_Switch_Low)
+						if (MMC1_Switch_Low != 0)
 						{
 							int bank = MMC1_reg & (nes.prg_chunks - 1);
 	
@@ -580,7 +580,7 @@ public class nes_mmc
 		MMC3_prg0 &= prg_mask;
 		MMC3_prg1 &= prg_mask;
 	
-		if (MMC3_cmd & 0x40)
+		if ((MMC3_cmd & 0x40) != 0)
 		{
 			cpu_setbank (1, &nes.rom[(nes.prg_chunks-1) * 0x4000 + 0x10000]);
 			cpu_setbank (3, &nes.rom[0x2000 * (MMC3_prg0) + 0x10000]);
@@ -677,11 +677,11 @@ public class nes_mmc
 				break;
 			}
 			case 0x2000: /* $a000 */
-				if (data & 0x40)
+				if ((data & 0x40) != 0)
 					ppu_mirror_high();
 				else
 				{
-					if (data & 0x01)
+					if ((data & 0x01) != 0)
 						ppu_mirror_h();
 					else
 						ppu_mirror_v();
@@ -845,7 +845,7 @@ public class nes_mmc
 	
 		if (scanline == IRQ_count)
 		{
-			if (IRQ_enable)
+			if (IRQ_enable != 0)
 				ret = M6502_INT_IRQ;
 	
 			IRQ_status = 0xff;
@@ -980,7 +980,7 @@ public class nes_mmc
 				{
 					case 0x03:
 						/* 8k switch */
-						if (data & 0x80)
+						if ((data & 0x80) != 0)
 						{
 							/* ROM */
 							logerror ("\tROM bank select (8k, $8000): %02x\n", data);
@@ -1003,7 +1003,7 @@ public class nes_mmc
 				{
 					case 0x01:
 					case 0x02:
-						if (data & 0x80)
+						if ((data & 0x80) != 0)
 						{
 							/* 16k switch - ROM only */
 							prg16_89ab ((data & 0x7f) >> 1);
@@ -1019,7 +1019,7 @@ public class nes_mmc
 						break;
 					case 0x03:
 						/* 8k switch */
-						if (data & 0x80)
+						if ((data & 0x80) != 0)
 						{
 							/* ROM */
 							data &= ((nes.prg_chunks << 1) - 1);
@@ -1042,7 +1042,7 @@ public class nes_mmc
 					case 0x02:
 					case 0x03:
 						/* 8k switch */
-						if (data & 0x80)
+						if ((data & 0x80) != 0)
 						{
 							/* ROM */
 							data &= ((nes.prg_chunks << 1) - 1);
@@ -1362,7 +1362,7 @@ public class nes_mmc
 	
 	void mapper7_w (int offset, int data)
 	{
-		if (data & 0x10)
+		if ((data & 0x10) != 0)
 			ppu_mirror_high ();
 		else
 			ppu_mirror_low ();
@@ -1427,7 +1427,7 @@ public class nes_mmc
 				logerror("MMC2 VROM switch #2 (high): %02x\n", data);
 				break;
 			case 0x7000:
-				if (data)
+				if (data != 0)
 					ppu_mirror_h ();
 				else
 					ppu_mirror_v ();
@@ -1500,7 +1500,7 @@ public class nes_mmc
 				logerror("MMC2 VROM switch #2 (high): %02x\n", data);
 				break;
 			case 0x7000:
-				if (data)
+				if (data != 0)
 					ppu_mirror_h ();
 				else
 					ppu_mirror_v ();
@@ -1531,7 +1531,7 @@ public class nes_mmc
 		switch (offset)
 		{
 			case 0x0000:
-				if (data & 0x40)
+				if ((data & 0x40) != 0)
 					ppu_mirror_h ();
 				else
 					ppu_mirror_v ();
@@ -1554,7 +1554,7 @@ public class nes_mmc
 	        	break;
 	
 			case 0x0003:
-				if (data & 0x40)
+				if ((data & 0x40) != 0)
 					ppu_mirror_h ();
 				else
 					ppu_mirror_v ();
@@ -1571,7 +1571,7 @@ public class nes_mmc
 		/* 114 is the number of cycles per scanline */
 		/* TODO: change to reflect the actual number of cycles spent */
 	
-		if (IRQ_enable)
+		if (IRQ_enable != 0)
 		{
 			if (IRQ_count <= 114)
 			{
@@ -1629,14 +1629,14 @@ public class nes_mmc
 		{
 			/* $42fe - mirroring */
 			case 0x1fe:
-				if (data & 0x10)
+				if ((data & 0x10) != 0)
 					ppu_mirror_low ();
 				else
 					ppu_mirror_high ();
 				break;
 			/* $42ff - mirroring */
 			case 0x1ff:
-				if (data & 0x10)
+				if ((data & 0x10) != 0)
 					ppu_mirror_h ();
 				else
 					ppu_mirror_v ();
@@ -1681,24 +1681,24 @@ public class nes_mmc
 		if (scanline <= BOTTOM_VISIBLE_SCANLINE)
 		{
 			/* Increment & check the IRQ scanline counter */
-			if (IRQ_enable)
+			if (IRQ_enable != 0)
 			{
 				IRQ_count -= 0x100;
 	
 				logerror ("scanline: %d, irq count: %04x\n", scanline, IRQ_count);
-				if (IRQ_mode_jaleco & 0x08)
+				if ((IRQ_mode_jaleco & 0x08) != 0)
 				{
 					if ((IRQ_count & 0x0f) == 0x00)
 						/* rollover every 0x10 */
 						ret = M6502_INT_IRQ;
 				}
-				else if (IRQ_mode_jaleco & 0x04)
+				else if ((IRQ_mode_jaleco & 0x04) != 0)
 				{
 					if ((IRQ_count & 0x0ff) == 0x00)
 						/* rollover every 0x100 */
 						ret = M6502_INT_IRQ;
 				}
-				else if (IRQ_mode_jaleco & 0x02)
+				else if ((IRQ_mode_jaleco & 0x02) != 0)
 				{
 					if ((IRQ_count & 0x0fff) == 0x000)
 						/* rollover every 0x1000 */
@@ -1887,7 +1887,7 @@ public class nes_mmc
 	/* LBO - these 2 are likely wrong */
 	
 			case 0x7000: /* IRQ Control 0 */
-				if (data & 0x01)
+				if ((data & 0x01) != 0)
 				{
 	//				IRQ_enable = 1;
 					IRQ_count = IRQ_count_latch;
@@ -2009,11 +2009,11 @@ public class nes_mmc
 	{
 		int ret = M6502_INT_NONE;
 	
-		if (IRQ_enable_latch)
+		if (IRQ_enable_latch != 0)
 			ret = M6502_INT_IRQ;
 	
 		/* Increment & check the IRQ scanline counter */
-		if (IRQ_enable)
+		if (IRQ_enable != 0)
 		{
 			if (IRQ_count <= 114)
 			{
@@ -2102,9 +2102,9 @@ public class nes_mmc
 				break;
 			case 0x05: /* $4025 */
 				nes_fds.motor_on = data & 0x01;
-				if (data & 0x02) nes_fds.head_position = 0;
+				if ((data & 0x02) != 0) nes_fds.head_position = 0;
 				nes_fds.read_mode = data & 0x04;
-				if (data & 0x08)
+				if ((data & 0x08) != 0)
 					ppu_mirror_h ();
 				else
 					ppu_mirror_v ();
@@ -2729,14 +2729,14 @@ public class nes_mmc
 		{
 			case 0x0000:
 				/* Switch 8k bank at $8000 or $c000 */
-				if (bankSel)
+				if (bankSel != 0)
 					prg8_cd (data);
 				else
 					prg8_89 (data);
 				break;
 			case 0x1000:
 				bankSel = data & 0x02;
-				if (data & 0x01)
+				if ((data & 0x01) != 0)
 					ppu_mirror_h ();
 				else
 					ppu_mirror_v ();
@@ -2840,7 +2840,7 @@ public class nes_mmc
 		int ret = M6502_INT_NONE;
 	
 		/* Decrement & check the IRQ scanline counter */
-		if (IRQ_enable)
+		if (IRQ_enable != 0)
 		{
 			if (--IRQ_count == 0)
 			{
@@ -2876,7 +2876,7 @@ public class nes_mmc
 	#ifdef LOG_MMC
 		logerror("mapper41_m_w, offset: %04x, data: %02x\n", offset, data);
 	#endif
-		if (offset & 0x20)
+		if ((offset & 0x20) != 0)
 			ppu_mirror_h();
 		else
 			ppu_mirror_v();
@@ -2893,7 +2893,7 @@ public class nes_mmc
 		logerror("mapper41_w, offset: %04x, data: %02x\n", offset, data);
 	#endif
 	
-		if (mapper41_reg2)
+		if (mapper41_reg2 != 0)
 		{
 			mapper41_chr &= ~0x03;
 			mapper41_chr |= data & 0x03;
@@ -2922,12 +2922,12 @@ public class nes_mmc
 			case 0x0000:
 	//			logerror("Mapper 64 0x8000 write value: %02x\n",data);
 				cmd = data & 0x0f;
-				if (data & 0x80)
+				if ((data & 0x80) != 0)
 					chr = 0x1000;
 				else
 					chr = 0x0000;
 	
-				if (data & 0x10)
+				if ((data & 0x10) != 0)
 				{
 					nes_vram[1] = nes_vram[3] = 0;
 				}
@@ -2936,7 +2936,7 @@ public class nes_mmc
 				/* Toggle switching between $8000/$A000/$C000 and $A000/$C000/$8000 */
 				if (select_high != (data & 0x40))
 				{
-					if (data & 0x40)
+					if ((data & 0x40) != 0)
 					{
 						cpu_setbank (1, &nes.rom[(nes.prg_chunks-1) * 0x4000 + 0x10000]);
 					}
@@ -2982,7 +2982,7 @@ public class nes_mmc
 					case 6:
 						/* These damn games will go to great lengths to switch to banks which are outside the valid range */
 						data &= prg_mask;
-						if (select_high)
+						if (select_high != 0)
 						{
 							cpu_setbank (2, &nes.rom[0x2000 * (data) + 0x10000]);
 	//						logerror("     Mapper 64 switch ($A000) cmd 6 value: %02x\n", data);
@@ -2995,7 +2995,7 @@ public class nes_mmc
 						break;
 					case 7:
 						data &= prg_mask;
-						if (select_high)
+						if (select_high != 0)
 						{
 							cpu_setbank (3, &nes.rom[0x2000 * (data) + 0x10000]);
 	//						logerror("     Mapper 64 switch ($C000) cmd 7 value: %02x\n", data);
@@ -3016,7 +3016,7 @@ public class nes_mmc
 						break;
 					case 15:
 						data &= prg_mask;
-						if (select_high)
+						if (select_high != 0)
 						{
 							cpu_setbank (1, &nes.rom[0x2000 * (data) + 0x10000]);
 	//						logerror("     Mapper 64 switch ($C000) cmd 15 value: %02x\n", data);
@@ -3032,11 +3032,11 @@ public class nes_mmc
 				break;
 			case 0x2000:
 				/* Not sure if the one-screen mirroring applies to this mapper */
-				if (data & 0x40)
+				if ((data & 0x40) != 0)
 					ppu_mirror_high();
 				else
 				{
-					if (data & 0x01)
+					if ((data & 0x01) != 0)
 						ppu_mirror_h();
 					else
 						ppu_mirror_v();
@@ -3073,7 +3073,7 @@ public class nes_mmc
 		int ret = M6502_INT_NONE;
 	
 		/* Increment & check the IRQ scanline counter */
-		if (IRQ_enable)
+		if (IRQ_enable != 0)
 		{
 			if (--IRQ_count == 0)
 				ret = M6502_INT_IRQ;
@@ -3097,7 +3097,7 @@ public class nes_mmc
 	#endif
 				break;
 			case 0x1001:
-				if (data & 0x80)
+				if ((data & 0x80) != 0)
 					ppu_mirror_h();
 				else
 					ppu_mirror_v();
@@ -3182,7 +3182,7 @@ public class nes_mmc
 		/* 114 is the number of cycles per scanline */
 		/* TODO: change to reflect the actual number of cycles spent */
 	
-		if (IRQ_enable)
+		if (IRQ_enable != 0)
 		{
 			if (IRQ_count <= 114)
 			{
@@ -3403,7 +3403,7 @@ public class nes_mmc
 		chr8 (data & 0x0f);
 	
 	#if 1
-		if (data & 0x80)
+		if ((data & 0x80) != 0)
 	//		ppu_mirror_h();
 			ppu_mirror_high();
 		else
@@ -3478,7 +3478,7 @@ public class nes_mmc
 				prg8_89 (data);
 				break;
 			case 0x1000: /* TODO: verify */
-				if (data & 0x01)
+				if ((data & 0x01) != 0)
 					ppu_mirror_h();
 				else
 					ppu_mirror_v();
@@ -3558,7 +3558,7 @@ public class nes_mmc
 			case 0x1ef0:
 				/* Switch 2k VROM at $0000 */
 				chr2_0 ((data & 0x7f) >> 1);
-				if (data & 0x80)
+				if ((data & 0x80) != 0)
 				{
 					/* Horizontal, $2000-$27ff */
 					ppu_mirror_custom (0, 0);
@@ -3574,7 +3574,7 @@ public class nes_mmc
 			case 0x1ef1:
 				/* Switch 2k VROM at $0000 */
 				chr2_2 ((data & 0x7f) >> 1);
-				if (data & 0x80)
+				if ((data & 0x80) != 0)
 				{
 					/* Horizontal, $2800-$2fff */
 					ppu_mirror_custom (2, 0);
@@ -3633,14 +3633,14 @@ public class nes_mmc
 		{
 			case 0x1ef0:
 				/* Switch 2k VROM at $0000 or $1000 */
-				if (vrom_switch)
+				if (vrom_switch != 0)
 					chr2_4 (data);
 				else
 					chr2_0 (data);
 				break;
 			case 0x1ef1:
 				/* Switch 2k VROM at $0800 or $1800 */
-				if (vrom_switch)
+				if (vrom_switch != 0)
 					chr2_6 (data);
 				else
 					chr2_2 (data);
@@ -3897,10 +3897,10 @@ public class nes_mmc
 		hi_bank = offset & 0x40;
 		size_16 = offset & 0x1000;
 		bank = (offset & 0xf80) >> 7;
-		if (size_16)
+		if (size_16 != 0)
 		{
 			bank <<= 1;
-			if (hi_bank)
+			if (hi_bank != 0)
 				bank ++;
 	
 			prg16_89ab (bank);
@@ -3909,7 +3909,7 @@ public class nes_mmc
 		else
 			prg32 (bank);
 	
-		if (offset & 0x2000)
+		if ((offset & 0x2000) != 0)
 			ppu_mirror_h();
 		else
 			ppu_mirror_v();
@@ -3926,7 +3926,7 @@ public class nes_mmc
 		logerror ("mapper226_w, offset: %04x, data: %02x\n", offset, data);
 	#endif
 	
-		if (offset & 0x01)
+		if ((offset & 0x01) != 0)
 		{
 			reg1 = data;
 		}
@@ -3937,17 +3937,17 @@ public class nes_mmc
 	
 		hi_bank = reg0 & 0x01;
 		size_16 = reg0 & 0x20;
-		if (reg0 & 0x40)
+		if ((reg0 & 0x40) != 0)
 			ppu_mirror_h();
 		else
 			ppu_mirror_v();
 	
 		bank = ((reg0 & 0x1e) >> 1) | ((reg1 & 0x01) << 4);
 	
-		if (size_16)
+		if (size_16 != 0)
 		{
 			bank <<= 1;
-			if (hi_bank)
+			if (hi_bank != 0)
 				bank ++;
 	
 			prg16_89ab (bank);
@@ -3973,7 +3973,7 @@ public class nes_mmc
 		if (!size_32)
 		{
 			bank <<= 1;
-			if (hi_bank)
+			if (hi_bank != 0)
 				bank ++;
 	
 			prg16_89ab (bank);
@@ -3984,13 +3984,13 @@ public class nes_mmc
 	
 		if (!(offset & 0x80))
 		{
-			if (offset & 0x200)
+			if ((offset & 0x200) != 0)
 				prg16_cdef ((bank >> 2) + 7);
 			else
 				prg16_cdef (bank >> 2);
 		}
 	
-		if (offset & 0x02)
+		if ((offset & 0x02) != 0)
 			ppu_mirror_h();
 		else
 			ppu_mirror_v();
@@ -4026,11 +4026,11 @@ public class nes_mmc
 	#endif
 	
 		/* see if the bank value is 16k or 32k */
-		if (offset & 0x20)
+		if ((offset & 0x20) != 0)
 		{
 			/* 16k bank value, adjust */
 			bank <<= 1;
-			if (offset & 0x40)
+			if ((offset & 0x40) != 0)
 				bank ++;
 	
 			prg16_89ab (bank);
@@ -4041,7 +4041,7 @@ public class nes_mmc
 			prg32 (bank);
 		}
 	
-		if (offset & 0x2000)
+		if ((offset & 0x2000) != 0)
 			ppu_mirror_h();
 		else
 			ppu_mirror_v();
@@ -4057,7 +4057,7 @@ public class nes_mmc
 		logerror ("mapper229_w, offset: %04x, data: %02x\n", offset, data);
 	#endif
 	
-		if (offset & 0x20)
+		if ((offset & 0x20) != 0)
 			ppu_mirror_h();
 		else
 			ppu_mirror_v();

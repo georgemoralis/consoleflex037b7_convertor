@@ -25,7 +25,7 @@ typedef struct
 #define READING 2
 #define WRITING 3
 	int state;						   /*0 nothing */
-	unsigned char *buffer;
+	UBytePtr buffer;
 	int size;
 	int pos;
 	union
@@ -70,7 +70,7 @@ typedef struct
 		fs;
 		struct
 		{
-			unsigned char *image;	   /*d64 image */
+			UBytePtr image;	   /*d64 image */
 			/*    int track, sector; */
 			/*    int sectorbuffer[256]; */
 
@@ -102,7 +102,6 @@ CBM_Serial;
 
 extern CBM_Serial cbm_serial;
 
-void cbm_drive_open_helper (void);
 void c1551_state (CBM_Drive * c1551);
 void vc1541_state (CBM_Drive * vc1541);
 void c2031_state(CBM_Drive *drive);

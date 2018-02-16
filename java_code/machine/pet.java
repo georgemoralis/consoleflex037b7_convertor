@@ -70,10 +70,10 @@ public class pet
 		return data^0xff;
 	}
 	
-	static WRITE_HANDLER( pet_pia0_ca2_out )
+	public static WriteHandlerPtr pet_pia0_ca2_out = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		cbm_ieee_eoi_w(0, data);
-	}
+	} };
 	
 	static void pet_irq (int level)
 	{
@@ -82,7 +82,7 @@ public class pet
 		if (level != old_level)
 		{
 			DBG_LOG (3, "mos6502", ("irq %s\n", level ? "start" : "end"));
-			if (superpet)
+			if (superpet != 0)
 				cpu_set_irq_line (1, M6809_IRQ_LINE, level);
 			cpu_set_irq_line (0, M6502_INT_IRQ, level);
 			old_level = level;
@@ -279,8 +279,8 @@ public class pet
 	*/
 	WRITE_HANDLER(cbm8096_w)
 	{
-		if (data&0x80) {
-			if (data&0x40) {
+		if ((data & 0x80) != 0) {
+			if ((data & 0x40) != 0) {
 				cpu_setbankhandler_r(7, cbm8096_io_r);
 				cpu_setbankhandler_w(7, cbm8096_io_w);
 			} else {
@@ -300,7 +300,7 @@ public class pet
 				cpu_setbankhandler_w(8,MWA_NOP);
 				cpu_setbankhandler_w(9,MWA_NOP);
 			}
-			if (data&0x20) {
+			if ((data & 0x20) != 0) {
 				cpu_setbank(1,pet_memory+0x8000);
 				cpu_setbankhandler_w(1, crtc6845_videoram_w);
 			} else {
@@ -319,7 +319,7 @@ public class pet
 				cpu_setbankhandler_w(3,MWA_NOP);
 				cpu_setbankhandler_w(4,MWA_NOP);
 			}
-			if (data&4) {
+			if ((data & 4) != 0) {
 				if (!(data&0x20)) {
 					cpu_setbank(1,pet_memory+0x14000);
 				}
@@ -334,7 +334,7 @@ public class pet
 				cpu_setbank(3,pet_memory+0x12000);
 				cpu_setbank(4,pet_memory+0x13000);
 			}
-			if (data&8) {
+			if ((data & 8) != 0) {
 				if (!(data&0x40)) {
 					cpu_setbank(7,pet_memory+0x1e800);
 				}
@@ -470,14 +470,14 @@ public class pet
 	{
 	}
 	
-	void pet_init_machine (void)
+	public static InitMachinePtr pet_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		via_reset();
 		pia_reset();
 	
-		if (superpet) {
+		if (superpet != 0) {
 			spet.rom=0;
-			if (M6809_SELECT) {
+			if (M6809_SELECT != 0) {
 				cpu_set_halt_line(0,1);
 				cpu_set_halt_line(1,0);
 			} else {
@@ -509,8 +509,8 @@ public class pet
 			break;
 		}
 	
-		if (cbm8096) {
-			if (CBM8096_MEMORY) {
+		if (cbm8096 != 0) {
+			if (CBM8096_MEMORY != 0) {
 				install_mem_write_handler(0, 0xfff0, 0xfff0, cbm8096_w);
 			} else {
 				install_mem_write_handler(0, 0xfff0, 0xfff0, MWA_NOP);
@@ -522,7 +522,7 @@ public class pet
 		cbm_drive_1_config (IEEE9ON ? IEEE : 0, 9);
 	
 		pet_rom_load();
-	}
+	} };
 	
 	void pet_shutdown_machine (void)
 	{
@@ -569,113 +569,113 @@ public class pet
 		int value;
 	
 		value = 0;
-		/*if (KEY_ESCAPE) value|=0x80; // nothing, not blocking */
-		/*if (KEY_REVERSE) value|=0x40; // nothing, not blocking */
-		if (KEY_B_CURSOR_RIGHT) value |= 0x20;
-		if (KEY_B_PAD_8) value |= 0x10;
-		if (KEY_B_MINUS) value |= 8;
-		if (KEY_B_8) value |= 4;
-		if (KEY_B_5) value |= 2;
-		if (KEY_B_2) value |= 1;
+		/*if (KEY_ESCAPE != 0) value|=0x80; // nothing, not blocking */
+		/*if (KEY_REVERSE != 0) value|=0x40; // nothing, not blocking */
+		if (KEY_B_CURSOR_RIGHT != 0) value |= 0x20;
+		if (KEY_B_PAD_8 != 0) value |= 0x10;
+		if (KEY_B_MINUS != 0) value |= 8;
+		if (KEY_B_8 != 0) value |= 4;
+		if (KEY_B_5 != 0) value |= 2;
+		if (KEY_B_2 != 0) value |= 1;
 		pet_keyline[0] = value;
 	
 		value = 0;
-		if (KEY_B_PAD_9) value |= 0x80;
-		/*if (KEY_ESCAPE) value|=0x40; // nothing, not blocking */
-		if (KEY_B_ARROW_UP) value |= 0x20;
-		if (KEY_B_PAD_7) value |= 0x10;
-		if (KEY_B_PAD_0) value |= 8;
-		if (KEY_B_7) value |= 4;
-		if (KEY_B_4) value |= 2;
-		if (KEY_B_1) value |= 1;
+		if (KEY_B_PAD_9 != 0) value |= 0x80;
+		/*if (KEY_ESCAPE != 0) value|=0x40; // nothing, not blocking */
+		if (KEY_B_ARROW_UP != 0) value |= 0x20;
+		if (KEY_B_PAD_7 != 0) value |= 0x10;
+		if (KEY_B_PAD_0 != 0) value |= 8;
+		if (KEY_B_7 != 0) value |= 4;
+		if (KEY_B_4 != 0) value |= 2;
+		if (KEY_B_1 != 0) value |= 1;
 		pet_keyline[1] = value;
 	
 		value = 0;
-		if (KEY_B_PAD_5) value |= 0x80;
-		if (KEY_B_SEMICOLON) value |= 0x40;
-		if (KEY_B_K) value |= 0x20;
-		if (KEY_B_CLOSEBRACE) value |= 0x10;
-		if (KEY_B_H) value |= 8;
-		if (KEY_B_F) value |= 4;
-		if (KEY_B_S) value |= 2;
-		if (KEY_B_ESCAPE) value |= 1; /* upper case */
+		if (KEY_B_PAD_5 != 0) value |= 0x80;
+		if (KEY_B_SEMICOLON != 0) value |= 0x40;
+		if (KEY_B_K != 0) value |= 0x20;
+		if (KEY_B_CLOSEBRACE != 0) value |= 0x10;
+		if (KEY_B_H != 0) value |= 8;
+		if (KEY_B_F != 0) value |= 4;
+		if (KEY_B_S != 0) value |= 2;
+		if (KEY_B_ESCAPE != 0) value |= 1; /* upper case */
 		pet_keyline[2] = value;
 	
 		value = 0;
-		if (KEY_B_PAD_6) value |= 0x80;
-		if (KEY_B_ATSIGN) value |= 0x40;
-		if (KEY_B_L) value |= 0x20;
-		if (KEY_B_RETURN) value |= 0x10;
-		if (KEY_B_J) value |= 8;
-		if (KEY_B_G) value |= 4;
-		if (KEY_B_D) value |= 2;
-		if (KEY_B_A) value |= 1;
+		if (KEY_B_PAD_6 != 0) value |= 0x80;
+		if (KEY_B_ATSIGN != 0) value |= 0x40;
+		if (KEY_B_L != 0) value |= 0x20;
+		if (KEY_B_RETURN != 0) value |= 0x10;
+		if (KEY_B_J != 0) value |= 8;
+		if (KEY_B_G != 0) value |= 4;
+		if (KEY_B_D != 0) value |= 2;
+		if (KEY_B_A != 0) value |= 1;
 		pet_keyline[3] = value;
 	
 		value = 0;
-		if (KEY_B_DEL) value |= 0x80;
-		if (KEY_B_P) value |= 0x40;
-		if (KEY_B_I) value |= 0x20;
-		if (KEY_B_BACKSLASH) value |= 0x10;
-		if (KEY_B_Y) value |= 8;
-		if (KEY_B_R) value |= 4;
-		if (KEY_B_W) value |= 2;
-		if (KEY_B_TAB) value |= 1;
+		if (KEY_B_DEL != 0) value |= 0x80;
+		if (KEY_B_P != 0) value |= 0x40;
+		if (KEY_B_I != 0) value |= 0x20;
+		if (KEY_B_BACKSLASH != 0) value |= 0x10;
+		if (KEY_B_Y != 0) value |= 8;
+		if (KEY_B_R != 0) value |= 4;
+		if (KEY_B_W != 0) value |= 2;
+		if (KEY_B_TAB != 0) value |= 1;
 		pet_keyline[4] = value;
 	
 		value = 0;
-		if (KEY_B_PAD_4) value |= 0x80;
-		if (KEY_B_OPENBRACE) value |= 0x40;
-		if (KEY_B_O) value |= 0x20;
-		if (KEY_B_CURSOR_DOWN) value |= 0x10;
-		if (KEY_B_U) value |= 8;
-		if (KEY_B_T) value |= 4;
-		if (KEY_B_E) value |= 2;
-		if (KEY_B_Q) value |= 1;
+		if (KEY_B_PAD_4 != 0) value |= 0x80;
+		if (KEY_B_OPENBRACE != 0) value |= 0x40;
+		if (KEY_B_O != 0) value |= 0x20;
+		if (KEY_B_CURSOR_DOWN != 0) value |= 0x10;
+		if (KEY_B_U != 0) value |= 8;
+		if (KEY_B_T != 0) value |= 4;
+		if (KEY_B_E != 0) value |= 2;
+		if (KEY_B_Q != 0) value |= 1;
 		pet_keyline[5] = value;
 	
 		value = 0;
-		if (KEY_B_PAD_3) value |= 0x80;
-		if (KEY_B_RIGHT_SHIFT) value |= 0x40;
-		/*if (KEY_REVERSE) value |= 0x20; // clear line */
-		if (KEY_B_PAD_POINT) value |= 0x10;
-		if (KEY_B_POINT) value |= 8;
-		if (KEY_B_B) value |= 4;
-		if (KEY_B_C) value |= 2;
-		if (KEY_B_LEFT_SHIFT) value |= 1;
+		if (KEY_B_PAD_3 != 0) value |= 0x80;
+		if (KEY_B_RIGHT_SHIFT != 0) value |= 0x40;
+		/*if (KEY_REVERSE != 0) value |= 0x20; // clear line */
+		if (KEY_B_PAD_POINT != 0) value |= 0x10;
+		if (KEY_B_POINT != 0) value |= 8;
+		if (KEY_B_B != 0) value |= 4;
+		if (KEY_B_C != 0) value |= 2;
+		if (KEY_B_LEFT_SHIFT != 0) value |= 1;
 		pet_keyline[6] = value;
 	
 		value = 0;
-		if (KEY_B_PAD_2) value |= 0x80;
-		if (KEY_B_REPEAT) value |= 0x40;
-		/*if (KEY_REVERSE) value |= 0x20; // blocking */
-		if (KEY_B_0) value |= 0x10;
-		if (KEY_B_COMMA) value |= 8;
-		if (KEY_B_N) value |= 4;
-		if (KEY_B_V) value |= 2;
-		if (KEY_B_Z) value |= 1;
+		if (KEY_B_PAD_2 != 0) value |= 0x80;
+		if (KEY_B_REPEAT != 0) value |= 0x40;
+		/*if (KEY_REVERSE != 0) value |= 0x20; // blocking */
+		if (KEY_B_0 != 0) value |= 0x10;
+		if (KEY_B_COMMA != 0) value |= 8;
+		if (KEY_B_N != 0) value |= 4;
+		if (KEY_B_V != 0) value |= 2;
+		if (KEY_B_Z != 0) value |= 1;
 		pet_keyline[7] = value;
 	
 		value = 0;
-		if (KEY_B_PAD_1) value |= 0x80;
-		if (KEY_B_SLASH) value |= 0x40;
-		/*if (KEY_ESCAPE) value |= 0x20; // special clear */
-		if (KEY_B_HOME) value |= 0x10;
-		if (KEY_B_M) value |= 8;
-		if (KEY_B_SPACE) value |= 4;
-		if (KEY_B_X) value |= 2;
-		if (KEY_B_REVERSE) value |= 1; /* lower case */
+		if (KEY_B_PAD_1 != 0) value |= 0x80;
+		if (KEY_B_SLASH != 0) value |= 0x40;
+		/*if (KEY_ESCAPE != 0) value |= 0x20; // special clear */
+		if (KEY_B_HOME != 0) value |= 0x10;
+		if (KEY_B_M != 0) value |= 8;
+		if (KEY_B_SPACE != 0) value |= 4;
+		if (KEY_B_X != 0) value |= 2;
+		if (KEY_B_REVERSE != 0) value |= 1; /* lower case */
 		pet_keyline[8] = value;
 	
 		value = 0;
-		/*if (KEY_ESCAPE) value |= 0x80; // blocking */
-		/*if (KEY_REVERSE) value |= 0x40; // blocking */
-		if (KEY_B_COLON) value |= 0x20;
-		if (KEY_B_STOP) value |= 0x10;
-		if (KEY_B_9) value |= 8;
-		if (KEY_B_6) value |= 4;
-		if (KEY_B_3) value |= 2;
-		if (KEY_B_ARROW_LEFT) value |= 1;
+		/*if (KEY_ESCAPE != 0) value |= 0x80; // blocking */
+		/*if (KEY_REVERSE != 0) value |= 0x40; // blocking */
+		if (KEY_B_COLON != 0) value |= 0x20;
+		if (KEY_B_STOP != 0) value |= 0x10;
+		if (KEY_B_9 != 0) value |= 8;
+		if (KEY_B_6 != 0) value |= 4;
+		if (KEY_B_3 != 0) value |= 2;
+		if (KEY_B_ARROW_LEFT != 0) value |= 1;
 		pet_keyline[9] = value;
 	}
 	
@@ -683,153 +683,153 @@ public class pet
 	{
 		int value;
 		value = 0;
-		if (KEY_CURSOR_RIGHT) value |= 0x80;
-		if (KEY_HOME) value |= 0x40;
-		if (KEY_ARROW_LEFT) value |= 0x20;
-		if (KEY_9) value |= 0x10;
-		if (KEY_7) value |= 8;
-		if (KEY_5) value |= 4;
-		if (KEY_3) value |= 2;
-		if (KEY_1) value |= 1;
+		if (KEY_CURSOR_RIGHT != 0) value |= 0x80;
+		if (KEY_HOME != 0) value |= 0x40;
+		if (KEY_ARROW_LEFT != 0) value |= 0x20;
+		if (KEY_9 != 0) value |= 0x10;
+		if (KEY_7 != 0) value |= 8;
+		if (KEY_5 != 0) value |= 4;
+		if (KEY_3 != 0) value |= 2;
+		if (KEY_1 != 0) value |= 1;
 		pet_keyline[0] = value;
 	
 		value = 0;
-		if (KEY_PAD_DEL) value |= 0x80;
-		if (KEY_CURSOR_DOWN) value |= 0x40;
-		/*if (KEY_3) value |= 0x20; // not blocking */
-		if (KEY_0) value |= 0x10;
-		if (KEY_8) value |= 8;
-		if (KEY_6) value |= 4;
-		if (KEY_4) value |= 2;
-		if (KEY_2) value |= 1;
+		if (KEY_PAD_DEL != 0) value |= 0x80;
+		if (KEY_CURSOR_DOWN != 0) value |= 0x40;
+		/*if (KEY_3 != 0) value |= 0x20; // not blocking */
+		if (KEY_0 != 0) value |= 0x10;
+		if (KEY_8 != 0) value |= 8;
+		if (KEY_6 != 0) value |= 4;
+		if (KEY_4 != 0) value |= 2;
+		if (KEY_2 != 0) value |= 1;
 		pet_keyline[1] = value;
 	
 		value = 0;
-		if (KEY_PAD_9)
+		if (KEY_PAD_9 != 0)
 			value |= 0x80;
-		if (KEY_PAD_7)
+		if (KEY_PAD_7 != 0)
 			value |= 0x40;
-		if (KEY_ARROW_UP) value |= 0x20;
-		if (KEY_O)
+		if (KEY_ARROW_UP != 0) value |= 0x20;
+		if (KEY_O != 0)
 			value |= 0x10;
-		if (KEY_U)
+		if (KEY_U != 0)
 			value |= 8;
-		if (KEY_T)
+		if (KEY_T != 0)
 			value |= 4;
-		if (KEY_E)
+		if (KEY_E != 0)
 			value |= 2;
-		if (KEY_Q)
+		if (KEY_Q != 0)
 			value |= 1;
 		pet_keyline[2] = value;
 	
 		value = 0;
-		if (KEY_PAD_SLASH) value |= 0x80;
-		if (KEY_PAD_8)
+		if (KEY_PAD_SLASH != 0) value |= 0x80;
+		if (KEY_PAD_8 != 0)
 			value |= 0x40;
-		/*if (KEY_5) value |= 0x20; // not blocking */
-		if (KEY_P)
+		/*if (KEY_5 != 0) value |= 0x20; // not blocking */
+		if (KEY_P != 0)
 			value |= 0x10;
-		if (KEY_I)
+		if (KEY_I != 0)
 			value |= 8;
-		if (KEY_Y)
+		if (KEY_Y != 0)
 			value |= 4;
-		if (KEY_R)
+		if (KEY_R != 0)
 			value |= 2;
-		if (KEY_W)
+		if (KEY_W != 0)
 			value |= 1;
 		pet_keyline[3] = value;
 	
 		value = 0;
-		if (KEY_PAD_6)
+		if (KEY_PAD_6 != 0)
 			value |= 0x80;
-		if (KEY_PAD_4)
+		if (KEY_PAD_4 != 0)
 			value |= 0x40;
-		/* if (KEY_6) value |= 0x20; // not blocking */
-		if (KEY_L)
+		/* if (KEY_6 != 0) value |= 0x20; // not blocking */
+		if (KEY_L != 0)
 			value |= 0x10;
-		if (KEY_J)
+		if (KEY_J != 0)
 			value |= 8;
-		if (KEY_G)
+		if (KEY_G != 0)
 			value |= 4;
-		if (KEY_D)
+		if (KEY_D != 0)
 			value |= 2;
-		if (KEY_A)
+		if (KEY_A != 0)
 			value |= 1;
 		pet_keyline[4] = value;
 	
 		value = 0;
-		if (KEY_PAD_ASTERIX) value |= 0x80;
-		if (KEY_PAD_5)
+		if (KEY_PAD_ASTERIX != 0) value |= 0x80;
+		if (KEY_PAD_5 != 0)
 			value |= 0x40;
-		/*if (KEY_8) value |= 0x20; // not blocking */
-		if (KEY_COLON) value |= 0x10;
-		if (KEY_K)
+		/*if (KEY_8 != 0) value |= 0x20; // not blocking */
+		if (KEY_COLON != 0) value |= 0x10;
+		if (KEY_K != 0)
 			value |= 8;
-		if (KEY_H)
+		if (KEY_H != 0)
 			value |= 4;
-		if (KEY_F)
+		if (KEY_F != 0)
 			value |= 2;
-		if (KEY_S)
+		if (KEY_S != 0)
 			value |= 1;
 		pet_keyline[5] = value;
 	
 		value = 0;
-		if (KEY_PAD_3)
+		if (KEY_PAD_3 != 0)
 			value |= 0x80;
-		if (KEY_PAD_1) value |= 0x40;
-		if (KEY_RETURN)
+		if (KEY_PAD_1 != 0) value |= 0x40;
+		if (KEY_RETURN != 0)
 			value |= 0x20;
-		if (KEY_SEMICOLON)
+		if (KEY_SEMICOLON != 0)
 			value |= 0x10;
-		if (KEY_M)
+		if (KEY_M != 0)
 			value |= 8;
-		if (KEY_B)
+		if (KEY_B != 0)
 			value |= 4;
-		if (KEY_C)
+		if (KEY_C != 0)
 			value |= 2;
-		if (KEY_Z)
+		if (KEY_Z != 0)
 			value |= 1;
 		pet_keyline[6] = value;
 	
 		value = 0;
-		if (KEY_PAD_PLUS) value |= 0x80;
-		if (KEY_PAD_2)
+		if (KEY_PAD_PLUS != 0) value |= 0x80;
+		if (KEY_PAD_2 != 0)
 			value |= 0x40;
-		/*if (KEY_2) value |= 0x20; // non blocking */
-		if (KEY_QUESTIONMARK) value |= 0x10;
-		if (KEY_COMMA)
+		/*if (KEY_2 != 0) value |= 0x20; // non blocking */
+		if (KEY_QUESTIONMARK != 0) value |= 0x10;
+		if (KEY_COMMA != 0)
 			value |= 8;
-		if (KEY_N)
+		if (KEY_N != 0)
 			value |= 4;
-		if (KEY_V)
+		if (KEY_V != 0)
 			value |= 2;
-		if (KEY_X)
+		if (KEY_X != 0)
 			value |= 1;
 		pet_keyline[7] = value;
 	
 		value = 0;
-		if (KEY_PAD_MINUS)
+		if (KEY_PAD_MINUS != 0)
 			value |= 0x80;
-		if (KEY_PAD_0) value |= 0x40;
-	    if (KEY_RIGHT_SHIFT) value |= 0x20;
-		if (KEY_BIGGER) value |= 0x10;
-		/*if (KEY_5) value |= 8; // non blocking */
-		if (KEY_CLOSEBRACE) value |= 4;
-		if (KEY_ATSIGN) value |= 2;
-		if (KEY_LEFT_SHIFT) value |= 1;
+		if (KEY_PAD_0 != 0) value |= 0x40;
+	    if (KEY_RIGHT_SHIFT != 0) value |= 0x20;
+		if (KEY_BIGGER != 0) value |= 0x10;
+		/*if (KEY_5 != 0) value |= 8; // non blocking */
+		if (KEY_CLOSEBRACE != 0) value |= 4;
+		if (KEY_ATSIGN != 0) value |= 2;
+		if (KEY_LEFT_SHIFT != 0) value |= 1;
 		pet_keyline[8] = value;
 	
 		value = 0;
-		if (KEY_PAD_EQUALS) value |= 0x80;
-		if (KEY_PAD_POINT)
+		if (KEY_PAD_EQUALS != 0) value |= 0x80;
+		if (KEY_PAD_POINT != 0)
 			value |= 0x40;
-		/*if (KEY_6) value |= 0x20; // non blocking */
-		if (KEY_STOP) value |= 0x10;
-		if (KEY_SMALLER) value |= 8;
-		if (KEY_SPACE) value |= 4;
-		if (KEY_OPENBRACE)
+		/*if (KEY_6 != 0) value |= 0x20; // non blocking */
+		if (KEY_STOP != 0) value |= 0x10;
+		if (KEY_SMALLER != 0) value |= 8;
+		if (KEY_SPACE != 0) value |= 4;
+		if (KEY_OPENBRACE != 0)
 			value |= 2;
-		if (KEY_REVERSE) value |= 1;
+		if (KEY_REVERSE != 0) value |= 1;
 		pet_keyline[9] = value;
 	}
 	
@@ -840,10 +840,10 @@ public class pet
 	
 		pia_0_cb1_w(0,level);
 		level=!level;
-		if (level) return;
+		if (level != 0) return;
 	
-		if (superpet) {
-			if (M6809_SELECT) {
+		if (superpet != 0) {
+			if (M6809_SELECT != 0) {
 				cpu_set_halt_line(0,1);
 				cpu_set_halt_line(1,0);
 				crtc6845_address_line_12(1);
@@ -854,14 +854,14 @@ public class pet
 			}
 		}
 	
-		if (BUSINESS_KEYBOARD) {
+		if (BUSINESS_KEYBOARD != 0) {
 			pet_keyboard_business();
 		} else {
 			pet_keyboard_normal();
 		}
 	
 		if (!quickload && QUICKLOAD) {
-			if (pet_basic1)
+			if (pet_basic1 != 0)
 				cbm_pet1_quick_open (0, 0, pet_memory);
 			else
 				cbm_pet_quick_open (0, 0, pet_memory);
@@ -876,7 +876,7 @@ public class pet
 		int y;
 		char text[70];
 	
-		y = Machine->visible_area.max_y + 1 - Machine->uifont->height;
+		y = Machine.visible_area.max_y + 1 - Machine.uifont.height;
 	
 	#if 0
 		snprintf(text, sizeof(text),

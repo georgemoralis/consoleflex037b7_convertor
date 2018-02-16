@@ -28,22 +28,22 @@ public class vdc8563
 	/* seems to be a motorola m6845 variant */
 	
 	/* permutation for c64/vic6567 conversion to vdc8563
-	 0 --> 0 black
-	 1 --> 0xf white
-	 2 --> 8 red
-	 3 --> 7 cyan
-	 4 --> 0xb violett
-	 5 --> 4 green
-	 6 --> 2 blue
-	 7 --> 0xd yellow
-	 8 --> 0xa orange
-	 9 --> 0xc brown
-	 0xa --> 9 light red
-	 0xb --> 6 dark gray
-	 0xc --> 1 gray
-	 0xd --> 5 light green
-	 0xe --> 3 light blue
-	 0xf --> 0xf light gray
+	 0 -. 0 black
+	 1 -. 0xf white
+	 2 -. 8 red
+	 3 -. 7 cyan
+	 4 -. 0xb violett
+	 5 -. 4 green
+	 6 -. 2 blue
+	 7 -. 0xd yellow
+	 8 -. 0xa orange
+	 9 -. 0xc brown
+	 0xa -. 9 light red
+	 0xb -. 6 dark gray
+	 0xc -. 1 gray
+	 0xd -. 5 light green
+	 0xe -. 3 light blue
+	 0xf -. 0xf light gray
 	 */
 	
 	/* x128
@@ -121,7 +121,7 @@ public class vdc8563
 		raster2.cursor.delay=16;
 		raster2.cursor.ybegin=0;raster2.cursor.yend=7;
 	
-		if (ram16konly) {
+		if (ram16konly != 0) {
 			raster2.memory.mask=raster2.memory.videoram.mask=
 				raster2.memory.colorram.mask=raster2.memory.fontram.mask=0x3fff;
 		} else {
@@ -135,13 +135,13 @@ public class vdc8563
 		raster2.display.no_rastering=!on;
 	}
 	
-	int vdc8563_vh_start (void)
+	public static VhStartPtr vdc8563_vh_start = new VhStartPtr() { public int handler() 
 	{
 	    int r=praster_vh_start();
-		raster2.display.pens=Machine->pens+0x10;
-		raster2.display.bitmap=Machine->scrbitmap;
+		raster2.display.pens=Machine.pens+0x10;
+		raster2.display.bitmap=Machine.scrbitmap;
 		return r;
-	}
+	} };
 	
 	#define COLUMNS (vdc.reg[0]+1)
 	#define COLUMNS_VISIBLE (vdc.reg[1])
@@ -161,7 +161,7 @@ public class vdc8563
 	{
 		UINT8 i;
 	
-		if (offset & 1)
+		if ((offset & 1) != 0)
 		{
 			if ((vdc.index & 0x3f) < 37)
 			{
@@ -260,7 +260,7 @@ public class vdc8563
 					break;
 				case 0x1e:
 					vdc.reg[vdc.index]=data;
-					if (BLOCK_COPY) {
+					if (BLOCK_COPY != 0) {
 						DBG_LOG (2, "vdc block copy",
 								 (errorlog, "src:%.4x dst:%.4x size:%.2x\n",
 								  vdc.src, vdc.addr, data));
@@ -323,7 +323,7 @@ public class vdc8563
 		int val;
 	
 		val = 0xff;
-		if (offset & 1)
+		if ((offset & 1) != 0)
 		{
 			if ((vdc.index & 0x3f) < 37)
 			{

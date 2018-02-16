@@ -25,16 +25,13 @@ public class sid6581H
 	extern void sid6581_0_configure (SIDTYPE type);
 	extern void sid6581_1_configure (SIDTYPE type);
 	
-	extern void sid6581_0_reset (void);
-	extern void sid6581_1_reset (void);
-	
+	extern extern 
 	extern WRITE_HANDLER ( sid6581_0_port_w );
 	extern WRITE_HANDLER ( sid6581_1_port_w );
 	extern READ_HANDLER  ( sid6581_0_port_r );
 	extern READ_HANDLER  ( sid6581_1_port_r );
 	
-	extern void sid6581_update(void);
-	
+	extern 
 	extern struct CustomSound_interface sid6581_sound_interface;
 	
 	/* private area */

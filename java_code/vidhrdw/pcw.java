@@ -19,17 +19,17 @@ public class pcw
 	  Start the video hardware emulation.
 	***************************************************************************/
 	
-	int pcw_vh_start(void)
+	public static VhStartPtr pcw_vh_start = new VhStartPtr() { public int handler() 
 	{
 	
 		return 0;
-	}
+	} };
 	
-	void    pcw_vh_stop(void)
+	public static VhStopPtr pcw_vh_stop = new VhStopPtr() { public void handler() 
 	{
-	}
+	} };
 	
-	extern unsigned char *pcw_ram;
+	extern UBytePtr pcw_ram;
 	extern unsigned int roller_ram_addr;
 	extern unsigned short roller_ram_offset;
 	extern unsigned char pcw_vdu_video_control_register;
@@ -49,7 +49,7 @@ public class pcw
 	
 	
 	/* Initialise the palette */
-	void pcw_init_palette(unsigned char *sys_palette, unsigned short *sys_colortable, const unsigned char *color_prom)
+	void pcw_init_palette(UBytePtr sys_palette, unsigned short *sys_colortable, const UBytePtr color_prom)
 	{
 		memcpy(sys_palette, pcw_palette, sizeof (pcw_palette));
 		memcpy(sys_colortable, pcw_colour_table, sizeof (pcw_colour_table));
@@ -60,11 +60,11 @@ public class pcw
 	  Do NOT call osd_update_display() from this function,
 	  it will be called by the main emulation engine.
 	***************************************************************************/
-	void pcw_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr pcw_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 		int x,y,b;
 		unsigned short roller_ram_offs;
-		unsigned char *roller_ram_ptr;
+		UBytePtr roller_ram_ptr;
 		int pen0,pen1;
 	
 		pen0 = 0;
@@ -78,8 +78,8 @@ public class pcw
 			pen0^=1;
 		}
 		
-		pen0 = Machine->pens[pen0];
-		pen1 = Machine->pens[pen1];
+		pen0 = Machine.pens[pen0];
+		pen1 = Machine.pens[pen1];
 	
 		/* video enable? */
 		if ((pcw_vdu_video_control_register & (1<<6))!=0)
@@ -109,16 +109,16 @@ public class pcw
 			{
 				int by;
 				unsigned short line_data;
-				unsigned char *line_ptr;
+				UBytePtr line_ptr;
 	
 				x = PCW_BORDER_WIDTH;
 	
-				roller_ram_ptr = (unsigned char *)
+				roller_ram_ptr = (UBytePtr )
 					((unsigned long)pcw_ram + roller_ram_addr + roller_ram_offs);
 	
 				/* get line address */
 				/* b16-14 control which bank the line is to be found in, b13-3 the address in the bank (in 16-byte units), and b2-0 the offset. Thus a roller RAM address bbbxxxxxxxxxxxyyy indicates bank bbb, address 00xxxxxxxxxxx0yyy. */
-				line_data = ((unsigned char *)roller_ram_ptr)[0] | (((unsigned char *)roller_ram_ptr)[1]<<8);
+				line_data = ((UBytePtr )roller_ram_ptr)[0] | (((UBytePtr )roller_ram_ptr)[1]<<8);
 	
 				/* calculate address of pixel data */
 				line_ptr = pcw_ram + ((line_data & 0x0e000)<<1) + ((line_data & 0x01ff8)<<1) + (line_data & 0x07);
@@ -131,7 +131,7 @@ public class pcw
 	
 					for (b=0; b<8; b++)
 					{
-						if (byte & 0x080)
+						if ((byte & 0x080) != 0)
 						{
 							plot_pixel(bitmap,x+b, y+PCW_BORDER_HEIGHT, pen1);
 						}
@@ -191,5 +191,5 @@ public class pcw
 	
 			fillbitmap(bitmap, pen0, &rect);
 		}
-	}
+	} };
 }

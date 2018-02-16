@@ -37,7 +37,7 @@ public class pcH
 	 * where "info" can also be 0 to append .."%fmt",args to a line.
 	 **************************************************************************/
 	#define LOG(LEVEL,N,M,A)  \
-		if(LEVEL>=N){ if( M )logerror("%11.6f: %-24s",timer_get_time(),(char*)M ); logerror A; }
+		if(LEVEL>=N){ if (M != 0)logerror("%11.6f: %-24s",timer_get_time(),(char*)M ); logerror A; }
 	
 	#if VERBOSE_DBG
 	#define DBG_LOG(n,m,a) LOG(VERBOSE_DBG,n,m,a)
@@ -108,23 +108,8 @@ public class pcH
 	extern int	pc_harddisk_init(int id);
 	extern void pc_harddisk_exit(int id);
 	
-	void init_pc_common(void);
-	extern void init_pc(void);
-	extern void init_pc1512(void);
-	extern void init_pc1640(void);
-	extern void init_pc_vga(void);
-	extern void pc_mda_init_machine(void);
-	extern void pc_cga_init_machine(void);
-	extern void pc_vga_init_machine(void);
-	extern void pc_shutdown_machine(void);
-	extern void pc1512_close_machine(void);
-	extern void pc1640_close_machine(void);
-	
-	extern WRITE_HANDLER( pc_ppi_portb_w );
-	extern READ_HANDLER( pc_ppi_portb_r );
-	extern READ_HANDLER( pc_ppi_porta_r );
-	
-	void pc_keyboard(void);
+	extern extern extern extern extern extern extern extern extern extern 
+	extern extern extern 
 	
 	extern WRITE_HANDLER ( pc_EXP_w );
 	extern READ_HANDLER ( pc_EXP_r );
@@ -156,20 +141,15 @@ public class pcH
 	extern WRITE_HANDLER ( pc_HDC2_w );
 	extern READ_HANDLER ( pc_HDC2_r );
 	
-	extern int  pc_cga_frame_interrupt(void);
-	extern int  pc_mda_frame_interrupt(void);
-	extern int  pc_vga_frame_interrupt(void);
-	
+	extern extern extern 
 	/* from vidhrdw/pc.c */
 	
 	/* from sndhrdw/pc.c */
 	extern int  pc_sh_init(const char *name);
 	#if 1	/* adjustmends for mame36b */
 	extern int  pc_sh_custom_start(const struct MachineSound *driver);
-	extern void pc_sh_custom_update(void);
-	#endif
-	extern void pc_sh_stop(void);
-	extern void pc_sh_update(int param, INT16 *buff, int length);
+	extern #endif
+	extern extern void pc_sh_update(int param, INT16 *buff, int length);
 	extern void pc_sh_speaker(int mode);
 	
 	/* from machine/pc_fdc.c */
@@ -177,10 +157,7 @@ public class pcH
 	extern void pc_fdc_data_rate_w(int data);
 	extern void pc_fdc_DOR_w(int data);
 	
-	extern int	pc_fdc_data_r(void);
-	extern int	pc_fdc_status_r(void);
-	extern int	pc_fdc_DIR_r(void);
-	
+	extern extern extern 
 	extern void *pc_fdc_file[2];
 	extern UINT8 pc_fdc_spt[2];
 	extern UINT8 pc_fdc_heads[2];
@@ -197,15 +174,7 @@ public class pcH
 	extern void pc_ide_drive_head_w(int data);
 	extern void pc_ide_command_w(int data);
 	
-	extern int	pc_ide_data_r(void);
-	extern int	pc_ide_error_r(void);
-	extern int	pc_ide_sector_count_r(void);
-	extern int	pc_ide_sector_number_r(void);
-	extern int	pc_ide_cylinder_number_l_r(void);
-	extern int	pc_ide_cylinder_number_h_r(void);
-	extern int	pc_ide_drive_head_r(void);
-	extern int	pc_ide_status_r(void);
-	#endif
+	extern extern extern extern extern extern extern extern #endif
 	
 	/* from machine/pc_hdc.c */
 	extern void *pc_hdc_file[4];

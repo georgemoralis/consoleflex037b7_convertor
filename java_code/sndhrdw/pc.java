@@ -30,7 +30,7 @@ public class pc
 	int pc_sh_start(void)
 	{
 		logerror("pc_sh_start\n");
-		channel = stream_init("PC speaker", 50, Machine->sample_rate, 0, pc_sh_update);
+		channel = stream_init("PC speaker", 50, Machine.sample_rate, 0, pc_sh_update);
 	    return 0;
 	}
 	
@@ -42,10 +42,10 @@ public class pc
 	/************************************/
 	/* Sound handler stop				*/
 	/************************************/
-	void pc_sh_stop(void)
+	public static ShStopPtr pc_sh_stop = new ShStopPtr() { public void handler() 
 	{
 		logerror("pc_sh_stop\n");
-	}
+	} };
 	
 	void pc_sh_speaker(int mode)
 	{
@@ -81,7 +81,7 @@ public class pc
 		static INT16 signal = 0x7fff;
 	    static int incr = 0;
 		INT16 *sample = buffer;
-		int baseclock, rate = Machine->sample_rate / 2;
+		int baseclock, rate = Machine.sample_rate / 2;
 	
 		baseclock = pit8253_get_frequency(0, 2);
 	

@@ -109,7 +109,7 @@ public class vic6560
 			break;
 		case 0xd:
 			vic6560[offset] = data;
-			if (NOISE_ON)
+			if (NOISE_ON != 0)
 			{
 				noisesamples = (int) ((double) NOISE_FREQUENCY_MAX * options.samplerate
 									  * NOISE_BUFFER_SIZE_SEC / NOISE_FREQUENCY);
@@ -191,7 +191,7 @@ public class vic6560
 				}
 	#endif
 			}
-			if (NOISE_ON)
+			if (NOISE_ON != 0)
 			{
 				v += noise[(int) ((double) noisepos * noisesize / noisesamples)];
 				noisepos++;
@@ -236,21 +236,21 @@ public class vic6560
 			for (i = 0; i < noisesize; i++)
 			{
 				data = 0;
-				if (noiseshift & 0x400000)
+				if ((noiseshift & 0x400000) != 0)
 					data |= 0x80;
-				if (noiseshift & 0x100000)
+				if ((noiseshift & 0x100000) != 0)
 					data |= 0x40;
-				if (noiseshift & 0x010000)
+				if ((noiseshift & 0x010000) != 0)
 					data |= 0x20;
-				if (noiseshift & 0x002000)
+				if ((noiseshift & 0x002000) != 0)
 					data |= 0x10;
-				if (noiseshift & 0x000800)
+				if ((noiseshift & 0x000800) != 0)
 					data |= 0x08;
-				if (noiseshift & 0x000080)
+				if ((noiseshift & 0x000080) != 0)
 					data |= 0x04;
-				if (noiseshift & 0x000010)
+				if ((noiseshift & 0x000010) != 0)
 					data |= 0x02;
-				if (noiseshift & 0x000004)
+				if ((noiseshift & 0x000004) != 0)
 					data |= 0x01;
 				noise[i] = data;
 				if (((noiseshift & 0x400000) == 0) != ((noiseshift & 0x002000) == 0))

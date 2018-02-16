@@ -79,7 +79,7 @@ public class cpm_bios
 	static void fdd_select(void)
 	{
 		dsk_fmt *f = &formats[fmt[curdisk]];
-		int seclen = f->seclen;
+		int seclen = f.seclen;
 		UINT8 secl = 0;
 		UINT8 eot = 0;
 		int i;
@@ -91,17 +91,17 @@ public class cpm_bios
 			seclen >>= 1;
 		}
 		/* find highest sector number */
-		for (i = 1; i <= f->spt; i++)
+		for (i = 1; i <= f.spt; i++)
 		{
-			if (f->side1[i] > eot)
-				eot = f->side1[i];
-			if (f->sides == 2)
-				if (f->side2[i] > eot)
-					eot = f->side2[i];
+			if (f.side1[i] > eot)
+				eot = f.side1[i];
+			if (f.sides == 2)
+				if (f.side2[i] > eot)
+					eot = f.side2[i];
 		}
 		logerror("DISK #%d select den:%d cyl:%d spt:%d eot:%d secl:%d\n",
-				curdisk, f->density, f->cylinders, f->spt, eot, secl);
-		osd_fdc_density(dsk[curdisk].unit, f->density, f->cylinders, f->spt, eot, secl);
+				curdisk, f.density, f.cylinders, f.spt, eot, secl);
+		osd_fdc_density(dsk[curdisk].unit, f.density, f.cylinders, f.spt, eot, secl);
 	}
 	
 	/*****************************************************************************
@@ -118,7 +118,7 @@ public class cpm_bios
 		if (t == 0)
 			osd_fdc_recal(&pcn);
 		else
-		if (t < f->cylinders)
+		if (t < f.cylinders)
 			osd_fdc_seek(t, &pcn);
 	}
 	
@@ -143,54 +143,54 @@ public class cpm_bios
 		f = &formats[fmt[curdisk]];
 	
 		/* calculate offset into disk image */
-		o = RECL * (f->dpb.spt * bdos_trk[curdisk] + bdos_sec[curdisk]);
+		o = RECL * (f.dpb.spt * bdos_trk[curdisk] + bdos_sec[curdisk]);
 	
-		recofs = o % f->seclen; 		/* record offset in sector */
-		o /= f->seclen;
-		switch (f->order)
+		recofs = o % f.seclen; 		/* record offset in sector */
+		o /= f.seclen;
+		switch (f.order)
 		{
 			case ORD_CYLINDERS:
 				/* logical sector number (0 .. spt-1) */
-				sec = o % f->spt;
-				o /= f->spt;
+				sec = o % f.spt;
+				o /= f.spt;
 				/* physical side number (0 .. sides-1) */
-				side  = o % f->sides;
-				o /= f->sides;
+				side  = o % f.sides;
+				o /= f.sides;
 				/* physical sector number */
-				sec = (side) ? f->side2[sec+1] : f->side1[sec+1];
+				sec = (side) ? f.side2[sec+1] : f.side1[sec+1];
 				/* logical head number for this side */
-				head = (side) ? f->side2[0] : f->side1[0];
+				head = (side) ? f.side2[0] : f.side1[0];
 				/* physical cylinder number (0 .. cylinders-1) */
-				cyl  = o % f->cylinders;
+				cyl  = o % f.cylinders;
 				break;
 			case ORD_SIDES:
 				/* logical sector number (0 .. spt-1) */
-				sec = o % f->spt;
-				o /= f->spt;
+				sec = o % f.spt;
+				o /= f.spt;
 				/* physical side number (0 .. sides-1) */
-				side = o % f->sides;
-				o /= f->sides;
+				side = o % f.sides;
+				o /= f.sides;
 				/* physical sector number */
-				sec = (side) ? f->side2[sec+1] : f->side1[sec+1];
+				sec = (side) ? f.side2[sec+1] : f.side1[sec+1];
 				/* logical head number for this side */
-				head = (side) ? f->side2[0] : f->side1[0];
+				head = (side) ? f.side2[0] : f.side1[0];
 				/* physical cylinder number (0 .. cylinders-1) */
-				cyl = o % f->cylinders;
+				cyl = o % f.cylinders;
 				break;
 			case ORD_EAGLE:
 			default:
 				/* logical sector number (0 .. spt-1) */
-				sec = o % f->spt;
-				o /= f->spt;
+				sec = o % f.spt;
+				o /= f.spt;
 				/* physical side number (0 .. sides-1) */
-				side = o % f->sides;
-				o /= f->sides;
+				side = o % f.sides;
+				o /= f.sides;
 				/* physical sector number */
-				sec = (side) ? f->side2[sec+1] : f->side1[sec+1];
+				sec = (side) ? f.side2[sec+1] : f.side1[sec+1];
 				/* logical head number for this side */
-				head = (side) ? f->side2[0] : f->side1[0];
+				head = (side) ? f.side2[0] : f.side1[0];
 				/* physical cylinder number (0 .. cylinders-1) */
-				cyl  = o % f->cylinders;
+				cyl  = o % f.cylinders;
 		}
 	
 		logerror("DISK #%d access CYL:%d SIDE:%d HEAD:%d SEC:%d RECOFS:0x%04x\n",
@@ -212,25 +212,25 @@ public class cpm_bios
 				do
 				{
 					n = osd_fdc_put_sector(dsk[curdisk].cyl, dsk[curdisk].side, dsk[curdisk].head, dsk[curdisk].sec, dsk[curdisk].buffer, 0);
-					if (n & STA_2_ERROR)
+					if ((n & STA_2_ERROR) != 0)
 					{
 	
 						logerror("cpm_access_sector: (put) status 0x%02x:", n);
-						if (n & STA_2_LOST_DAT)
+						if ((n & STA_2_LOST_DAT) != 0)
 						  logerror(" LOST_DAT");
-						if (n & STA_2_CRC_ERR)
+						if ((n & STA_2_CRC_ERR) != 0)
 						  logerror(" CRC_ERR");
-						if (n & STA_2_REC_N_FND)
+						if ((n & STA_2_REC_N_FND) != 0)
 						  logerror(" REC_N_FND");
-						if (n & STA_2_REC_TYPE)
+						if ((n & STA_2_REC_TYPE) != 0)
 						  logerror("REC_TYPE");
-						if (n & STA_2_NOT_READY)
+						if ((n & STA_2_NOT_READY) != 0)
 						  logerror(" NOT_READY");
 						logerror(" (try #%d)\n", tries);
 	
 					}
 				} while ((tries++ < 10) && (n & STA_2_ERROR));
-				logerror("DISK %d flush  CYL:%d SIDE:%d HEAD:%d SEC:%d -> 0x%02X\n",
+				logerror("DISK %d flush  CYL:%d SIDE:%d HEAD:%d SEC:%d . 0x%02X\n",
 					  curdisk, cyl, side, head, sec, n);
 				dsk[curdisk].dirty = 0; /* seek to current track number */
 				fdd_set_track(cyl);
@@ -248,24 +248,24 @@ public class cpm_bios
 			do {
 			  n = osd_fdc_get_sector(cyl, side, head,
 						 sec, dsk[curdisk].buffer);
-			  if (n & STA_2_ERROR)
+			  if ((n & STA_2_ERROR) != 0)
 			  {
 					logerror("cpm_access_sector: (get) status 0x%02x:", n);
-					if (n & STA_2_LOST_DAT)
+					if ((n & STA_2_LOST_DAT) != 0)
 						logerror(" LOST_DAT");
-					if (n & STA_2_CRC_ERR)
+					if ((n & STA_2_CRC_ERR) != 0)
 						logerror("CRC_ERR");
-					if (n & STA_2_REC_N_FND)
+					if ((n & STA_2_REC_N_FND) != 0)
 						logerror(" REC_N_FND");
-					if (n & STA_2_REC_TYPE)
+					if ((n & STA_2_REC_TYPE) != 0)
 						logerror("REC_TYPE");
-					if (n & STA_2_NOT_READY)
+					if ((n & STA_2_NOT_READY) != 0)
 						logerror(" NOT_READY");
 					logerror(" (try #%d)\n", tries);
 				}
 			} while ((tries++ < 10) && (n & STA_2_ERROR));
 	
-			logerror("DISK #%d read   CYL:%d SIDE:%d HEAD:%d SEC:%d -> 0x%02X\n",
+			logerror("DISK #%d read   CYL:%d SIDE:%d HEAD:%d SEC:%d . 0x%02X\n",
 				  curdisk, cyl, side, head, sec, n);
 		}
 		*record_offset = recofs;
@@ -407,21 +407,21 @@ public class cpm_bios
 				f = &formats[fmt[d]];
 	
 				/* transfer DPB to memory */
-				RAM[DPB0 + d * DPBL +  0] = f->dpb.spt & 0xff;
-				RAM[DPB0 + d * DPBL +  1] = f->dpb.spt >> 8;
-				RAM[DPB0 + d * DPBL +  2] = f->dpb.bsh;
-				RAM[DPB0 + d * DPBL +  3] = f->dpb.blm;
-				RAM[DPB0 + d * DPBL +  4] = f->dpb.exm;
-				RAM[DPB0 + d * DPBL +  5] = f->dpb.dsm & 0xff;
-				RAM[DPB0 + d * DPBL +  6] = f->dpb.dsm >> 8;
-				RAM[DPB0 + d * DPBL +  7] = f->dpb.drm & 0xff;
-				RAM[DPB0 + d * DPBL +  8] = f->dpb.drm >> 8;
-				RAM[DPB0 + d * DPBL +  9] = f->dpb.al0;
-				RAM[DPB0 + d * DPBL + 10] = f->dpb.al1;
-				RAM[DPB0 + d * DPBL + 11] = f->dpb.cks & 0xff;
-				RAM[DPB0 + d * DPBL + 12] = f->dpb.cks >> 8;
-				RAM[DPB0 + d * DPBL + 13] = f->dpb.off & 0xff;
-				RAM[DPB0 + d * DPBL + 14] = f->dpb.off >> 8;
+				RAM[DPB0 + d * DPBL +  0] = f.dpb.spt & 0xff;
+				RAM[DPB0 + d * DPBL +  1] = f.dpb.spt >> 8;
+				RAM[DPB0 + d * DPBL +  2] = f.dpb.bsh;
+				RAM[DPB0 + d * DPBL +  3] = f.dpb.blm;
+				RAM[DPB0 + d * DPBL +  4] = f.dpb.exm;
+				RAM[DPB0 + d * DPBL +  5] = f.dpb.dsm & 0xff;
+				RAM[DPB0 + d * DPBL +  6] = f.dpb.dsm >> 8;
+				RAM[DPB0 + d * DPBL +  7] = f.dpb.drm & 0xff;
+				RAM[DPB0 + d * DPBL +  8] = f.dpb.drm >> 8;
+				RAM[DPB0 + d * DPBL +  9] = f.dpb.al0;
+				RAM[DPB0 + d * DPBL + 10] = f.dpb.al1;
+				RAM[DPB0 + d * DPBL + 11] = f.dpb.cks & 0xff;
+				RAM[DPB0 + d * DPBL + 12] = f.dpb.cks >> 8;
+				RAM[DPB0 + d * DPBL + 13] = f.dpb.off & 0xff;
+				RAM[DPB0 + d * DPBL + 14] = f.dpb.off >> 8;
 	#if VERBOSE
 				logerror("CPM DPB%d    %04X\n", d, DPB0 + d * DPBL);
 	#endif
@@ -446,7 +446,7 @@ public class cpm_bios
 	#endif
 	
 				/* length is CKS bytes */
-				i += f->dpb.cks;
+				i += f.dpb.cks;
 	
 				/* memory address for ALV */
 				dph[d].alv = i;
@@ -455,7 +455,7 @@ public class cpm_bios
 	#endif
 	
 				/* length is DSM+1 bits */
-				i += (f->dpb.dsm + 1 + 7) >> 3;
+				i += (f.dpb.dsm + 1 + 7) >> 3;
 	
 				if (i >= BIOS_00)
 				{
@@ -529,7 +529,7 @@ public class cpm_bios
 		}
 	
 		/* create a file to receive list output (ie. PIP LST:=FILE.EXT) */
-		lp = osd_fopen(Machine->gamedrv->name, "cpm.lst", OSD_FILETYPE_IMAGE_RW, 1);
+		lp = osd_fopen(Machine.gamedrv.name, "cpm.lst", OSD_FILETYPE_IMAGE_RW, 1);
 	
 		cpm_jumptable();
 	
@@ -545,7 +545,7 @@ public class cpm_bios
 		int d;
 	
 		/* if a list file is still open close it now */
-		if (lp)
+		if (lp != 0)
 		{
 			osd_fclose(lp);
 			lp = NULL;
@@ -638,11 +638,11 @@ public class cpm_bios
 		{
 			dsk_fmt *f = &formats[fmt[d]];
 	
-			logerror("CPM '%s' is '%s'\n", id, f->name);
+			logerror("CPM '%s' is '%s'\n", id, f.name);
 			logerror("CPM #%d %dK (%d cylinders, %d sides, %d %d bytes sectors/track)\n",
 				d,
-				f->cylinders * f->sides * f->spt * f->seclen / 1024,
-				f->cylinders, f->sides, f->spt, f->seclen);
+				f.cylinders * f.sides * f.spt * f.seclen / 1024,
+				f.cylinders, f.sides, f.spt, f.seclen);
 		}
 	#endif
 	
@@ -661,43 +661,43 @@ public class cpm_bios
 		dsk_fmt *f = &formats[fmt[curdisk]];
 		int offs, o, r, s, h;
 	
-		switch (f->order)
+		switch (f.order)
 		{
 	/* TRACK  0   1   2 	   n/2-1	   n/2	   n/2+1	 n/2+2	  n-1 */
 	/* F/B	 f0, f1, f2 ... f(n/2)-1, b(n/2)-1, b(n/2)-2, b(n/2)-3 ... b0 */
 			case ORD_CYLINDERS:
-				offs = (bdos_trk[curdisk] % f->cylinders) * 2;
-				offs *= f->dpb.spt * RECL;
+				offs = (bdos_trk[curdisk] % f.cylinders) * 2;
+				offs *= f.dpb.spt * RECL;
 				o = bdos_sec[curdisk] * RECL;
-				r = (o % f->seclen) / RECL;
-				s = o / f->seclen;
-				h = (s >= f->spt) ? f->side2[0] : f->side1[0];
-				s = (s >= f->spt) ? f->side2[s+1] : f->side1[s+1];
-				s -= f->side1[1];		/* subtract first sector number */
-				offs += (h * f->spt + s) * f->seclen + r * RECL;
-				if (bdos_trk[curdisk] >= f->cylinders)
-					offs += (int)f->cylinders * f->sides * f->spt * f->seclen / 2;
+				r = (o % f.seclen) / RECL;
+				s = o / f.seclen;
+				h = (s >= f.spt) ? f.side2[0] : f.side1[0];
+				s = (s >= f.spt) ? f.side2[s+1] : f.side1[s+1];
+				s -= f.side1[1];		/* subtract first sector number */
+				offs += (h * f.spt + s) * f.seclen + r * RECL;
+				if (bdos_trk[curdisk] >= f.cylinders)
+					offs += (int)f.cylinders * f.sides * f.spt * f.seclen / 2;
 	#if VERBOSE_FDD
-				logerror("CPM image #%d ord_cylinders C:%2d H:%d S:%2d REC:%d -> 0x%08X\n", curdisk, bdos_trk[curdisk], h, s, r, offs * RECL);
+				logerror("CPM image #%d ord_cylinders C:%2d H:%d S:%2d REC:%d . 0x%08X\n", curdisk, bdos_trk[curdisk], h, s, r, offs * RECL);
 	#endif
 			break;
 	
 	/* TRACK  0   1   2 	   n/2-1 n/2  n/2+1  n/2+3	   n-1		*/
 	/* F/B	 f0, f1, f2 ... f(n/2)-1, b0,	 b1,	b2 ... b(n/2)-1 */
 		case ORD_EAGLE:
-				offs = (bdos_trk[curdisk] % f->cylinders) * 2;
-				if (bdos_trk[curdisk] >= f->cylinders)
-					offs = f->cylinders * 2 - 1 - offs;
-				offs *= f->dpb.spt * RECL;
+				offs = (bdos_trk[curdisk] % f.cylinders) * 2;
+				if (bdos_trk[curdisk] >= f.cylinders)
+					offs = f.cylinders * 2 - 1 - offs;
+				offs *= f.dpb.spt * RECL;
 				o = bdos_sec[curdisk] * RECL;
-				r = (o % f->seclen) / RECL;
-				s = o / f->seclen;
-				h = (s >= f->spt) ? f->side2[0] : f->side1[0];
-				s = (s >= f->spt) ? f->side2[s+1] : f->side1[s+1];
-				s -= f->side1[1];		/* subtract first sector number */
-				offs += (h * f->spt + s) * f->seclen + r * RECL;
+				r = (o % f.seclen) / RECL;
+				s = o / f.seclen;
+				h = (s >= f.spt) ? f.side2[0] : f.side1[0];
+				s = (s >= f.spt) ? f.side2[s+1] : f.side1[s+1];
+				s -= f.side1[1];		/* subtract first sector number */
+				offs += (h * f.spt + s) * f.seclen + r * RECL;
 	#if VERBOSE_FDD
-			logerror("CPM image #%d ord_eagle     C:%2d H:%d S:%2d REC:%d -> 0x%08X\n", curdisk, bdos_trk[curdisk], h, s, r, offs);
+			logerror("CPM image #%d ord_eagle     C:%2d H:%d S:%2d REC:%d . 0x%08X\n", curdisk, bdos_trk[curdisk], h, s, r, offs);
 	#endif
 			break;
 	
@@ -706,16 +706,16 @@ public class cpm_bios
 			case ORD_SIDES:
 			default:
 				offs = bdos_trk[curdisk];
-				offs *= f->dpb.spt * RECL;
+				offs *= f.dpb.spt * RECL;
 				o = bdos_sec[curdisk] * RECL;
-				r = (o % f->seclen) / RECL;
-				s = o / f->seclen;
-				h = (s >= f->spt) ? f->side2[0] : f->side1[0];
-				s = (s >= f->spt) ? f->side2[s+1] : f->side1[s+1];
-				s -= f->side1[1];		/* subtract first sector number */
-				offs += (h * f->spt + s) * f->seclen + r * RECL;
+				r = (o % f.seclen) / RECL;
+				s = o / f.seclen;
+				h = (s >= f.spt) ? f.side2[0] : f.side1[0];
+				s = (s >= f.spt) ? f.side2[s+1] : f.side1[s+1];
+				s -= f.side1[1];		/* subtract first sector number */
+				offs += (h * f.spt + s) * f.seclen + r * RECL;
 	#if VERBOSE_FDD
-			logerror("CPM image #%d ord_sides     C:%2d H:%d S:%2d REC:%d -> 0x%08X\n", curdisk, bdos_trk[curdisk], h, s, r, offs);
+			logerror("CPM image #%d ord_sides     C:%2d H:%d S:%2d REC:%d . 0x%08X\n", curdisk, bdos_trk[curdisk], h, s, r, offs);
 	#endif
 			break;
 	
@@ -814,7 +814,7 @@ public class cpm_bios
 		int result = -1;
 	
 		/* TODO: remove this */
-		unsigned char *RAM = memory_region(REGION_CPU1);
+		UBytePtr RAM = memory_region(REGION_CPU1);
 	
 		if (curdisk >= 0 &&
 			curdisk < num_disks &&
@@ -836,7 +836,7 @@ public class cpm_bios
 				}
 			}
 		}
-		if (result)
+		if (result != 0)
 		{
 			logerror("BDOS Err on %c: Select\n", curdisk + 'A');
 		}
@@ -849,7 +849,7 @@ public class cpm_bios
 		int result = -1;
 	
 		/* TODO: remove this */
-		unsigned char *RAM = memory_region(REGION_CPU1);
+		UBytePtr RAM = memory_region(REGION_CPU1);
 	
 		if (curdisk >= 0 &&
 			curdisk < num_disks &&
@@ -871,7 +871,7 @@ public class cpm_bios
 				}
 			}
 		}
-		if (result)
+		if (result != 0)
 			logerror("BDOS Err on %c: Select\n", curdisk + 'A');
 		return result;
 	}
@@ -910,13 +910,13 @@ public class cpm_bios
 					f = &formats[fmt[i]];
 					sprintf(buff, "Drive %c: '%s' %5dK (%d %s%s %2d,%4d) %d %dK blocks\r\n",
 						'A'+i,
-						f->id,
-						f->cylinders * f->sides * f->spt * f->seclen / 1024,
-						f->cylinders,
-						(f->sides == 2) ? "DS" : "SS",
-						(f->density == DEN_FM_LO || f->density == DEN_FM_HI) ? "SD" : "DD",
-						f->spt, f->seclen,
-						f->dpb.dsm + 1, (RECL << f->dpb.bsh) / 1024);
+						f.id,
+						f.cylinders * f.sides * f.spt * f.seclen / 1024,
+						f.cylinders,
+						(f.sides == 2) ? "DS" : "SS",
+						(f.density == DEN_FM_LO || f.density == DEN_FM_HI) ? "SD" : "DD",
+						f.spt, f.seclen,
+						f.dpb.dsm + 1, (RECL << f.dpb.bsh) / 1024);
 					cpm_conout_str(buff);
 				}
 			}
@@ -982,7 +982,7 @@ public class cpm_bios
 			logerror("BIOS 05 list output         C:%02X\n", tmp);
 	#endif
 			/* If the line printer file is created */
-			if (lp)
+			if (lp != 0)
 				osd_fwrite(lp, &tmp, 1);
 			break;
 	
@@ -1076,7 +1076,7 @@ public class cpm_bios
 	
 		case 0x10: /* SECTRA */
 			bc = bc & 0x00ff;	/* mvi b,0 */
-			if( de )			/* translation table ? */
+			if (de != 0)			/* translation table ? */
 			{
 				/* XCHG    */
 				tmp = hl;

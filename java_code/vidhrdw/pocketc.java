@@ -57,9 +57,9 @@ public class pocketc
 		{ 1, 5 }
 	};
 	
-	void pocketc_init_colors (unsigned char *sys_palette,
+	void pocketc_init_colors (UBytePtr sys_palette,
 							  unsigned short *sys_colortable,
-							  const unsigned char *color_prom)
+							  const UBytePtr color_prom)
 	{
 		char backdrop_name[200];
 		int used=8;
@@ -68,15 +68,15 @@ public class pocketc
 		memcpy(sys_colortable,pc1401_colortable,sizeof(pc1401_colortable));
 	
 	    /* try to load a backdrop for the machine */
-	    sprintf (backdrop_name, "%s.png", Machine->gamedrv->name);
+	    sprintf (backdrop_name, "%s.png", Machine.gamedrv.name);
 	
-	    artwork_load (&backdrop, backdrop_name, used, Machine->drv->total_colors - used);
+	    artwork_load (&backdrop, backdrop_name, used, Machine.drv.total_colors - used);
 	
-		if (backdrop)
+		if (backdrop != 0)
 	    {
 	        logerror("backdrop %s successfully loaded\n", backdrop_name);
-	        memcpy (&sys_palette[used * 3], backdrop->orig_palette, 
-					backdrop->num_pens_used * 3 * sizeof (unsigned char));
+	        memcpy (&sys_palette[used * 3], backdrop.orig_palette, 
+					backdrop.num_pens_used * 3 * sizeof (unsigned char));
 	    }
 	    else
 	    {
@@ -85,26 +85,26 @@ public class pocketc
 	}
 	
 	
-	int pocketc_vh_start(void)
+	public static VhStartPtr pocketc_vh_start = new VhStartPtr() { public int handler() 
 	{
-	    videoram_size = 6 * 2 + 24;
-	    videoram = (UINT8*)malloc (videoram_size);
+	    videoram_size[0] = 6 * 2 + 24;
+	    videoram = (UINT8*)malloc (videoram_size[0]);
 		if (!videoram)
 	        return 1;
 	
-	    if (backdrop)
+	    if (backdrop != 0)
 	        backdrop_refresh (backdrop);
 	
 		return generic_vh_start();
-	}
+	} };
 	
-	void pocketc_vh_stop(void)
+	public static VhStopPtr pocketc_vh_stop = new VhStopPtr() { public void handler() 
 	{
-	    if (backdrop)
+	    if (backdrop != 0)
 	        artwork_free (&backdrop);
 	
 		generic_vh_stop();
-	}
+	} };
 	
 	static struct {
 		UINT8 reg[0x100];
@@ -237,7 +237,7 @@ public class pocketc
 			for (j=0;fig[i][j]!=0;j++) {
 				switch(fig[i][j]) {
 				case '1':
-					bitmap->line[y][x+j]=color;
+					bitmap.line[y][x+j]=color;
 					osd_mark_dirty(x+j,y,x+j,y,0);
 					break;
 				case 'e': return;
@@ -248,30 +248,30 @@ public class pocketc
 	
 	#define DOWN 36
 	#define RIGHT 112
-	void pc1401_vh_screenrefresh (struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr pc1401_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 		int x, y, i, j;
 		int color[2];
 		/* HJB: we cannot initialize array with values from other arrays, thus... */
-	    color[0] = Machine->pens[pc1401_colortable[CONTRAST][0]];
-		color[1] = Machine->pens[pc1401_colortable[CONTRAST][1]];
+	    color[0] = Machine.pens[pc1401_colortable[CONTRAST][0]];
+		color[1] = Machine.pens[pc1401_colortable[CONTRAST][1]];
 	
-	    if (backdrop)
-	        copybitmap (bitmap, backdrop->artwork, 0, 0, 0, 0, NULL, 
+	    if (backdrop != 0)
+	        copybitmap (bitmap, backdrop.artwork, 0, 0, 0, 0, NULL, 
 						TRANSPARENCY_NONE, 0);
 		else
-			fillbitmap (bitmap, Machine->pens[0], &Machine->visible_area);
+			fillbitmap (bitmap, Machine.pens[0], &Machine.visible_area);
 	
 		for (x=RIGHT,y=DOWN,i=0; i<0x28;x+=2) {
 			for (j=0; j<5;j++,i++,x+=2)
-				drawgfx(bitmap, Machine->gfx[CONTRAST], pc1401_lcd.reg[i],
+				drawgfx(bitmap, Machine.gfx[CONTRAST], pc1401_lcd.reg[i],
 						0,
 						x,y,x+2,y+21,
 						0, TRANSPARENCY_NONE,0);
 		}
 		for (i=0x67; i>=0x40;x+=2) {
 			for (j=0; j<5;j++,i--,x+=2)
-				drawgfx(bitmap, Machine->gfx[CONTRAST], pc1401_lcd.reg[i],0,
+				drawgfx(bitmap, Machine.gfx[CONTRAST], pc1401_lcd.reg[i],0,
 						x,y,x+2,y+21,
 						0, TRANSPARENCY_NONE,0);
 		}
@@ -311,7 +311,7 @@ public class pocketc
 	  603d: 0 BUSY, 1 DEF, 2 SHIFT, 3 HYP, 4 PRO, 5 RUN, 6 CAL
 	  607c: 0 E, 1 M, 2 (), 3 RAD, 4 G, 5 DE, 6 PRINT
 	*/
-	}
+	} };
 	
 	static struct {
 		UINT8 reg[0x100];
@@ -335,30 +335,30 @@ public class pocketc
 	#define DOWN 41
 	#undef RIGHT
 	#define RIGHT 65
-	void pc1251_vh_screenrefresh (struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr pc1251_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 		int x, y, i, j;
 		int color[2];
 		/* HJB: we cannot initialize array with values from other arrays, thus... */
-	    color[0] = Machine->pens[pc1401_colortable[PC1251_CONTRAST][0]];
-		color[1] = Machine->pens[pc1401_colortable[PC1251_CONTRAST][1]];
+	    color[0] = Machine.pens[pc1401_colortable[PC1251_CONTRAST][0]];
+		color[1] = Machine.pens[pc1401_colortable[PC1251_CONTRAST][1]];
 	
-	    if (backdrop)
-			copybitmap (bitmap, backdrop->artwork, 0, 0, 0, 0, NULL,
+	    if (backdrop != 0)
+			copybitmap (bitmap, backdrop.artwork, 0, 0, 0, 0, NULL,
 						TRANSPARENCY_NONE, 0);
 		else
-			fillbitmap (bitmap, Machine->pens[0], &Machine->visible_area);
+			fillbitmap (bitmap, Machine.pens[0], &Machine.visible_area);
 	
 		for (x=RIGHT,y=DOWN,i=0; i<60;x+=3) {
 			for (j=0; j<5;j++,i++,x+=3)
-				drawgfx(bitmap, Machine->gfx[PC1251_CONTRAST], pc1251_lcd.reg[i],
+				drawgfx(bitmap, Machine.gfx[PC1251_CONTRAST], pc1251_lcd.reg[i],
 						0,
 						x,y,x+3,y+21,
 						0, TRANSPARENCY_NONE,0);
 		}
 		for (i=0x7b; i>=0x40;x+=3) {
 			for (j=0; j<5;j++,i--,x+=3)
-				drawgfx(bitmap, Machine->gfx[PC1251_CONTRAST], pc1251_lcd.reg[i],
+				drawgfx(bitmap, Machine.gfx[PC1251_CONTRAST], pc1251_lcd.reg[i],
 						0,
 						x,y,x+3,y+21,
 						0, TRANSPARENCY_NONE,0);
@@ -383,7 +383,7 @@ public class pocketc
 		/* 0x3c 1 def?, 4 g, 8 de
 		   0x3d 2 shift, 4 rad, 8 error
 		   0x3e 1 pro?, 2 run?, 4rsv?*/
-	}
+	} };
 	
 	static struct {
 		UINT8 reg[0x1000];
@@ -421,24 +421,24 @@ public class pocketc
 	#define DOWN 30
 	#undef RIGHT
 	#define RIGHT 75
-	void pc1350_vh_screenrefresh (struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr pc1350_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 		int x, y, i, j, k;
 		int color[2];
 		/* HJB: we cannot initialize array with values from other arrays, thus... */
-	    color[0] = Machine->pens[pc1401_colortable[PC1350_CONTRAST][0]];
-		color[1] = Machine->pens[pc1401_colortable[PC1350_CONTRAST][1]];
+	    color[0] = Machine.pens[pc1401_colortable[PC1350_CONTRAST][0]];
+		color[1] = Machine.pens[pc1401_colortable[PC1350_CONTRAST][1]];
 	
-	    if (backdrop)
-			copybitmap (bitmap, backdrop->artwork, 0, 0, 0, 0, NULL,
+	    if (backdrop != 0)
+			copybitmap (bitmap, backdrop.artwork, 0, 0, 0, 0, NULL,
 						TRANSPARENCY_NONE, 0);
 		else
-			fillbitmap (bitmap, Machine->pens[0], &Machine->visible_area);
+			fillbitmap (bitmap, Machine.pens[0], &Machine.visible_area);
 	
 		for (k=0, y=DOWN; k<4; y+=16,k++) {
 			for (x=RIGHT, i=pc1350_addr[k]; i<0xa00; i+=0x200) {
 				for (j=0; j<=0x1d; j++, x+=2) {
-					drawgfx(bitmap, Machine->gfx[PC1350_CONTRAST], 
+					drawgfx(bitmap, Machine.gfx[PC1350_CONTRAST], 
 							pc1350_lcd.reg[j+i],
 							0,
 							x,y,x+2,y+16,
@@ -460,5 +460,5 @@ public class pocketc
 							pc1350_lcd.reg[0x83c]&0x40?color[1]:color[0]);
 		pc1401_draw_special(bitmap,RIGHT-30,DOWN+50,sml,
 							pc1350_lcd.reg[0x83c]&0x80?color[1]:color[0]);
-	}
+	} };
 }

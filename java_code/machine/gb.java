@@ -37,7 +37,7 @@ public class gb
 	
 	UINT8 *gb_ram;
 	
-	void gb_init_machine (void)
+	public static InitMachinePtr gb_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		int I;
 	
@@ -71,7 +71,7 @@ public class gb
 	
 		/* Initialise the timer */
 		gb_w_io (0x07, gb_ram [0xFF07]);
-	}
+	} };
 	
 	WRITE_HANDLER ( gb_rom_bank_select )
 	{
@@ -84,7 +84,7 @@ public class gb
 		{
 			ROMBank = data;
 			cpu_setbank (1, ROMMap[data] ? ROMMap[data] : gb_ram + 0x4000);
-			if (Verbose & 0x08)
+			if ((Verbose & 0x08) != 0)
 				printf ("ROM: Bank %d selected\n", data);
 		}
 	}
@@ -96,7 +96,7 @@ public class gb
 		{
 			RAMBank = data;
 			cpu_setbank (2, RAMMap[data] ? RAMMap[data] : gb_ram + 0xA000);
-			if (Verbose & 0x08)
+			if ((Verbose & 0x08) != 0)
 				printf ("RAM: Bank %d selected\n", data);
 		}
 	}
@@ -115,12 +115,12 @@ public class gb
 		switch (offset)
 		{
 		case 0xFF00:
-			if (SGB)
+			if (SGB != 0)
 			{
 				switch (data & 0x30)
 				{
 				case 0x00:				   // start condition
-					if (start)
+					if (start != 0)
 						puts ("SGB: Start condition before end of transfer ??");
 					bit_count = 0;
 					byte_count = 0;
@@ -129,7 +129,7 @@ public class gb
 					JOYPAD = 0x0F & ((readinputport (0) >> 4) | readinputport (0) | 0xF0);
 					break;
 				case 0x10:				   // data true
-					if (rest)
+					if (rest != 0)
 					{
 						if (byte_count == 16)
 						{
@@ -149,7 +149,7 @@ public class gb
 					JOYPAD = 0x1F & ((readinputport (0) >> 4) | 0xF0);
 					break;
 				case 0x20:				   // data false
-					if (rest)
+					if (rest != 0)
 					{
 						if (byte_count == 16)
 						{
@@ -182,9 +182,9 @@ public class gb
 					JOYPAD = 0x2F & (readinputport (0) | 0xF0);
 					break;
 				case 0x30:				   // rest condition
-					if (start)
+					if (start != 0)
 						rest = 1;
-					if (controller_mode)
+					if (controller_mode != 0)
 					{
 						controller_no++;
 						if (controller_no == controller_mode)
@@ -250,22 +250,22 @@ public class gb
 			data = 0;
 			break;
 		case 0xFF47:
-			gb_bpal[0] = Machine->pens[(data & 0x03)];
-			gb_bpal[1] = Machine->pens[(data & 0x0C) >> 2];
-			gb_bpal[2] = Machine->pens[(data & 0x30) >> 4];
-			gb_bpal[3] = Machine->pens[(data & 0xC0) >> 6];
+			gb_bpal[0] = Machine.pens[(data & 0x03)];
+			gb_bpal[1] = Machine.pens[(data & 0x0C) >> 2];
+			gb_bpal[2] = Machine.pens[(data & 0x30) >> 4];
+			gb_bpal[3] = Machine.pens[(data & 0xC0) >> 6];
 			break;
 		case 0xFF48:
-			gb_spal0[0] = Machine->pens[(data & 0x03) + 4];
-			gb_spal0[1] = Machine->pens[((data & 0x0C) >> 2) + 4];
-			gb_spal0[2] = Machine->pens[((data & 0x30) >> 4) + 4];
-			gb_spal0[3] = Machine->pens[((data & 0xC0) >> 6) + 4];
+			gb_spal0[0] = Machine.pens[(data & 0x03) + 4];
+			gb_spal0[1] = Machine.pens[((data & 0x0C) >> 2) + 4];
+			gb_spal0[2] = Machine.pens[((data & 0x30) >> 4) + 4];
+			gb_spal0[3] = Machine.pens[((data & 0xC0) >> 6) + 4];
 			break;
 		case 0xFF49:
-			gb_spal1[0] = Machine->pens[(data & 0x03) + 8];
-			gb_spal1[1] = Machine->pens[((data & 0x0C) >> 2) + 8];
-			gb_spal1[2] = Machine->pens[((data & 0x30) >> 4) + 8];
-			gb_spal1[3] = Machine->pens[((data & 0xC0) >> 6) + 8];
+			gb_spal1[0] = Machine.pens[(data & 0x03) + 8];
+			gb_spal1[1] = Machine.pens[((data & 0x0C) >> 2) + 8];
+			gb_spal1[2] = Machine.pens[((data & 0x30) >> 4) + 8];
+			gb_spal1[3] = Machine.pens[((data & 0xC0) >> 6) + 8];
 			break;
 		default:
 	#ifdef SOUND
@@ -277,7 +277,7 @@ public class gb
 	#else
 			if (offset == 0xFF26)
 			{
-				if (data & 0x80)
+				if ((data & 0x80) != 0)
 					gb_ram [0xFF26] = 0xFF;
 				else
 					gb_ram [0xFF26] = 0;
@@ -471,7 +471,7 @@ public class gb
 			return 1;
 		}
 	
-		if (Verbose)
+		if (Verbose != 0)
 		{
 			strncpy (S, (char *)&gb_ram[0x0134], 16);
 			S[16] = '\0';
@@ -500,7 +500,7 @@ public class gb
 		for (I = 0; I < 0x4000; I++)
 			Checksum -= gb_ram[I];
 	
-		if (Verbose)
+		if (Verbose != 0)
 			logerror("Loading %dx16kB ROM banks:.", ROMBanks);
 		for (I = 1; I < ROMBanks; I++)
 		{
@@ -510,7 +510,7 @@ public class gb
 				{
 					for (J = 0; J < 0x4000; J++)
 						Checksum -= ROMMap[I][J];
-					if (Verbose)
+					if (Verbose != 0)
 						putchar ('.');
 				}
 				else
@@ -556,11 +556,11 @@ public class gb
 		{
 			strcpy (TempFileName, BaseCartName);
 			strcat (TempFileName, ".sav");
-			if (Verbose)
+			if (Verbose != 0)
 				logerror("Opening %s...", TempFileName);
 			if (F = fopen (TempFileName, "rb"))
 			{
-				if (Verbose)
+				if (Verbose != 0)
 					logerror("reading...");
 				if (gb_ram[0x0147] == 3)
 				{
@@ -569,19 +569,19 @@ public class gb
 					{
 						J += fread (RAMMap[I], 1, 0x2000, F);
 					}
-					if (Verbose)
+					if (Verbose != 0)
 						puts ((J == RAMBanks * 0x2000) ? "OK" : "FAILED");
 				}
 				else
 				{
 					J = 0x0200;
 					J = (fread (Page[5], 1, J, F) == J);
-					if (Verbose)
+					if (Verbose != 0)
 						puts (J ? "OK" : "FAILED");
 				}
 				fclose (F);
 			}
-			else if (Verbose)
+			else if (Verbose != 0)
 				puts ("FAILED");
 		}
 	#endif
@@ -611,7 +611,7 @@ public class gb
 		return 1;
 	}
 	
-	int gb_scanline_interrupt (void)
+	public static InterruptPtr gb_scanline_interrupt = new InterruptPtr() { public int handler() 
 	{
 		/* test ! */
 		static UINT8 count = 0;
@@ -635,13 +635,13 @@ public class gb
 			gb_refresh_scanline ();
 	
 		/* the rest only makes sense if the display is enabled */
-		if (LCDCONT & 0x80)
+		if ((LCDCONT & 0x80) != 0)
 		{
 			if (CURLINE == CMPLINE)
 			{
 				LCDSTAT |= 0x04;
 				/* generate lcd interrupt if requested */
-				if( LCDSTAT & 0x40 )
+				if ((LCDSTAT & 0x40) != 0)
 					cpu_set_irq_line(0, LCD_INT, HOLD_LINE);
 			}
 			else
@@ -661,7 +661,7 @@ public class gb
 				LCDSTAT = LCDSTAT & 0xFC;
 	
 				/* generate lcd interrupt if requested */
-				if( LCDSTAT & 0x08 )
+				if ((LCDSTAT & 0x08) != 0)
 					cpu_set_irq_line(0, LCD_INT, HOLD_LINE);
 			}
 			else
@@ -674,19 +674,19 @@ public class gb
 					/* Set VBlank lcdstate */
 					LCDSTAT = (LCDSTAT & 0xFC) | 0x01;
 					/* generate lcd interrupt if requested */
-					if( LCDSTAT & 0x10 )
+					if ((LCDSTAT & 0x10) != 0)
 						cpu_set_irq_line(0, LCD_INT, HOLD_LINE);
 				}
 			}
 	
 			/* Generate serial IO interrupt */
-			if (SIOCount)
+			if (SIOCount != 0)
 			{
 				SIODATA = (SIODATA << 1) | 0x01;
 				if (!--SIOCount)
 				{
 					SIOCONT &= 0x7F;
-					if( LCDSTAT & 0x10 )
+					if ((LCDSTAT & 0x10) != 0)
 						cpu_set_irq_line(0, SIO_INT, HOLD_LINE);
 				}
 			}
@@ -695,14 +695,14 @@ public class gb
 		/* Return No interrupt, we cause them ourselves since multiple int's can
 		 * occur at the same time */
 		return ignore_interrupt();
-	}
+	} };
 	
 	void gb_scanline_interrupt_set_mode2 (int param)
 	{
 		/* modify lcdstate */
 		LCDSTAT = (LCDSTAT & 0xFC) | 0x02;
 		/* generate lcd interrupt if requested */
-		if (LCDSTAT & 0x20)
+		if ((LCDSTAT & 0x20) != 0)
 			cpu_set_irq_line(0, LCD_INT, HOLD_LINE);
 	}
 	

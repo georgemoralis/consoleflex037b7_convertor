@@ -41,15 +41,15 @@ public class riot
 	void riot_init(struct RIOTinterface *r)
 	{
 		int i;
-		for( i = 0; i < MAX_RIOTS && i < r->num_chips; i++ )
+		for( i = 0; i < MAX_RIOTS && i < r.num_chips; i++ )
 		{
 			memset(&riot[i], 0, sizeof(struct RIOT));
-			riot[i].baseclock = r->baseclock[i];
-			riot[i].port_a_r = r->port_a_r[i];
-			riot[i].port_b_r = r->port_b_r[i];
-			riot[i].port_a_w = r->port_a_w[i];
-			riot[i].port_b_w = r->port_b_w[i];
-			riot[i].irq_callback = r->irq_callback[i];
+			riot[i].baseclock = r.baseclock[i];
+			riot[i].port_a_r = r.port_a_r[i];
+			riot[i].port_b_r = r.port_b_r[i];
+			riot[i].port_a_w = r.port_a_w[i];
+			riot[i].port_b_w = r.port_b_w[i];
+			riot[i].irq_callback = r.irq_callback[i];
 	    }
 		logerror("RIOT - successfully initialised\n");
 	}

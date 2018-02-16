@@ -29,9 +29,7 @@ public class mkhdimg
 	#define DIPSWITCH	0xff
 	
 	#define SECLEN		512
-	static void acerr(void); /* command line argument error */
-	static void serr(void); /* size error */
-	
+	static static 
 	int CLIB_DECL main(int ac, char **av) /* ac == Argument Count? av == Argument Variable? */
 	{
 	FILE *img;

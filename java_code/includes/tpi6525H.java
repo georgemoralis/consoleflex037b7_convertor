@@ -49,10 +49,6 @@ typedef struct {
 
 extern TPI6525 tpi6525[4];
 
-void tpi6525_0_reset(void);
-void tpi6525_1_reset(void);
-void tpi6525_2_reset(void);
-void tpi6525_3_reset(void);
 
 void tpi6525_0_irq0_level(int level);
 void tpi6525_0_irq1_level(int level);

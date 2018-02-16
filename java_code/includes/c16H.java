@@ -171,12 +171,7 @@ public class c16H
 	extern int c16_read_keyboard (int databus);
 	extern void c16_interrupt (int);
 	
-	extern void c16_driver_init (void);
-	extern void c16_driver_shutdown (void);
-	extern void c16_init_machine (void);
-	extern void c16_shutdown_machine (void);
-	extern int c16_frame_interrupt (void);
-	
+	extern extern extern extern extern 
 	extern int c16_rom_init (int id);
 	extern int c16_rom_load (int id);
 	extern int c16_rom_id (int id);

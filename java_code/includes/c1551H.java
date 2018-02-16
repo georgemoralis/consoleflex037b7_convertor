@@ -11,8 +11,6 @@ public class c1551H
 {
 	
 	/* must be called before other functions */
-	void cbm_drive_open (void);
-	void cbm_drive_close (void);
 	
 	#define IODEVICE_CBM_DRIVE \
 	{\
@@ -53,26 +51,16 @@ public class c1551H
 	
 	/* iec interface c16/c1551 */
 	void c1551_0_write_data (int data);
-	int c1551_0_read_data (void);
 	void c1551_0_write_handshake (int data);
-	int c1551_0_read_handshake (void);
-	int c1551_0_read_status (void);
 	
 	void c1551_1_write_data (int data);
-	int c1551_1_read_data (void);
 	void c1551_1_write_handshake (int data);
-	int c1551_1_read_handshake (void);
-	int c1551_1_read_status (void);
 	
 	/* serial bus vc20/c64/c16/vc1541 and some printer */
 	void cbm_serial_reset_write (int level);
-	int cbm_serial_atn_read (void);
 	void cbm_serial_atn_write (int level);
-	int cbm_serial_data_read (void);
 	void cbm_serial_data_write (int level);
-	int cbm_serial_clock_read (void);
 	void cbm_serial_clock_write (int level);
-	int cbm_serial_request_read (void);
 	void cbm_serial_request_write (int level);
 	
 	/* private */

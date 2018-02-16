@@ -16,15 +16,15 @@ public class enterp
 	/***************************************************************************
 	  Start the video hardware emulation.
 	***************************************************************************/
-	int enterprise_vh_start(void) {
+	public static VhStartPtr enterprise_vh_start = new VhStartPtr() { public int handler()  {
 	
 		Nick_vh_start();
 		return 0;
-	}
+	} };
 	
-	void    enterprise_vh_stop(void) {
+	public static VhStopPtr enterprise_vh_stop = new VhStopPtr() { public void handler()  {
 		Nick_vh_stop();
-	}
+	} };
 	
 	/***************************************************************************
 	  Draw the game screen in the given osd_bitmap.

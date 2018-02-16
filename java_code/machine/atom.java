@@ -34,13 +34,13 @@ public class atom
 		UINT8	atom_8255_portc;
 	} atom_8255;
 	
-	void atom_init_machine(void)
+	public static InitMachinePtr atom_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		ppi8255_init (&atom_8255_int);
 		atom_8255.atom_8255_porta = 0xff;
 		atom_8255.atom_8255_portb = 0xff;
 		atom_8255.atom_8255_portc = 0xff;
-	}
+	} };
 	
 	void atom_stop_machine(void) { }
 	
@@ -68,7 +68,7 @@ public class atom
 		/* This code not endian safe */
 	
 		file = image_fopen(IO_CARTSLOT, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-		if (file)
+		if (file != 0)
 		{
 			if (osd_fread(file, &atm, sizeof (atm)) != sizeof (atm))
 			{

@@ -88,7 +88,7 @@ public class pc_mouse
 		}
 	
 		/* check if there is any delta or mouse buttons changed */
-		if (can_scan)
+		if (can_scan != 0)
 		{
 			switch (pc_mouse.protocol)
 			{
@@ -192,11 +192,11 @@ public class pc_mouse
 		if (n!=pc_mouse.serial_port) return;
 	
 	    /* check if mouse port has DTR set */
-		if( outputs & UART8250_HANDSHAKE_OUT_DTR )
+		if ((outputs & UART8250_HANDSHAKE_OUT_DTR) != 0)
 			new_msr |= UART8250_HANDSHAKE_IN_DSR;	/* set DSR */
 	
 		/* check if mouse port has RTS set */
-		if( outputs & UART8250_HANDSHAKE_OUT_RTS )
+		if ((outputs & UART8250_HANDSHAKE_OUT_RTS) != 0)
 			new_msr |= UART8250_HANDSHAKE_IN_CTS;	/* set CTS */
 	
 		/* CTS changed state? */

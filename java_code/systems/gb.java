@@ -44,50 +44,50 @@ package systems;
 public class gb
 {
 	
-	static struct MemoryReadAddress readmem[] =
+	static MemoryReadAddress readmem[] =
 	{
-		{ 0x0000, 0x3fff, MRA_ROM },   /* 16k fixed ROM BANK #0*/
-		{ 0x4000, 0x7fff, MRA_BANK1 }, /* 16k switched ROM bank */
-		{ 0x8000, 0x9fff, MRA_RAM },   /* 8k video ram */
-		{ 0xa000, 0xbfff, MRA_BANK2 }, /* 8k RAM bank (on cartridge) */
-		{ 0xc000, 0xff03, MRA_RAM },   /* internal ram + echo + sprite Ram & IO */
-		{ 0xff04, 0xff04, gb_r_divreg },    /* special case for the division reg */
-		{ 0xff05, 0xff05, gb_r_timer_cnt }, /* special case for the timer count reg */
-		{ 0xff06, 0xffff, MRA_RAM },   /* IO */
-		{ -1 }	/* end of table */
+		new MemoryReadAddress( 0x0000, 0x3fff, MRA_ROM ),   /* 16k fixed ROM BANK #0*/
+		new MemoryReadAddress( 0x4000, 0x7fff, MRA_BANK1 ), /* 16k switched ROM bank */
+		new MemoryReadAddress( 0x8000, 0x9fff, MRA_RAM ),   /* 8k video ram */
+		new MemoryReadAddress( 0xa000, 0xbfff, MRA_BANK2 ), /* 8k RAM bank (on cartridge) */
+		new MemoryReadAddress( 0xc000, 0xff03, MRA_RAM ),   /* internal ram + echo + sprite Ram  IO */
+		new MemoryReadAddress( 0xff04, 0xff04, gb_r_divreg ),    /* special case for the division reg */
+		new MemoryReadAddress( 0xff05, 0xff05, gb_r_timer_cnt ), /* special case for the timer count reg */
+		new MemoryReadAddress( 0xff06, 0xffff, MRA_RAM ),   /* IO */
+		new MemoryReadAddress( -1 )	/* end of table */
 	};
 	
-	static struct MemoryWriteAddress writemem[] =
+	static MemoryWriteAddress writemem[] =
 	{
-		{ 0x0000, 0x1fff, MWA_ROM },            /* plain rom */
-		{ 0x2000, 0x3fff, gb_rom_bank_select }, /* rom bank select */
-		{ 0x4000, 0x5fff, gb_ram_bank_select }, /* ram bank select */
-		{ 0x6000, 0x7fff, MWA_ROM },            /* plain rom */
-		{ 0x8000, 0x9fff, MWA_RAM },            /* plain ram */
-		{ 0xa000, 0xbfff, MWA_BANK2 },          /* banked (cartridge) ram */
-		{ 0xc000, 0xfeff, MWA_RAM, &videoram, &videoram_size }, /* video & sprite ram */
-		{ 0xff00, 0xffff, gb_w_io },	        /* gb io */
-		{ -1 }	/* end of table */
+		new MemoryWriteAddress( 0x0000, 0x1fff, MWA_ROM ),            /* plain rom */
+		new MemoryWriteAddress( 0x2000, 0x3fff, gb_rom_bank_select ), /* rom bank select */
+		new MemoryWriteAddress( 0x4000, 0x5fff, gb_ram_bank_select ), /* ram bank select */
+		new MemoryWriteAddress( 0x6000, 0x7fff, MWA_ROM ),            /* plain rom */
+		new MemoryWriteAddress( 0x8000, 0x9fff, MWA_RAM ),            /* plain ram */
+		new MemoryWriteAddress( 0xa000, 0xbfff, MWA_BANK2 ),          /* banked (cartridge) ram */
+		new MemoryWriteAddress( 0xc000, 0xfeff, MWA_RAM, videoram, videoram_size ), /* video  sprite ram */
+		new MemoryWriteAddress( 0xff00, 0xffff, gb_w_io ),	        /* gb io */
+		new MemoryWriteAddress( -1 )	/* end of table */
 	};
 	
-	static struct GfxDecodeInfo gfxdecodeinfo[] =
+	static GfxDecodeInfo gfxdecodeinfo[] =
 	{
-		{ -1 } /* end of array */
+		new GfxDecodeInfo( -1 ) /* end of array */
 	};
 	
-	INPUT_PORTS_START( gameboy )
-		PORT_START	/* IN0 */
-	    PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT)
-	    PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT )
-	    PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_UP   )
-	    PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN )
-	    PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1       )
-	    PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2       )
-		/*PORT_BITX( 0x40, IP_ACTIVE_LOW, IPT_UNKNOWN, "select", KEYCODE_LSHIFT, IP_JOY_DEFAULT ) */
-		/*PORT_BITX( 0x80, IP_ACTIVE_LOW, IPT_UNKNOWN, "start",  KEYCODE_Z,      IP_JOY_DEFAULT ) */
-		PORT_BITX( 0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "select", KEYCODE_3, IP_JOY_DEFAULT )
-		PORT_BITX( 0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "start",  KEYCODE_1, IP_JOY_DEFAULT )
-	INPUT_PORTS_END
+	static InputPortPtr input_ports_gameboy = new InputPortPtr(){ public void handler() { 
+		PORT_START(); 	/* IN0 */
+	    PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT);
+	    PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT );
+	    PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_UP   );
+	    PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN );
+	    PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1       );
+	    PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2       );
+		/*PORT_BITX( 0x40, IP_ACTIVE_LOW, IPT_UNKNOWN, "select", KEYCODE_LSHIFT, IP_JOY_DEFAULT );*/
+		/*PORT_BITX( 0x80, IP_ACTIVE_LOW, IPT_UNKNOWN, "start",  KEYCODE_Z,      IP_JOY_DEFAULT );*/
+		PORT_BITX( 0x40, IP_ACTIVE_LOW, IPT_KEYBOARD, "select", KEYCODE_3, IP_JOY_DEFAULT );
+		PORT_BITX( 0x80, IP_ACTIVE_LOW, IPT_KEYBOARD, "start",  KEYCODE_1, IP_JOY_DEFAULT );
+	INPUT_PORTS_END(); }}; 
 	
 	static unsigned char palette[] =
 	{
@@ -105,22 +105,22 @@ public class gb
 	};
 	
 	/* Initialise the palette */
-	static void gb_init_palette(unsigned char *sys_palette, unsigned short *sys_colortable,const unsigned char *color_prom)
+	static void gb_init_palette(UBytePtr sys_palette, unsigned short *sys_colortable,const UBytePtr color_prom)
 	{
 		memcpy(sys_palette,palette,sizeof(palette));
 		memcpy(sys_colortable,colortable,sizeof(colortable));
 	}
 	
-	static struct MachineDriver machine_driver_gameboy =
-	{
+	static MachineDriver machine_driver_gameboy = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_Z80GB,
 				4194304,	  /* 4.194304 Mhz */
-				readmem,writemem,0,0,
+				readmem,writemem,null,null,
 				gb_scanline_interrupt, 154 *3 /* 1 int each scanline ! */
-			}
+			)
 		},
 		60, 0,	/* frames per second, vblank duration */
 		1,
@@ -129,21 +129,21 @@ public class gb
 	
 		/* video hardware (double size) */
 		160, 144,
-		{ 0, 160-1, 0, 144-1 },
+		new rectangle( 0, 160-1, 0, 144-1 ),
 		gfxdecodeinfo,
-		(sizeof (palette))/sizeof(palette[0])/3,
-		sizeof(colortable)/sizeof(colortable[0]),
+		(sizeof (palette))/sizeof(palette[null])/3,
+		sizeof(colortable)/sizeof(colortable[null]),
 		gb_init_palette,				/* init palette */
 	
 		VIDEO_TYPE_RASTER,
-		0,
+		null,
 		gb_vh_start,					/* vh_start */
 	    gb_vh_stop,                     /* vh_stop */
 		gb_vh_screen_refresh,
 	
 		/* sound hardware */
 		0,0,0,0,
-	};
+	);
 	
 	static const struct IODevice io_gameboy[] = {
 		{

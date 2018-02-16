@@ -24,7 +24,7 @@ public class odyssey2
 	  Start the video hardware emulation.
 	
 	***************************************************************************/
-	int odyssey2_vh_start(void)
+	public static VhStartPtr odyssey2_vh_start = new VhStartPtr() { public int handler() 
 	{
 	    odyssey2_vh_hpos = 0;
 		odyssey2_display = (UINT8 *)malloc(8 * 8 * 256);
@@ -32,7 +32,7 @@ public class odyssey2
 			return 1;
 		memset(odyssey2_display, 0, 8 * 8 * 256);
 	    return 0;
-	}
+	} };
 	
 	/***************************************************************************
 	
@@ -40,7 +40,7 @@ public class odyssey2
 	
 	***************************************************************************/
 	
-	void odyssey2_vh_init_palette(unsigned char *game_palette, unsigned short *game_colortable,const unsigned char *color_prom)
+	void odyssey2_vh_init_palette(UBytePtr game_palette, unsigned short *game_colortable,const UBytePtr color_prom)
 	{
 		int i;
 		for( i = 0; i < 8; i++ )
@@ -59,12 +59,12 @@ public class odyssey2
 		game_palette[9*3+2] = 0xf0;
 	}
 	
-	void odyssey2_vh_stop(void)
+	public static VhStopPtr odyssey2_vh_stop = new VhStopPtr() { public void handler() 
 	{
-		if( odyssey2_display )
+		if (odyssey2_display != 0)
 			free(odyssey2_display);
 		odyssey2_display = NULL;
-	}
+	} };
 	
 	void odyssey2_vh_write(int data)
 	{
@@ -83,10 +83,10 @@ public class odyssey2
 	
 	***************************************************************************/
 	
-	void odyssey2_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr odyssey2_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 		return;
-	}
+	} };
 	
 	
 }

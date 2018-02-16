@@ -163,120 +163,120 @@ public class vc20
 	
 	#define VERBOSE_DBG 0
 	
-	static struct MemoryReadAddress vc20_readmem[] =
+	static MemoryReadAddress vc20_readmem[] =
 	{
-		{0x0000, 0x03ff, MRA_RAM},
+		new MemoryReadAddress(0x0000, 0x03ff, MRA_RAM),
 	#if 0
-		{0x0400, 0x0fff, MRA_RAM},		   /* ram, rom or nothing; I think read 0xff! */
+		new MemoryReadAddress(0x0400, 0x0fff, MRA_RAM),		   /* ram, rom or nothing; I think read 0xff! */
 	#endif
-		{0x1000, 0x1fff, MRA_RAM},
+		new MemoryReadAddress(0x1000, 0x1fff, MRA_RAM),
 	#if 0
-		{0x2000, 0x3fff, MRA_RAM},		   /* ram, rom or nothing */
-		{0x4000, 0x5fff, MRA_RAM},		   /* ram, rom or nothing */
-		{0x6000, 0x7fff, MRA_RAM},		   /* ram, rom or nothing */
+		new MemoryReadAddress(0x2000, 0x3fff, MRA_RAM),		   /* ram, rom or nothing */
+		new MemoryReadAddress(0x4000, 0x5fff, MRA_RAM),		   /* ram, rom or nothing */
+		new MemoryReadAddress(0x6000, 0x7fff, MRA_RAM),		   /* ram, rom or nothing */
 	#endif
-		{0x8000, 0x8fff, MRA_ROM},
-		{0x9000, 0x900f, vic6560_port_r},
-		{0x9010, 0x910f, MRA_NOP},
-		{0x9110, 0x911f, via_0_r},
-		{0x9120, 0x912f, via_1_r},
-		{0x9130, 0x93ff, MRA_NOP},
-		{0x9400, 0x97ff, MRA_RAM},		   /*color ram 4 bit */
-		{0x9800, 0x9fff, MRA_NOP},
+		new MemoryReadAddress(0x8000, 0x8fff, MRA_ROM),
+		new MemoryReadAddress(0x9000, 0x900f, vic6560_port_r),
+		new MemoryReadAddress(0x9010, 0x910f, MRA_NOP),
+		new MemoryReadAddress(0x9110, 0x911f, via_0_r),
+		new MemoryReadAddress(0x9120, 0x912f, via_1_r),
+		new MemoryReadAddress(0x9130, 0x93ff, MRA_NOP),
+		new MemoryReadAddress(0x9400, 0x97ff, MRA_RAM),		   /*color ram 4 bit */
+		new MemoryReadAddress(0x9800, 0x9fff, MRA_NOP),
 	#if 0
-		{0xa000, 0xbfff, MRA_RAM},		   /* or nothing */
+		new MemoryReadAddress(0xa000, 0xbfff, MRA_RAM),		   /* or nothing */
 	#endif
-		{0xc000, 0xffff, MRA_ROM},
+		new MemoryReadAddress(0xc000, 0xffff, MRA_ROM),
 		MEMORY_TABLE_END
 	};
 	
-	static struct MemoryWriteAddress vc20_writemem[] =
+	static MemoryWriteAddress vc20_writemem[] =
 	{
-		{0x0000, 0x03ff, MWA_RAM, &vc20_memory},
-		{0x1000, 0x1fff, MWA_RAM},
-		{0x8000, 0x8fff, MWA_ROM},
-		{0x9000, 0x900f, vic6560_port_w},
-		{0x9010, 0x910f, MWA_NOP},
-		{0x9110, 0x911f, via_0_w},
-		{0x9120, 0x912f, via_1_w},
-		{0x9130, 0x93ff, MWA_NOP},
-		{0x9400, 0x97ff, vc20_write_9400, &vc20_memory_9400},
-		{0x9800, 0x9fff, MWA_NOP},
-		{0xc000, 0xffff, MWA_NOP},		   /* MWA_ROM }, but logfile */
+		new MemoryWriteAddress(0x0000, 0x03ff, MWA_RAM, vc20_memory),
+		new MemoryWriteAddress(0x1000, 0x1fff, MWA_RAM),
+		new MemoryWriteAddress(0x8000, 0x8fff, MWA_ROM),
+		new MemoryWriteAddress(0x9000, 0x900f, vic6560_port_w),
+		new MemoryWriteAddress(0x9010, 0x910f, MWA_NOP),
+		new MemoryWriteAddress(0x9110, 0x911f, via_0_w),
+		new MemoryWriteAddress(0x9120, 0x912f, via_1_w),
+		new MemoryWriteAddress(0x9130, 0x93ff, MWA_NOP),
+		new MemoryWriteAddress(0x9400, 0x97ff, vc20_write_9400, vc20_memory_9400),
+		new MemoryWriteAddress(0x9800, 0x9fff, MWA_NOP),
+		new MemoryWriteAddress(0xc000, 0xffff, MWA_NOP),		   /* MWA_ROM }, but logfile */
 		MEMORY_TABLE_END
 	};
 	
-	static struct MemoryReadAddress vc20i_readmem[] =
+	static MemoryReadAddress vc20i_readmem[] =
 	{
-		{0x0000, 0x03ff, MRA_RAM},
+		new MemoryReadAddress(0x0000, 0x03ff, MRA_RAM),
 	#if 0
-		{0x0400, 0x0fff, MRA_RAM},		   /* ram, rom or nothing; I think read 0xff! */
+		new MemoryReadAddress(0x0400, 0x0fff, MRA_RAM),		   /* ram, rom or nothing; I think read 0xff! */
 	#endif
-		{0x1000, 0x1fff, MRA_RAM},
+		new MemoryReadAddress(0x1000, 0x1fff, MRA_RAM),
 	#if 0
-		{0x2000, 0x3fff, MRA_RAM},		   /* ram, rom or nothing */
-		{0x4000, 0x5fff, MRA_RAM},		   /* ram, rom or nothing */
-		{0x6000, 0x7fff, MRA_RAM},		   /* ram, rom or nothing */
+		new MemoryReadAddress(0x2000, 0x3fff, MRA_RAM),		   /* ram, rom or nothing */
+		new MemoryReadAddress(0x4000, 0x5fff, MRA_RAM),		   /* ram, rom or nothing */
+		new MemoryReadAddress(0x6000, 0x7fff, MRA_RAM),		   /* ram, rom or nothing */
 	#endif
-		{0x8000, 0x8fff, MRA_ROM},
-		{0x9000, 0x900f, vic6560_port_r},
-		{0x9010, 0x910f, MRA_NOP},
-		{0x9110, 0x911f, via_0_r},
-		{0x9120, 0x912f, via_1_r},
-		{0x9400, 0x97ff, MRA_RAM},		   /*color ram 4 bit */
-		{0x9800, 0x980f, via_4_r},
-		{0x9810, 0x981f, via_5_r},
-		{0xa000, 0xbfff, MRA_ROM},
-		{0xc000, 0xffff, MRA_ROM},
+		new MemoryReadAddress(0x8000, 0x8fff, MRA_ROM),
+		new MemoryReadAddress(0x9000, 0x900f, vic6560_port_r),
+		new MemoryReadAddress(0x9010, 0x910f, MRA_NOP),
+		new MemoryReadAddress(0x9110, 0x911f, via_0_r),
+		new MemoryReadAddress(0x9120, 0x912f, via_1_r),
+		new MemoryReadAddress(0x9400, 0x97ff, MRA_RAM),		   /*color ram 4 bit */
+		new MemoryReadAddress(0x9800, 0x980f, via_4_r),
+		new MemoryReadAddress(0x9810, 0x981f, via_5_r),
+		new MemoryReadAddress(0xa000, 0xbfff, MRA_ROM),
+		new MemoryReadAddress(0xc000, 0xffff, MRA_ROM),
 		MEMORY_TABLE_END
 	};
 	
-	static struct MemoryWriteAddress vc20i_writemem[] =
+	static MemoryWriteAddress vc20i_writemem[] =
 	{
-		{0x0000, 0x03ff, MWA_RAM, &vc20_memory},
-		{0x1000, 0x1fff, MWA_RAM},
-		{0x8000, 0x8fff, MWA_ROM},
-		{0x9000, 0x900f, vic6560_port_w},
-		{0x9010, 0x910f, MWA_NOP},
-		{0x9110, 0x911f, via_0_w},
-		{0x9120, 0x912f, via_1_w},
-		{0x9400, 0x97ff, vc20_write_9400, &vc20_memory_9400},
-		{0x9800, 0x980f, via_4_w},
-		{0x9810, 0x981f, via_5_w},
-		{0xa000, 0xbfff, MWA_ROM},
-		{0xc000, 0xffff, MWA_NOP},		   /* MWA_ROM }, but logfile */
+		new MemoryWriteAddress(0x0000, 0x03ff, MWA_RAM, vc20_memory),
+		new MemoryWriteAddress(0x1000, 0x1fff, MWA_RAM),
+		new MemoryWriteAddress(0x8000, 0x8fff, MWA_ROM),
+		new MemoryWriteAddress(0x9000, 0x900f, vic6560_port_w),
+		new MemoryWriteAddress(0x9010, 0x910f, MWA_NOP),
+		new MemoryWriteAddress(0x9110, 0x911f, via_0_w),
+		new MemoryWriteAddress(0x9120, 0x912f, via_1_w),
+		new MemoryWriteAddress(0x9400, 0x97ff, vc20_write_9400, vc20_memory_9400),
+		new MemoryWriteAddress(0x9800, 0x980f, via_4_w),
+		new MemoryWriteAddress(0x9810, 0x981f, via_5_w),
+		new MemoryWriteAddress(0xa000, 0xbfff, MWA_ROM),
+		new MemoryWriteAddress(0xc000, 0xffff, MWA_NOP),		   /* MWA_ROM }, but logfile */
 		MEMORY_TABLE_END
 	};
 	
 	#define DIPS_HELPER(bit, name, keycode) \
-	   PORT_BITX(bit, IP_ACTIVE_LOW, IPT_KEYBOARD, name, keycode, IP_JOY_NONE)
+	   PORT_BITX(bit, IP_ACTIVE_LOW, IPT_KEYBOARD, name, keycode, IP_JOY_NONE);
 	
 	#define DIPS_HELPER2(bit, name, keycode) \
-	   PORT_BITX(bit, IP_ACTIVE_HIGH, IPT_KEYBOARD, name, keycode, IP_JOY_NONE)
+	   PORT_BITX(bit, IP_ACTIVE_HIGH, IPT_KEYBOARD, name, keycode, IP_JOY_NONE);
 	
 	#define DIPS_INPUT \
 		PORT_START\
-		PORT_BIT( 0x80, IP_ACTIVE_LOW,	IPT_JOYSTICK_RIGHT | IPF_8WAY )\
-		PORT_BIT( 0x40, IP_ACTIVE_LOW,	IPT_UNUSED )\
-		PORT_BIT( 0x20, IP_ACTIVE_LOW,	IPT_BUTTON1)\
-		PORT_BIT( 0x10, IP_ACTIVE_LOW,	IPT_JOYSTICK_LEFT | IPF_8WAY )\
-		PORT_BIT( 0x08, IP_ACTIVE_LOW,	IPT_JOYSTICK_DOWN | IPF_8WAY )\
-		PORT_BIT( 0x04, IP_ACTIVE_LOW,	IPT_JOYSTICK_UP | IPF_8WAY )\
-		PORT_BIT( 0x03, IP_ACTIVE_LOW,	IPT_UNUSED )\
-		PORT_START \
+		PORT_BIT( 0x80, IP_ACTIVE_LOW,	IPT_JOYSTICK_RIGHT | IPF_8WAY );
+		PORT_BIT( 0x40, IP_ACTIVE_LOW,	IPT_UNUSED );
+		PORT_BIT( 0x20, IP_ACTIVE_LOW,	IPT_BUTTON1);
+		PORT_BIT( 0x10, IP_ACTIVE_LOW,	IPT_JOYSTICK_LEFT | IPF_8WAY );
+		PORT_BIT( 0x08, IP_ACTIVE_LOW,	IPT_JOYSTICK_DOWN | IPF_8WAY );
+		PORT_BIT( 0x04, IP_ACTIVE_LOW,	IPT_JOYSTICK_UP | IPF_8WAY );
+		PORT_BIT( 0x03, IP_ACTIVE_LOW,	IPT_UNUSED );
+		PORT_START();  \
 		PORT_BITX( 0x80, IP_ACTIVE_LOW, IPT_BUTTON2, \
-			   "Paddle 2 Button", KEYCODE_DEL, JOYCODE_NONE)\
-		PORT_BIT ( 0x60, IP_ACTIVE_LOW, IPT_UNUSED )\
+			   "Paddle 2 Button", KEYCODE_DEL, JOYCODE_NONE);
+		PORT_BIT ( 0x60, IP_ACTIVE_LOW, IPT_UNUSED );
 		PORT_BITX( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1, \
-			   "Paddle 1 Button", KEYCODE_INSERT, JOYCODE_NONE)\
-		PORT_BIT ( 0x0f, IP_ACTIVE_LOW, IPT_UNUSED )\
-		PORT_START \
+			   "Paddle 1 Button", KEYCODE_INSERT, JOYCODE_NONE);
+		PORT_BIT ( 0x0f, IP_ACTIVE_LOW, IPT_UNUSED );
+		PORT_START();  \
 		PORT_ANALOGX(0xff,128,IPT_PADDLE|IPF_REVERSE,\
-			     30,20,0,255,KEYCODE_HOME,KEYCODE_PGUP,JOYCODE_NONE,JOYCODE_NONE)\
-		PORT_START \
+			     30,20,0,255,KEYCODE_HOME,KEYCODE_PGUP,JOYCODE_NONE,JOYCODE_NONE);
+		PORT_START();  \
 		PORT_ANALOGX(0xff,128,IPT_PADDLE|IPF_PLAYER2|IPF_REVERSE,\
-			     30,20,0,255,KEYCODE_END,KEYCODE_PGDN,JOYCODE_NONE,JOYCODE_NONE)\
-		PORT_START \
+			     30,20,0,255,KEYCODE_END,KEYCODE_PGDN,JOYCODE_NONE,JOYCODE_NONE);
+		PORT_START();  \
 		DIPS_HELPER( 0x80, "DEL INST",          KEYCODE_BACKSPACE)\
 		DIPS_HELPER( 0x40, "Pound",             KEYCODE_MINUS)\
 		DIPS_HELPER( 0x20, "+",                 KEYCODE_PLUS_PAD)\
@@ -285,7 +285,7 @@ public class vc20
 		DIPS_HELPER( 0x04, "5 %   PUR",         KEYCODE_5)\
 		DIPS_HELPER( 0x02, "3 #   RED",         KEYCODE_3)\
 		DIPS_HELPER( 0x01, "1 !   BLK",         KEYCODE_1)\
-		PORT_START \
+		PORT_START();  \
 		DIPS_HELPER( 0x80, "RETURN",            KEYCODE_ENTER)\
 		DIPS_HELPER( 0x40, "*",                 KEYCODE_ASTERISK)\
 		DIPS_HELPER( 0x20, "P",                 KEYCODE_P)\
@@ -294,7 +294,7 @@ public class vc20
 		DIPS_HELPER( 0x04, "R",                 KEYCODE_R)\
 		DIPS_HELPER( 0x02, "W",                 KEYCODE_W)\
 		DIPS_HELPER( 0x01, "Arrow-Left",        KEYCODE_TILDE)\
-		PORT_START \
+		PORT_START();  \
 		DIPS_HELPER( 0x80, "CRSR-RIGHT LEFT",   KEYCODE_6_PAD)\
 		DIPS_HELPER( 0x40, "; ]",               KEYCODE_QUOTE)\
 		DIPS_HELPER( 0x20, "L",                 KEYCODE_L)\
@@ -303,7 +303,7 @@ public class vc20
 		DIPS_HELPER( 0x04, "D",                 KEYCODE_D)\
 		DIPS_HELPER( 0x02, "A",                 KEYCODE_A)\
 		DIPS_HELPER( 0x01, "CTRL",              KEYCODE_RCONTROL)\
-		PORT_START \
+		PORT_START();  \
 		DIPS_HELPER( 0x80, "CRSR-DOWN UP",      KEYCODE_2_PAD)\
 		DIPS_HELPER( 0x40, "/ ?",               KEYCODE_SLASH)\
 		DIPS_HELPER( 0x20, ", <",               KEYCODE_COMMA)\
@@ -312,7 +312,7 @@ public class vc20
 		DIPS_HELPER( 0x04, "X",                 KEYCODE_X)\
 		DIPS_HELPER( 0x02, "Left-Shift",        KEYCODE_LSHIFT)\
 		DIPS_HELPER( 0x01, "STOP RUN",          KEYCODE_TAB)\
-		PORT_START \
+		PORT_START();  \
 		DIPS_HELPER( 0x80, "f1 f2",             KEYCODE_F1)\
 		DIPS_HELPER( 0x40, "Right-Shift",       KEYCODE_RSHIFT)\
 		DIPS_HELPER( 0x20, ". >",               KEYCODE_STOP)\
@@ -321,7 +321,7 @@ public class vc20
 		DIPS_HELPER( 0x04, "C",                 KEYCODE_C)\
 		DIPS_HELPER( 0x02, "Z",                 KEYCODE_Z)\
 		DIPS_HELPER( 0x01, "Space",             KEYCODE_SPACE)\
-		PORT_START \
+		PORT_START();  \
 		DIPS_HELPER( 0x80, "f3 f4",             KEYCODE_F2)\
 		DIPS_HELPER( 0x40, "=",                 KEYCODE_BACKSLASH)\
 		DIPS_HELPER( 0x20, ": [",               KEYCODE_COLON)\
@@ -330,7 +330,7 @@ public class vc20
 		DIPS_HELPER( 0x04, "F",                 KEYCODE_F)\
 		DIPS_HELPER( 0x02, "S",                 KEYCODE_S)\
 		DIPS_HELPER( 0x01, "CBM",               KEYCODE_RALT)\
-		PORT_START \
+		PORT_START();  \
 		DIPS_HELPER( 0x80, "f5 f6",             KEYCODE_F3)\
 		DIPS_HELPER( 0x40, "Arrow-Up Pi",       KEYCODE_CLOSEBRACE)\
 		DIPS_HELPER( 0x20, "At",                KEYCODE_OPENBRACE)\
@@ -339,7 +339,7 @@ public class vc20
 		DIPS_HELPER( 0x04, "T",                 KEYCODE_T)\
 		DIPS_HELPER( 0x02, "E",                 KEYCODE_E)\
 		DIPS_HELPER( 0x01, "Q",                 KEYCODE_Q)\
-		PORT_START \
+		PORT_START();  \
 		DIPS_HELPER( 0x80, "f7 f8",             KEYCODE_F4)\
 		DIPS_HELPER( 0x40, "HOME CLR",          KEYCODE_EQUALS)\
 		DIPS_HELPER( 0x20, "-",                 KEYCODE_MINUS_PAD)\
@@ -348,9 +348,9 @@ public class vc20
 		DIPS_HELPER( 0x04, "6 &   GRN",         KEYCODE_6)\
 		DIPS_HELPER( 0x02, "4 $   CYN",         KEYCODE_4)\
 		DIPS_HELPER( 0x01, "2 \"   WHT",        KEYCODE_2)\
-		PORT_START \
+		PORT_START();  \
 		PORT_BITX( 0x80, IP_ACTIVE_HIGH, IPF_TOGGLE, \
-			   "SHIFT-LOCK (switch)", KEYCODE_CAPSLOCK, IP_JOY_NONE )\
+			   "SHIFT-LOCK (switch);, KEYCODE_CAPSLOCK, IP_JOY_NONE )\
 		DIPS_HELPER2( 0x40, "RESTORE",               KEYCODE_PRTSCR)\
 		DIPS_HELPER2( 0x20, "Special CRSR Up",       KEYCODE_8_PAD)\
 		DIPS_HELPER2( 0x10, "Special CRSR Left",     KEYCODE_4_PAD)\
@@ -361,158 +361,158 @@ public class vc20
 	
 	
 	#define DIPS_BOTH \
-		PORT_START \
-		PORT_DIPNAME ( 0x07, 0, "RAM Cartridge")\
-		PORT_DIPSETTING(	0, "None" )\
-		PORT_DIPSETTING(	1, "3k" )\
-		PORT_DIPSETTING(	2, "8k" )\
-		PORT_DIPSETTING(	3, "16k" )\
-		PORT_DIPSETTING(	4, "32k" )\
-		PORT_DIPSETTING(	5, "Custom" )\
-		PORT_DIPNAME   ( 0x08, 0, " Ram at 0x0400")\
-		PORT_DIPSETTING( 0x00, DEF_STR( No ) )\
-		PORT_DIPSETTING( 0x08, DEF_STR( Yes ) )\
-		PORT_DIPNAME   ( 0x10, 0, " Ram at 0x2000")\
-		PORT_DIPSETTING( 0x00, DEF_STR( No ) )\
-		PORT_DIPSETTING( 0x10, DEF_STR( Yes ) )\
-		PORT_DIPNAME   ( 0x20, 0, " Ram at 0x4000")\
-		PORT_DIPSETTING( 0x00, DEF_STR( No ) )\
-		PORT_DIPSETTING( 0x20, DEF_STR( Yes ) )\
-		PORT_DIPNAME   ( 0x40, 0, " Ram at 0x6000")\
-		PORT_DIPSETTING( 0x00, DEF_STR( No ) )\
-		PORT_DIPSETTING( 0x40, DEF_STR( Yes ) )\
-		PORT_DIPNAME   ( 0x80, 0, " Ram at 0xa000")\
-		PORT_DIPSETTING( 0x00, DEF_STR( No ) )\
-		PORT_DIPSETTING( 0x80, DEF_STR( Yes ) )\
-		PORT_START \
-		PORT_DIPNAME   ( 0x80, 0x80, "Joystick")\
-		PORT_DIPSETTING( 0x00, DEF_STR( No ) )\
-		PORT_DIPSETTING( 0x80, DEF_STR( Yes ) )\
-		PORT_DIPNAME   ( 0x40, 0x40, "Paddles")\
-		PORT_DIPSETTING( 0x00, DEF_STR( No ) )\
-		PORT_DIPSETTING( 0x40, DEF_STR( Yes ) )\
-		PORT_DIPNAME   ( 0x20, 0x00, "Lightpen")\
-		PORT_DIPSETTING( 0x00, DEF_STR( No ) )\
-		PORT_DIPSETTING( 0x20, DEF_STR( Yes ) )\
-		PORT_DIPNAME   ( 0x10, 0x10, " Draw Pointer")\
-		PORT_DIPSETTING( 0x00, DEF_STR( No ) )\
-		PORT_DIPSETTING( 0x10, DEF_STR( Yes ) )\
-		PORT_DIPNAME   ( 0x08, 0x08, "Tape Drive/Device 1")\
-		PORT_DIPSETTING( 0x00, DEF_STR( No ) )\
-		PORT_DIPSETTING( 0x08, DEF_STR( Yes ) )\
-		PORT_DIPNAME   ( 0x04, 0x00, " Tape Sound")\
-		PORT_DIPSETTING( 0x00, DEF_STR( No ) )\
-		PORT_DIPSETTING( 0x04, DEF_STR( Yes ) )\
-		PORT_DIPNAME ( 0x02, 0x02, "Serial/Dev 8/VC1541 Floppy")\
-		PORT_DIPSETTING(  0, DEF_STR( No ) )\
-		PORT_DIPSETTING(0x02, DEF_STR( Yes ) )\
-		PORT_DIPNAME ( 0x01, 0x01, "Serial/Dev 9/VC1541 Floppy")\
-		PORT_DIPSETTING(  0, DEF_STR( No ) )\
-		PORT_DIPSETTING(  1, DEF_STR( Yes ) )\
-		PORT_START \
-		PORT_BITX( 0x80, IP_ACTIVE_HIGH, IPT_BUTTON2, "Lightpen Signal", KEYCODE_LALT, 0)
+		PORT_START();  \
+		PORT_DIPNAME ( 0x07, 0, "RAM Cartridge");
+		PORT_DIPSETTING(	0, "None" );
+		PORT_DIPSETTING(	1, "3k" );
+		PORT_DIPSETTING(	2, "8k" );
+		PORT_DIPSETTING(	3, "16k" );
+		PORT_DIPSETTING(	4, "32k" );
+		PORT_DIPSETTING(	5, "Custom" );
+		PORT_DIPNAME   ( 0x08, 0, " Ram at 0x0400");
+		PORT_DIPSETTING( 0x00, DEF_STR( "No") );\
+		PORT_DIPSETTING( 0x08, DEF_STR( "Yes") );\
+		PORT_DIPNAME   ( 0x10, 0, " Ram at 0x2000");
+		PORT_DIPSETTING( 0x00, DEF_STR( "No") );\
+		PORT_DIPSETTING( 0x10, DEF_STR( "Yes") );\
+		PORT_DIPNAME   ( 0x20, 0, " Ram at 0x4000");
+		PORT_DIPSETTING( 0x00, DEF_STR( "No") );\
+		PORT_DIPSETTING( 0x20, DEF_STR( "Yes") );\
+		PORT_DIPNAME   ( 0x40, 0, " Ram at 0x6000");
+		PORT_DIPSETTING( 0x00, DEF_STR( "No") );\
+		PORT_DIPSETTING( 0x40, DEF_STR( "Yes") );\
+		PORT_DIPNAME   ( 0x80, 0, " Ram at 0xa000");
+		PORT_DIPSETTING( 0x00, DEF_STR( "No") );\
+		PORT_DIPSETTING( 0x80, DEF_STR( "Yes") );\
+		PORT_START();  \
+		PORT_DIPNAME   ( 0x80, 0x80, "Joystick");
+		PORT_DIPSETTING( 0x00, DEF_STR( "No") );\
+		PORT_DIPSETTING( 0x80, DEF_STR( "Yes") );\
+		PORT_DIPNAME   ( 0x40, 0x40, "Paddles");
+		PORT_DIPSETTING( 0x00, DEF_STR( "No") );\
+		PORT_DIPSETTING( 0x40, DEF_STR( "Yes") );\
+		PORT_DIPNAME   ( 0x20, 0x00, "Lightpen");
+		PORT_DIPSETTING( 0x00, DEF_STR( "No") );\
+		PORT_DIPSETTING( 0x20, DEF_STR( "Yes") );\
+		PORT_DIPNAME   ( 0x10, 0x10, " Draw Pointer");
+		PORT_DIPSETTING( 0x00, DEF_STR( "No") );\
+		PORT_DIPSETTING( 0x10, DEF_STR( "Yes") );\
+		PORT_DIPNAME   ( 0x08, 0x08, "Tape Drive/Device 1");
+		PORT_DIPSETTING( 0x00, DEF_STR( "No") );\
+		PORT_DIPSETTING( 0x08, DEF_STR( "Yes") );\
+		PORT_DIPNAME   ( 0x04, 0x00, " Tape Sound");
+		PORT_DIPSETTING( 0x00, DEF_STR( "No") );\
+		PORT_DIPSETTING( 0x04, DEF_STR( "Yes") );\
+		PORT_DIPNAME ( 0x02, 0x02, "Serial/Dev 8/VC1541 Floppy");
+		PORT_DIPSETTING(  0, DEF_STR( "No") );\
+		PORT_DIPSETTING(0x02, DEF_STR( "Yes") );\
+		PORT_DIPNAME ( 0x01, 0x01, "Serial/Dev 9/VC1541 Floppy");
+		PORT_DIPSETTING(  0, DEF_STR( "No") );\
+		PORT_DIPSETTING(  1, DEF_STR( "Yes") );\
+		PORT_START();  \
+		PORT_BITX( 0x80, IP_ACTIVE_HIGH, IPT_BUTTON2, "Lightpen Signal", KEYCODE_LALT, 0);
 	
 	INPUT_PORTS_START (vic20)
 		DIPS_INPUT
 		DIPS_BOTH
-		PORT_START							   /* in 16 lightpen X */
+		PORT_START(); 							   /* in 16 lightpen X */
 		PORT_ANALOGX (0xff, 0, IPT_PADDLE | IPF_PLAYER3,
-					  30, 2, 0, (VIC6560_MAME_XSIZE - 1),
+					  30, 2, 0, (VIC6560_MAME_XSIZE - 1);
 					  KEYCODE_LEFT, KEYCODE_RIGHT,
 					  JOYCODE_1_LEFT, JOYCODE_1_RIGHT)
-		PORT_START							   /* in 17 lightpen Y */
+		PORT_START(); 							   /* in 17 lightpen Y */
 		PORT_ANALOGX (0xff, 0, IPT_PADDLE | IPF_PLAYER4,
-					  30, 2, 0, (VIC6560_MAME_YSIZE - 1),
+					  30, 2, 0, (VIC6560_MAME_YSIZE - 1);
 					  KEYCODE_UP, KEYCODE_DOWN, JOYCODE_1_UP, JOYCODE_1_DOWN)
-	INPUT_PORTS_END
+	INPUT_PORTS_END(); }}; 
 	
 	INPUT_PORTS_START (vic20i)
 		DIPS_INPUT
-		PORT_START
-		PORT_DIPNAME ( 0x07, 0, "RAM Cartridge")
-		PORT_DIPSETTING(	0, "None" )
-		PORT_DIPSETTING(	1, "3k" )
-		PORT_DIPSETTING(	2, "8k" )
-		PORT_DIPSETTING(	3, "16k" )
-		PORT_DIPSETTING(	4, "32k" )
-		PORT_DIPSETTING(	5, "Custom" )
-		PORT_DIPNAME   ( 0x08, 0, " Ram at 0x0400")
-		PORT_DIPSETTING( 0x00, DEF_STR( No ) )
-		PORT_DIPSETTING( 0x08, DEF_STR( Yes ) )
-		PORT_DIPNAME   ( 0x10, 0, " Ram at 0x2000")
-		PORT_DIPSETTING( 0x00, DEF_STR( No ) )
-		PORT_DIPSETTING( 0x10, DEF_STR( Yes ) )
-		PORT_DIPNAME   ( 0x20, 0, " Ram at 0x4000")
-		PORT_DIPSETTING( 0x00, DEF_STR( No ) )
-		PORT_DIPSETTING( 0x20, DEF_STR( Yes ) )
-		PORT_DIPNAME   ( 0x40, 0, " Ram at 0x6000")
-		PORT_DIPSETTING( 0x00, DEF_STR( No ) )
-		PORT_DIPSETTING( 0x40, DEF_STR( Yes ) )
-		PORT_DIPNAME   ( 0x80, 0, " Ram at 0xa000")
-		PORT_DIPSETTING( 0x00, DEF_STR( No ) )
-		PORT_DIPSETTING( 0x80, DEF_STR( Yes ) )
-		PORT_START
-		PORT_DIPNAME   ( 0x80, 0x80, "Joystick")
-		PORT_DIPSETTING( 0x00, DEF_STR( No ) )
-		PORT_DIPSETTING( 0x80, DEF_STR( Yes ) )
-		PORT_DIPNAME   ( 0x40, 0x40, "Paddles")
-		PORT_DIPSETTING( 0x00, DEF_STR( No ) )
-		PORT_DIPSETTING( 0x40, DEF_STR( Yes ) )
-		PORT_DIPNAME   ( 0x20, 0x00, "Lightpen")
-		PORT_DIPSETTING( 0x00, DEF_STR( No ) )
-		PORT_DIPSETTING( 0x20, DEF_STR( Yes ) )
-		PORT_DIPNAME   ( 0x10, 0x10, " Draw Pointer")
-		PORT_DIPSETTING( 0x00, DEF_STR( No ) )
-		PORT_DIPSETTING( 0x10, DEF_STR( Yes ) )
-		PORT_DIPNAME   ( 0x08, 0x08, "Tape Drive/Device 1")
-		PORT_DIPSETTING( 0x00, DEF_STR( No ) )
-		PORT_DIPSETTING( 0x08, DEF_STR( Yes ) )
-		PORT_DIPNAME   ( 0x04, 0x00, " Tape Sound")
-		PORT_DIPSETTING( 0x00, DEF_STR( No ) )
-		PORT_DIPSETTING( 0x04, DEF_STR( Yes ) )
-		PORT_DIPNAME ( 0x02, 0x02, "IEEE/Dev 8/Floppy Sim")
-		PORT_DIPSETTING(  0, DEF_STR( No ) )
-		PORT_DIPSETTING(0x02, DEF_STR( Yes ) )
+		PORT_START(); 
+		PORT_DIPNAME ( 0x07, 0, "RAM Cartridge");
+		PORT_DIPSETTING(	0, "None" );
+		PORT_DIPSETTING(	1, "3k" );
+		PORT_DIPSETTING(	2, "8k" );
+		PORT_DIPSETTING(	3, "16k" );
+		PORT_DIPSETTING(	4, "32k" );
+		PORT_DIPSETTING(	5, "Custom" );
+		PORT_DIPNAME   ( 0x08, 0, " Ram at 0x0400");
+		PORT_DIPSETTING( 0x00, DEF_STR( "No") );
+		PORT_DIPSETTING( 0x08, DEF_STR( "Yes") );
+		PORT_DIPNAME   ( 0x10, 0, " Ram at 0x2000");
+		PORT_DIPSETTING( 0x00, DEF_STR( "No") );
+		PORT_DIPSETTING( 0x10, DEF_STR( "Yes") );
+		PORT_DIPNAME   ( 0x20, 0, " Ram at 0x4000");
+		PORT_DIPSETTING( 0x00, DEF_STR( "No") );
+		PORT_DIPSETTING( 0x20, DEF_STR( "Yes") );
+		PORT_DIPNAME   ( 0x40, 0, " Ram at 0x6000");
+		PORT_DIPSETTING( 0x00, DEF_STR( "No") );
+		PORT_DIPSETTING( 0x40, DEF_STR( "Yes") );
+		PORT_DIPNAME   ( 0x80, 0, " Ram at 0xa000");
+		PORT_DIPSETTING( 0x00, DEF_STR( "No") );
+		PORT_DIPSETTING( 0x80, DEF_STR( "Yes") );
+		PORT_START(); 
+		PORT_DIPNAME   ( 0x80, 0x80, "Joystick");
+		PORT_DIPSETTING( 0x00, DEF_STR( "No") );
+		PORT_DIPSETTING( 0x80, DEF_STR( "Yes") );
+		PORT_DIPNAME   ( 0x40, 0x40, "Paddles");
+		PORT_DIPSETTING( 0x00, DEF_STR( "No") );
+		PORT_DIPSETTING( 0x40, DEF_STR( "Yes") );
+		PORT_DIPNAME   ( 0x20, 0x00, "Lightpen");
+		PORT_DIPSETTING( 0x00, DEF_STR( "No") );
+		PORT_DIPSETTING( 0x20, DEF_STR( "Yes") );
+		PORT_DIPNAME   ( 0x10, 0x10, " Draw Pointer");
+		PORT_DIPSETTING( 0x00, DEF_STR( "No") );
+		PORT_DIPSETTING( 0x10, DEF_STR( "Yes") );
+		PORT_DIPNAME   ( 0x08, 0x08, "Tape Drive/Device 1");
+		PORT_DIPSETTING( 0x00, DEF_STR( "No") );
+		PORT_DIPSETTING( 0x08, DEF_STR( "Yes") );
+		PORT_DIPNAME   ( 0x04, 0x00, " Tape Sound");
+		PORT_DIPSETTING( 0x00, DEF_STR( "No") );
+		PORT_DIPSETTING( 0x04, DEF_STR( "Yes") );
+		PORT_DIPNAME ( 0x02, 0x02, "IEEE/Dev 8/Floppy Sim");
+		PORT_DIPSETTING(  0, DEF_STR( "No") );
+		PORT_DIPSETTING(0x02, DEF_STR( "Yes") );
 	#if 1
 		/* ieee simu currently not a bus, so only 1 device */
-		PORT_BIT( 0x01, 0,	IPT_UNUSED )
+		PORT_BIT( 0x01, 0,	IPT_UNUSED );
 	#else
-		PORT_DIPNAME ( 0x01, 0x01, "IEEE/Dev 9/Floppy Sim")
-		PORT_DIPSETTING(  0, DEF_STR( No ) )
-		PORT_DIPSETTING(  1, DEF_STR( Yes ) )
+		PORT_DIPNAME ( 0x01, 0x01, "IEEE/Dev 9/Floppy Sim");
+		PORT_DIPSETTING(  0, DEF_STR( "No") );
+		PORT_DIPSETTING(  1, DEF_STR( "Yes") );
 	#endif
-		PORT_START
-		PORT_BITX( 0x80, IP_ACTIVE_HIGH, IPT_BUTTON2, "Lightpen Signal", KEYCODE_LALT, 0)
-		PORT_START							   /* in 16 lightpen X */
+		PORT_START(); 
+		PORT_BITX( 0x80, IP_ACTIVE_HIGH, IPT_BUTTON2, "Lightpen Signal", KEYCODE_LALT, 0);
+		PORT_START(); 							   /* in 16 lightpen X */
 		PORT_ANALOGX (0xff, 0, IPT_PADDLE | IPF_PLAYER3,
-					  30, 2, 0, (VIC6560_MAME_XSIZE - 1),
+					  30, 2, 0, (VIC6560_MAME_XSIZE - 1);
 					  KEYCODE_LEFT, KEYCODE_RIGHT,
 					  JOYCODE_1_LEFT, JOYCODE_1_RIGHT)
-		PORT_START							   /* in 17 lightpen Y */
+		PORT_START(); 							   /* in 17 lightpen Y */
 		PORT_ANALOGX (0xff, 0, IPT_PADDLE | IPF_PLAYER4,
-					  30, 2, 0, (VIC6560_MAME_YSIZE - 1),
+					  30, 2, 0, (VIC6560_MAME_YSIZE - 1);
 					  KEYCODE_UP, KEYCODE_DOWN, JOYCODE_1_UP, JOYCODE_1_DOWN)
-	INPUT_PORTS_END
+	INPUT_PORTS_END(); }}; 
 	
 	INPUT_PORTS_START (vc20)
 		DIPS_INPUT
 		DIPS_BOTH
-		PORT_START							   /* in 16 lightpen X */
+		PORT_START(); 							   /* in 16 lightpen X */
 		PORT_ANALOGX (0xff, 0, IPT_PADDLE | IPF_PLAYER3,
-					  30, 2, 0, (VIC6561_MAME_XSIZE - 1),
+					  30, 2, 0, (VIC6561_MAME_XSIZE - 1);
 					  KEYCODE_LEFT, KEYCODE_RIGHT,
 					  JOYCODE_1_LEFT, JOYCODE_1_RIGHT)
-		PORT_START							   /* in 17 lightpen Y */
+		PORT_START(); 							   /* in 17 lightpen Y */
 		PORT_ANALOGX (0x1ff, 0, IPT_PADDLE | IPF_PLAYER4,
-					  30, 2, 0, (VIC6561_MAME_YSIZE - 1),
+					  30, 2, 0, (VIC6561_MAME_YSIZE - 1);
 					  KEYCODE_UP, KEYCODE_DOWN,
 					  JOYCODE_1_UP, JOYCODE_1_DOWN)
-	INPUT_PORTS_END
+	INPUT_PORTS_END(); }}; 
 	
 	/* Initialise the vc20 palette */
-	static void vc20_init_palette (unsigned char *sys_palette,
+	static void vc20_init_palette (UBytePtr sys_palette,
 								   unsigned short *sys_colortable,
-								   const unsigned char *color_prom)
+								   const UBytePtr color_prom)
 	{
 		memcpy (sys_palette, vic6560_palette, sizeof (vic6560_palette));
 	/*  memcpy(sys_colortable,colortable,sizeof(colortable)); */
@@ -520,122 +520,122 @@ public class vc20
 	
 	#if 0
 		/* chargen */
-		ROM_LOAD ("901460.03", 0x8000, 0x1000, 0x83e032a6)
+		ROM_LOAD ("901460.03", 0x8000, 0x1000, 0x83e032a6);
 		/* basic */
-		ROM_LOAD ("901486.01", 0xc000, 0x2000, 0xdb4c43c1)
+		ROM_LOAD ("901486.01", 0xc000, 0x2000, 0xdb4c43c1);
 		/* kernel ntsc */
-		ROM_LOAD ("901486.06", 0xe000, 0x2000, 0xe5e7c174)
+		ROM_LOAD ("901486.06", 0xe000, 0x2000, 0xe5e7c174);
 		/* kernel pal */
-		ROM_LOAD ("901486.07", 0xe000, 0x2000, 0x4be07cb4)
+		ROM_LOAD ("901486.07", 0xe000, 0x2000, 0x4be07cb4);
 	
 		/* patched pal system for swedish/finish keyboard and chars */
 	    /* but in rom? (maybe patched means in this case nec version) */
-		ROM_LOAD ("nec22101.207", 0x8000, 0x1000, 0xd808551d)
-		ROM_LOAD ("nec22081.206", 0xe000, 0x2000, 0xb2a60662)
+		ROM_LOAD ("nec22101.207", 0x8000, 0x1000, 0xd808551d);
+		ROM_LOAD ("nec22081.206", 0xe000, 0x2000, 0xb2a60662);
 	
 		/* ieee488 cartridge */
-		ROM_LOAD ("325329-04.bin", 0xb000, 0x800, 0xd37b6335)
+		ROM_LOAD ("325329-04.bin", 0xb000, 0x800, 0xd37b6335);
 	#endif
 	
 	ROM_START (vic20)
-		ROM_REGION (0x10000, REGION_CPU1)
-		ROM_LOAD ("901460.03", 0x8000, 0x1000, 0x83e032a6)
-		ROM_LOAD ("901486.01", 0xc000, 0x2000, 0xdb4c43c1)
-		ROM_LOAD ("901486.06", 0xe000, 0x2000, 0xe5e7c174)
-	ROM_END
+		ROM_REGION (0x10000, REGION_CPU1);
+		ROM_LOAD ("901460.03", 0x8000, 0x1000, 0x83e032a6);
+		ROM_LOAD ("901486.01", 0xc000, 0x2000, 0xdb4c43c1);
+		ROM_LOAD ("901486.06", 0xe000, 0x2000, 0xe5e7c174);
+	ROM_END(); }}; 
 	
 	ROM_START (vic20swe)
-		ROM_REGION (0x10000, REGION_CPU1)
-		ROM_LOAD ("nec22101.207", 0x8000, 0x1000, 0xd808551d)
-		ROM_LOAD ("901486.01", 0xc000, 0x2000, 0xdb4c43c1)
-		ROM_LOAD ("nec22081.206", 0xe000, 0x2000, 0xb2a60662)
-	ROM_END
+		ROM_REGION (0x10000, REGION_CPU1);
+		ROM_LOAD ("nec22101.207", 0x8000, 0x1000, 0xd808551d);
+		ROM_LOAD ("901486.01", 0xc000, 0x2000, 0xdb4c43c1);
+		ROM_LOAD ("nec22081.206", 0xe000, 0x2000, 0xb2a60662);
+	ROM_END(); }}; 
 	
 	ROM_START (vic20v)
-		ROM_REGION (0x10000, REGION_CPU1)
-		ROM_LOAD ("901460.03", 0x8000, 0x1000, 0x83e032a6)
-		ROM_LOAD ("901486.01", 0xc000, 0x2000, 0xdb4c43c1)
-		ROM_LOAD ("901486.06", 0xe000, 0x2000, 0xe5e7c174)
+		ROM_REGION (0x10000, REGION_CPU1);
+		ROM_LOAD ("901460.03", 0x8000, 0x1000, 0x83e032a6);
+		ROM_LOAD ("901486.01", 0xc000, 0x2000, 0xdb4c43c1);
+		ROM_LOAD ("901486.06", 0xe000, 0x2000, 0xe5e7c174);
 		VC1540_ROM (REGION_CPU2)
-	ROM_END
+	ROM_END(); }}; 
 	
 	ROM_START (vic20i)
-		ROM_REGION (0x10000, REGION_CPU1)
-		ROM_LOAD ("901460.03", 0x8000, 0x1000, 0x83e032a6)
-		ROM_LOAD ("325329.04", 0xb000, 0x800, 0xd37b6335)
-		ROM_LOAD ("901486.01", 0xc000, 0x2000, 0xdb4c43c1)
-		ROM_LOAD ("901486.06", 0xe000, 0x2000, 0xe5e7c174)
+		ROM_REGION (0x10000, REGION_CPU1);
+		ROM_LOAD ("901460.03", 0x8000, 0x1000, 0x83e032a6);
+		ROM_LOAD ("325329.04", 0xb000, 0x800, 0xd37b6335);
+		ROM_LOAD ("901486.01", 0xc000, 0x2000, 0xdb4c43c1);
+		ROM_LOAD ("901486.06", 0xe000, 0x2000, 0xe5e7c174);
 	/*	C2031_ROM (REGION_CPU2) */
-	ROM_END
+	ROM_END(); }}; 
 	
 	ROM_START (vc20)
-		ROM_REGION (0x10000, REGION_CPU1)
-		ROM_LOAD ("901460.03", 0x8000, 0x1000, 0x83e032a6)
-		ROM_LOAD ("901486.01", 0xc000, 0x2000, 0xdb4c43c1)
-		ROM_LOAD ("901486.07", 0xe000, 0x2000, 0x4be07cb4)
-	ROM_END
+		ROM_REGION (0x10000, REGION_CPU1);
+		ROM_LOAD ("901460.03", 0x8000, 0x1000, 0x83e032a6);
+		ROM_LOAD ("901486.01", 0xc000, 0x2000, 0xdb4c43c1);
+		ROM_LOAD ("901486.07", 0xe000, 0x2000, 0x4be07cb4);
+	ROM_END(); }}; 
 	
 	ROM_START (vc20v)
-		ROM_REGION (0x10000, REGION_CPU1)
-		ROM_LOAD ("901460.03", 0x8000, 0x1000, 0x83e032a6)
-		ROM_LOAD ("901486.01", 0xc000, 0x2000, 0xdb4c43c1)
-		ROM_LOAD ("901486.07", 0xe000, 0x2000, 0x4be07cb4)
+		ROM_REGION (0x10000, REGION_CPU1);
+		ROM_LOAD ("901460.03", 0x8000, 0x1000, 0x83e032a6);
+		ROM_LOAD ("901486.01", 0xc000, 0x2000, 0xdb4c43c1);
+		ROM_LOAD ("901486.07", 0xe000, 0x2000, 0x4be07cb4);
 		VC1541_ROM (REGION_CPU2)
-	ROM_END
+	ROM_END(); }}; 
 	
-	static struct MachineDriver machine_driver_vic20 =
-	{
+	static MachineDriver machine_driver_vic20 = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_M6502,
 				VIC6560_CLOCK,
 				vc20_readmem, vc20_writemem,
-				0, 0,
+				null, null,
 				vc20_frame_interrupt, 1,
 				vic656x_raster_interrupt, VIC656X_HRETRACERATE,
-			},
+			),
 		},
 		VIC6560_VRETRACERATE, DEFAULT_REAL_60HZ_VBLANK_DURATION,	/* frames per second, vblank duration */
-		0,
+		null,
 		vc20_init_machine,
 		vc20_shutdown_machine,
 	
 		/* video hardware */
-		(VIC6560_XSIZE + 7) & ~7,		   /* screen width */
+		(VIC6560_XSIZE + 7)  ~7,		   /* screen width */
 		VIC6560_YSIZE,					   /* screen height */
-		{VIC6560_MAME_XPOS, VIC6560_MAME_XPOS + VIC6560_MAME_XSIZE - 1,
-		 VIC6560_MAME_YPOS, VIC6560_MAME_YPOS + VIC6560_MAME_YSIZE - 1},
-		0,								   /* graphics decode info */
-		sizeof (vic6560_palette) / sizeof (vic6560_palette[0]) / 3,
-		0,
+		new rectangle(VIC6560_MAME_XPOS, VIC6560_MAME_XPOS + VIC6560_MAME_XSIZE - 1,
+		 VIC6560_MAME_YPOS, VIC6560_MAME_YPOS + VIC6560_MAME_YSIZE - 1),
+		null,								   /* graphics decode info */
+		sizeof (vic6560_palette) / sizeof (vic6560_palette[null]) / 3,
+		null,
 		vc20_init_palette,				   /* convert color prom */
 		VIDEO_TYPE_RASTER,
-		0,
+		null,
 		vic6560_vh_start,
 		vic6560_vh_stop,
 		vic6560_vh_screenrefresh,
 	
 		/* sound hardware */
 		0, 0, 0, 0,
-		{
-			{SOUND_CUSTOM, &vic6560_sound_interface},
-			{SOUND_DAC, &vc20tape_sound_interface}
+		new MachineSound[] {
+			new MachineSound(SOUND_CUSTOM, vic6560_sound_interface),
+			new MachineSound(SOUND_DAC, vc20tape_sound_interface)
 		}
-	};
+	);
 	
-	static struct MachineDriver machine_driver_vic20v =
-	{
+	static MachineDriver machine_driver_vic20v = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_M6502,
 				VIC6560_CLOCK,
 				vc20_readmem, vc20_writemem,
-				0, 0,
+				null, null,
 				vc20_frame_interrupt, 1,
 				vic656x_raster_interrupt, VIC656X_HRETRACERATE,
-			},
+			),
 			VC1540_CPU,
 		},
 		VIC6560_VRETRACERATE, DEFAULT_REAL_60HZ_VBLANK_DURATION,	/* frames per second, vblank duration */
@@ -648,40 +648,40 @@ public class vc20
 		vc20_shutdown_machine,
 	
 		/* video hardware */
-		(VIC6560_XSIZE + 7) & ~7,		   /* screen width */
+		(VIC6560_XSIZE + 7)  ~7,		   /* screen width */
 		VIC6560_YSIZE,					   /* screen height */
 		{VIC6560_MAME_XPOS, VIC6560_MAME_XPOS + VIC6560_MAME_XSIZE - 1,
 		 VIC6560_MAME_YPOS, VIC6560_MAME_YPOS + VIC6560_MAME_YSIZE - 1},
-		0,								   /* graphics decode info */
-		sizeof (vic6560_palette) / sizeof (vic6560_palette[0]) / 3,
-		0,
+		null,								   /* graphics decode info */
+		sizeof (vic6560_palette) / sizeof (vic6560_palette[null]) / 3,
+		null,
 		vc20_init_palette,				   /* convert color prom */
 		VIDEO_TYPE_RASTER,
-		0,
+		null,
 		vic6560_vh_start,
 		vic6560_vh_stop,
 		vic6560_vh_screenrefresh,
 	
 		/* sound hardware */
 		0, 0, 0, 0,
-		{
-			{SOUND_CUSTOM, &vic6560_sound_interface},
-			{SOUND_DAC, &vc20tape_sound_interface}
+		new MachineSound[] {
+			new MachineSound(SOUND_CUSTOM, vic6560_sound_interface),
+			new MachineSound(SOUND_DAC, vc20tape_sound_interface)
 		}
-	};
+	);
 	
-	static struct MachineDriver machine_driver_vic20i =
-	{
+	static MachineDriver machine_driver_vic20i = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_M6502,
 				VIC6560_CLOCK,
 				vc20i_readmem, vc20i_writemem,
-				0, 0,
+				null, null,
 				vc20_frame_interrupt, 1,
 				vic656x_raster_interrupt, VIC656X_HRETRACERATE,
-			},
+			),
 	/*		C2031_CPU, */
 		},
 		VIC6560_VRETRACERATE, DEFAULT_REAL_60HZ_VBLANK_DURATION,	/* frames per second, vblank duration */
@@ -694,81 +694,81 @@ public class vc20
 		vc20_shutdown_machine,
 	
 		/* video hardware */
-		(VIC6560_XSIZE + 7) & ~7,		   /* screen width */
+		(VIC6560_XSIZE + 7)  ~7,		   /* screen width */
 		VIC6560_YSIZE,					   /* screen height */
 		{VIC6560_MAME_XPOS, VIC6560_MAME_XPOS + VIC6560_MAME_XSIZE - 1,
 		 VIC6560_MAME_YPOS, VIC6560_MAME_YPOS + VIC6560_MAME_YSIZE - 1},
-		0,								   /* graphics decode info */
-		sizeof (vic6560_palette) / sizeof (vic6560_palette[0]) / 3,
-		0,
+		null,								   /* graphics decode info */
+		sizeof (vic6560_palette) / sizeof (vic6560_palette[null]) / 3,
+		null,
 		vc20_init_palette,				   /* convert color prom */
 		VIDEO_TYPE_RASTER,
-		0,
+		null,
 		vic6560_vh_start,
 		vic6560_vh_stop,
 		vic6560_vh_screenrefresh,
 	
 		/* sound hardware */
 		0, 0, 0, 0,
-		{
-			{SOUND_CUSTOM, &vic6560_sound_interface},
-			{SOUND_DAC, &vc20tape_sound_interface}
+		new MachineSound[] {
+			new MachineSound(SOUND_CUSTOM, vic6560_sound_interface),
+			new MachineSound(SOUND_DAC, vc20tape_sound_interface)
 		}
-	};
+	);
 	
-	static struct MachineDriver machine_driver_vc20 =
-	{
+	static MachineDriver machine_driver_vc20 = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_M6502,
 				VIC6561_CLOCK,
 				vc20_readmem, vc20_writemem,
-				0, 0,
+				null, null,
 				vc20_frame_interrupt, 1,
 				vic656x_raster_interrupt, VIC656X_HRETRACERATE,
-			},
+			),
 		},
 		VIC6561_VRETRACERATE, DEFAULT_REAL_60HZ_VBLANK_DURATION,	/* frames per second, vblank duration */
-		0,
+		null,
 		vc20_init_machine,
 		vc20_shutdown_machine,
 	
 		/* video hardware */
-		(VIC6561_XSIZE + 7) & ~7,		   /* screen width */
+		(VIC6561_XSIZE + 7)  ~7,		   /* screen width */
 		VIC6561_YSIZE,					   /* screen height */
-		{VIC6561_MAME_XPOS, VIC6561_MAME_XPOS + VIC6561_MAME_XSIZE - 1,
-		 VIC6561_MAME_YPOS, VIC6561_MAME_YPOS + VIC6561_MAME_YSIZE - 1},	/* visible_area */
-		0,								   /* graphics decode info */
-		sizeof (vic6560_palette) / sizeof (vic6560_palette[0]) / 3,
-		0,
+		new rectangle(VIC6561_MAME_XPOS, VIC6561_MAME_XPOS + VIC6561_MAME_XSIZE - 1,
+		 VIC6561_MAME_YPOS, VIC6561_MAME_YPOS + VIC6561_MAME_YSIZE - 1),	/* visible_area */
+		null,								   /* graphics decode info */
+		sizeof (vic6560_palette) / sizeof (vic6560_palette[null]) / 3,
+		null,
 		vc20_init_palette,				   /* convert color prom */
 		VIDEO_TYPE_RASTER,
-		0,
+		null,
 		vic6560_vh_start,
 		vic6560_vh_stop,
 		vic6560_vh_screenrefresh,
 	
 		/* sound hardware */
 		0, 0, 0, 0,
-		{
-			{SOUND_CUSTOM, &vic6560_sound_interface},
-			{SOUND_DAC, &vc20tape_sound_interface}
+		new MachineSound[] {
+			new MachineSound(SOUND_CUSTOM, vic6560_sound_interface),
+			new MachineSound(SOUND_DAC, vc20tape_sound_interface)
 		}
-	};
+	);
 	
-	static struct MachineDriver machine_driver_vc20v =
-	{
+	static MachineDriver machine_driver_vc20v = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_M6502,
 				VIC6561_CLOCK,
 				vc20_readmem, vc20_writemem,
-				0, 0,
+				null, null,
 				vc20_frame_interrupt, 1,
 				vic656x_raster_interrupt, VIC656X_HRETRACERATE,
-			},
+			),
 			VC1541_CPU,
 		},
 		VIC6561_VRETRACERATE, DEFAULT_REAL_60HZ_VBLANK_DURATION,	/* frames per second, vblank duration */
@@ -781,27 +781,27 @@ public class vc20
 		vc20_shutdown_machine,
 	
 		/* video hardware */
-		(VIC6561_XSIZE + 7) & ~7,		   /* screen width */
+		(VIC6561_XSIZE + 7)  ~7,		   /* screen width */
 		VIC6561_YSIZE,					   /* screen height */
 		{VIC6561_MAME_XPOS, VIC6561_MAME_XPOS + VIC6561_MAME_XSIZE - 1,
 		 VIC6561_MAME_YPOS, VIC6561_MAME_YPOS + VIC6561_MAME_YSIZE - 1},	/* visible_area */
-		0,								   /* graphics decode info */
-		sizeof (vic6560_palette) / sizeof (vic6560_palette[0]) / 3,
-		0,
+		null,								   /* graphics decode info */
+		sizeof (vic6560_palette) / sizeof (vic6560_palette[null]) / 3,
+		null,
 		vc20_init_palette,				   /* convert color prom */
 		VIDEO_TYPE_RASTER,
-		0,
+		null,
 		vic6560_vh_start,
 		vic6560_vh_stop,
 		vic6560_vh_screenrefresh,
 	
 		/* sound hardware */
 		0, 0, 0, 0,
-		{
-			{SOUND_CUSTOM, &vic6560_sound_interface},
-			{SOUND_DAC, &vc20tape_sound_interface}
+		new MachineSound[] {
+			new MachineSound(SOUND_CUSTOM, vic6560_sound_interface),
+			new MachineSound(SOUND_DAC, vc20tape_sound_interface)
 		}
-	};
+	);
 	
 	static const struct IODevice io_vc20[] =
 	{

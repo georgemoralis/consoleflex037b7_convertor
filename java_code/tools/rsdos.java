@@ -78,7 +78,7 @@ public class rsdos
 		char *s;
 	
 		buflen = strlen(buf);
-		if (buflen) {
+		if (buflen != 0) {
 			for (s = &buf[buflen-1]; (*s == ' '); s--)
 				*s = '\0';
 		}
@@ -101,11 +101,11 @@ public class rsdos
 		char *s;
 	
 		memset(fnamebuf, 0, 13);
-		memcpy(fnamebuf, ent->fname, sizeof(ent->fname));
+		memcpy(fnamebuf, ent.fname, sizeof(ent.fname));
 		rtrim(fnamebuf);
 		s = fnamebuf + strlen(fnamebuf);
 		*(s++) = '.';
-		memcpy(s, ent->fext, sizeof(ent->fext));
+		memcpy(s, ent.fext, sizeof(ent.fext));
 		rtrim(s);
 	
 		/* If no extension, remove period */
@@ -124,21 +124,21 @@ public class rsdos
 		do {
 			do {
 				err = get_rsdos_dirent(f, i++, ent);
-				if (err)
+				if (err != 0)
 					return err;
 			}
-			while(ent->fname[0] == '\0');
+			while(ent.fname[0] == '\0');
 	
 	
-			if (ent->fname[0] != -1)
+			if (ent.fname[0] != -1)
 				get_dirent_fname(fnamebuf, ent);
 		}
-		while((ent->fname[0] != -1) && stricmp(fnamebuf, fname));
+		while((ent.fname[0] != -1) && stricmp(fnamebuf, fname));
 	
-		if (ent->fname[0] == -1)
+		if (ent.fname[0] == -1)
 			return IMGTOOLERR_FILENOTFOUND;
 	
-		if (position)
+		if (position != 0)
 			*position = i - 1;
 		return 0;
 	}
@@ -148,14 +148,14 @@ public class rsdos
 		size_t s, lastgransize;
 		unsigned char i, granule;
 	
-		lastgransize = ent->lastsectorbytes_lsb + (((int) ent->lastsectorbytes_msb) << 8);
+		lastgransize = ent.lastsectorbytes_lsb + (((int) ent.lastsectorbytes_msb) << 8);
 		s = 0;
-		granule = ent->first_granule;
+		granule = ent.first_granule;
 	
-		while((i = img->granulemap[granule]) < GRANULE_COUNT) {
-			if (destf) {
-				stream_seek(img->f, GOFFSET(granule), SEEK_SET);
-				stream_transfer(destf, img->f, 9*256);
+		while((i = img.granulemap[granule]) < GRANULE_COUNT) {
+			if (destf != 0) {
+				stream_seek(img.f, GOFFSET(granule), SEEK_SET);
+				stream_transfer(destf, img.f, 9*256);
 			}
 	
 			/* i is the next granule */
@@ -168,9 +168,9 @@ public class rsdos
 	
 		lastgransize += (256 * (i - 0xc0));
 	
-		if (destf) {
-			stream_seek(img->f, GOFFSET(granule), SEEK_SET);
-			stream_transfer(destf, img->f, lastgransize);
+		if (destf != 0) {
+			stream_seek(img.f, GOFFSET(granule), SEEK_SET);
+			stream_transfer(destf, img.f, lastgransize);
 		}
 	
 		return s + lastgransize;
@@ -182,11 +182,11 @@ public class rsdos
 		const char *fname_ext;
 		int fname_ext_len;
 	
-		memset(ent->fname, ' ', sizeof(ent->fname));
-		memset(ent->fext, ' ', sizeof(ent->fext));
+		memset(ent.fname, ' ', sizeof(ent.fname));
+		memset(ent.fext, ' ', sizeof(ent.fext));
 	
 		fname_end = strchr(fname, '.');
-		if (fname_end)
+		if (fname_end != 0)
 			fname_ext = fname_end + 1;
 		else
 			fname_end = fname_ext = fname + strlen(fname);
@@ -197,12 +197,12 @@ public class rsdos
 		if (((fname_end - fname) > 8) || (fname_ext_len > 3))
 			return IMGTOOLERR_BADFILENAME;
 	
-		memcpy(ent->fname, fname, fname_end - fname);
-		memcpy(ent->fext, fname_ext, fname_ext_len);
+		memcpy(ent.fname, fname, fname_end - fname);
+		memcpy(ent.fext, fname_ext, fname_ext_len);
 	
 		/* For now, all files are type 2 binary files */
-		ent->ftype = 2;
-		ent->asciiflag = 0;
+		ent.ftype = 2;
+		ent.asciiflag = 0;
 		return 0;
 	}
 	
@@ -210,7 +210,7 @@ public class rsdos
 	{
 		int i;
 		for (i = 0; i < GRANULE_COUNT; i++)
-			if ((rsimg->granulemap[i] == 0xff) && (i != granule_to_ignore))
+			if ((rsimg.granulemap[i] == 0xff) && (i != granule_to_ignore))
 				return i;
 		return 0xff;
 	}
@@ -236,19 +236,19 @@ public class rsdos
 			goto error;
 		}
 	
-		if (stream_read(f, img->granulemap, sizeof(img->granulemap)) != sizeof(img->granulemap)) {
+		if (stream_read(f, img.granulemap, sizeof(img.granulemap)) != sizeof(img.granulemap)) {
 			err = IMGTOOLERR_READERROR;
 			goto error;
 		}
 	
-		img->base.module = &imgmod_rsdos;
-		img->f = f;
-		img->granulemap_dirty = 0;
-		*outimg = &img->base;
+		img.base.module = &imgmod_rsdos;
+		img.f = f;
+		img.granulemap_dirty = 0;
+		*outimg = &img.base;
 		return 0;
 	
 	error:
-		if (img)
+		if (img != 0)
 			free(img);
 		*outimg = NULL;
 		return err;
@@ -258,12 +258,12 @@ public class rsdos
 	{
 		rsdos_diskimage *rsimg = (rsdos_diskimage *) img;
 	
-		if (rsimg->granulemap_dirty) {
-			stream_seek(rsimg->f, OFFSET(17,2), SEEK_SET);
-			stream_write(rsimg->f, rsimg->granulemap, sizeof(rsimg->granulemap));
+		if (rsimg.granulemap_dirty) {
+			stream_seek(rsimg.f, OFFSET(17,2), SEEK_SET);
+			stream_write(rsimg.f, rsimg.granulemap, sizeof(rsimg.granulemap));
 		}
 	
-		stream_close(rsimg->f);
+		stream_close(rsimg.f);
 		free(img);
 	}
 	
@@ -275,11 +275,11 @@ public class rsdos
 		if (!rsenum)
 			return IMGTOOLERR_OUTOFMEMORY;
 	
-		rsenum->base.module = &imgmod_rsdos;
-		rsenum->img = (rsdos_diskimage *) img;
-		rsenum->index = 0;
-		rsenum->eof = 0;
-		*outenum = &rsenum->base;
+		rsenum.base.module = &imgmod_rsdos;
+		rsenum.img = (rsdos_diskimage *) img;
+		rsenum.index = 0;
+		rsenum.eof = 0;
+		*outenum = &rsenum.base;
 		return 0;
 	}
 	
@@ -292,48 +292,48 @@ public class rsdos
 		char fname[13];
 	
 		/* Did we hit the end of file before? */
-		if (rsenum->eof)
+		if (rsenum.eof)
 			goto eof;
 	
 		do {
-			err = get_rsdos_dirent(rsenum->img->f, rsenum->index++, &rsent);
-			if (err)
+			err = get_rsdos_dirent(rsenum.img.f, rsenum.index++, &rsent);
+			if (err != 0)
 				return err;
 		}
 		while(rsent.fname[0] == '\0');
 	
 		/* Now are we at the eof point? */
 		if (rsent.fname[0] == -1) {
-			rsenum->eof = 1;
+			rsenum.eof = 1;
 	eof:
-			ent->filesize = 0;
-			ent->corrupt = 0;
-			ent->eof = 1;
-			if (ent->fname_len > 0)
-				ent->fname[0] = '\0';
+			ent.filesize = 0;
+			ent.corrupt = 0;
+			ent.eof = 1;
+			if (ent.fname_len > 0)
+				ent.fname[0] = '\0';
 		}
 		else {
 			/* Not the end of file */
-			filesize = process_rsdos_file(&rsent, rsenum->img, NULL);
+			filesize = process_rsdos_file(&rsent, rsenum.img, NULL);
 			if (filesize == ((size_t) -1)) {
 				/* corrupt! */
-				ent->filesize = 0;
-				ent->corrupt = 1;
+				ent.filesize = 0;
+				ent.corrupt = 1;
 			}
 			else {
-				ent->filesize = filesize;
-				ent->corrupt = 0;
+				ent.filesize = filesize;
+				ent.corrupt = 0;
 			}
-			ent->eof = 0;
+			ent.eof = 0;
 	
 			get_dirent_fname(fname, &rsent);
 	
-			if (strlen(fname) >= ent->fname_len)
+			if (strlen(fname) >= ent.fname_len)
 				return IMGTOOLERR_BUFFERTOOSMALL;
-			strcpy(ent->fname, fname);
+			strcpy(ent.fname, fname);
 	
-			if (ent->attr_len)
-				sprintf(ent->attr, "%d %c", (int) rsent.ftype, (char) (rsent.asciiflag + 'B'));
+			if (ent.attr_len)
+				sprintf(ent.attr, "%d %c", (int) rsent.ftype, (char) (rsent.asciiflag + 'B'));
 		}
 		return 0;
 	}
@@ -350,7 +350,7 @@ public class rsdos
 		size_t s = 0;
 	
 		for (i = 0; i < GRANULE_COUNT; i++)
-			if (rsimg->granulemap[i] == 0xff)
+			if (rsimg.granulemap[i] == 0xff)
 				s += (9 * 256);
 		return s;
 	}
@@ -361,8 +361,8 @@ public class rsdos
 		rsdos_diskimage *rsimg = (rsdos_diskimage *) img;
 		rsdos_dirent ent;
 	
-		err = lookup_rsdos_file(rsimg->f, fname, &ent, NULL);
-		if (err)
+		err = lookup_rsdos_file(rsimg.f, fname, &ent, NULL);
+		if (err != 0)
 			return err;
 	
 		if (process_rsdos_file(&ent, rsimg, destf) == (size_t) -1)
@@ -378,10 +378,10 @@ public class rsdos
 		rsdos_dirent ent, ent2;
 		size_t sz, i;
 		unsigned char g;
-		unsigned char *gptr;
+		UBytePtr gptr;
 	
 		/* Can we write to this image? */
-		if (rsimg->f->write_protect)
+		if (rsimg.f.write_protect)
 			return IMGTOOLERR_READONLY;
 	
 		/* Is there enough space? */
@@ -391,14 +391,14 @@ public class rsdos
 	
 		/* Setup our directory entry */
 		err = prepare_dirent(&ent, fname);
-		if (err)
+		if (err != 0)
 			return err;
 	
 		ent.lastsectorbytes_lsb = sz % 256;
 		ent.lastsectorbytes_msb = (((sz % 256) == 0) && (sz > 0)) ? 1 : 0;
 		gptr = &ent.first_granule;
 	
-		rsimg->granulemap_dirty = 1;
+		rsimg.granulemap_dirty = 1;
 		g = 0xff;
 	
 		stream_seek(sourcef, 0, SEEK_SET);
@@ -408,12 +408,12 @@ public class rsdos
 			if (g == 0xff)
 				return IMGTOOLERR_UNEXPECTED;	/* We should have already verified that there is enough space */
 			*gptr = g;
-			gptr = &rsimg->granulemap[g];
+			gptr = &rsimg.granulemap[g];
 	
-			stream_seek(rsimg->f, GOFFSET(g), SEEK_SET);
+			stream_seek(rsimg.f, GOFFSET(g), SEEK_SET);
 	
 			i = MIN(sz, (9*256));
-			if (stream_transfer(rsimg->f, sourcef, i) < i)
+			if (stream_transfer(rsimg.f, sourcef, i) < i)
 				return IMGTOOLERR_READERROR;
 	
 			sz -= i;
@@ -424,14 +424,14 @@ public class rsdos
 	
 		i = 0;
 		do {
-			err = get_rsdos_dirent(rsimg->f, i++, &ent2);
-			if (err)
+			err = get_rsdos_dirent(rsimg.f, i++, &ent2);
+			if (err != 0)
 				return err;
 		}
 		while((ent2.fname[0] != '\0') && (ent2.fname[0] != -1));
 	
-		stream_seek(rsimg->f, 0 - sizeof(ent2), SEEK_CUR);
-		if (stream_write(rsimg->f, &ent, sizeof(ent)) != sizeof(ent))
+		stream_seek(rsimg.f, 0 - sizeof(ent2), SEEK_CUR);
+		if (stream_write(rsimg.f, &ent, sizeof(ent)) != sizeof(ent))
 			return IMGTOOLERR_WRITEERROR;
 	
 		return 0;
@@ -445,25 +445,25 @@ public class rsdos
 		rsdos_diskimage *rsimg = (rsdos_diskimage *) img;
 		rsdos_dirent ent;
 	
-		err = lookup_rsdos_file(rsimg->f, fname, &ent, &pos);
-		if (err)
+		err = lookup_rsdos_file(rsimg.f, fname, &ent, &pos);
+		if (err != 0)
 			return err;
 	
 		/* Seek to the directory entry */
-		stream_seek(rsimg->f, OFFSET(17,3) + (pos * 32), SEEK_SET);
+		stream_seek(rsimg.f, OFFSET(17,3) + (pos * 32), SEEK_SET);
 	
 		/* Write a NUL in the filename, marking it deleted */
-		if (stream_fill(rsimg->f, 0, 1) != 1)
+		if (stream_fill(rsimg.f, 0, 1) != 1)
 			return IMGTOOLERR_WRITEERROR;
 	
 		/* Now free up the granules */
 		g = ent.first_granule;
 		while (g < GRANULE_COUNT) {
-			i = rsimg->granulemap[g];
-			rsimg->granulemap[g] = 0xff;
+			i = rsimg.granulemap[g];
+			rsimg.granulemap[g] = 0xff;
 			g = i;
 		}
-		rsimg->granulemap_dirty = 1;
+		rsimg.granulemap_dirty = 1;
 	
 		return 0;
 	}

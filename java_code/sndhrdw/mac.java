@@ -40,7 +40,7 @@ public class mac
 		INT16 last_val = 0;
 	
 		/* if we're not enabled, just fill with 0 */
-		if (Machine->sample_rate == 0)
+		if (Machine.sample_rate == 0)
 		{
 			memset(buffer, 0, length * sizeof(INT16));
 			return;
@@ -66,28 +66,28 @@ public class mac
 	/************************************/
 	/* Sound handler start              */
 	/************************************/
-	int mac_sh_start(const struct MachineSound *msound)
+	public static ShStartPtr mac_sh_start = new ShStartPtr() { public int handler(MachineSound msound) 
 	{
 		snd_cache_head = snd_cache_len = snd_cache_tail = 0;
 	
 		mac_stream = stream_init("Mac Sound", 100, MAC_SAMPLE_RATE, 0, mac_sound_update);
 	
 		return 0;
-	}
+	} };
 	
 	/************************************/
 	/* Sound handler stop               */
 	/************************************/
-	void mac_sh_stop(void)
+	public static ShStopPtr mac_sh_stop = new ShStopPtr() { public void handler() 
 	{
-	}
+	} };
 	
 	/************************************/
 	/* Sound handler update 			*/
 	/************************************/
-	void mac_sh_update(void)
+	public static ShUpdatePtr mac_sh_update = new ShUpdatePtr() { public void handler() 
 	{
-	}
+	} };
 	
 	
 	/*
@@ -103,7 +103,7 @@ public class mac
 	*/
 	void mac_set_buffer(int buffer)
 	{
-		if (buffer)
+		if (buffer != 0)
 			mac_snd_buf_ptr = mac_ram_ptr+mac_ram_size-MAC_MAIN_SND_BUF_OFFSET;
 		else
 			mac_snd_buf_ptr = mac_ram_ptr+mac_ram_size-MAC_ALT_SND_BUF_OFFSET;

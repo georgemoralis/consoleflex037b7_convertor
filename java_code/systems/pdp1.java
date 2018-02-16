@@ -17,7 +17,7 @@ Driver for a PDP1 emulator.
 
 Preliminary, this is a conversion of a JAVA emulator.
 I have tried contacting the author, but heard as yet nothing of him,
-so I don't know if it all right with him, but after all -> he did
+so I don't know if it all right with him, but after all . he did
 release the source, so hopefully everything will be fine (no his
 name is not Marat).
 
@@ -107,7 +107,6 @@ public class pdp1
 	/* From machine/pdp1.c */
 	int pdp1_load_rom (int id);
 	int pdp1_id_rom (int id);
-	void pdp1_init_machine(void);
 	READ_HANDLER ( pdp1_read_mem );
 	WRITE_HANDLER ( pdp1_write_mem );
 	
@@ -118,54 +117,54 @@ public class pdp1
 	 * be all right to use them.
 	 * This gives sometimes IO warnings!
 	 */
-	static struct MemoryReadAddress pdp1_readmem[] =
+	static MemoryReadAddress pdp1_readmem[] =
 	{
-		{ 0x0000, 0xffff, pdp1_read_mem },
-		{ -1 }  /* end of table */
+		new MemoryReadAddress( 0x0000, 0xffff, pdp1_read_mem ),
+		new MemoryReadAddress( -1 )  /* end of table */
 	};
 	
-	static struct MemoryWriteAddress pdp1_writemem[] =
+	static MemoryWriteAddress pdp1_writemem[] =
 	{
-		{ 0x0000, 0xffff, pdp1_write_mem },
-		{ -1 }  /* end of table */
+		new MemoryWriteAddress( 0x0000, 0xffff, pdp1_write_mem ),
+		new MemoryWriteAddress( -1 )  /* end of table */
 	};
 	
-	INPUT_PORTS_START( pdp1 )
+	static InputPortPtr input_ports_pdp1 = new InputPortPtr(){ public void handler() { 
 	
-	    PORT_START      /* IN0 */
-		PORT_BITX( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT, "Spin Left Player 1", KEYCODE_A, JOYCODE_1_LEFT )
-		PORT_BITX( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT, "Spin Right Player 1", KEYCODE_S, JOYCODE_1_RIGHT )
-		PORT_BITX( 0x04, IP_ACTIVE_HIGH, IPT_BUTTON1, "Thrust Player 1", KEYCODE_D, JOYCODE_1_BUTTON1 )
-		PORT_BITX( 0x08, IP_ACTIVE_HIGH, IPT_BUTTON2, "Fire Player 1", KEYCODE_F, JOYCODE_1_BUTTON2 )
-		PORT_BITX( 0x10, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT|IPF_PLAYER2, "Spin Left Player 2", KEYCODE_LEFT, JOYCODE_2_LEFT )
-		PORT_BITX( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT|IPF_PLAYER2, "Spin Right Player 2", KEYCODE_RIGHT, JOYCODE_2_RIGHT )
-		PORT_BITX( 0x40, IP_ACTIVE_HIGH, IPT_BUTTON1|IPF_PLAYER2, "Thrust Player 2", KEYCODE_UP, JOYCODE_2_BUTTON1 )
-		PORT_BITX( 0x80, IP_ACTIVE_HIGH, IPT_BUTTON2|IPF_PLAYER2, "Fire Player 2", KEYCODE_DOWN, JOYCODE_2_BUTTON2 )
+	    PORT_START();       /* IN0 */
+		PORT_BITX( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT, "Spin Left Player 1", KEYCODE_A, JOYCODE_1_LEFT );
+		PORT_BITX( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT, "Spin Right Player 1", KEYCODE_S, JOYCODE_1_RIGHT );
+		PORT_BITX( 0x04, IP_ACTIVE_HIGH, IPT_BUTTON1, "Thrust Player 1", KEYCODE_D, JOYCODE_1_BUTTON1 );
+		PORT_BITX( 0x08, IP_ACTIVE_HIGH, IPT_BUTTON2, "Fire Player 1", KEYCODE_F, JOYCODE_1_BUTTON2 );
+		PORT_BITX( 0x10, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT|IPF_PLAYER2, "Spin Left Player 2", KEYCODE_LEFT, JOYCODE_2_LEFT );
+		PORT_BITX( 0x20, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT|IPF_PLAYER2, "Spin Right Player 2", KEYCODE_RIGHT, JOYCODE_2_RIGHT );
+		PORT_BITX( 0x40, IP_ACTIVE_HIGH, IPT_BUTTON1|IPF_PLAYER2, "Thrust Player 2", KEYCODE_UP, JOYCODE_2_BUTTON1 );
+		PORT_BITX( 0x80, IP_ACTIVE_HIGH, IPT_BUTTON2|IPF_PLAYER2, "Fire Player 2", KEYCODE_DOWN, JOYCODE_2_BUTTON2 );
 	
-	    PORT_START /* IN1 */
-		PORT_BITX(	  0x80, 0x00, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Sense Switch 1", KEYCODE_1, IP_JOY_NONE )
-	    PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
-	    PORT_DIPSETTING(    0x80, DEF_STR( On )	 )
-		PORT_BITX(	  0x40, 0x00, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Sense Switch 2", KEYCODE_2, IP_JOY_NONE )
-	    PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
-	    PORT_DIPSETTING(    0x40, DEF_STR( On ) )
-		PORT_BITX(	  0x20, 0x00, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Sense Switch 3", KEYCODE_3, IP_JOY_NONE )
-	    PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
-	    PORT_DIPSETTING(    0x20, DEF_STR( On ) )
-		PORT_BITX(	  0x10, 0x00, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Sense Switch 4", KEYCODE_4, IP_JOY_NONE )
-	    PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
-	    PORT_DIPSETTING(    0x10, DEF_STR( On ) )
-		PORT_BITX(	  0x08, 0x08, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Sense Switch 5", KEYCODE_5, IP_JOY_NONE )
-	    PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
-	    PORT_DIPSETTING(    0x08, DEF_STR( On ) )
-		PORT_BITX(	  0x04, 0x00, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Sense Switch 6", KEYCODE_6, IP_JOY_NONE )
-	    PORT_DIPSETTING(    0x00, DEF_STR( Off ) )
-	    PORT_DIPSETTING(    0x04, DEF_STR( On ) )
-	    INPUT_PORTS_END
+	    PORT_START();  /* IN1 */
+		PORT_BITX(	  0x80, 0x00, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Sense Switch 1", KEYCODE_1, IP_JOY_NONE );
+	    PORT_DIPSETTING(    0x00, DEF_STR( "Off") );
+	    PORT_DIPSETTING(    0x80, DEF_STR( "On") ); )
+		PORT_BITX(	  0x40, 0x00, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Sense Switch 2", KEYCODE_2, IP_JOY_NONE );
+	    PORT_DIPSETTING(    0x00, DEF_STR( "Off") );
+	    PORT_DIPSETTING(    0x40, DEF_STR( "On") );
+		PORT_BITX(	  0x20, 0x00, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Sense Switch 3", KEYCODE_3, IP_JOY_NONE );
+	    PORT_DIPSETTING(    0x00, DEF_STR( "Off") );
+	    PORT_DIPSETTING(    0x20, DEF_STR( "On") );
+		PORT_BITX(	  0x10, 0x00, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Sense Switch 4", KEYCODE_4, IP_JOY_NONE );
+	    PORT_DIPSETTING(    0x00, DEF_STR( "Off") );
+	    PORT_DIPSETTING(    0x10, DEF_STR( "On") );
+		PORT_BITX(	  0x08, 0x08, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Sense Switch 5", KEYCODE_5, IP_JOY_NONE );
+	    PORT_DIPSETTING(    0x00, DEF_STR( "Off") );
+	    PORT_DIPSETTING(    0x08, DEF_STR( "On") );
+		PORT_BITX(	  0x04, 0x00, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Sense Switch 6", KEYCODE_6, IP_JOY_NONE );
+	    PORT_DIPSETTING(    0x00, DEF_STR( "Off") );
+	    PORT_DIPSETTING(    0x04, DEF_STR( "On") );
+	    INPUT_PORTS_END(); }}; 
 	
-	static struct GfxDecodeInfo gfxdecodeinfo[] =
+	static GfxDecodeInfo gfxdecodeinfo[] =
 	{
-		{ -1 } /* end of array */
+		new GfxDecodeInfo( -1 ) /* end of array */
 	};
 	
 	
@@ -184,7 +183,7 @@ public class pdp1
 	};
 	
 	/* Initialise the palette */
-	static void pdp1_init_palette(unsigned char *sys_palette, unsigned short *sys_colortable,const unsigned char *color_prom)
+	static void pdp1_init_palette(UBytePtr sys_palette, unsigned short *sys_colortable,const UBytePtr color_prom)
 	{
 		memcpy(sys_palette,palette,sizeof(palette));
 		memcpy(sys_colortable,colortable,sizeof(colortable));
@@ -196,40 +195,40 @@ public class pdp1
 	 * below speed should therefore also be read in something like
 	 * microseconds of instructions
 	 */
-	static struct MachineDriver machine_driver_pdp1 =
-	{
+	static MachineDriver machine_driver_pdp1 = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_PDP1,
 				2000000,
-				pdp1_readmem, pdp1_writemem,0,0,
-				0, 0 /* no vblank interrupt */
-			}
+				pdp1_readmem, pdp1_writemem,null,null,
+				null, null /* no vblank interrupt */
+			)
 		},
 		60, DEFAULT_REAL_60HZ_VBLANK_DURATION,  /* frames per second, vblank duration */
 		1,
 		pdp1_init_machine,
-		0,
+		null,
 	
 		/* video hardware */
-		VIDEO_BITMAP_WIDTH, VIDEO_BITMAP_HEIGHT, { 0, VIDEO_BITMAP_WIDTH-1, 0, VIDEO_BITMAP_HEIGHT-1 },
+		VIDEO_BITMAP_WIDTH, VIDEO_BITMAP_HEIGHT, new rectangle( 0, VIDEO_BITMAP_WIDTH-1, 0, VIDEO_BITMAP_HEIGHT-1 ),
 	
 		gfxdecodeinfo,
-		sizeof(palette) / sizeof(palette[0]) / 3,
-		sizeof(colortable) / sizeof(colortable[0]),
+		sizeof(palette) / sizeof(palette[null]) / 3,
+		sizeof(colortable) / sizeof(colortable[null]),
 	
 		pdp1_init_palette,
 	
 		VIDEO_TYPE_VECTOR,
-		0,
+		null,
 		pdp1_vh_start,
 		pdp1_vh_stop,
 		pdp1_vh_update,
 	
 		/* sound hardware */
 		0,0,0,0
-	};
+	);
 	
 	static const struct IODevice io_pdp1[] = {
 	    {

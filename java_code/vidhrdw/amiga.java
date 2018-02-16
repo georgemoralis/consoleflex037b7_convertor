@@ -43,7 +43,7 @@ public class amiga
 		int fetch_count;
 		unsigned short back_color;
 		int old_COLOR0;
-		unsigned char *RAM;
+		UBytePtr RAM;
 		unsigned int *sprite_in_scanline;
 		int once_per_frame; /* for unimplemented modes */
 	};
@@ -116,7 +116,7 @@ public class amiga
 	
 					if ( x_pos < copper.wait_h_pos ) {
 						/* see if we can ever reach it, otherwise, finish the line */
-						if ( copper.wait_h_pos > ( ( Machine->drv->screen_width - 1 ) >> 1 ) )
+						if ( copper.wait_h_pos > ( ( Machine.drv.screen_width - 1 ) >> 1 ) )
 							return 1;
 	
 						*end_x = ( copper.wait_h_pos << 1 );
@@ -194,7 +194,7 @@ public class amiga
 					}
 				}
 	
-				if ( skip_waitforblit ) {
+				if (skip_waitforblit != 0) {
 					if ( custom_regs.DMACON & DMACON_BBUSY ) {
 						copper.pc += 4;
 						x_pos += COPPER_COLOR_CLOCKS_PER_INST;
@@ -250,7 +250,7 @@ public class amiga
 		update_regs.sprite_v_stop[spritenum] = ( data << 7 ) & 0x100;
 		update_regs.sprite_v_stop[spritenum] |= data >> 8;
 	
-		if ( spritenum & 1 )
+		if ((spritenum & 1) != 0)
 			update_regs.sprite_attached[spritenum] = data & 0x80;
 	
 		/* safety */
@@ -258,7 +258,7 @@ public class amiga
 			update_regs.sprite_v_stop[spritenum] = update_regs.sprite_v_start[spritenum];
 	
 		for( i = update_regs.sprite_v_start[spritenum]; i < update_regs.sprite_v_stop[spritenum]; i++ ) {
-			if ( i < Machine->drv->screen_height ) {
+			if ( i < Machine.drv.screen_height ) {
 				if ( update_regs.sprite_in_scanline[i] < ( update_regs.sprite_h_start[spritenum] + 16 ) )
 					 update_regs.sprite_in_scanline[i] = ( update_regs.sprite_h_start[spritenum] + 16 );
 			}
@@ -267,7 +267,7 @@ public class amiga
 	
 	void amiga_reload_sprite_info( int spritenum ) {
 	
-		unsigned char *RAM = Machine->memory_region[0];
+		UBytePtr RAM = Machine.memory_region[0];
 	
 		amiga_sprite_set_pos( spritenum, READ_WORD( &RAM[custom_regs.SPRxPT[spritenum]] ) );
 	
@@ -309,8 +309,8 @@ public class amiga
 				for( i = 0; i < 4; i++ )
 					color |= ( ( word[i] >> bit ) & 1 ) << i;
 	
-				if ( color )
-					dst[x] = Machine->pens[custom_regs.COLOR[color+16]];
+				if (color != 0)
+					dst[x] = Machine.pens[custom_regs.COLOR[color+16]];
 			} else {
 				unsigned short word[2];
 				int color, i;
@@ -323,9 +323,9 @@ public class amiga
 				for( i = 0; i < 2; i++ )
 					color |= ( ( word[i] >> bit ) & 1 ) << i;
 	
-				if ( color ) {
+				if (color != 0) {
 					color += 16 + ( ( num >> 1 ) << 2 );
-					dst[x] = Machine->pens[custom_regs.COLOR[color]];
+					dst[x] = Machine.pens[custom_regs.COLOR[color]];
 				}
 			}
 	
@@ -359,13 +359,13 @@ public class amiga
 		int i;
 	
 		for ( i = 0; i < planes; i++ )
-			if ( i & 1 )
+			if ((i & 1) != 0)
 				custom_regs.BPLPTR[i] += custom_regs.BPL2MOD;
 			else
 				custom_regs.BPLPTR[i] += custom_regs.BPL1MOD;
 	}
 	
-	INLINE void init_update_regs( void ) {
+	INLINE public static InitDriverPtr init_update_regs = new InitDriverPtr() { public void handler()  {
 		int	ddf_color_clocks_offs, ddf_res_offs;
 	
 		if ( update_regs.old_DIWSTRT != custom_regs.DIWSTRT ) {
@@ -402,12 +402,12 @@ public class amiga
 		update_regs.ddf_word_count = ( -( custom_regs.DDFSTRT - custom_regs.DDFSTOP - 12 ) ) >> ddf_res_offs;
 	
 		if ( update_regs.old_COLOR0 != custom_regs.COLOR[0] ) {
-			update_regs.back_color = Machine->pens[custom_regs.COLOR[0]];
+			update_regs.back_color = Machine.pens[custom_regs.COLOR[0]];
 			update_regs.old_COLOR0 = custom_regs.COLOR[0];
 		}
 	
 		update_regs.sprite_dma_enabled = ( custom_regs.DMACON & ( DMACON_SPREN | DMACON_DMAEN ) ) == ( DMACON_SPREN | DMACON_DMAEN );
-	}
+	} };
 	
 	/***********************************************************************************
 	
@@ -512,7 +512,7 @@ public class amiga
 			color |= ( ( ( custom_regs.BPLxDAT[i] ) >> update_regs.current_bit ) & 1 ) << i;
 		}
 	
-		dst[x] = Machine->pens[custom_regs.COLOR[color]];
+		dst[x] = Machine.pens[custom_regs.COLOR[color]];
 	
 	} END_UPDATE( 1 )
 	
@@ -524,7 +524,7 @@ public class amiga
 			color |= ( ( ( custom_regs.BPLxDAT[i] ) >> update_regs.current_bit ) & 1 ) << i;
 		}
 	
-		dst[x] = Machine->pens[custom_regs.COLOR[color]];
+		dst[x] = Machine.pens[custom_regs.COLOR[color]];
 	
 		for ( i = 0; i < 8; i++ )
 			amiga_render_sprite( i, x, y, dst );
@@ -547,7 +547,7 @@ public class amiga
 			color |= ( ( ( custom_regs.BPLxDAT[i] ) >> update_regs.current_bit ) & 1 ) << i;
 		}
 	
-		dst[x] = Machine->pens[custom_regs.COLOR[color]];
+		dst[x] = Machine.pens[custom_regs.COLOR[color]];
 	
 	} END_UPDATE( 2 )
 	
@@ -559,7 +559,7 @@ public class amiga
 			color |= ( ( ( custom_regs.BPLxDAT[i] ) >> update_regs.current_bit ) & 1 ) << i;
 		}
 	
-		dst[x] = Machine->pens[custom_regs.COLOR[color]];
+		dst[x] = Machine.pens[custom_regs.COLOR[color]];
 	
 		for ( i = 0; i < 8; i++ )
 			amiga_render_sprite( i, x, y, dst );
@@ -580,7 +580,7 @@ public class amiga
 		color[0] = color[1] = 0;
 	
 		for ( i = 0; i < planes; i++ ) {
-			if ( i & 1 ) {
+			if ((i & 1) != 0) {
 				color[1] |= ( ( ( custom_regs.BPLxDAT[i] ) >> update_regs.current_bit ) & 1 ) << ( i >> 1 );
 			} else {
 				color[0] |= ( ( ( custom_regs.BPLxDAT[i] ) >> update_regs.current_bit ) & 1 ) << ( i >> 1 );
@@ -590,14 +590,14 @@ public class amiga
 		if ( color[0] || color[1] ) { /* if theres a pixel to draw */
 			if ( custom_regs.BPLCON2 & 0x40 ) { /* check wich playfield has priority */
 				if ( color[1] )
-					dst[x] = Machine->pens[custom_regs.COLOR[color[1]+8]];
+					dst[x] = Machine.pens[custom_regs.COLOR[color[1]+8]];
 				else
-					dst[x] = Machine->pens[custom_regs.COLOR[color[0]]];
+					dst[x] = Machine.pens[custom_regs.COLOR[color[0]]];
 			} else {
 				if ( color[0] )
-					dst[x] = Machine->pens[custom_regs.COLOR[color[0]]];
+					dst[x] = Machine.pens[custom_regs.COLOR[color[0]]];
 				else
-					dst[x] = Machine->pens[custom_regs.COLOR[color[1]+8]];
+					dst[x] = Machine.pens[custom_regs.COLOR[color[1]+8]];
 			}
 		} else
 			dst[x] = update_regs.back_color;
@@ -687,9 +687,9 @@ public class amiga
 		return ret;
 	}
 	
-	void amiga_vh_screenrefresh( struct osd_bitmap *bitmap, int full_refresh ) {
-		int planes = 0, sw = Machine->drv->screen_width;
-		int min_x = Machine->visible_area.min_x;
+	public static VhUpdatePtr amiga_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh)  {
+		int planes = 0, sw = Machine.drv.screen_width;
+		int min_x = Machine.visible_area.min_x;
 		int y, x, start_x, end_x, line_done;
 		unsigned short *dst;
 	
@@ -706,14 +706,14 @@ public class amiga
 		if ( custom_regs.DDFSTOP < custom_regs.DDFSTRT )
 			custom_regs.DDFSTOP = custom_regs.DDFSTRT;
 	
-		for ( y = 0; y < Machine->drv->screen_height; y++ ) {
+		for ( y = 0; y < Machine.drv.screen_height; y++ ) {
 			int bitplane_dma_disabled;
 			render_pixel_def local_render;
 	
 			/* start of a new line, signal we're not done with it and fill up vars */
 			line_done = 0;
 			start_x = 0;
-			dst = ( unsigned short * )bitmap->line[y];
+			dst = ( unsigned short * )bitmap.line[y];
 	
 			update_regs.fetch_pending = 1;
 			update_regs.fetch_count = 0;
@@ -724,7 +724,7 @@ public class amiga
 				/* start of a new line... check if the copper is (still) enabled */
 				line_done = copper_update( start_x, y, &end_x );
 	
-				if ( line_done )
+				if (line_done != 0)
 					end_x = sw;
 	
 				/* precaulculate some update registers */
@@ -765,9 +765,9 @@ public class amiga
 	
 			update_regs.sprite_in_scanline[y] = 0;
 		}
-	}
+	} };
 	
-	void amiga_init_palette(unsigned char *palette, unsigned short *colortable,const unsigned char *color_prom) {
+	public static VhConvertColorPromPtr amiga_init_palette = new VhConvertColorPromPtr() { public void handler(char []palette, char []colortable, UBytePtr color_prom)  {
 		int i;
 	
 		for ( i = 0; i < 0x1000; i++ ) {
@@ -787,26 +787,26 @@ public class amiga
 	
 			colortable[i] = i;
 		}
-	}
+	} };
 	
-	int amiga_vh_start( void ) {
+	public static VhStartPtr amiga_vh_start = new VhStartPtr() { public int handler()  {
 		/* init cached data */
 		update_regs.old_COLOR0 = -1;
 		update_regs.old_DIWSTRT = -1;
 		update_regs.old_DIWSTOP = -1;
 		update_regs.old_DDFSTRT = -1;
-		update_regs.RAM = Machine->memory_region[0];
+		update_regs.RAM = Machine.memory_region[0];
 	
-		update_regs.sprite_in_scanline = malloc( Machine->drv->screen_height * sizeof( int ) );
+		update_regs.sprite_in_scanline = malloc( Machine.drv.screen_height * sizeof( int ) );
 		if ( update_regs.sprite_in_scanline == 0 )
 			return 1;
 	
-		memset( update_regs.sprite_in_scanline, 0, Machine->drv->screen_height * sizeof( int ) );
+		memset( update_regs.sprite_in_scanline, 0, Machine.drv.screen_height * sizeof( int ) );
 	
 		return 0;
-	}
+	} };
 	
-	void amiga_vh_stop( void ) {
+	public static VhStopPtr amiga_vh_stop = new VhStopPtr() { public void handler()  {
 		free( update_regs.sprite_in_scanline );
-	}
+	} };
 }

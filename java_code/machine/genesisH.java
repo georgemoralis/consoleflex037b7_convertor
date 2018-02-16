@@ -1,13 +1,11 @@
 extern int genesis_sharedram_size;
 extern int genesis_soundram_size;
 extern unsigned char genesis_sharedram[];
-extern unsigned char * genesis_soundram;
+extern UBytePtr  genesis_soundram;
 
-void genesis_init_machine (void);
 int genesis_load_rom (int id);
 int genesis_id_rom (int id);
 
-int genesis_interrupt (void);
 WRITE_HANDLER ( genesis_io_w );
 READ_HANDLER  ( genesis_io_r );
 READ_HANDLER  ( genesis_ctrl_r );

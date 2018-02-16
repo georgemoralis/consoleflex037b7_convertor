@@ -16,13 +16,12 @@ package machine;
 public class enterp
 {
 	
-	extern unsigned char *Enterprise_RAM;
+	extern UBytePtr Enterprise_RAM;
 	
-	void Enterprise_SetupPalette(void);
 	
 	int ep128_flop_specified[4] = {0,0,0,0};
 	
-	void enterprise_init_machine(void)
+	public static InitMachinePtr enterprise_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		/* allocate memory. */
 		/* I am allocating it because I control how the ram is
@@ -37,7 +36,7 @@ public class enterp
 	
 		/* initialise the hardware */
 		Enterprise_Initialise();
-	}
+	} };
 	
 	void enterprise_shutdown_machine(void)
 	{

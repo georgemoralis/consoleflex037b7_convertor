@@ -18,157 +18,150 @@ public class vectrex
 {
 	
 	/* From machine/vectrex.c */
-	extern unsigned char *vectrex_ram;
+	extern UBytePtr vectrex_ram;
 	extern READ_HANDLER  ( vectrex_mirrorram_r );
 	extern WRITE_HANDLER ( vectrex_mirrorram_w );
 	extern int vectrex_load_rom (int id);
 	extern int vectrex_id_rom (int id);
 	
 	/* From vidhrdw/vectrex.c */
-	extern int vectrex_start(void);
-	extern void vectrex_stop (void);
-	extern void vectrex_init_colors (unsigned char *palette, unsigned short *colortable,const unsigned char *color_prom);
-	extern void vectrex_vh_update (struct osd_bitmap *bitmap, int full_refresh);
-	
-	extern int raaspec_start(void);
-	extern WRITE_HANDLER  ( raaspec_led_w );
-	extern void raaspec_init_colors (unsigned char *palette, unsigned short *colortable,const unsigned char *color_prom);
-	extern void raaspec_vh_update (struct osd_bitmap *bitmap, int full_refresh);
-	
-	static struct MemoryReadAddress vectrex_readmem[] =
+	extern extern extern extern 
+	extern extern WRITE_HANDLER  ( raaspec_led_w );
+	extern extern 
+	static MemoryReadAddress vectrex_readmem[] =
 	{
-		{ 0x0000, 0x7fff, MRA_ROM },
-		{ 0xc800, 0xcbff, MRA_RAM },
-		{ 0xcc00, 0xcfff, vectrex_mirrorram_r },
-		{ 0xd000, 0xd7ff, via_0_r },    /* VIA 6522 */
-		{ 0xe000, 0xffff, MRA_ROM },
-		{ -1 }
+		new MemoryReadAddress( 0x0000, 0x7fff, MRA_ROM ),
+		new MemoryReadAddress( 0xc800, 0xcbff, MRA_RAM ),
+		new MemoryReadAddress( 0xcc00, 0xcfff, vectrex_mirrorram_r ),
+		new MemoryReadAddress( 0xd000, 0xd7ff, via_0_r ),    /* VIA 6522 */
+		new MemoryReadAddress( 0xe000, 0xffff, MRA_ROM ),
+		new MemoryReadAddress( -1 )
 	};
 	
-	static struct MemoryWriteAddress vectrex_writemem[] =
+	static MemoryWriteAddress vectrex_writemem[] =
 	{
-		{ 0x0000, 0x7fff, MWA_ROM },
-		{ 0xc800, 0xcbff, MWA_RAM, &vectrex_ram },
-		{ 0xcc00, 0xcfff, vectrex_mirrorram_w },
-		{ 0xd000, 0xd7ff, via_0_w },    /* VIA 6522 */
-		{ 0xe000, 0xffff, MWA_ROM },
-		{ -1 }
+		new MemoryWriteAddress( 0x0000, 0x7fff, MWA_ROM ),
+		new MemoryWriteAddress( 0xc800, 0xcbff, MWA_RAM, vectrex_ram ),
+		new MemoryWriteAddress( 0xcc00, 0xcfff, vectrex_mirrorram_w ),
+		new MemoryWriteAddress( 0xd000, 0xd7ff, via_0_w ),    /* VIA 6522 */
+		new MemoryWriteAddress( 0xe000, 0xffff, MWA_ROM ),
+		new MemoryWriteAddress( -1 )
 	};
 	
-	INPUT_PORTS_START( vectrex )
-		PORT_START
-		PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_BUTTON1 | IPF_PLAYER1 )
-		PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_BUTTON2 | IPF_PLAYER1 )
-		PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_BUTTON3 | IPF_PLAYER1 )
-		PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_BUTTON4 | IPF_PLAYER1 )
-		PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 | IPF_PLAYER2 )
-		PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 | IPF_PLAYER2 )
-		PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON3 | IPF_PLAYER2 )
-		PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_BUTTON4 | IPF_PLAYER2 )
+	static InputPortPtr input_ports_vectrex = new InputPortPtr(){ public void handler() { 
+		PORT_START(); 
+		PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_BUTTON1 | IPF_PLAYER1 );
+		PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_BUTTON2 | IPF_PLAYER1 );
+		PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_BUTTON3 | IPF_PLAYER1 );
+		PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_BUTTON4 | IPF_PLAYER1 );
+		PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON1 | IPF_PLAYER2 );
+		PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON2 | IPF_PLAYER2 );
+		PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON3 | IPF_PLAYER2 );
+		PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_BUTTON4 | IPF_PLAYER2 );
 	
-		PORT_START
-		PORT_BIT( 0x01, IP_ACTIVE_HIGH,  IPT_JOYSTICK_RIGHT | IPF_8WAY )
-		PORT_BIT( 0x02, IP_ACTIVE_HIGH,  IPT_JOYSTICK_LEFT | IPF_8WAY )
-		PORT_BIT( 0x04, IP_ACTIVE_HIGH,  IPT_JOYSTICK_UP | IPF_8WAY )
-		PORT_BIT( 0x08, IP_ACTIVE_HIGH,  IPT_JOYSTICK_DOWN | IPF_8WAY )
-		PORT_BIT( 0x10, IP_ACTIVE_HIGH,  IPT_JOYSTICK_RIGHT | IPF_8WAY | IPF_PLAYER2 )
-		PORT_BIT( 0x20, IP_ACTIVE_HIGH,  IPT_JOYSTICK_LEFT | IPF_8WAY | IPF_PLAYER2 )
-		PORT_BIT( 0x40, IP_ACTIVE_HIGH,  IPT_JOYSTICK_UP | IPF_8WAY | IPF_PLAYER2 )
-		PORT_BIT( 0x80, IP_ACTIVE_HIGH,  IPT_JOYSTICK_DOWN | IPF_8WAY | IPF_PLAYER2 )
+		PORT_START(); 
+		PORT_BIT( 0x01, IP_ACTIVE_HIGH,  IPT_JOYSTICK_RIGHT | IPF_8WAY );
+		PORT_BIT( 0x02, IP_ACTIVE_HIGH,  IPT_JOYSTICK_LEFT | IPF_8WAY );
+		PORT_BIT( 0x04, IP_ACTIVE_HIGH,  IPT_JOYSTICK_UP | IPF_8WAY );
+		PORT_BIT( 0x08, IP_ACTIVE_HIGH,  IPT_JOYSTICK_DOWN | IPF_8WAY );
+		PORT_BIT( 0x10, IP_ACTIVE_HIGH,  IPT_JOYSTICK_RIGHT | IPF_8WAY | IPF_PLAYER2 );
+		PORT_BIT( 0x20, IP_ACTIVE_HIGH,  IPT_JOYSTICK_LEFT | IPF_8WAY | IPF_PLAYER2 );
+		PORT_BIT( 0x40, IP_ACTIVE_HIGH,  IPT_JOYSTICK_UP | IPF_8WAY | IPF_PLAYER2 );
+		PORT_BIT( 0x80, IP_ACTIVE_HIGH,  IPT_JOYSTICK_DOWN | IPF_8WAY | IPF_PLAYER2 );
 	
-		PORT_START
-		//PORT_DIPNAME( 0x01, 0x00, "3D Imager", IP_KEY_NONE )
-		PORT_DIPNAME( 0x01, 0x00, "3D Imager")
-		PORT_DIPSETTING(0x00, DEF_STR ( Off ))
-		PORT_DIPSETTING(0x01, DEF_STR ( On ))
-		//PORT_DIPNAME( 0x02, 0x00, "Separate images", IP_KEY_NONE )
-		PORT_DIPNAME( 0x02, 0x00, "Separate images")
-		PORT_DIPSETTING(0x00, DEF_STR ( No ))
-		PORT_DIPSETTING(0x02, DEF_STR ( Yes ))
-		//PORT_DIPNAME( 0x1c, 0x10, "Left eye", IP_KEY_NONE )
-		PORT_DIPNAME( 0x1c, 0x10, "Left eye")
-		PORT_DIPSETTING(0x00, "Black")
-		PORT_DIPSETTING(0x04, "Red")
-		PORT_DIPSETTING(0x08, "Green")
-		PORT_DIPSETTING(0x0c, "Blue")
-		PORT_DIPSETTING(0x10, "Color")
-		//PORT_DIPNAME( 0xe0, 0x80, "Right eye", IP_KEY_NONE )
-		PORT_DIPNAME( 0xe0, 0x80, "Right eye")
-		PORT_DIPSETTING(0x00, "Black")
-		PORT_DIPSETTING(0x20, "Red")
-		PORT_DIPSETTING(0x40, "Green")
-		PORT_DIPSETTING(0x60, "Blue")
-		PORT_DIPSETTING(0x80, "Color")
+		PORT_START(); 
+		//PORT_DIPNAME( 0x01, 0x00, "3D Imager", IP_KEY_NONE );
+		PORT_DIPNAME( 0x01, 0x00, "3D Imager");
+		PORT_DIPSETTING(0x00, DEF_STR ( Off );
+		PORT_DIPSETTING(0x01, DEF_STR ( On );
+		//PORT_DIPNAME( 0x02, 0x00, "Separate images", IP_KEY_NONE );
+		PORT_DIPNAME( 0x02, 0x00, "Separate images");
+		PORT_DIPSETTING(0x00, DEF_STR ( No );
+		PORT_DIPSETTING(0x02, DEF_STR ( Yes );
+		//PORT_DIPNAME( 0x1c, 0x10, "Left eye", IP_KEY_NONE );
+		PORT_DIPNAME( 0x1c, 0x10, "Left eye");
+		PORT_DIPSETTING(0x00, "Black");
+		PORT_DIPSETTING(0x04, "Red");
+		PORT_DIPSETTING(0x08, "Green");
+		PORT_DIPSETTING(0x0c, "Blue");
+		PORT_DIPSETTING(0x10, "Color");
+		//PORT_DIPNAME( 0xe0, 0x80, "Right eye", IP_KEY_NONE );
+		PORT_DIPNAME( 0xe0, 0x80, "Right eye");
+		PORT_DIPSETTING(0x00, "Black");
+		PORT_DIPSETTING(0x20, "Red");
+		PORT_DIPSETTING(0x40, "Green");
+		PORT_DIPSETTING(0x60, "Blue");
+		PORT_DIPSETTING(0x80, "Color");
 	
-		PORT_START
-		//PORT_DIPNAME( 0x01, 0x01, "Timer 2 refresh", IP_KEY_NONE )
-		PORT_DIPNAME( 0x01, 0x01, "Timer 2 refresh")
-		PORT_DIPSETTING(0x00, DEF_STR ( No ))
-		PORT_DIPSETTING(0x01, DEF_STR ( Yes ))
-	INPUT_PORTS_END
+		PORT_START(); 
+		//PORT_DIPNAME( 0x01, 0x01, "Timer 2 refresh", IP_KEY_NONE );
+		PORT_DIPNAME( 0x01, 0x01, "Timer 2 refresh");
+		PORT_DIPSETTING(0x00, DEF_STR ( No );
+		PORT_DIPSETTING(0x01, DEF_STR ( Yes );
+	INPUT_PORTS_END(); }}; 
 	
-	static struct DACinterface dac_interface =
-	{
+	static DACinterface dac_interface = new DACinterface
+	(
 		1,
-		{ 50 }
-	};
+		new int[] { 50 }
+	);
 	
-	static struct AY8910interface ay8910_interface =
-	{
+	static AY8910interface ay8910_interface = new AY8910interface
+	(
 		1,	/* 1 chip */
 		1500000,	/* 1.5 MHz */
-		{ 20 },
+		new int[] { 20 },
 	    /*AY8910_DEFAULT_GAIN,*/
-		{ input_port_0_r },
-		{ 0 },
-		{ 0 },
+		new ReadHandlerPtr[] { input_port_0_r },
+		new WriteHandlerPtr[] { 0 },
+		new WriteHandlerPtr[] { 0 },
 		{ 0 }
-	};
+	);
 	
 	
-	static struct MachineDriver machine_driver_vectrex =
-	{
+	static MachineDriver machine_driver_vectrex = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_M6809,
 				1500000,	/* 1.5 Mhz */
-				vectrex_readmem, vectrex_writemem,0,0,
-				0, 0, /* no vblank interrupt */
-				0, 0 /* no interrupts */
-			}
+				vectrex_readmem, vectrex_writemem,null,null,
+				null, null, /* no vblank interrupt */
+				null, null /* no interrupts */
+			)
 		},
 		40, 0,	/* frames per second, vblank duration (vector game, so no vblank) */
 		1,
-		0,
+		null,
 		0,
 	
 		/* video hardware */
 		380, 480, { 0, 500, 0, 600 },
-		0,
-		256 + 32768, 0,
-		0,
+		null,
+		256 + 32768, null,
+		null,
 	
 		VIDEO_TYPE_VECTOR | VIDEO_MODIFIES_PALETTE,
-		0,
+		null,
 		vectrex_start,
 		vectrex_stop,
 		vectrex_vh_update,
 	
 		/* sound hardware */
 		0,0,0,0,
-		{
-			{
+		new MachineSound[] {
+			new MachineSound(
 				SOUND_AY8910,
-				&ay8910_interface
-			},
-			{
+				ay8910_interface
+			),
+			new MachineSound(
 				SOUND_DAC,
-	 			&dac_interface
-			}
+	 			dac_interface
+			)
 		}
 	
-	};
+	);
 	
 	static const struct IODevice io_vectrex[] = {
 		{
@@ -194,10 +187,10 @@ public class vectrex
 	};
 	
 	
-	ROM_START(vectrex)
-	    ROM_REGION(0x10000,REGION_CPU1)
-	    ROM_LOAD("system.img", 0xe000, 0x2000, 0xba13fb57)
-	ROM_END
+	static RomLoadPtr rom_vectrex = new RomLoadPtr(){ public void handler(){ 
+	    ROM_REGION(0x10000,REGION_CPU1);
+	    ROM_LOAD("system.img", 0xe000, 0x2000, 0xba13fb57);
+	ROM_END(); }}; 
 	
 	
 	/*****************************************************************
@@ -217,98 +210,98 @@ public class vectrex
 	
 	*****************************************************************/
 	
-	static struct MemoryReadAddress raaspec_readmem[] =
+	static MemoryReadAddress raaspec_readmem[] =
 	{
-		{ 0x0000, 0x7fff, MRA_ROM },
-		{ 0x8000, 0x87ff, MRA_RAM }, /* Battery backed RAM for the Spectrum I+ */
-		{ 0xc800, 0xcbff, MRA_RAM },
-		{ 0xcc00, 0xcfff, vectrex_mirrorram_r },
-		{ 0xd000, 0xd7ff, via_0_r },
-		{ 0xe000, 0xffff, MRA_ROM },
-		{ -1 }
+		new MemoryReadAddress( 0x0000, 0x7fff, MRA_ROM ),
+		new MemoryReadAddress( 0x8000, 0x87ff, MRA_RAM ), /* Battery backed RAM for the Spectrum I+ */
+		new MemoryReadAddress( 0xc800, 0xcbff, MRA_RAM ),
+		new MemoryReadAddress( 0xcc00, 0xcfff, vectrex_mirrorram_r ),
+		new MemoryReadAddress( 0xd000, 0xd7ff, via_0_r ),
+		new MemoryReadAddress( 0xe000, 0xffff, MRA_ROM ),
+		new MemoryReadAddress( -1 )
 	};
 	
-	static struct MemoryWriteAddress raaspec_writemem[] =
+	static MemoryWriteAddress raaspec_writemem[] =
 	{
-		{ 0x0000, 0x7fff, MWA_ROM },
-		{ 0x8000, 0x87ff, MWA_RAM },
-		{ 0xa000, 0xa000, raaspec_led_w },
-		{ 0xc800, 0xcbff, MWA_RAM, &vectrex_ram },
-		{ 0xcc00, 0xcfff, vectrex_mirrorram_w },
-		{ 0xd000, 0xd7ff, via_0_w },
-		{ 0xe000, 0xffff, MWA_ROM },
-		{ -1 }
+		new MemoryWriteAddress( 0x0000, 0x7fff, MWA_ROM ),
+		new MemoryWriteAddress( 0x8000, 0x87ff, MWA_RAM ),
+		new MemoryWriteAddress( 0xa000, 0xa000, raaspec_led_w ),
+		new MemoryWriteAddress( 0xc800, 0xcbff, MWA_RAM, vectrex_ram ),
+		new MemoryWriteAddress( 0xcc00, 0xcfff, vectrex_mirrorram_w ),
+		new MemoryWriteAddress( 0xd000, 0xd7ff, via_0_w ),
+		new MemoryWriteAddress( 0xe000, 0xffff, MWA_ROM ),
+		new MemoryWriteAddress( -1 )
 	};
 	
-	INPUT_PORTS_START( raaspec )
-		PORT_START
-	    PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_BUTTON1 )
-		PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_BUTTON2 )
-		PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_BUTTON3 )
-		PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_BUTTON4 )
-		PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON5 )
-		PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON6 )
-		PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON7 )
-		PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_BUTTON8 )
+	static InputPortPtr input_ports_raaspec = new InputPortPtr(){ public void handler() { 
+		PORT_START(); 
+	    PORT_BIT( 0x01, IP_ACTIVE_LOW, IPT_BUTTON1 );
+		PORT_BIT( 0x02, IP_ACTIVE_LOW, IPT_BUTTON2 );
+		PORT_BIT( 0x04, IP_ACTIVE_LOW, IPT_BUTTON3 );
+		PORT_BIT( 0x08, IP_ACTIVE_LOW, IPT_BUTTON4 );
+		PORT_BIT( 0x10, IP_ACTIVE_LOW, IPT_BUTTON5 );
+		PORT_BIT( 0x20, IP_ACTIVE_LOW, IPT_BUTTON6 );
+		PORT_BIT( 0x40, IP_ACTIVE_LOW, IPT_BUTTON7 );
+		PORT_BIT( 0x80, IP_ACTIVE_LOW, IPT_BUTTON8 );
 	
-		PORT_START
-	    PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_SELECT1 )
+		PORT_START(); 
+	    PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_SELECT1 );
 	
-	INPUT_PORTS_END
+	INPUT_PORTS_END(); }}; 
 	
-	static struct MachineDriver machine_driver_raaspec =
-	{
+	static MachineDriver machine_driver_raaspec = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_M6809,
 				1500000,	/* 1.5 Mhz */
-				raaspec_readmem, raaspec_writemem,0,0,
-				0, 0, /* no vblank interrupt */
-				0, 0 /* no interrupts */
-			}
+				raaspec_readmem, raaspec_writemem,null,null,
+				null, null, /* no vblank interrupt */
+				null, null /* no interrupts */
+			)
 		},
 		40, 0,	/* frames per second, vblank duration (vector game, so no vblank) */
 		1,
-		0,
+		null,
 		0,
 	
 		/* video hardware */
 		380, 480, { 0, 500, 0, 600 },
-		0,
-		254, 0,
+		null,
+		254, null,
 		raaspec_init_colors,
 	
 		VIDEO_TYPE_VECTOR,
-		0,
+		null,
 		raaspec_start,
 		vectrex_stop,
 		raaspec_vh_update,
 	
 		/* sound hardware */
 		0,0,0,0,
-		{
-			{
+		new MachineSound[] {
+			new MachineSound(
 				SOUND_AY8910,
-				&ay8910_interface
-			},
-			{
+				ay8910_interface
+			),
+			new MachineSound(
 				SOUND_DAC,
-	 			&dac_interface
-			}
+	 			dac_interface
+			)
 		}
 	
-	};
+	);
 	
 	static const struct IODevice io_raaspec[] = {
 		{ IO_END }
 	};
 	
-	ROM_START(raaspec)
-		ROM_REGION(0x10000,REGION_CPU1)
-		ROM_LOAD("spectrum.bin", 0x0000, 0x8000, 0x20af7f3f)
-		ROM_LOAD("system.img", 0xe000, 0x2000, 0xba13fb57)
-	ROM_END
+	static RomLoadPtr rom_raaspec = new RomLoadPtr(){ public void handler(){ 
+		ROM_REGION(0x10000,REGION_CPU1);
+		ROM_LOAD("spectrum.bin", 0x0000, 0x8000, 0x20af7f3f);
+		ROM_LOAD("system.img", 0xe000, 0x2000, 0xba13fb57);
+	ROM_END(); }}; 
 	
 	/*	  YEAR	NAME	  PARENT	MACHINE   INPUT 	INIT	  COMPANY	FULLNAME */
 	CONS( 1982, vectrex,  0, 		vectrex,  vectrex,	0,		  "General Consumer Electronics",   "Vectrex" )

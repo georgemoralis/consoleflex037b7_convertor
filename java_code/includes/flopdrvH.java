@@ -92,7 +92,6 @@ int floppy_drive_get_current_track(int drive);
 
 void	floppy_drive_set_geometry(int,floppy_type type);
 
-void	floppy_drives_init(void);
 
 /* seek */
 void floppy_drive_seek(int drive, int signed_tracks);

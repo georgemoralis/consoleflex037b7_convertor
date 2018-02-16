@@ -41,7 +41,7 @@ public class zx
 		{
 			int y, new_x, new_y;
 			struct rectangle r;
-			struct osd_bitmap *bitmap = Machine->scrbitmap;
+			struct osd_bitmap *bitmap = Machine.scrbitmap;
 	
 			new_y = cpu_getscanline();
 			new_x = cpu_gethorzbeampos();
@@ -54,21 +54,21 @@ public class zx
 					r.min_x = old_x;
 					r.max_x = new_x;
 					r.min_y = r.max_y = y;
-					fillbitmap(bitmap, Machine->pens[color], &r);
+					fillbitmap(bitmap, Machine.pens[color], &r);
 					break;
 				}
 				else
 				{
 					r.min_x = old_x;
-					r.max_x = Machine->visible_area.max_x;
+					r.max_x = Machine.visible_area.max_x;
 					r.min_y = r.max_y = y;
-					fillbitmap(bitmap, Machine->pens[color], &r);
+					fillbitmap(bitmap, Machine.pens[color], &r);
 					old_x = 0;
 				}
-				if (++y == Machine->drv->screen_height)
+				if (++y == Machine.drv.screen_height)
 					y = 0;
 			}
-			old_x = (new_x + 1) % Machine->drv->screen_width;
+			old_x = (new_x + 1) % Machine.drv.screen_width;
 			old_y = new_y;
 			old_c = color;
 			DAC_data_w(0, color ? 255 : 0);
@@ -92,13 +92,13 @@ public class zx
 		 * An NMI is issued on the ZX81 every 64us for the blanked
 		 * scanlines at the top and bottom of the display.
 		 */
-		struct rectangle r = Machine->visible_area;
+		struct rectangle r = Machine.visible_area;
 	
 		r.min_y = r.max_y = cpu_getscanline();
-		fillbitmap(Machine->scrbitmap, Machine->pens[1], &r);
+		fillbitmap(Machine.scrbitmap, Machine.pens[1], &r);
 		logerror("ULA %3d[%d] NMI, R:$%02X, $%04x\n", cpu_getscanline(), ula_scancode_count, cpu_get_reg(Z80_R), cpu_get_pc());
 		cpu_set_nmi_line(0, PULSE_LINE);
-		if (++ula_scanline_count == Machine->drv->screen_height)
+		if (++ula_scanline_count == Machine.drv.screen_height)
 			ula_scanline_count = 0;
 	}
 	
@@ -114,14 +114,14 @@ public class zx
 		if (++ula_scancode_count == 8)
 			ula_scancode_count = 0;
 		cpu_set_irq_line(0, 0, PULSE_LINE);
-		if (++ula_scanline_count == Machine->drv->screen_height)
+		if (++ula_scanline_count == Machine.drv.screen_height)
 			ula_scanline_count = 0;
 	}
 	
 	
 	int zx_ula_r(int offs, int region)
 	{
-		struct osd_bitmap *bitmap = Machine->scrbitmap;
+		struct osd_bitmap *bitmap = Machine.scrbitmap;
 		int x, y, chr, data, ireg, rreg, cycles, offs0 = offs, halted = 0;
 		UINT8 *chrgen, *rom = memory_region(REGION_CPU1);
 	
@@ -138,7 +138,7 @@ public class zx
 	#endif
 		logerror("ULA %3d[%d] VID, R:$%02X, $%04x:", y, ula_scancode_count, rreg, offs & 0x7fff);
 	
-		if (ula_irq)
+		if (ula_irq != 0)
 			timer_remove(ula_irq);
 		ula_irq = timer_set(TIME_IN_CYCLES(cycles, 0), 0, zx_ula_irq);
 	
@@ -147,7 +147,7 @@ public class zx
 			chr = rom[offs & 0x7fff];
 			if (!halted)
 				logerror(" %02x", chr);
-			if (chr & 0x40)
+			if ((chr & 0x40) != 0)
 			{
 				halted = 1;
 				rom[offs] = chr;
@@ -157,11 +157,11 @@ public class zx
 			{
 				data = chrgen[ireg | ((chr & 0x3f) << 3) | ula_scancode_count];
 				rom[offs] = 0x00;
-				if (chr & 0x80)
+				if ((chr & 0x80) != 0)
 					data ^= 0xff;
 				offs++;
 			}
-			drawgfx(bitmap, Machine->gfx[0], data, 0, 0, 0, x, y, &Machine->visible_area, TRANSPARENCY_NONE, 0);
+			drawgfx(bitmap, Machine.gfx[0], data, 0, 0, 0, x, y, &Machine.visible_area, TRANSPARENCY_NONE, 0);
 		}
 		if (!halted)
 			logerror(" %02x", rom[offs & 0x7fff]);
@@ -169,22 +169,22 @@ public class zx
 		return rom[offs0];
 	}
 	
-	void zx_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr zx_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 		/* decrement video synchronization counter */
-		if (ula_frame_vsync)
+		if (ula_frame_vsync != 0)
 		{
 			if (!--ula_frame_vsync)
 				full_refresh = 1;
 		}
 	
-		if (full_refresh)
-			fillbitmap(bitmap, Machine->pens[1], &Machine->visible_area);
+		if (full_refresh != 0)
+			fillbitmap(bitmap, Machine.pens[1], &Machine.visible_area);
 	
 		if (zx_frame_time > 0)
 		{
-			ui_text(bitmap, zx_frame_message, 2, Machine->visible_area.max_y - Machine->visible_area.min_y - 9);
+			ui_text(bitmap, zx_frame_message, 2, Machine.visible_area.max_y - Machine.visible_area.min_y - 9);
 			zx_frame_time--;
 		}
-	}
+	} };
 }

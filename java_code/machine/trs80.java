@@ -80,14 +80,12 @@ public class trs80
 	void trs80_videoram_w(int offset, int data);
 	
 	static void tape_put_byte(UINT8 value);
-	static void tape_get_open(void);
-	static void tape_put_close(void);
-	
+	static static 
 	#define FW TRS80_FONT_W
 	#define FH TRS80_FONT_H
 	
 	
-	void init_trs80(void)
+	public static InitDriverPtr init_trs80 = new InitDriverPtr() { public void handler() 
 	{
 		UINT8 *FNT = memory_region(REGION_GFX1);
 	    int i, y;
@@ -116,9 +114,9 @@ public class trs80
 			FNT[i*FH+ 4] = FNT[i*FH+ 5] = FNT[i*FH+ 6] = FNT[i*FH+ 7] = b2 | b3;
 			FNT[i*FH+ 8] = FNT[i*FH+ 9] = FNT[i*FH+10] = FNT[i*FH+11] = b4 | b5;
 	    }
-	}
+	} };
 	
-	static void cas_copy_callback(int param)
+	public static timer_callback cas_copy_callback = new timer_callback() { public void handler(int param) 
 	{
 		UINT16 entry = 0, block_ofs = 0, block_len = 0;
 		unsigned offs = 0;
@@ -161,12 +159,12 @@ public class trs80
 		}
 		cas_size = 0;
 		cpu_set_reg(Z80_PC, entry);
-	}
+	} };
 	
 	int trs80_cas_id(int id)
 	{
 		void *file = image_fopen(IO_CASSETTE,id,OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-		if (file)
+		if (file != 0)
 		{
 			UINT8 buffer[8];
 			osd_fread(file, buffer, 8);
@@ -180,11 +178,11 @@ public class trs80
 	int trs80_cas_init(int id)
 	{
 		void *file = image_fopen(IO_CASSETTE,id,OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-		if (file)
+		if (file != 0)
 		{
 			cas_size = osd_fsize(file);
 			cas_buff = malloc(cas_size);
-			if (cas_buff)
+			if (cas_buff != 0)
 			{
 				osd_fread(file, cas_buff, cas_size);
 				osd_fclose(file);
@@ -211,13 +209,13 @@ public class trs80
 	
 	void trs80_cas_exit(int id)
 	{
-		if (cas_buff)
+		if (cas_buff != 0)
 			free(cas_buff);
 		cas_buff = NULL;
 		cas_size = 0;
 	}
 	
-	static void cmd_copy_callback(int param)
+	public static timer_callback cmd_copy_callback = new timer_callback() { public void handler(int param) 
 	{
 		UINT16 entry = 0, block_ofs = 0, block_len = 0;
 		unsigned offs = 0;
@@ -274,7 +272,7 @@ public class trs80
 		}
 		cmd_size = 0;
 		cpu_set_reg(Z80_PC, entry);
-	}
+	} };
 	
 	int trs80_cmd_id(int id)
 	{
@@ -284,11 +282,11 @@ public class trs80
 	int trs80_cmd_init(int id)
 	{
 		void *file = image_fopen(IO_QUICKLOAD,id,OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-		if (file)
+		if (file != 0)
 		{
 			cmd_size = osd_fsize(file);
 			cmd_buff = malloc(cmd_size);
-			if (cmd_buff)
+			if (cmd_buff != 0)
 			{
 				LOG(("trs80_cmd_init: loading %s size %d\n", device_filename(IO_QUICKLOAD,id), cmd_size));
 				osd_fread(file, cmd_buff, cmd_size);
@@ -304,7 +302,7 @@ public class trs80
 	
 	void trs80_cmd_exit(int id)
 	{
-		if (cmd_buff)
+		if (cmd_buff != 0)
 			free(cmd_buff);
 		cmd_buff = NULL;
 		cmd_size = 0;
@@ -323,7 +321,7 @@ public class trs80
 	    first_fdc_access = 1;
 	}
 	
-	void trs80_init_machine(void)
+	public static InitMachinePtr trs80_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		if( flop_specified[0] )
 			wd179x_init(1);
@@ -332,18 +330,18 @@ public class trs80
 	
 	    first_fdc_access = 1;
 	
-		if (cas_size)
+		if (cas_size != 0)
 		{
 			LOG(("trs80_init_machine: schedule cas_copy_callback (%d)\n", cas_size));
 			timer_set(0.5, 0, cas_copy_callback);
 		}
 	
-	    if (cmd_size)
+	    if (cmd_size != 0)
 		{
 			LOG(("trs80_init_machine: schedule cmd_copy_callback (%d)\n", cmd_size));
 			timer_set(0.5, 0, cmd_copy_callback);
 	    }
-	}
+	} };
 	
 	void trs80_shutdown_machine(void)
 	{
@@ -371,7 +369,7 @@ public class trs80
 					UINT8 zeroes[256] = {0,};
 	
 	                sprintf(filename, "basic%c.cas", tape_buffer[4]);
-					tape_put_file = osd_fopen(Machine->gamedrv->name, filename, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_RW);
+					tape_put_file = osd_fopen(Machine.gamedrv.name, filename, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_RW);
 					osd_fwrite(tape_put_file, zeroes, 256);
 					osd_fwrite(tape_put_file, tape_buffer, 8);
 				}
@@ -383,7 +381,7 @@ public class trs80
 					UINT8 zeroes[256] = {0,};
 	
 	                sprintf(filename, "%-6.6s.cas", tape_buffer+2);
-					tape_put_file = osd_fopen(Machine->gamedrv->name, filename, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_RW);
+					tape_put_file = osd_fopen(Machine.gamedrv.name, filename, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_RW);
 					osd_fwrite(tape_put_file, zeroes, 256);
 					osd_fwrite(tape_put_file, tape_buffer, 8);
 				}
@@ -391,7 +389,7 @@ public class trs80
 		}
 		else
 		{
-			if (tape_put_file)
+			if (tape_put_file != 0)
 				osd_fwrite(tape_put_file, &value, 1);
 		}
 	}
@@ -399,9 +397,9 @@ public class trs80
 	static void tape_put_close(void)
 	{
 		/* file open ? */
-		if (tape_put_file)
+		if (tape_put_file != 0)
 		{
-			if (put_bit_count)
+			if (put_bit_count != 0)
 			{
 				UINT8	value;
 				while (put_bit_count < 16)
@@ -410,14 +408,14 @@ public class trs80
 						put_bit_count++;
 				}
 				value = 0;
-				if (tape_bits & 0x8000) value |= 0x80;
-				if (tape_bits & 0x2000) value |= 0x40;
-				if (tape_bits & 0x0800) value |= 0x20;
-				if (tape_bits & 0x0200) value |= 0x10;
-				if (tape_bits & 0x0080) value |= 0x08;
-				if (tape_bits & 0x0020) value |= 0x04;
-				if (tape_bits & 0x0008) value |= 0x02;
-				if (tape_bits & 0x0002) value |= 0x01;
+				if ((tape_bits & 0x8000) != 0) value |= 0x80;
+				if ((tape_bits & 0x2000) != 0) value |= 0x40;
+				if ((tape_bits & 0x0800) != 0) value |= 0x20;
+				if ((tape_bits & 0x0200) != 0) value |= 0x10;
+				if ((tape_bits & 0x0080) != 0) value |= 0x08;
+				if ((tape_bits & 0x0020) != 0) value |= 0x04;
+				if ((tape_bits & 0x0008) != 0) value |= 0x02;
+				if ((tape_bits & 0x0002) != 0) value |= 0x01;
 				tape_put_byte(value);
 			}
 			osd_fclose(tape_put_file);
@@ -430,7 +428,7 @@ public class trs80
 	{
 		int 	count;
 		UINT8	value;
-		if (tape_get_file)
+		if (tape_get_file != 0)
 		{
 			count = osd_fread(tape_get_file, &value, 1);
 			if (count == 0)
@@ -440,14 +438,14 @@ public class trs80
 					tape_get_file = 0;
 			}
 			tape_bits |= 0xaaaa;
-			if (value & 0x80) tape_bits ^= 0x4000;
-			if (value & 0x40) tape_bits ^= 0x1000;
-			if (value & 0x20) tape_bits ^= 0x0400;
-			if (value & 0x10) tape_bits ^= 0x0100;
-			if (value & 0x08) tape_bits ^= 0x0040;
-			if (value & 0x04) tape_bits ^= 0x0010;
-			if (value & 0x02) tape_bits ^= 0x0004;
-			if (value & 0x01) tape_bits ^= 0x0001;
+			if ((value & 0x80) != 0) tape_bits ^= 0x4000;
+			if ((value & 0x40) != 0) tape_bits ^= 0x1000;
+			if ((value & 0x20) != 0) tape_bits ^= 0x0400;
+			if ((value & 0x10) != 0) tape_bits ^= 0x0100;
+			if ((value & 0x08) != 0) tape_bits ^= 0x0040;
+			if ((value & 0x04) != 0) tape_bits ^= 0x0010;
+			if ((value & 0x02) != 0) tape_bits ^= 0x0004;
+			if ((value & 0x01) != 0) tape_bits ^= 0x0001;
 			get_bit_count = 16;
 			tape_count++;
 		}
@@ -456,7 +454,7 @@ public class trs80
 	static void tape_get_open(void)
 	{
 		/* TODO: remove this */
-		unsigned char *RAM = memory_region(REGION_CPU1);
+		UBytePtr RAM = memory_region(REGION_CPU1);
 	
 		if (!tape_get_file)
 		{
@@ -464,7 +462,7 @@ public class trs80
 	
 	        sprintf(filename, "%-6.6s.cas", RAM + 0x41e8);
 			logerror("filename %s\n", filename);
-			tape_get_file = osd_fopen(Machine->gamedrv->name, filename, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
+			tape_get_file = osd_fopen(Machine.gamedrv.name, filename, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
 			tape_count = 0;
 		}
 	}
@@ -475,17 +473,17 @@ public class trs80
 	 *
 	 *************************************/
 	
-	READ_HANDLER( trs80_port_xx_r )
+	public static ReadHandlerPtr trs80_port_xx_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		return 0;
-	}
+	} };
 	
-	WRITE_HANDLER( trs80_port_ff_w )
+	public static WriteHandlerPtr trs80_port_ff_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		int changes = trs80_port_ff ^ data;
 	
 		/* tape output changed ? */
-		if( changes & 0x03 )
+		if ((changes & 0x03) != 0)
 		{
 			/* virtual tape ? */
 			if( readinputport(0) & 0x20 )
@@ -509,7 +507,7 @@ public class trs80
 					{
 						tape_bits = (tape_bits << 1) | 1;
 						/* in sync already ? */
-						if( in_sync )
+						if (in_sync != 0)
 						{
 							/* count 1 bit */
 							put_bit_count += 1;
@@ -529,7 +527,7 @@ public class trs80
 						/* shift twice */
 						tape_bits <<= 2;
 						/* in sync already ? */
-						if( in_sync )
+						if (in_sync != 0)
 							put_bit_count += 2;
 					}
 	
@@ -538,14 +536,14 @@ public class trs80
 					{
 						/* extract data bits to value */
 						value = 0;
-						if (tape_bits & 0x8000) value |= 0x80;
-						if (tape_bits & 0x2000) value |= 0x40;
-						if (tape_bits & 0x0800) value |= 0x20;
-						if (tape_bits & 0x0200) value |= 0x10;
-						if (tape_bits & 0x0080) value |= 0x08;
-						if (tape_bits & 0x0020) value |= 0x04;
-						if (tape_bits & 0x0008) value |= 0x02;
-						if (tape_bits & 0x0002) value |= 0x01;
+						if ((tape_bits & 0x8000) != 0) value |= 0x80;
+						if ((tape_bits & 0x2000) != 0) value |= 0x40;
+						if ((tape_bits & 0x0800) != 0) value |= 0x20;
+						if ((tape_bits & 0x0200) != 0) value |= 0x10;
+						if ((tape_bits & 0x0080) != 0) value |= 0x08;
+						if ((tape_bits & 0x0020) != 0) value |= 0x04;
+						if ((tape_bits & 0x0008) != 0) value |= 0x02;
+						if ((tape_bits & 0x0002) != 0) value |= 0x01;
 						put_bit_count -= 16;
 						tape_bits = 0;
 						tape_put_byte(value);
@@ -572,14 +570,14 @@ public class trs80
 			}
 		}
 	
-		/* font width change ? (32<->64 characters per line) */
-		if( changes & 0x08 )
+		/* font width change ? (32<.64 characters per line) */
+		if ((changes & 0x08) != 0)
 			memset(dirtybuffer, 1, 64 * 16);
 	
 		trs80_port_ff = data;
-	}
+	} };
 	
-	READ_HANDLER( trs80_port_ff_r )
+	public static ReadHandlerPtr trs80_port_ff_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		int now_cycles = cpu_gettotalcycles();
 		/* virtual tape ? */
@@ -589,7 +587,7 @@ public class trs80
 			/* overrun since last read ? */
 			if (diff >= 4000)
 			{
-				if (tape_get_file)
+				if (tape_get_file != 0)
 				{
 					osd_fclose(tape_get_file);
 					tape_get_file = 0;
@@ -615,7 +613,7 @@ public class trs80
 					tape_bits <<= 1;
 					/* if bit is set, set trs80_port_ff bit 4
 					   which is then read as bit 7 */
-					if (tape_bits & 0x10000)
+					if ((tape_bits & 0x10000) != 0)
 						trs80_port_ff |= 0x80;
 				}
 			}
@@ -623,7 +621,7 @@ public class trs80
 			get_cycles = now_cycles;
 		}
 		return (trs80_port_ff << 3) & 0xc0;
-	}
+	} };
 	
 	/*************************************
 	 *
@@ -631,7 +629,7 @@ public class trs80
 	 *
 	 *************************************/
 	
-	int trs80_timer_interrupt(void)
+	public static InterruptPtr trs80_timer_interrupt = new InterruptPtr() { public int handler() 
 	{
 		if( (irq_status & IRQ_TIMER) == 0 )
 		{
@@ -640,9 +638,9 @@ public class trs80
 			return 0;
 		}
 		return ignore_interrupt ();
-	}
+	} };
 	
-	int trs80_fdc_interrupt(void)
+	public static InterruptPtr trs80_fdc_interrupt = new InterruptPtr() { public int handler() 
 	{
 		if ((irq_status & IRQ_FDC) == 0)
 		{
@@ -651,7 +649,7 @@ public class trs80
 	        return 0;
 		}
 		return ignore_interrupt ();
-	}
+	} };
 	
 	void trs80_fdc_callback(int event)
 	{
@@ -666,12 +664,12 @@ public class trs80
 		}
 	}
 	
-	int trs80_frame_interrupt (void)
+	public static InterruptPtr trs80_frame_interrupt = new InterruptPtr() { public int handler() 
 	{
 		if (motor_count && !--motor_count)
 			wd179x_stop_drive();
 		return 0;
-	}
+	} };
 	
 	void trs80_nmi_generate (int param)
 	{
@@ -690,24 +688,24 @@ public class trs80
 		return 0;
 	}
 	
-	WRITE_HANDLER( trs80_printer_w )
+	public static WriteHandlerPtr trs80_printer_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		/* nothing yet :( */
-	}
+	} };
 	
-	READ_HANDLER( trs80_irq_status_r )
+	public static ReadHandlerPtr trs80_irq_status_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		int result = irq_status;
 		irq_status &= ~(IRQ_TIMER | IRQ_FDC);
 		return result;
-	}
+	} };
 	
-	WRITE_HANDLER( trs80_irq_mask_w )
+	public static WriteHandlerPtr trs80_irq_mask_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		irq_mask = data;
-	}
+	} };
 	
-	WRITE_HANDLER( trs80_motor_w )
+	public static WriteHandlerPtr trs80_motor_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		UINT8 buff[16];
 		UINT8 drive = 255;
@@ -813,37 +811,37 @@ public class trs80
 			wd179x_set_geometry(n, tracks[n], heads[n], spt[n], 256, dir_sector[n], dir_length[n], 0);
 		}
 		wd179x_select_drive(drive, head[drive], trs80_fdc_callback, device_filename(IO_FLOPPY,drive));
-	}
+	} };
 	
 	/*************************************
 	 *      Keyboard                     *
 	 *************************************/
-	READ_HANDLER( trs80_keyboard_r )
+	public static ReadHandlerPtr trs80_keyboard_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		int result = 0;
 	
 	    if( setup_active() || onscrd_active() )
 			return result;
 	
-	    if (offset & 1)
-			result |= input_port_1_r(0);
-		if (offset & 2)
-			result |= input_port_2_r(0);
-		if (offset & 4)
-			result |= input_port_3_r(0);
-		if (offset & 8)
-			result |= input_port_4_r(0);
-		if (offset & 16)
-			result |= input_port_5_r(0);
-		if (offset & 32)
-			result |= input_port_6_r(0);
-		if (offset & 64)
-			result |= input_port_7_r(0);
-		if (offset & 128)
-			result |= input_port_8_r(0);
+	    if ((offset & 1) != 0)
+			result |= input_port_1_r.handler(0);
+		if ((offset & 2) != 0)
+			result |= input_port_2_r.handler(0);
+		if ((offset & 4) != 0)
+			result |= input_port_3_r.handler(0);
+		if ((offset & 8) != 0)
+			result |= input_port_4_r.handler(0);
+		if ((offset & 16) != 0)
+			result |= input_port_5_r.handler(0);
+		if ((offset & 32) != 0)
+			result |= input_port_6_r.handler(0);
+		if ((offset & 64) != 0)
+			result |= input_port_7_r.handler(0);
+		if ((offset & 128) != 0)
+			result |= input_port_8_r.handler(0);
 	
 		return result;
-	}
+	} };
 	
 	
 }

@@ -317,179 +317,179 @@ public class c128
 	 * 0x0000-0xedff ram (dram bank 1?)
 	 * 0xe000-0xffff ram as bank 0
 	 */
-	static struct MemoryReadAddress c128_z80_readmem[] =
+	static MemoryReadAddress c128_z80_readmem[] =
 	{
 	#if 1
-		{0x0000, 0x0fff, MRA_BANK10},
-		{0x1000, 0xbfff, MRA_BANK11},
-		{0xc000, 0xffff, MRA_RAM},
+		new MemoryReadAddress(0x0000, 0x0fff, MRA_BANK10),
+		new MemoryReadAddress(0x1000, 0xbfff, MRA_BANK11),
+		new MemoryReadAddress(0xc000, 0xffff, MRA_RAM),
 	#else
 		/* best to do reuse bankswitching numbers */
-		{0x0000, 0x03ff, MRA_BANK10},
-		{0x0400, 0x0fff, MRA_BANK11},
-		{0x1000, 0x1fff, MRA_BANK3},
-		{0x2000, 0x3fff, MRA_BANK4},
+		new MemoryReadAddress(0x0000, 0x03ff, MRA_BANK10),
+		new MemoryReadAddress(0x0400, 0x0fff, MRA_BANK11),
+		new MemoryReadAddress(0x1000, 0x1fff, MRA_BANK3),
+		new MemoryReadAddress(0x2000, 0x3fff, MRA_BANK4),
 	
-		{0x4000, 0xbfff, MRA_BANK5},
-		{0xc000, 0xdfff, MRA_BANK6},
-		{0xe000, 0xefff, MRA_BANK7},
-		{0xf000, 0xfeff, MRA_BANK8},
-		{0xff00, 0xff04, c128_mmu8722_ff00_r},
-		{0xff05, 0xffff, MRA_BANK9},
+		new MemoryReadAddress(0x4000, 0xbfff, MRA_BANK5),
+		new MemoryReadAddress(0xc000, 0xdfff, MRA_BANK6),
+		new MemoryReadAddress(0xe000, 0xefff, MRA_BANK7),
+		new MemoryReadAddress(0xf000, 0xfeff, MRA_BANK8),
+		new MemoryReadAddress(0xff00, 0xff04, c128_mmu8722_ff00_r),
+		new MemoryReadAddress(0xff05, 0xffff, MRA_BANK9),
 	#endif
 		MEMORY_TABLE_END
 	};
 	
-	static struct MemoryWriteAddress c128_z80_writemem[] =
+	static MemoryWriteAddress c128_z80_writemem[] =
 	{
 	#if 1
-		{0x0000, 0x0fff, c128_write_0000, &c64_memory},
-		{0x1000, 0xbfff, c128_write_1000 },
-		{0xc000, 0xffff, MWA_RAM },
+		new MemoryWriteAddress(0x0000, 0x0fff, c128_write_0000, c64_memory),
+		new MemoryWriteAddress(0x1000, 0xbfff, c128_write_1000 ),
+		new MemoryWriteAddress(0xc000, 0xffff, MWA_RAM ),
 	#else
-		{0x0000, 0x03ff, MWA_BANK1, &c64_memory},
-		{0x0400, 0x0fff, MWA_BANK2},
-		{0x1000, 0x1fff, MWA_BANK3},
-		{0x2000, 0x3fff, MWA_BANK4},
-		{0x4000, 0xbfff, MWA_BANK5},
-		{0xc000, 0xdfff, MWA_BANK6},
-		{0xe000, 0xefff, MWA_BANK7},
-		{0xf000, 0xfeff, MWA_BANK8},
-		{0xff00, 0xff04, c128_mmu8722_ff00_w},
-		{0xff05, 0xffff, MWA_BANK9},
+		new MemoryWriteAddress(0x0000, 0x03ff, MWA_BANK1, c64_memory),
+		new MemoryWriteAddress(0x0400, 0x0fff, MWA_BANK2),
+		new MemoryWriteAddress(0x1000, 0x1fff, MWA_BANK3),
+		new MemoryWriteAddress(0x2000, 0x3fff, MWA_BANK4),
+		new MemoryWriteAddress(0x4000, 0xbfff, MWA_BANK5),
+		new MemoryWriteAddress(0xc000, 0xdfff, MWA_BANK6),
+		new MemoryWriteAddress(0xe000, 0xefff, MWA_BANK7),
+		new MemoryWriteAddress(0xf000, 0xfeff, MWA_BANK8),
+		new MemoryWriteAddress(0xff00, 0xff04, c128_mmu8722_ff00_w),
+		new MemoryWriteAddress(0xff05, 0xffff, MWA_BANK9),
 	#endif
-		{0x10000, 0x1ffff, MWA_RAM},
-		{0x20000, 0xfffff, MWA_RAM},	   /* or nothing */
-		{0x100000, 0x107fff, MWA_ROM, &c128_basic},	/* maps to 0x4000 */
-		{0x108000, 0x109fff, MWA_ROM, &c64_basic},	/* maps to 0xa000 */
-		{0x10a000, 0x10bfff, MWA_ROM, &c64_kernal},	/* maps to 0xe000 */
-		{0x10c000, 0x10cfff, MWA_ROM, &c128_editor},
-		{0x10d000, 0x10dfff, MWA_ROM, &c128_z80},		/* maps to z80 0 */
-		{0x10e000, 0x10ffff, MWA_ROM, &c128_kernal},
-		{0x110000, 0x117fff, MWA_ROM, &c128_internal_function},
-		{0x118000, 0x11ffff, MWA_ROM, &c128_external_function},
-		{0x120000, 0x120fff, MWA_ROM, &c64_chargen},
-		{0x121000, 0x121fff, MWA_ROM, &c128_chargen},
-		{0x122000, 0x1227ff, MWA_RAM, &c64_colorram},
-		{0x122800, 0x1327ff, MWA_RAM, &c128_vdcram},
+		new MemoryWriteAddress(0x10000, 0x1ffff, MWA_RAM),
+		new MemoryWriteAddress(0x20000, 0xfffff, MWA_RAM),	   /* or nothing */
+		new MemoryWriteAddress(0x100000, 0x107fff, MWA_ROM, c128_basic),	/* maps to 0x4000 */
+		new MemoryWriteAddress(0x108000, 0x109fff, MWA_ROM, c64_basic),	/* maps to 0xa000 */
+		new MemoryWriteAddress(0x10a000, 0x10bfff, MWA_ROM, c64_kernal),	/* maps to 0xe000 */
+		new MemoryWriteAddress(0x10c000, 0x10cfff, MWA_ROM, c128_editor),
+		new MemoryWriteAddress(0x10d000, 0x10dfff, MWA_ROM, c128_z80),		/* maps to z80 0 */
+		new MemoryWriteAddress(0x10e000, 0x10ffff, MWA_ROM, c128_kernal),
+		new MemoryWriteAddress(0x110000, 0x117fff, MWA_ROM, c128_internal_function),
+		new MemoryWriteAddress(0x118000, 0x11ffff, MWA_ROM, c128_external_function),
+		new MemoryWriteAddress(0x120000, 0x120fff, MWA_ROM, c64_chargen),
+		new MemoryWriteAddress(0x121000, 0x121fff, MWA_ROM, c128_chargen),
+		new MemoryWriteAddress(0x122000, 0x1227ff, MWA_RAM, c64_colorram),
+		new MemoryWriteAddress(0x122800, 0x1327ff, MWA_RAM, c128_vdcram),
 		/* 2 kbyte by 8 bits, only 1 kbyte by 4 bits used) */
 		MEMORY_TABLE_END
 	};
 	
-	static struct IOReadPort c128_z80_readio[] =
+	static IOReadPort c128_z80_readio[] =
 	{
-		{0x1000, 0x13ff, c64_colorram_read},
-		{0xd000, 0xd3ff, vic2_port_r},
-		{0xd400, 0xd4ff, sid6581_0_port_r},
-		{0xd500, 0xd5ff, c128_mmu8722_port_r},
-		{0xd600, 0xd7ff, vdc8563_port_r},
-		{0xdc00, 0xdcff, cia6526_0_port_r},
-		{0xdd00, 0xddff, cia6526_1_port_r},
-		/*{ 0xdf00, 0xdfff, dma_port_r }, */
+		new IOReadPort(0x1000, 0x13ff, c64_colorram_read),
+		new IOReadPort(0xd000, 0xd3ff, vic2_port_r),
+		new IOReadPort(0xd400, 0xd4ff, sid6581_0_port_r),
+		new IOReadPort(0xd500, 0xd5ff, c128_mmu8722_port_r),
+		new IOReadPort(0xd600, 0xd7ff, vdc8563_port_r),
+		new IOReadPort(0xdc00, 0xdcff, cia6526_0_port_r),
+		new IOReadPort(0xdd00, 0xddff, cia6526_1_port_r),
+		/*new IOReadPort( 0xdf00, 0xdfff, dma_port_r ), */
 		MEMORY_TABLE_END
 	};
 	
-	static struct IOWritePort c128_z80_writeio[] =
+	static IOWritePort c128_z80_writeio[] =
 	{
-		{0x1000, 0x13ff, c64_colorram_write},
-		{0xd000, 0xd3ff, vic2_port_w},
-		{0xd400, 0xd4ff, sid6581_0_port_w},
-		{0xd500, 0xd5ff, c128_mmu8722_port_w},
-		{0xd600, 0xd7ff, vdc8563_port_w},
-		{0xdc00, 0xdcff, cia6526_0_port_w},
-		{0xdd00, 0xddff, cia6526_1_port_w},
-		/*{ 0xdf00, 0xdfff, dma_port_w }, */
+		new IOWritePort(0x1000, 0x13ff, c64_colorram_write),
+		new IOWritePort(0xd000, 0xd3ff, vic2_port_w),
+		new IOWritePort(0xd400, 0xd4ff, sid6581_0_port_w),
+		new IOWritePort(0xd500, 0xd5ff, c128_mmu8722_port_w),
+		new IOWritePort(0xd600, 0xd7ff, vdc8563_port_w),
+		new IOWritePort(0xdc00, 0xdcff, cia6526_0_port_w),
+		new IOWritePort(0xdd00, 0xddff, cia6526_1_port_w),
+		/*new IOWritePort( 0xdf00, 0xdfff, dma_port_w ), */
 		MEMORY_TABLE_END
 	};
 	
-	static struct MemoryReadAddress c128_readmem[] =
+	static MemoryReadAddress c128_readmem[] =
 	{
-		{0x0000, 0x0001, c64_m6510_port_r},
-		{0x0002, 0x00ff, MRA_BANK1},
-		{0x0100, 0x01ff, MRA_BANK2},
-		{0x0200, 0x03ff, MRA_BANK3},
-		{0x0400, 0x0fff, MRA_BANK4},
-		{0x1000, 0x1fff, MRA_BANK5},
-		{0x2000, 0x3fff, MRA_BANK6},
+		new MemoryReadAddress(0x0000, 0x0001, c64_m6510_port_r),
+		new MemoryReadAddress(0x0002, 0x00ff, MRA_BANK1),
+		new MemoryReadAddress(0x0100, 0x01ff, MRA_BANK2),
+		new MemoryReadAddress(0x0200, 0x03ff, MRA_BANK3),
+		new MemoryReadAddress(0x0400, 0x0fff, MRA_BANK4),
+		new MemoryReadAddress(0x1000, 0x1fff, MRA_BANK5),
+		new MemoryReadAddress(0x2000, 0x3fff, MRA_BANK6),
 	
-		{0x4000, 0x7fff, MRA_BANK7},
-		{0x8000, 0x9fff, MRA_BANK8},
-		{0xa000, 0xbfff, MRA_BANK9},
+		new MemoryReadAddress(0x4000, 0x7fff, MRA_BANK7),
+		new MemoryReadAddress(0x8000, 0x9fff, MRA_BANK8),
+		new MemoryReadAddress(0xa000, 0xbfff, MRA_BANK9),
 	
-		{0xc000, 0xcfff, MRA_BANK12},
-		{0xd000, 0xdfff, MRA_BANK13},
-		{0xe000, 0xfeff, MRA_BANK14},
-		{0xff00, 0xff04, MRA_BANK15},	   /* mmu c128 modus */
-		{0xff05, 0xffff, MRA_BANK16},
+		new MemoryReadAddress(0xc000, 0xcfff, MRA_BANK12),
+		new MemoryReadAddress(0xd000, 0xdfff, MRA_BANK13),
+		new MemoryReadAddress(0xe000, 0xfeff, MRA_BANK14),
+		new MemoryReadAddress(0xff00, 0xff04, MRA_BANK15),	   /* mmu c128 modus */
+		new MemoryReadAddress(0xff05, 0xffff, MRA_BANK16),
 		MEMORY_TABLE_END
 	};
 	
-	static struct MemoryWriteAddress c128_writemem[] =
+	static MemoryWriteAddress c128_writemem[] =
 	{
-		{0x0000, 0x0001, c64_m6510_port_w},
-		{0x0002, 0x00ff, MWA_BANK1},
-		{0x0100, 0x01ff, MWA_BANK2},
-		{0x0200, 0x03ff, MWA_BANK3},
-		{0x0400, 0x0fff, MWA_BANK4},
-		{0x1000, 0x1fff, MWA_BANK5},
-		{0x2000, 0x3fff, MWA_BANK6},
+		new MemoryWriteAddress(0x0000, 0x0001, c64_m6510_port_w),
+		new MemoryWriteAddress(0x0002, 0x00ff, MWA_BANK1),
+		new MemoryWriteAddress(0x0100, 0x01ff, MWA_BANK2),
+		new MemoryWriteAddress(0x0200, 0x03ff, MWA_BANK3),
+		new MemoryWriteAddress(0x0400, 0x0fff, MWA_BANK4),
+		new MemoryWriteAddress(0x1000, 0x1fff, MWA_BANK5),
+		new MemoryWriteAddress(0x2000, 0x3fff, MWA_BANK6),
 	
-		{0x4000, 0x7fff, c128_write_4000},
-		{0x8000, 0x9fff, c128_write_8000},
-		{0xa000, 0xcfff, c128_write_a000},
-		{0xd000, 0xdfff, c128_write_d000},
-		{0xe000, 0xfeff, c128_write_e000},
-		{0xff00, 0xff04, c128_write_ff00},
-		{0xff05, 0xffff, c128_write_ff05},
+		new MemoryWriteAddress(0x4000, 0x7fff, c128_write_4000),
+		new MemoryWriteAddress(0x8000, 0x9fff, c128_write_8000),
+		new MemoryWriteAddress(0xa000, 0xcfff, c128_write_a000),
+		new MemoryWriteAddress(0xd000, 0xdfff, c128_write_d000),
+		new MemoryWriteAddress(0xe000, 0xfeff, c128_write_e000),
+		new MemoryWriteAddress(0xff00, 0xff04, c128_write_ff00),
+		new MemoryWriteAddress(0xff05, 0xffff, c128_write_ff05),
 		MEMORY_TABLE_END
 	};
 	
 	#define DIPS_HELPER(bit, name, keycode) \
-	    PORT_BITX(bit, IP_ACTIVE_HIGH, IPT_KEYBOARD, name, keycode, CODE_NONE)
+	    PORT_BITX(bit, IP_ACTIVE_HIGH, IPT_KEYBOARD, name, keycode, CODE_NONE);
 	
 	#define C128_DIPS \
-	     PORT_START \
+	     PORT_START();  \
 		 DIPS_HELPER( 0x8000, "Quickload", KEYCODE_SLASH_PAD)\
-		 PORT_DIPNAME   ( 0x4000, 0x4000, "Tape Drive/Device 1")\
-		 PORT_DIPSETTING(  0, DEF_STR( Off ) )\
-		 PORT_DIPSETTING(0x4000, DEF_STR( On ) )\
-		 PORT_DIPNAME   ( 0x2000, 0x00, " Tape Sound")\
-		 PORT_DIPSETTING(  0, DEF_STR( Off ) )\
-		 PORT_DIPSETTING(0x2000, DEF_STR( On ) )\
+		 PORT_DIPNAME   ( 0x4000, 0x4000, "Tape Drive/Device 1");
+		 PORT_DIPSETTING(  0, DEF_STR( "Off") );\
+		 PORT_DIPSETTING(0x4000, DEF_STR( "On") );\
+		 PORT_DIPNAME   ( 0x2000, 0x00, " Tape Sound");
+		 PORT_DIPSETTING(  0, DEF_STR( "Off") );\
+		 PORT_DIPSETTING(0x2000, DEF_STR( "On") );\
 	   DIPS_HELPER( 0x1000, "Tape Drive Play",       CODE_DEFAULT)\
 		 DIPS_HELPER( 0x0800, "Tape Drive Record",     CODE_DEFAULT)\
 		 DIPS_HELPER( 0x0400, "Tape Drive Stop",       CODE_DEFAULT)\
-		 PORT_DIPNAME   ( 0x300, 0x00, "Main Memory/MMU Version")\
-		 PORT_DIPSETTING(  0, "128 KByte" )\
-		 PORT_DIPSETTING(0x100, "256 KByte" )\
-		 PORT_DIPSETTING(0x200, "1024 KByte" )\
-		PORT_DIPNAME   ( 0x80, 0x80, "Sid Chip Type")\
-		PORT_DIPSETTING(  0, "MOS6581" )\
-		PORT_DIPSETTING(0x80, "MOS8580" )\
-		 PORT_DIPNAME   ( 0x40, 0x40, "VDC Memory (RGBI)")\
-		 PORT_DIPSETTING(  0, "16 KByte" )\
-		 PORT_DIPSETTING(  0x40, "64 KByte" )\
+		 PORT_DIPNAME   ( 0x300, 0x00, "Main Memory/MMU Version");
+		 PORT_DIPSETTING(  0, "128 KByte" );
+		 PORT_DIPSETTING(0x100, "256 KByte" );
+		 PORT_DIPSETTING(0x200, "1024 KByte" );
+		PORT_DIPNAME   ( 0x80, 0x80, "Sid Chip Type");
+		PORT_DIPSETTING(  0, "MOS6581" );
+		PORT_DIPSETTING(0x80, "MOS8580" );
+		 PORT_DIPNAME   ( 0x40, 0x40, "VDC Memory (RGBI);\
+		 PORT_DIPSETTING(  0, "16 KByte" );
+		 PORT_DIPSETTING(  0x40, "64 KByte" );
 		 PORT_BITX (0x20, 0x20, IPT_DIPSWITCH_NAME|IPF_TOGGLE,\
-					"DIN,TV/RGBI Monitor (switch)",\
+					"DIN,TV/RGBI Monitor (switch);,\
 					KEYCODE_ENTER_PAD, IP_JOY_NONE)\
-		 PORT_DIPSETTING(  0, "DIN,TV" )\
-		 PORT_DIPSETTING(  0x20, "RGBI" )\
-		 PORT_DIPNAME (0x1c, 0x00, "Cartridge Type")\
-		 PORT_DIPSETTING (0, "Automatic")\
-		 PORT_DIPSETTING (4, "Ultimax (GAME)")\
-		 PORT_DIPSETTING (8, "C64 (EXROM)")\
-		 /*PORT_DIPSETTING (0x10, "C64 CBM Supergames")*/\
-		 /*PORT_DIPSETTING (0x14, "C64 Ocean Robocop2")*/\
-		 /*PORT_DIPSETTING (0x1c, "C128")*/\
-		 PORT_DIPNAME (0x02, 0x02, "Serial Bus/Device 8")\
-		 PORT_DIPSETTING (0, "None")\
-		 PORT_DIPSETTING (2, "VC1541 Floppy Drive")\
-		 PORT_DIPNAME (0x01, 0x01, "Serial Bus/Device 9")\
-		 PORT_DIPSETTING (0, "None")\
-		 PORT_DIPSETTING (1, "VC1541 Floppy Drive")
+		 PORT_DIPSETTING(  0, "DIN,TV" );
+		 PORT_DIPSETTING(  0x20, "RGBI" );
+		 PORT_DIPNAME (0x1c, 0x00, "Cartridge Type");
+		 PORT_DIPSETTING (0, "Automatic");
+		 PORT_DIPSETTING (4, "Ultimax (GAME);\
+		 PORT_DIPSETTING (8, "C64 (EXROM);\
+		 /*PORT_DIPSETTING (0x10, "C64 CBM Supergames");/\
+		 /*PORT_DIPSETTING (0x14, "C64 Ocean Robocop2");/\
+		 /*PORT_DIPSETTING (0x1c, "C128");/\
+		 PORT_DIPNAME (0x02, 0x02, "Serial Bus/Device 8");
+		 PORT_DIPSETTING (0, "None");
+		 PORT_DIPSETTING (2, "VC1541 Floppy Drive");
+		 PORT_DIPNAME (0x01, 0x01, "Serial Bus/Device 9");
+		 PORT_DIPSETTING (0, "None");
+		 PORT_DIPSETTING (1, "VC1541 Floppy Drive");
 	
 	#define DIPS_KEYS_BOTH \
-		PORT_START \
+		PORT_START();  \
 	    DIPS_HELPER( 0x8000, "Numericblock 7", CODE_DEFAULT)\
 		DIPS_HELPER( 0x4000, "Numericblock 8", CODE_DEFAULT)\
 		DIPS_HELPER( 0x2000, "Numericblock 9", CODE_DEFAULT)\
@@ -512,7 +512,7 @@ public class c128
 	INPUT_PORTS_START (c128)
 		 C64_DIPS
 		 C128_DIPS
-		 PORT_START
+		 PORT_START(); 
 		 DIPS_HELPER (0x8000, "(64)Arrow-Left", KEYCODE_TILDE)
 		 DIPS_HELPER (0x4000, "(64)1 !  BLK   ORNG", KEYCODE_1)
 		 DIPS_HELPER (0x2000, "(64)2 \"  WHT   BRN", KEYCODE_2)
@@ -529,7 +529,7 @@ public class c128
 		 DIPS_HELPER (0x0004, "(64)Pound", KEYCODE_MINUS)
 		 DIPS_HELPER (0x0002, "(64)HOME CLR", KEYCODE_EQUALS)
 		 DIPS_HELPER (0x0001, "(64)DEL INST", KEYCODE_BACKSPACE)
-		 PORT_START
+		 PORT_START(); 
 		 DIPS_HELPER (0x8000, "(64)CONTROL", KEYCODE_RCONTROL)
 		 DIPS_HELPER (0x4000, "(64)Q", KEYCODE_Q)
 		 DIPS_HELPER (0x2000, "(64)W", KEYCODE_W)
@@ -546,12 +546,12 @@ public class c128
 		 DIPS_HELPER (0x0004, "(64)Arrow-Up Pi", KEYCODE_CLOSEBRACE)
 		 DIPS_HELPER (0x0002, "(64)RESTORE", KEYCODE_PRTSCR)
 		 DIPS_HELPER (0x0001, "(64)STOP RUN", KEYCODE_TAB)
-		 PORT_START
+		 PORT_START(); 
 	     PORT_BITX (0x8000, 0, IPT_DIPSWITCH_NAME|IPF_TOGGLE,
-					"(64)(Left-Shift)SHIFT-LOCK (switch)",
+					"(64);Left-Shift)SHIFT-LOCK (switch)",
 					KEYCODE_CAPSLOCK, IP_JOY_NONE)
-		 PORT_DIPSETTING (0, DEF_STR( Off ) )
-		 PORT_DIPSETTING (0x8000, DEF_STR( On ) )
+		 PORT_DIPSETTING (0, DEF_STR( "Off") );
+		 PORT_DIPSETTING (0x8000, DEF_STR( "On") );
 		 DIPS_HELPER (0x4000, "(64)A", KEYCODE_A)
 		 DIPS_HELPER (0x2000, "(64)S", KEYCODE_S)
 		 DIPS_HELPER (0x1000, "(64)D", KEYCODE_D)
@@ -567,7 +567,7 @@ public class c128
 		 DIPS_HELPER (0x0004, "(64)RETURN", KEYCODE_ENTER)
 		 DIPS_HELPER (0x0002, "(64)CBM", KEYCODE_RALT)
 		 DIPS_HELPER (0x0001, "(64)Left-Shift", KEYCODE_LSHIFT)
-		 PORT_START
+		 PORT_START(); 
 		 DIPS_HELPER (0x8000, "(64)Z", KEYCODE_Z)
 		 DIPS_HELPER (0x4000, "(64)X", KEYCODE_X)
 		 DIPS_HELPER (0x2000, "(64)C", KEYCODE_C)
@@ -582,25 +582,25 @@ public class c128
 		 DIPS_HELPER (0x0010, "(64)CRSR-DOWN", KEYCODE_2_PAD)
 		 DIPS_HELPER (0x0008, "(64)CRSR-RIGHT", KEYCODE_6_PAD)
 		 DIPS_HELPER (0x0004, "(64)Space", KEYCODE_SPACE)
-		 PORT_START
+		 PORT_START(); 
 		 DIPS_HELPER (0x8000, "ESC", KEYCODE_ESC)
 		 DIPS_HELPER (0x4000, "TAB", KEYCODE_F5)
 		 DIPS_HELPER (0x2000, "ALT", KEYCODE_F6)
 		 PORT_BITX (0x1000, 0, IPT_DIPSWITCH_NAME|IPF_TOGGLE,
-					"CAPSLOCK (switch)", CODE_DEFAULT, IP_JOY_NONE)
-		 PORT_DIPSETTING (0, DEF_STR( Off ) )
-		 PORT_DIPSETTING (0x1000, DEF_STR( On ) )
+					"CAPSLOCK (switch);, CODE_DEFAULT, IP_JOY_NONE)
+		 PORT_DIPSETTING (0, DEF_STR( "Off") );
+		 PORT_DIPSETTING (0x1000, DEF_STR( "On") );
 		 DIPS_HELPER (0x0800, "HELP", KEYCODE_F7)
 		 DIPS_HELPER (0x0400, "LINE FEED", KEYCODE_F8)
 		 PORT_BITX (0x0200, 0x200, IPT_DIPSWITCH_NAME|IPF_TOGGLE,
-					"40 80 Display (switch)(booting)",
+					"40 80 Display (switch);booting)",
 					CODE_DEFAULT, IP_JOY_NONE)
-		 PORT_DIPSETTING (0, "40 Columns (DIN/TV)")
-		 PORT_DIPSETTING (0x0200, "80 Columns (RGBI)")
+		 PORT_DIPSETTING (0, "40 Columns (DIN/TV);
+		 PORT_DIPSETTING (0x0200, "80 Columns (RGBI);
 		 PORT_BITX (0x0100, 0, IPT_DIPSWITCH_NAME|IPF_TOGGLE,
-					"NO SCROLL (switch)", KEYCODE_F9, IP_JOY_NONE)
-		 PORT_DIPSETTING (0, DEF_STR( Off ) )
-		 PORT_DIPSETTING (0x100, DEF_STR( On ) )
+					"NO SCROLL (switch);, KEYCODE_F9, IP_JOY_NONE)
+		 PORT_DIPSETTING (0, DEF_STR( "Off") );
+		 PORT_DIPSETTING (0x100, DEF_STR( "On") );
 		 DIPS_HELPER (0x0080, "Up", CODE_DEFAULT)
 		 DIPS_HELPER (0x0040, "Down", CODE_DEFAULT)
 		 DIPS_HELPER (0x0020, "Left", CODE_DEFAULT)
@@ -610,12 +610,12 @@ public class c128
 		 DIPS_HELPER (0x0002, "(64)f5 f6", KEYCODE_F3)
 		 DIPS_HELPER (0x0001, "(64)f7 f8", KEYCODE_F4)
 		 DIPS_KEYS_BOTH
-	INPUT_PORTS_END
+	INPUT_PORTS_END(); }}; 
 	
 	INPUT_PORTS_START (c128ger)
 		 C64_DIPS
 		 C128_DIPS
-		 PORT_START
+		 PORT_START(); 
 		 DIPS_HELPER (0x8000, "(64)_                    < >", KEYCODE_TILDE)
 		 DIPS_HELPER (0x4000, "(64)1 !  BLK   ORNG", KEYCODE_1)
 		 DIPS_HELPER (0x2000, "(64)2 \"  WHT   BRN", KEYCODE_2)
@@ -635,7 +635,7 @@ public class c128
 					  KEYCODE_MINUS)
 		 DIPS_HELPER (0x0002, "(64)HOME CLR", KEYCODE_EQUALS)
 		 DIPS_HELPER (0x0001, "(64)DEL INST", KEYCODE_BACKSPACE)
-		 PORT_START
+		 PORT_START(); 
 	     DIPS_HELPER (0x8000, "(64)CONTROL", KEYCODE_RCONTROL)
 		 DIPS_HELPER (0x4000, "(64)Q", KEYCODE_Q)
 		 DIPS_HELPER (0x2000, "(64)W", KEYCODE_W)
@@ -655,12 +655,12 @@ public class c128
 					  KEYCODE_CLOSEBRACE)
 		 DIPS_HELPER (0x0002, "(64)RESTORE", KEYCODE_PRTSCR)
 		 DIPS_HELPER (0x0001, "(64)STOP RUN", KEYCODE_TAB)
-		 PORT_START
+		 PORT_START(); 
 	     PORT_BITX (0x8000, 0, IPT_DIPSWITCH_NAME|IPF_TOGGLE,
-					"(64)(Left-Shift)SHIFT-LOCK (switch)",
+					"(64);Left-Shift)SHIFT-LOCK (switch)",
 					KEYCODE_CAPSLOCK, IP_JOY_NONE)
-		 PORT_DIPSETTING(  0, DEF_STR( Off ) )
-		 PORT_DIPSETTING(0x8000, DEF_STR( On ) )
+		 PORT_DIPSETTING(  0, DEF_STR( "Off") );
+		 PORT_DIPSETTING(0x8000, DEF_STR( "On") );
 		 DIPS_HELPER (0x4000, "(64)A", KEYCODE_A)
 		 DIPS_HELPER (0x2000, "(64)S", KEYCODE_S)
 		 DIPS_HELPER (0x1000, "(64)D", KEYCODE_D)
@@ -679,7 +679,7 @@ public class c128
 		 DIPS_HELPER (0x0004, "(64)RETURN", KEYCODE_ENTER)
 		 DIPS_HELPER (0x0002, "(64)CBM", KEYCODE_RALT)
 		 DIPS_HELPER (0x0001, "(64)Left-Shift", KEYCODE_LSHIFT)
-		 PORT_START
+		 PORT_START(); 
 		 DIPS_HELPER (0x8000, "(64)Z                    Y", KEYCODE_Z)
 		 DIPS_HELPER (0x4000, "(64)X", KEYCODE_X)
 		 DIPS_HELPER (0x2000, "(64)C", KEYCODE_C)
@@ -694,25 +694,25 @@ public class c128
 		 DIPS_HELPER (0x0010, "(64)CRSR-DOWN", KEYCODE_2_PAD)
 		 DIPS_HELPER (0x0008, "(64)CRSR-RIGHT", KEYCODE_6_PAD)
 		 DIPS_HELPER (0x0004, "(64)Space", KEYCODE_SPACE)
-	     PORT_START
+	     PORT_START(); 
 		 DIPS_HELPER (0x8000, "ESC", KEYCODE_ESC)
 		 DIPS_HELPER (0x4000, "TAB", KEYCODE_F5)
 		 DIPS_HELPER (0x2000, "ALT", KEYCODE_F6)
 		 PORT_BITX (0x1000, 0, IPT_DIPSWITCH_NAME|IPF_TOGGLE,
-					"ASCII DIN (switch)", CODE_DEFAULT, IP_JOY_NONE)
-		 PORT_DIPSETTING (0, "ASCII")
-		 PORT_DIPSETTING (0x1000, "DIN")
+					"ASCII DIN (switch);, CODE_DEFAULT, IP_JOY_NONE)
+		 PORT_DIPSETTING (0, "ASCII");
+		 PORT_DIPSETTING (0x1000, "DIN");
 		 DIPS_HELPER (0x0800, "HELP", KEYCODE_F7)
 		 DIPS_HELPER (0x0400, "LINE FEED", KEYCODE_F8)
 		 PORT_BITX (0x0200, 0, IPT_DIPSWITCH_NAME|IPF_TOGGLE,
-					"40 80 Display (switch)(booting)",
+					"40 80 Display (switch);booting)",
 					CODE_DEFAULT, IP_JOY_NONE)
-		 PORT_DIPSETTING (0, "40 Columns (DIN/TV)")
-		 PORT_DIPSETTING (0x0200, "80 Columns (RGBI)")
+		 PORT_DIPSETTING (0, "40 Columns (DIN/TV);
+		 PORT_DIPSETTING (0x0200, "80 Columns (RGBI);
 		 PORT_BITX (0x0100, IP_ACTIVE_HIGH, IPF_TOGGLE,
-					"NO SCROLL (switch)", KEYCODE_F9, IP_JOY_NONE)
-		 PORT_DIPSETTING(  0, DEF_STR( Off ) )
-		 PORT_DIPSETTING(0x100, DEF_STR( On ) )
+					"NO SCROLL (switch);, KEYCODE_F9, IP_JOY_NONE)
+		 PORT_DIPSETTING(  0, DEF_STR( "Off") );
+		 PORT_DIPSETTING(0x100, DEF_STR( "On") );
 		 DIPS_HELPER (0x0080, "Up", CODE_DEFAULT)
 		 DIPS_HELPER (0x0040, "Down", CODE_DEFAULT)
 		 DIPS_HELPER (0x0020, "Left", CODE_DEFAULT)
@@ -722,12 +722,12 @@ public class c128
 		 DIPS_HELPER (0x0002, "(64)f5 f6", KEYCODE_F3)
 		 DIPS_HELPER (0x0001, "(64)f7 f8", KEYCODE_F4)
 		 DIPS_KEYS_BOTH
-	INPUT_PORTS_END
+	INPUT_PORTS_END(); }}; 
 	
 	INPUT_PORTS_START (c128fra)
 		 C64_DIPS
 		 C128_DIPS
-		 PORT_START
+		 PORT_START(); 
 		 DIPS_HELPER (0x8000, "(64)_                    < >", KEYCODE_TILDE)
 		 DIPS_HELPER (0x4000, "(64)1 !  BLK   ORNG      & 1", KEYCODE_1)
 		 DIPS_HELPER (0x2000, "(64)2 \"  WHT   BRN       Acute-e 2", KEYCODE_2)
@@ -747,7 +747,7 @@ public class c128
 					  KEYCODE_MINUS)
 		 DIPS_HELPER (0x0002, "(64)HOME CLR", KEYCODE_EQUALS)
 		 DIPS_HELPER (0x0001, "(64)DEL INST", KEYCODE_BACKSPACE)
-		 PORT_START
+		 PORT_START(); 
 	     DIPS_HELPER (0x8000, "(64)CONTROL", KEYCODE_RCONTROL)
 		 DIPS_HELPER (0x4000, "(64)Q                    A", KEYCODE_Q)
 		 DIPS_HELPER (0x2000, "(64)W                    Z", KEYCODE_W)
@@ -767,12 +767,12 @@ public class c128
 					  KEYCODE_CLOSEBRACE)
 		 DIPS_HELPER (0x0002, "(64)RESTORE", KEYCODE_PRTSCR)
 		 DIPS_HELPER (0x0001, "(64)STOP RUN", KEYCODE_TAB)
-		 PORT_START
+		 PORT_START(); 
 	     PORT_BITX (0x8000, 0, IPT_DIPSWITCH_NAME|IPF_TOGGLE,
-					"(64)(Left-Shift)SHIFT-LOCK (switch)",
+					"(64);Left-Shift)SHIFT-LOCK (switch)",
 					KEYCODE_CAPSLOCK, IP_JOY_NONE)
-		 PORT_DIPSETTING(  0, DEF_STR( Off ) )
-		 PORT_DIPSETTING(0x8000, DEF_STR( On ) )
+		 PORT_DIPSETTING(  0, DEF_STR( "Off") );
+		 PORT_DIPSETTING(0x8000, DEF_STR( "On") );
 		 DIPS_HELPER (0x4000, "(64)A                    Q", KEYCODE_A)
 		 DIPS_HELPER (0x2000, "(64)S", KEYCODE_S)
 		 DIPS_HELPER (0x1000, "(64)D", KEYCODE_D)
@@ -791,7 +791,7 @@ public class c128
 		 DIPS_HELPER (0x0004, "(64)RETURN", KEYCODE_ENTER)
 		 DIPS_HELPER (0x0002, "(64)CBM", KEYCODE_RALT)
 		 DIPS_HELPER (0x0001, "(64)Left-Shift", KEYCODE_LSHIFT)
-		 PORT_START
+		 PORT_START(); 
 		 DIPS_HELPER (0x8000, "(64)Z                    W", KEYCODE_Z)
 		 DIPS_HELPER (0x4000, "(64)X", KEYCODE_X)
 		 DIPS_HELPER (0x2000, "(64)C", KEYCODE_C)
@@ -806,25 +806,25 @@ public class c128
 		 DIPS_HELPER (0x0010, "(64)CRSR-DOWN", KEYCODE_2_PAD)
 		 DIPS_HELPER (0x0008, "(64)CRSR-RIGHT", KEYCODE_6_PAD)
 		 DIPS_HELPER (0x0004, "(64)Space", KEYCODE_SPACE)
-	     PORT_START
+	     PORT_START(); 
 		 DIPS_HELPER (0x8000, "ESC", KEYCODE_ESC)
 		 DIPS_HELPER (0x4000, "TAB", KEYCODE_F5)
 		 DIPS_HELPER (0x2000, "ALT", KEYCODE_F6)
 		 PORT_BITX (0x1000, 0, IPT_DIPSWITCH_NAME|IPF_TOGGLE,
-					"ASCII ?French? (switch)", CODE_DEFAULT, IP_JOY_NONE)
-		 PORT_DIPSETTING (0, "ASCII")
-		 PORT_DIPSETTING (0x1000, "?French?")
+					"ASCII ?French? (switch);, CODE_DEFAULT, IP_JOY_NONE)
+		 PORT_DIPSETTING (0, "ASCII");
+		 PORT_DIPSETTING (0x1000, "?French?");
 		 DIPS_HELPER (0x0800, "HELP", KEYCODE_F7)
 		 DIPS_HELPER (0x0400, "LINE FEED", KEYCODE_F8)
 		 PORT_BITX (0x0200, 0x200, IPT_DIPSWITCH_NAME|IPF_TOGGLE,
-					"40 80 Display (switch)(booting)",
+					"40 80 Display (switch);booting)",
 					CODE_DEFAULT, IP_JOY_NONE)
-		 PORT_DIPSETTING (0, "40 Columns (DIN/TV)")
-		 PORT_DIPSETTING (0x0200, "80 Columns (RGBI)")
+		 PORT_DIPSETTING (0, "40 Columns (DIN/TV);
+		 PORT_DIPSETTING (0x0200, "80 Columns (RGBI);
 		 PORT_BITX (0x0100, IP_ACTIVE_HIGH, IPF_TOGGLE,
-					"NO SCROLL (switch)", KEYCODE_F9, IP_JOY_NONE)
-		 PORT_DIPSETTING(  0, DEF_STR( Off ) )
-		 PORT_DIPSETTING(0x100, DEF_STR( On ) )
+					"NO SCROLL (switch);, KEYCODE_F9, IP_JOY_NONE)
+		 PORT_DIPSETTING(  0, DEF_STR( "Off") );
+		 PORT_DIPSETTING(0x100, DEF_STR( "On") );
 		 DIPS_HELPER (0x0080, "Up", CODE_DEFAULT)
 		 DIPS_HELPER (0x0040, "Down", CODE_DEFAULT)
 		 DIPS_HELPER (0x0020, "Left", CODE_DEFAULT)
@@ -834,12 +834,12 @@ public class c128
 		 DIPS_HELPER (0x0002, "(64)f5 f6", KEYCODE_F3)
 		 DIPS_HELPER (0x0001, "(64)f7 f8", KEYCODE_F4)
 		 DIPS_KEYS_BOTH
-	INPUT_PORTS_END
+	INPUT_PORTS_END(); }}; 
 	
 	INPUT_PORTS_START (c128ita)
 		 C64_DIPS
 		 C128_DIPS
-		 PORT_START
+		 PORT_START(); 
 		 DIPS_HELPER (0x8000, "(64)_                    < >", KEYCODE_TILDE)
 		 DIPS_HELPER (0x4000, "(64)1 !  BLK   ORNG      Pound 1", KEYCODE_1)
 		 DIPS_HELPER (0x2000, "(64)2 \"  WHT   BRN       Acute-e 2", KEYCODE_2)
@@ -859,7 +859,7 @@ public class c128
 					  KEYCODE_MINUS)
 		 DIPS_HELPER (0x0002, "(64)HOME CLR", KEYCODE_EQUALS)
 		 DIPS_HELPER (0x0001, "(64)DEL INST", KEYCODE_BACKSPACE)
-		 PORT_START
+		 PORT_START(); 
 	     DIPS_HELPER (0x8000, "(64)CONTROL", KEYCODE_RCONTROL)
 		 DIPS_HELPER (0x4000, "(64)Q", KEYCODE_Q)
 		 DIPS_HELPER (0x2000, "(64)W                    Z", KEYCODE_W)
@@ -879,12 +879,12 @@ public class c128
 					  KEYCODE_CLOSEBRACE)
 		 DIPS_HELPER (0x0002, "(64)RESTORE", KEYCODE_PRTSCR)
 		 DIPS_HELPER (0x0001, "(64)STOP RUN", KEYCODE_TAB)
-		 PORT_START
+		 PORT_START(); 
 	     PORT_BITX (0x8000, 0, IPT_DIPSWITCH_NAME|IPF_TOGGLE,
-					"(64)(Left-Shift)SHIFT-LOCK (switch)",
+					"(64);Left-Shift)SHIFT-LOCK (switch)",
 					KEYCODE_CAPSLOCK, IP_JOY_NONE)
-		 PORT_DIPSETTING(  0, DEF_STR( Off ) )
-		 PORT_DIPSETTING(0x8000, DEF_STR( On ) )
+		 PORT_DIPSETTING(  0, DEF_STR( "Off") );
+		 PORT_DIPSETTING(0x8000, DEF_STR( "On") );
 		 DIPS_HELPER (0x4000, "(64)A", KEYCODE_A)
 		 DIPS_HELPER (0x2000, "(64)S", KEYCODE_S)
 		 DIPS_HELPER (0x1000, "(64)D", KEYCODE_D)
@@ -903,7 +903,7 @@ public class c128
 		 DIPS_HELPER (0x0004, "(64)RETURN", KEYCODE_ENTER)
 		 DIPS_HELPER (0x0002, "(64)CBM", KEYCODE_RALT)
 		 DIPS_HELPER (0x0001, "(64)Left-Shift", KEYCODE_LSHIFT)
-		 PORT_START
+		 PORT_START(); 
 		 DIPS_HELPER (0x8000, "(64)Z                    W", KEYCODE_Z)
 		 DIPS_HELPER (0x4000, "(64)X", KEYCODE_X)
 		 DIPS_HELPER (0x2000, "(64)C", KEYCODE_C)
@@ -918,25 +918,25 @@ public class c128
 		 DIPS_HELPER (0x0010, "(64)CRSR-DOWN", KEYCODE_2_PAD)
 		 DIPS_HELPER (0x0008, "(64)CRSR-RIGHT", KEYCODE_6_PAD)
 		 DIPS_HELPER (0x0004, "(64)Space", KEYCODE_SPACE)
-	     PORT_START
+	     PORT_START(); 
 		 DIPS_HELPER (0x8000, "ESC", KEYCODE_ESC)
 		 DIPS_HELPER (0x4000, "TAB", KEYCODE_F5)
 		 DIPS_HELPER (0x2000, "ALT", KEYCODE_F6)
 		 PORT_BITX (0x1000, 0, IPT_DIPSWITCH_NAME|IPF_TOGGLE,
-					"Capslock (switch)", CODE_DEFAULT, IP_JOY_NONE)
-		 PORT_DIPSETTING (0, "ASCII")
-		 PORT_DIPSETTING (0x1000, "Italian")
+					"Capslock (switch);, CODE_DEFAULT, IP_JOY_NONE)
+		 PORT_DIPSETTING (0, "ASCII");
+		 PORT_DIPSETTING (0x1000, "Italian");
 		 DIPS_HELPER (0x0800, "HELP", KEYCODE_F7)
 		 DIPS_HELPER (0x0400, "LINE FEED", KEYCODE_F8)
 		 PORT_BITX (0x0200, 0x200, IPT_DIPSWITCH_NAME|IPF_TOGGLE,
-					"40 80 Display (switch)(booting)",
+					"40 80 Display (switch);booting)",
 					CODE_DEFAULT, IP_JOY_NONE)
-		 PORT_DIPSETTING (0, "40 Columns (DIN/TV)")
-		 PORT_DIPSETTING (0x0200, "80 Columns (RGBI)")
+		 PORT_DIPSETTING (0, "40 Columns (DIN/TV);
+		 PORT_DIPSETTING (0x0200, "80 Columns (RGBI);
 		 PORT_BITX (0x0100, IP_ACTIVE_HIGH, IPF_TOGGLE,
-					"NO SCROLL (switch)", KEYCODE_F9, IP_JOY_NONE)
-		 PORT_DIPSETTING(  0, DEF_STR( Off ) )
-		 PORT_DIPSETTING(0x100, DEF_STR( On ) )
+					"NO SCROLL (switch);, KEYCODE_F9, IP_JOY_NONE)
+		 PORT_DIPSETTING(  0, DEF_STR( "Off") );
+		 PORT_DIPSETTING(0x100, DEF_STR( "On") );
 		 DIPS_HELPER (0x0080, "Up", CODE_DEFAULT)
 		 DIPS_HELPER (0x0040, "Down", CODE_DEFAULT)
 		 DIPS_HELPER (0x0020, "Left", CODE_DEFAULT)
@@ -946,9 +946,9 @@ public class c128
 		 DIPS_HELPER (0x0002, "(64)f5 f6", KEYCODE_F3)
 		 DIPS_HELPER (0x0001, "(64)f7 f8", KEYCODE_F4)
 		 DIPS_KEYS_BOTH
-	INPUT_PORTS_END
+	INPUT_PORTS_END(); }}; 
 	
-	static void c128_init_palette (unsigned char *sys_palette, unsigned short *sys_colortable, const unsigned char *color_prom)
+	static void c128_init_palette (UBytePtr sys_palette, unsigned short *sys_colortable, const UBytePtr color_prom)
 	{
 		memcpy (sys_palette, vic2_palette, sizeof (vic2_palette));
 		memcpy (sys_palette+sizeof(vic2_palette), vdc8563_palette, sizeof (vdc8563_palette));
@@ -964,297 +964,297 @@ public class c128
 	
 	/* between rev0 and rev1 252343-03+252343-04 */
 	
-		 ROM_LOAD ("basic-4000.318018-02.bin", 0x100000, 0x4000, 0x2ee6e2fa)
-		 ROM_LOAD ("basic-8000.318019-02.bin", 0x104000, 0x4000, 0xd551fce0)
+		 ROM_LOAD ("basic-4000.318018-02.bin", 0x100000, 0x4000, 0x2ee6e2fa);
+		 ROM_LOAD ("basic-8000.318019-02.bin", 0x104000, 0x4000, 0xd551fce0);
 	     /* same as above, but in one chip */
-	     ROM_LOAD ("basic.318022-01.bin", 0x100000, 0x8000, 0xe857df90)
+	     ROM_LOAD ("basic.318022-01.bin", 0x100000, 0x8000, 0xe857df90);
 	
 		/* maybe 318018-03+318019-03 */
-		 ROM_LOAD ("basic.252343-03.bin", 0x100000, 0x8000, 0xbc07ed87)
+		 ROM_LOAD ("basic.252343-03.bin", 0x100000, 0x8000, 0xbc07ed87);
 	
 		/* 1986 final upgrade */
-		 ROM_LOAD ("basic-4000.318018-04.bin", 0x100000, 0x4000, 0x9f9c355b)
-		 ROM_LOAD ("basic-8000.318019-04.bin", 0x104000, 0x4000, 0x6e2c91a7)
+		 ROM_LOAD ("basic-4000.318018-04.bin", 0x100000, 0x4000, 0x9f9c355b);
+		 ROM_LOAD ("basic-8000.318019-04.bin", 0x104000, 0x4000, 0x6e2c91a7);
 	     /* same as above, but in one chip */
-		 ROM_LOAD ("basic.318022-02.bin", 0x100000, 0x8000, 0xaf1ae1e8)
+		 ROM_LOAD ("basic.318022-02.bin", 0x100000, 0x8000, 0xaf1ae1e8);
 	
-		 ROM_LOAD ("64c.251913-01.bin", 0x108000, 0x4000, 0x0010ec31)
+		 ROM_LOAD ("64c.251913-01.bin", 0x108000, 0x4000, 0x0010ec31);
 	
 		 /* editor, z80 bios, c128kernel */
-		 ROM_LOAD ("kernal.318020-03.bin", 0x10c000, 0x4000, 0x1e94bb02)
-		 ROM_LOAD ("kernal.318020-05.bin", 0x10c000, 0x4000, 0xba456b8e)
-		 ROM_LOAD ("kernal.german.315078-01.bin", 0x10c000, 0x4000, 0xa51e2168)
-		 ROM_LOAD ("kernal.german.315078-02.bin", 0x10c000, 0x4000, 0xb275bb2e)
+		 ROM_LOAD ("kernal.318020-03.bin", 0x10c000, 0x4000, 0x1e94bb02);
+		 ROM_LOAD ("kernal.318020-05.bin", 0x10c000, 0x4000, 0xba456b8e);
+		 ROM_LOAD ("kernal.german.315078-01.bin", 0x10c000, 0x4000, 0xa51e2168);
+		 ROM_LOAD ("kernal.german.315078-02.bin", 0x10c000, 0x4000, 0xb275bb2e);
 		 /* 0x3e086a24 z80bios 0xca5e1179*/
-		 ROM_LOAD ("french.bin", 0x10c000, 0x4000, 0x2df282b8)
+		 ROM_LOAD ("french.bin", 0x10c000, 0x4000, 0x2df282b8);
 		 /* 0x71002a97 z80bios 0x167b8364*/
-		 ROM_LOAD ("finnish1.bin", 0x10c000, 0x4000, 0xd3ecea84)
+		 ROM_LOAD ("finnish1.bin", 0x10c000, 0x4000, 0xd3ecea84);
 		 /* 0xb7ff5efe z80bios 0x5ce42fc8 */
-		 ROM_LOAD ("finnish2.bin", 0x10c000, 0x4000, 0x9526fac4)
+		 ROM_LOAD ("finnish2.bin", 0x10c000, 0x4000, 0x9526fac4);
 		/* 0x8df58148 z80bios 0x7b0d2140 */
-		 ROM_LOAD ("italian.bin", 0x10c000, 0x4000, 0x74d6b084)
+		 ROM_LOAD ("italian.bin", 0x10c000, 0x4000, 0x74d6b084);
 		 /* 0x84c55911 z80bios 0x3ba48012 */
-		 ROM_LOAD ("norwegian.bin", 0x10c000, 0x4000, 0xa5406848)
+		 ROM_LOAD ("norwegian.bin", 0x10c000, 0x4000, 0xa5406848);
 	
 		 /* c64 basic, c64 kernel, editor, z80 bios, c128kernel */
 		/* 252913-01+318020-05 */
-		 ROM_LOAD ("complete.318023-02.bin", 0x100000, 0x8000, 0xeedc120a)
+		 ROM_LOAD ("complete.318023-02.bin", 0x100000, 0x8000, 0xeedc120a);
 		/* 252913-01+0x98f2a2ed maybe 318020-04*/
-		 ROM_LOAD ("complete.252343-04.bin", 0x108000, 0x8000, 0xcc6bdb69)
+		 ROM_LOAD ("complete.252343-04.bin", 0x108000, 0x8000, 0xcc6bdb69);
 		/* 251913-01+0xbff7550b */
-		 ROM_LOAD ("complete.german.318077-01.bin", 0x108000, 0x8000, 0xeb6e2c8f)
+		 ROM_LOAD ("complete.german.318077-01.bin", 0x108000, 0x8000, 0xeb6e2c8f);
 	     /* chip label says Ker.Sw/Fi  */
 		/* 901226.01+ 0xf10c2c25 +0x1cf7f729 */
-		 ROM_LOAD ("complete.swedish.318034-01.bin", 0x108000, 0x8000, 0xcb4e1719)
+		 ROM_LOAD ("complete.swedish.318034-01.bin", 0x108000, 0x8000, 0xcb4e1719);
 	
-		 ROM_LOAD ("characters.390059-01.bin", 0x120000, 0x2000, 0x6aaaafe6)
-		 ROM_LOAD ("characters.german.315079-01.bin", 0x120000, 0x2000, 0xfe5a2db1)
+		 ROM_LOAD ("characters.390059-01.bin", 0x120000, 0x2000, 0x6aaaafe6);
+		 ROM_LOAD ("characters.german.315079-01.bin", 0x120000, 0x2000, 0xfe5a2db1);
 		 /* chip label says I/F/B (belgium, italian, french)  characters */
 	     /* italian and french verified to be the same*/
-		 ROM_LOAD ("characters.french.325167-01.bin", 0x120000, 0x2000, 0xbad36b88)
+		 ROM_LOAD ("characters.french.325167-01.bin", 0x120000, 0x2000, 0xbad36b88);
 	
 		 /* only parts of system roms, so not found in any c128 variant */
-		 ROM_LOAD ("editor.finnish1.bin", 0x10c000, 0x1000, 0x71002a97)
-		 ROM_LOAD ("editor.finnish2.bin", 0x10c000, 0x1000, 0xb7ff5efe)
-		 ROM_LOAD ("editor.french.bin", 0x10c000, 0x1000, 0x3e086a24)
-		 ROM_LOAD ("editor.italian.bin", 0x10c000, 0x1000, 0x8df58148)
-		 ROM_LOAD ("editor.norwegian.bin", 0x10c000, 0x1000, 0x84c55911)
+		 ROM_LOAD ("editor.finnish1.bin", 0x10c000, 0x1000, 0x71002a97);
+		 ROM_LOAD ("editor.finnish2.bin", 0x10c000, 0x1000, 0xb7ff5efe);
+		 ROM_LOAD ("editor.french.bin", 0x10c000, 0x1000, 0x3e086a24);
+		 ROM_LOAD ("editor.italian.bin", 0x10c000, 0x1000, 0x8df58148);
+		 ROM_LOAD ("editor.norwegian.bin", 0x10c000, 0x1000, 0x84c55911);
 	
-		 ROM_LOAD ("kernalpart.finnish1.bin", 0x10e000, 0x2000, 0x167b8364)
-		 ROM_LOAD ("kernalpart.finnish2.bin", 0x10e000, 0x2000, 0x5ce42fc8)
-		 ROM_LOAD ("kernalpart.french.bin", 0x10e000, 0x2000, 0xca5e1179)
-		 ROM_LOAD ("kernalpart.italian.bin", 0x10e000, 0x2000, 0x7b0d2140)
-		 ROM_LOAD ("kernalpart.norwegian.bin", 0x10e000, 0x2000, 0x3ba48012)
+		 ROM_LOAD ("kernalpart.finnish1.bin", 0x10e000, 0x2000, 0x167b8364);
+		 ROM_LOAD ("kernalpart.finnish2.bin", 0x10e000, 0x2000, 0x5ce42fc8);
+		 ROM_LOAD ("kernalpart.french.bin", 0x10e000, 0x2000, 0xca5e1179);
+		 ROM_LOAD ("kernalpart.italian.bin", 0x10e000, 0x2000, 0x7b0d2140);
+		 ROM_LOAD ("kernalpart.norwegian.bin", 0x10e000, 0x2000, 0x3ba48012);
 	
-		 ROM_LOAD ("z80bios.bin", 0x10d000, 0x1000, 0xc38d83c6)
+		 ROM_LOAD ("z80bios.bin", 0x10d000, 0x1000, 0xc38d83c6);
 	
 		 /* function rom in internal socket */
-		 ROM_LOAD("super_chip.bin", 0x110000, 0x8000, 0xa66f73c5)
+		 ROM_LOAD("super_chip.bin", 0x110000, 0x8000, 0xa66f73c5);
 	#endif
 	
 	ROM_START (c128)
-		ROM_REGION (0x132800, REGION_CPU1)
-		ROM_LOAD ("318018.04", 0x100000, 0x4000, 0x9f9c355b)
-		ROM_LOAD ("318019.04", 0x104000, 0x4000, 0x6e2c91a7)
-		ROM_LOAD ("251913.01", 0x108000, 0x4000, 0x0010ec31)
-		ROM_LOAD ("318020.05", 0x10c000, 0x4000, 0xba456b8e)
-		ROM_LOAD ("390059.01", 0x120000, 0x2000, 0x6aaaafe6)
-		ROM_REGION (0x10000, REGION_CPU2)
-	ROM_END
+		ROM_REGION (0x132800, REGION_CPU1);
+		ROM_LOAD ("318018.04", 0x100000, 0x4000, 0x9f9c355b);
+		ROM_LOAD ("318019.04", 0x104000, 0x4000, 0x6e2c91a7);
+		ROM_LOAD ("251913.01", 0x108000, 0x4000, 0x0010ec31);
+		ROM_LOAD ("318020.05", 0x10c000, 0x4000, 0xba456b8e);
+		ROM_LOAD ("390059.01", 0x120000, 0x2000, 0x6aaaafe6);
+		ROM_REGION (0x10000, REGION_CPU2);
+	ROM_END(); }}; 
 	
 	ROM_START (c128d)
-		ROM_REGION (0x132800, REGION_CPU1)
-		ROM_LOAD ("318022.02", 0x100000, 0x8000, 0xaf1ae1e8)
-		ROM_LOAD ("318023.02", 0x100000, 0x8000, 0xeedc120a)
-		ROM_LOAD ("390059.01", 0x120000, 0x2000, 0x6aaaafe6)
-		ROM_REGION (0x10000, REGION_CPU2)
+		ROM_REGION (0x132800, REGION_CPU1);
+		ROM_LOAD ("318022.02", 0x100000, 0x8000, 0xaf1ae1e8);
+		ROM_LOAD ("318023.02", 0x100000, 0x8000, 0xeedc120a);
+		ROM_LOAD ("390059.01", 0x120000, 0x2000, 0x6aaaafe6);
+		ROM_REGION (0x10000, REGION_CPU2);
 		C1571_ROM(REGION_CPU3)
-	ROM_END
+	ROM_END(); }}; 
 	
 	ROM_START (c128ger)
 		 /* c128d german */
-		ROM_REGION (0x132800, REGION_CPU1)
-		ROM_LOAD ("318022.02", 0x100000, 0x8000, 0xaf1ae1e8)
-		ROM_LOAD ("318077.01", 0x108000, 0x8000, 0xeb6e2c8f)
-		ROM_LOAD ("315079.01", 0x120000, 0x2000, 0xfe5a2db1)
-		ROM_REGION (0x10000, REGION_CPU2)
-	ROM_END
+		ROM_REGION (0x132800, REGION_CPU1);
+		ROM_LOAD ("318022.02", 0x100000, 0x8000, 0xaf1ae1e8);
+		ROM_LOAD ("318077.01", 0x108000, 0x8000, 0xeb6e2c8f);
+		ROM_LOAD ("315079.01", 0x120000, 0x2000, 0xfe5a2db1);
+		ROM_REGION (0x10000, REGION_CPU2);
+	ROM_END(); }}; 
 	
 	ROM_START (c128fra)
-		ROM_REGION (0x132800, REGION_CPU1)
-		ROM_LOAD ("318018.04", 0x100000, 0x4000, 0x9f9c355b)
-		ROM_LOAD ("318019.04", 0x104000, 0x4000, 0x6e2c91a7)
-		ROM_LOAD ("251913.01", 0x108000, 0x4000, 0x0010ec31)
+		ROM_REGION (0x132800, REGION_CPU1);
+		ROM_LOAD ("318018.04", 0x100000, 0x4000, 0x9f9c355b);
+		ROM_LOAD ("318019.04", 0x104000, 0x4000, 0x6e2c91a7);
+		ROM_LOAD ("251913.01", 0x108000, 0x4000, 0x0010ec31);
 	#if 1
-		ROM_LOAD ("french.bin", 0x10c000, 0x4000, 0x2df282b8)
+		ROM_LOAD ("french.bin", 0x10c000, 0x4000, 0x2df282b8);
 	#else
-		ROM_LOAD ("editor.french.bin", 0x10c000, 0x1000, 0x3e086a24)
-		ROM_LOAD ("z80bios.bin", 0x10d000, 0x1000, 0xc38d83c6)
-		ROM_LOAD ("kernalpart.french.bin", 0x10e000, 0x2000, 0xca5e1179)
+		ROM_LOAD ("editor.french.bin", 0x10c000, 0x1000, 0x3e086a24);
+		ROM_LOAD ("z80bios.bin", 0x10d000, 0x1000, 0xc38d83c6);
+		ROM_LOAD ("kernalpart.french.bin", 0x10e000, 0x2000, 0xca5e1179);
 	#endif
-		ROM_LOAD ("325167.01", 0x120000, 0x2000, 0xbad36b88)
-		ROM_REGION (0x10000, REGION_CPU2)
-	ROM_END
+		ROM_LOAD ("325167.01", 0x120000, 0x2000, 0xbad36b88);
+		ROM_REGION (0x10000, REGION_CPU2);
+	ROM_END(); }}; 
 	
 	ROM_START (c128ita)
-		ROM_REGION (0x132800, REGION_CPU1)
+		ROM_REGION (0x132800, REGION_CPU1);
 		/* original 318022-01 */
-		ROM_LOAD ("318018.04", 0x100000, 0x4000, 0x9f9c355b)
-		ROM_LOAD ("318019.04", 0x104000, 0x4000, 0x6e2c91a7)
-		ROM_LOAD ("251913.01", 0x108000, 0x4000, 0x0010ec31)
-		ROM_LOAD ("italian.bin", 0x10c000, 0x4000, 0x74d6b084)
-		ROM_LOAD ("325167.01", 0x120000, 0x2000, 0xbad36b88)
-		ROM_REGION (0x10000, REGION_CPU2)
-	ROM_END
+		ROM_LOAD ("318018.04", 0x100000, 0x4000, 0x9f9c355b);
+		ROM_LOAD ("318019.04", 0x104000, 0x4000, 0x6e2c91a7);
+		ROM_LOAD ("251913.01", 0x108000, 0x4000, 0x0010ec31);
+		ROM_LOAD ("italian.bin", 0x10c000, 0x4000, 0x74d6b084);
+		ROM_LOAD ("325167.01", 0x120000, 0x2000, 0xbad36b88);
+		ROM_REGION (0x10000, REGION_CPU2);
+	ROM_END(); }}; 
 	
 	ROM_START (c128swe)
-		ROM_REGION (0x132800, REGION_CPU1)
-		ROM_LOAD ("318022.02", 0x100000, 0x8000, 0xaf1ae1e8)
-		ROM_LOAD ("318034.01", 0x108000, 0x8000, 0xcb4e1719)
+		ROM_REGION (0x132800, REGION_CPU1);
+		ROM_LOAD ("318022.02", 0x100000, 0x8000, 0xaf1ae1e8);
+		ROM_LOAD ("318034.01", 0x108000, 0x8000, 0xcb4e1719);
 		/* vic64s doubled */
-		ROM_LOAD ("char.swe", 0x120000, 0x2000, 0x22d4d095)
-		ROM_REGION (0x10000, REGION_CPU2)
-	ROM_END
+		ROM_LOAD ("char.swe", 0x120000, 0x2000, 0x22d4d095);
+		ROM_REGION (0x10000, REGION_CPU2);
+	ROM_END(); }}; 
 	
 	ROM_START (c128nor)
-		ROM_REGION (0x132800, REGION_CPU1)
-		ROM_LOAD ("318018.04", 0x100000, 0x4000, 0x9f9c355b)
-		ROM_LOAD ("318019.04", 0x104000, 0x4000, 0x6e2c91a7)
-		ROM_LOAD ("251913.01", 0x108000, 0x4000, 0x0010ec31)
-		ROM_LOAD ("nor.bin", 0x10c000, 0x4000, 0xa5406848)
+		ROM_REGION (0x132800, REGION_CPU1);
+		ROM_LOAD ("318018.04", 0x100000, 0x4000, 0x9f9c355b);
+		ROM_LOAD ("318019.04", 0x104000, 0x4000, 0x6e2c91a7);
+		ROM_LOAD ("251913.01", 0x108000, 0x4000, 0x0010ec31);
+		ROM_LOAD ("nor.bin", 0x10c000, 0x4000, 0xa5406848);
 		/* standard c64, vic20 based norwegian */
-		ROM_LOAD ("char.nor", 0x120000, 0x2000, 0xba95c625)
-		ROM_REGION (0x10000, REGION_CPU2)
-	ROM_END
+		ROM_LOAD ("char.nor", 0x120000, 0x2000, 0xba95c625);
+		ROM_REGION (0x10000, REGION_CPU2);
+	ROM_END(); }}; 
 	
-	static struct MachineDriver machine_driver_c128 =
-	{
+	static MachineDriver machine_driver_c128 = new MachineDriver
+	(
 	  /* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_Z80 | CPU_16BIT_PORT,
 				VIC6567_CLOCK,
 				c128_z80_readmem, c128_z80_writemem,
 				c128_z80_readio, c128_z80_writeio,
 				c64_frame_interrupt, 1,
 				c128_raster_irq, VIC2_HRETRACERATE,
-			},
-			{
+			),
+			new MachineCPU(
 				CPU_M8502,
 				VIC6567_CLOCK,
 				c128_readmem, c128_writemem,
-				0, 0,
+				null, null,
 				c64_frame_interrupt, 1,
 				c128_raster_irq, VIC2_HRETRACERATE,
-			},
+			),
 		},
 		VIC6567_VRETRACERATE, DEFAULT_REAL_60HZ_VBLANK_DURATION,	/* frames per second, vblank duration */
-		0,
+		null,
 		c128_init_machine,
 		c128_shutdown_machine,
 	
 		/* video hardware */
 		656,							   /* screen width */
 		216,							   /* screen height */
-		{0, 656 - 1, 0, 216 - 1},		   /* visible_area */
-		0,								   /* graphics decode info */
+		new rectangle(0, 656 - 1, 0, 216 - 1),		   /* visible_area */
+		null,								   /* graphics decode info */
 		(sizeof (vic2_palette) +sizeof(vdc8563_palette))
-		 / sizeof (vic2_palette[0]) / 3,
-		0,
+		 / sizeof (vic2_palette[null]) / 3,
+		null,
 		c128_init_palette,				   /* convert color prom */
 		VIDEO_TYPE_RASTER,
-		0,
+		null,
 		c128_vh_start,
 		c128_vh_stop,
 		c128_vh_screenrefresh,
 	
 		/* sound hardware */
 		0, 0, 0, 0,
-		{
-			{ SOUND_CUSTOM, &sid6581_sound_interface },
-			{SOUND_DAC, &vc20tape_sound_interface}
+		new MachineSound[] {
+			new MachineSound( SOUND_CUSTOM, sid6581_sound_interface ),
+			new MachineSound(SOUND_DAC, vc20tape_sound_interface)
 		}
-	};
+	);
 	
-	static struct MachineDriver machine_driver_c128d =
-	{
+	static MachineDriver machine_driver_c128d = new MachineDriver
+	(
 	  /* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_Z80 | CPU_16BIT_PORT,
 				VIC6567_CLOCK,
 				c128_z80_readmem, c128_z80_writemem,
 				c128_z80_readio, c128_z80_writeio,
 				c64_frame_interrupt, 1,
 				c128_raster_irq, VIC2_HRETRACERATE,
-			},
-			{
+			),
+			new MachineCPU(
 				CPU_M8502,
 				VIC6567_CLOCK,
 				c128_readmem, c128_writemem,
-				0, 0,
+				null, null,
 				c64_frame_interrupt, 1,
 				c128_raster_irq, VIC2_HRETRACERATE,
-			},
+			),
 			C1571_CPU
 		},
 		VIC6567_VRETRACERATE, DEFAULT_REAL_60HZ_VBLANK_DURATION,	/* frames per second, vblank duration */
-		0,
+		null,
 		c128_init_machine,
 		c128_shutdown_machine,
 	
 		/* video hardware */
 		656,							   /* screen width */
 		216,							   /* screen height */
-		{0, 656 - 1, 0, 216 - 1},		   /* visible_area */
-		0,								   /* graphics decode info */
+		new rectangle(0, 656 - 1, 0, 216 - 1),		   /* visible_area */
+		null,								   /* graphics decode info */
 		(sizeof (vic2_palette) +sizeof(vdc8563_palette))
-		 / sizeof (vic2_palette[0]) / 3,
-		0,
+		 / sizeof (vic2_palette[null]) / 3,
+		null,
 		c128_init_palette,				   /* convert color prom */
 		VIDEO_TYPE_RASTER,
-		0,
+		null,
 		c128_vh_start,
 		c128_vh_stop,
 		c128_vh_screenrefresh,
 	
 		/* sound hardware */
 		0, 0, 0, 0,
-		{
-			{ SOUND_CUSTOM, &sid6581_sound_interface },
-			{SOUND_DAC, &vc20tape_sound_interface}
+		new MachineSound[] {
+			new MachineSound( SOUND_CUSTOM, sid6581_sound_interface ),
+			new MachineSound(SOUND_DAC, vc20tape_sound_interface)
 		}
-	};
+	);
 	
-	static struct MachineDriver machine_driver_c128pal =
-	{
+	static MachineDriver machine_driver_c128pal = new MachineDriver
+	(
 	  /* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_Z80 | CPU_16BIT_PORT,
 				VIC6569_CLOCK,
 				c128_z80_readmem, c128_z80_writemem,
 				c128_z80_readio, c128_z80_writeio,
 				c64_frame_interrupt, 1,
 				c128_raster_irq, VIC2_HRETRACERATE,
-			},
-			{
+			),
+			new MachineCPU(
 				CPU_M8502,
 				VIC6569_CLOCK,
 				c128_readmem, c128_writemem,
-				0, 0,
+				null, null,
 				c64_frame_interrupt, 1,
 				c128_raster_irq, VIC2_HRETRACERATE,
-			},
+			),
 		},
 		VIC6569_VRETRACERATE,
 		DEFAULT_REAL_60HZ_VBLANK_DURATION, /* frames per second, vblank duration */
-		0,
+		null,
 		c128_init_machine,
 		c128_shutdown_machine,
 	
 		/* video hardware */
 		656,							   /* screen width */
 		216,							   /* screen height */
-		{0, 656 - 1, 0, 216 - 1},		   /* visible_area */
-		0,								   /* graphics decode info */
+		new rectangle(0, 656 - 1, 0, 216 - 1),		   /* visible_area */
+		null,								   /* graphics decode info */
 		(sizeof (vic2_palette) +sizeof(vdc8563_palette))
-		 / sizeof (vic2_palette[0]) / 3,
-		0,
+		 / sizeof (vic2_palette[null]) / 3,
+		null,
 		c128_init_palette,				   /* convert color prom */
 		VIDEO_TYPE_RASTER,
-		0,
+		null,
 		c128_vh_start,
 		c128_vh_stop,
 		c128_vh_screenrefresh,
 	
 		/* sound hardware */
 		0, 0, 0, 0,
-		{
-			{ SOUND_CUSTOM, &sid6581_sound_interface },
-			{SOUND_DAC, &vc20tape_sound_interface}
+		new MachineSound[] {
+			new MachineSound( SOUND_CUSTOM, sid6581_sound_interface ),
+			new MachineSound(SOUND_DAC, vc20tape_sound_interface)
 		}
-	};
+	);
 	
 	static const struct IODevice io_c128[] =
 	{

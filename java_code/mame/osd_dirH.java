@@ -7,7 +7,6 @@
 /* changed a file. */
 int osd_select_file (int sel, char *filename);
 
-int osd_num_devices(void);
 const char *osd_get_device_name(int i);
 void osd_change_device(const char *vol);
 void *osd_dir_open(const char *mdirname, const char *filemask);

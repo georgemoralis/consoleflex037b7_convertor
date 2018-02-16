@@ -14,10 +14,8 @@ package vidhrdw;
 public class nickH
 {
 	
-	extern int	Nick_vh_start(void);
-	extern void 	Nick_DoScreen(struct osd_bitmap *bm);
-	extern void	Nick_vh_stop(void);
-	
+	extern extern void 	Nick_DoScreen(struct osd_bitmap *bm);
+	extern 
 	extern int Nick_reg_r(int);
 	extern void Nick_reg_w(int, int);
 	

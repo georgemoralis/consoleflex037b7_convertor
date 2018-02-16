@@ -28,7 +28,7 @@ public class dsk
 	
 	typedef struct
 	{
-		unsigned char *data; /* the whole image data */
+		UBytePtr data; /* the whole image data */
 		unsigned long track_offsets[dsk_MAX_TRACKS*dsk_MAX_SIDES]; /* offset within data for each track */
 		unsigned long sector_offsets[dsk_SECTORS_PER_TRACK]; /* offset within current track for sector data */
 		int current_track;		/* current track */
@@ -50,16 +50,16 @@ public class dsk
 	static dsk_drive drives[dsk_NUM_DRIVES]; /* the drives */
 	
 	/* load image */
-	int dsk_load(int type, int id, unsigned char **ptr)
+	int dsk_load(int type, int id, UBytePtr *ptr)
 	{
 		void *file;
 	
 		file = image_fopen(type, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
 	
-		if (file)
+		if (file != 0)
 		{
 			int datasize;
-			unsigned char *data;
+			UBytePtr data;
 	
 			/* get file size */
 			datasize = osd_fsize(file);
@@ -97,9 +97,9 @@ public class dsk
 		dsk_drive *thedrive = &drives[id];
 	
 		/* load disk image */
-		if (dsk_load(IO_FLOPPY,id,&thedrive->data))
+		if (dsk_load(IO_FLOPPY,id,&thedrive.data))
 		{
-			if (thedrive->data)
+			if (thedrive.data)
 			{
 				dsk_disk_image_init(thedrive); /* initialise dsk */
 				floppy_drive_set_flag_state(id, FLOPPY_DRIVE_DISK_PRESENT, 1);
@@ -111,16 +111,16 @@ public class dsk
 		return INIT_FAILED;
 	}
 	
-	int dsk_save(int type, int id, unsigned char **ptr)
+	int dsk_save(int type, int id, UBytePtr *ptr)
 	{
 		void *file;
 	
 		file = image_fopen(type, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_RW);
 	
-		if (file)
+		if (file != 0)
 		{
 			int datasize;
-			unsigned char *data;
+			UBytePtr data;
 	
 			/* get file size */
 			datasize = osd_fsize(file);
@@ -150,7 +150,7 @@ public class dsk
 	int dsk_floppy_id(int id)
 	{
 		int valid;
-		unsigned char *diskimage_data;
+		UBytePtr diskimage_data;
 	
 		valid = 0;
 	
@@ -158,7 +158,7 @@ public class dsk
 		if (dsk_load(IO_FLOPPY, id, &diskimage_data))
 		{
 			/* disk image loaded */
-			if (diskimage_data)
+			if (diskimage_data != 0)
 			{
 				if (
 					/* standard disk image? */
@@ -183,13 +183,13 @@ public class dsk
 	{
 		dsk_drive *thedrive = &drives[id];
 	
-		if (thedrive->data!=NULL)
+		if (thedrive.data!=NULL)
 		{
-			dsk_save(IO_FLOPPY,id,&thedrive->data);
-			free(thedrive->data);
+			dsk_save(IO_FLOPPY,id,&thedrive.data);
+			free(thedrive.data);
 		}
 		floppy_drive_set_flag_state(id, FLOPPY_DRIVE_DISK_PRESENT, 0);
-		thedrive->data = NULL;
+		thedrive.data = NULL;
 	}
 	
 	
@@ -201,7 +201,7 @@ public class dsk
 		int track_size;
 		int tracks, sides;
 		int skip, length,offs;
-		unsigned char *file_loaded = thedrive->data;
+		UBytePtr file_loaded = thedrive.data;
 	
 	
 		/* get size of each track from main header. Size of each
@@ -231,7 +231,7 @@ public class dsk
 		offs = 0;
 		for (i=0; i<length; i++)
 		{
-			thedrive->track_offsets[offs] = track_offset;
+			thedrive.track_offsets[offs] = track_offset;
 			track_offset+=track_size;
 			offs+=skip;
 		}
@@ -245,7 +245,7 @@ public class dsk
 		side = side & 0x01;
 	
 		/* get offset to track header in image */
-		track_offset = thedrive->track_offsets[(track<<1) + side];
+		track_offset = thedrive.track_offsets[(track<<1) + side];
 	
 		if (track_offset!=0)
 		{
@@ -254,9 +254,9 @@ public class dsk
 			int sector_size;
 			int i;
 	
-			unsigned char *track_header;
+			UBytePtr track_header;
 	
-			track_header= &thedrive->data[track_offset];
+			track_header= &thedrive.data[track_offset];
 	
 			/* sectors per track as specified in nec765 format command */
 			/* sectors on this track */
@@ -269,7 +269,7 @@ public class dsk
 	
 			for (i=0; i<spt; i++)
 			{
-				thedrive->sector_offsets[i] = sector_offset;
+				thedrive.sector_offsets[i] = sector_offset;
 				sector_offset+=sector_size;
 			}
 		}
@@ -282,7 +282,7 @@ public class dsk
 		int track_size;
 		int tracks, sides;
 		int offs, skip, length;
-		unsigned char *file_loaded = thedrive->data;
+		UBytePtr file_loaded = thedrive.data;
 	
 		sides = file_loaded[0x031];
 		tracks = file_loaded[0x030];
@@ -316,7 +316,7 @@ public class dsk
 				/* formatted track */
 				track_size = track_size_high_byte<<8;
 	
-				thedrive->track_offsets[offs] = track_offset;
+				thedrive.track_offsets[offs] = track_offset;
 				track_offset+=track_size;
 			}
 	
@@ -332,7 +332,7 @@ public class dsk
 		side = side & 0x01;
 	
 		/* get offset to track header in image */
-		track_offset = thedrive->track_offsets[(track<<1) + side];
+		track_offset = thedrive.track_offsets[(track<<1) + side];
 	
 		if (track_offset!=0)
 		{
@@ -340,10 +340,10 @@ public class dsk
 			int sector_offset;
 			int sector_size;
 			int i;
-			unsigned char *id_info;
-			unsigned char *track_header;
+			UBytePtr id_info;
+			UBytePtr track_header;
 	
-			track_header= &thedrive->data[track_offset];
+			track_header= &thedrive.data[track_offset];
 	
 			/* sectors per track as specified in nec765 format command */
 			/* sectors on this track */
@@ -358,7 +358,7 @@ public class dsk
 			{
 	                        sector_size = id_info[(i<<3) + 6] + (id_info[(i<<3) + 7]<<8);
 	
-				thedrive->sector_offsets[i] = sector_offset;
+				thedrive.sector_offsets[i] = sector_offset;
 				sector_offset+=sector_size;
 			}
 		}
@@ -371,21 +371,21 @@ public class dsk
 		/*-----------------27/02/00 11:26-------------------
 		 clear offsets
 		--------------------------------------------------*/
-		memset(&thedrive->track_offsets[0], 0, dsk_MAX_TRACKS*dsk_MAX_SIDES*sizeof(unsigned long));
-		memset(&thedrive->sector_offsets[0], 0, 20*sizeof(unsigned long));
+		memset(&thedrive.track_offsets[0], 0, dsk_MAX_TRACKS*dsk_MAX_SIDES*sizeof(unsigned long));
+		memset(&thedrive.sector_offsets[0], 0, 20*sizeof(unsigned long));
 	
-		if (memcmp(thedrive->data,"MV - CPC",8)==0)
+		if (memcmp(thedrive.data,"MV - CPC",8)==0)
 		{
-			thedrive->disk_image_type = 0;
+			thedrive.disk_image_type = 0;
 	
 			/* standard disk image */
 			dsk_dsk_init_track_offsets(thedrive);
 	
 		}
 		else
-		if (memcmp(thedrive->data,"EXTENDED",8)==0)
+		if (memcmp(thedrive.data,"EXTENDED",8)==0)
 		{
-			thedrive->disk_image_type = 1;
+			thedrive.disk_image_type = 1;
 	
 			/* extended disk image */
 			dsk_extended_dsk_init_track_offsets(thedrive);
@@ -408,10 +408,10 @@ public class dsk
 	
 		thedrive = &drives[drive];
 	
-		return thedrive->track_offsets[(thedrive->current_track<<1) + side];
+		return thedrive.track_offsets[(thedrive.current_track<<1) + side];
 	}
 	
-	static unsigned char *get_floppy_data(int drive)
+	static UBytePtr get_floppy_data(int drive)
 	{
 		drive = drive & 0x03;
 		return drives[drive].data;
@@ -421,8 +421,8 @@ public class dsk
 	{
 		int id_offset;
 		int track_offset;
-		unsigned char *track_header;
-		unsigned char *data;
+		UBytePtr track_header;
+		UBytePtr data;
 	
 		drive = drive & 0x03;
 		side = side & 0x01;
@@ -444,20 +444,20 @@ public class dsk
 	
 		id_offset = 0x018 + (id_index<<3);
 	
-		id->C = track_header[id_offset + 0];
-		id->H = track_header[id_offset + 1];
-		id->R = track_header[id_offset + 2];
-		id->N = track_header[id_offset + 3];
-		id->flags = 0;
+		id.C = track_header[id_offset + 0];
+		id.H = track_header[id_offset + 1];
+		id.R = track_header[id_offset + 2];
+		id.N = track_header[id_offset + 3];
+		id.flags = 0;
 	
 		if (track_header[id_offset + 5] & 0x040)
 		{
-			id->flags |= ID_FLAG_DELETED_DATA;
+			id.flags |= ID_FLAG_DELETED_DATA;
 		}
 	
 	
-	//	id->ST0 = track_header[id_offset + 4];
-	//	id->ST1 = track_header[id_offset + 5];
+	//	id.ST0 = track_header[id_offset + 4];
+	//	id.ST1 = track_header[id_offset + 5];
 	
 	}
 	
@@ -468,14 +468,14 @@ public class dsk
 		int sector_offset;
 		int track;
 		dsk_drive *thedrive;
-		unsigned char *data;
+		UBytePtr data;
 	
 		drive = drive & 0x03;
 		side = side & 0x01;
 	
 		thedrive = &drives[drive];
 	
-		track = thedrive->current_track;
+		track = thedrive.current_track;
 	
 		/* offset to track header in image */
 		track_offset = get_track_offset(drive, side);
@@ -486,7 +486,7 @@ public class dsk
 	
 	
 		/* setup sector offsets */
-		switch (thedrive->disk_image_type)
+		switch (thedrive.disk_image_type)
 		{
 		case 0:
 			dsk_dsk_init_sector_offsets(thedrive,track, side);
@@ -501,7 +501,7 @@ public class dsk
 			break;
 		}
 	
-		sector_offset = thedrive->sector_offsets[sector_index];
+		sector_offset = thedrive.sector_offsets[sector_index];
 	
 		data = get_floppy_data(drive);
 	
@@ -538,8 +538,8 @@ public class dsk
 	int    dsk_get_sectors_per_track(int drive, int side)
 	{
 		int track_offset;
-		unsigned char *track_header;
-		unsigned char *data;
+		UBytePtr track_header;
+		UBytePtr data;
 	
 		drive = drive & 0x03;
 		side = side & 0x01;

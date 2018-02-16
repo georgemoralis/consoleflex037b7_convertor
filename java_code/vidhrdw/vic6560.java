@@ -32,12 +32,12 @@ public class vic6560
 		0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0x00, 0xa0, 0xff, 0xff, 0xff, 0x00
 	};
 	
-	struct CustomSound_interface vic6560_sound_interface =
-	{
+	static CustomSound_interface vic6560_sound_interface = new CustomSound_interface
+	(
 		vic6560_custom_start,
 		vic6560_custom_stop,
 		vic6560_custom_update
-	};
+	);
 	
 	UINT8 vic6560[16];
 	
@@ -108,16 +108,16 @@ public class vic6560
 	/* transparent, white, black */
 	static unsigned short pointercolortable[3] =
 	{0};
-	static struct GfxLayout pointerlayout =
-	{
+	static GfxLayout pointerlayout = new GfxLayout
+	(
 		8, 8,
 		1,
 		2,
-		{0, 64},
-		{0, 1, 2, 3, 4, 5, 6, 7},
-		{0 * 8, 1 * 8, 2 * 8, 3 * 8, 4 * 8, 5 * 8, 6 * 8, 7 * 8},
+		new int[] {0, 64},
+		new int[] {0, 1, 2, 3, 4, 5, 6, 7},
+		new int[] {0 * 8, 1 * 8, 2 * 8, 3 * 8, 4 * 8, 5 * 8, 6 * 8, 7 * 8},
 		8 * 8
-	};
+	);
 	
 	static UINT8 pointermask[] =
 	{
@@ -150,23 +150,23 @@ public class vic6560
 		vic_dma_read_color = dma_read_color;
 		vic656x_init ();
 	}
-	int vic6560_vh_start (void)
+	public static VhStartPtr vic6560_vh_start = new VhStartPtr() { public int handler() 
 	{
-		black = Machine->pens[0];
-		white = Machine->pens[1];
+		black = Machine.pens[0];
+		white = Machine.pens[1];
 		pointerelement = decodegfx (pointermask, &pointerlayout);
-		pointerelement->colortable = pointercolortable;
-		pointercolortable[1] = Machine->pens[1];
-		pointercolortable[2] = Machine->pens[0];
-		pointerelement->total_colors = 3;
-		vic6560_bitmap = Machine->scrbitmap;
+		pointerelement.colortable = pointercolortable;
+		pointercolortable[1] = Machine.pens[1];
+		pointercolortable[2] = Machine.pens[0];
+		pointerelement.total_colors = 3;
+		vic6560_bitmap = Machine.scrbitmap;
 		return 0;
-	}
+	} };
 	
-	void vic6560_vh_stop (void)
+	public static VhStopPtr vic6560_vh_stop = new VhStopPtr() { public void handler() 
 	{
 		freegfx (pointerelement);
-	}
+	} };
 	
 	WRITE_HANDLER ( vic6560_port_w )
 	{
@@ -222,13 +222,13 @@ public class vic6560
 				videoaddr = VIDEOADDR;
 				break;
 			case 0xe:
-				multi[3] = multiinverted[3] = helpercolor = Machine->pens[HELPERCOLOR];
+				multi[3] = multiinverted[3] = helpercolor = Machine.pens[HELPERCOLOR];
 				break;
 			case 0xf:
 				inverted = INVERTED;
-				multi[1] = multiinverted[1] = framecolor = Machine->pens[FRAMECOLOR];
+				multi[1] = multiinverted[1] = framecolor = Machine.pens[FRAMECOLOR];
 				mono[0] = monoinverted[1] =
-					multi[0] = multiinverted[2] = backgroundcolor = Machine->pens[BACKGROUNDCOLOR];
+					multi[0] = multiinverted[2] = backgroundcolor = Machine.pens[BACKGROUNDCOLOR];
 				break;
 			}
 		}
@@ -255,7 +255,7 @@ public class vic6560
 			{
 				/* only 1 update each frame */
 				/* and diode must recognize light */
-				if (1)
+				if (1 != 0)
 				{
 					vic6560[6] = VIC6560_X_VALUE;
 					vic6560[7] = VIC6560_Y_VALUE;
@@ -280,22 +280,22 @@ public class vic6560
 	
 	static int DOCLIP (struct rectangle *r1, const struct rectangle *r2)
 	{
-		if (r1->min_x > r2->max_x)
+		if (r1.min_x > r2.max_x)
 			return 0;
-		if (r1->max_x < r2->min_x)
+		if (r1.max_x < r2.min_x)
 			return 0;
-		if (r1->min_y > r2->max_y)
+		if (r1.min_y > r2.max_y)
 			return 0;
-		if (r1->max_y < r2->min_y)
+		if (r1.max_y < r2.min_y)
 			return 0;
-		if (r1->min_x < r2->min_x)
-			r1->min_x = r2->min_x;
-		if (r1->max_x > r2->max_x)
-			r1->max_x = r2->max_x;
-		if (r1->min_y < r2->min_y)
-			r1->min_y = r2->min_y;
-		if (r1->max_y > r2->max_y)
-			r1->max_y = r2->max_y;
+		if (r1.min_x < r2.min_x)
+			r1.min_x = r2.min_x;
+		if (r1.max_x > r2.max_x)
+			r1.max_x = r2.max_x;
+		if (r1.min_y < r2.min_y)
+			r1.min_y = r2.min_y;
+		if (r1.max_y > r2.max_y)
+			r1.max_y = r2.max_y;
 		return 1;
 	}
 	
@@ -305,19 +305,19 @@ public class vic6560
 	{
 		int y, code;
 	
-		if (Machine->color_depth == 8)
+		if (Machine.color_depth == 8)
 		{
 			for (y = ybegin; y <= yend; y++)
 			{
 				code = vic_dma_read ((chargenaddr + ch * charheight + y) & 0x3fff);
-				vic6560_bitmap->line[y + yoff][xoff] = color[code >> 7];
-				vic6560_bitmap->line[y + yoff][xoff + 1] = color[(code >> 6) & 1];
-				vic6560_bitmap->line[y + yoff][xoff + 2] = color[(code >> 5) & 1];
-				vic6560_bitmap->line[y + yoff][xoff + 3] = color[(code >> 4) & 1];
-				vic6560_bitmap->line[y + yoff][xoff + 4] = color[(code >> 3) & 1];
-				vic6560_bitmap->line[y + yoff][xoff + 5] = color[(code >> 2) & 1];
-				vic6560_bitmap->line[y + yoff][xoff + 6] = color[(code >> 1) & 1];
-				vic6560_bitmap->line[y + yoff][xoff + 7] = color[code & 1];
+				vic6560_bitmap.line[y + yoff][xoff] = color[code >> 7];
+				vic6560_bitmap.line[y + yoff][xoff + 1] = color[(code >> 6) & 1];
+				vic6560_bitmap.line[y + yoff][xoff + 2] = color[(code >> 5) & 1];
+				vic6560_bitmap.line[y + yoff][xoff + 3] = color[(code >> 4) & 1];
+				vic6560_bitmap.line[y + yoff][xoff + 4] = color[(code >> 3) & 1];
+				vic6560_bitmap.line[y + yoff][xoff + 5] = color[(code >> 2) & 1];
+				vic6560_bitmap.line[y + yoff][xoff + 6] = color[(code >> 1) & 1];
+				vic6560_bitmap.line[y + yoff][xoff + 7] = color[code & 1];
 			}
 		}
 		else
@@ -325,14 +325,14 @@ public class vic6560
 			for (y = ybegin; y <= yend; y++)
 			{
 				code = vic_dma_read ((chargenaddr + ch * charheight + y) & 0x3fff);
-				*((UINT16 *) vic6560_bitmap->line[y + yoff] + xoff) = color[code >> 7];
-				*((UINT16 *) vic6560_bitmap->line[y + yoff] + xoff + 1) = color[(code >> 6) & 1];
-				*((UINT16 *) vic6560_bitmap->line[y + yoff] + xoff + 2) = color[(code >> 5) & 1];
-				*((UINT16 *) vic6560_bitmap->line[y + yoff] + xoff + 3) = color[(code >> 4) & 1];
-				*((UINT16 *) vic6560_bitmap->line[y + yoff] + xoff + 4) = color[(code >> 3) & 1];
-				*((UINT16 *) vic6560_bitmap->line[y + yoff] + xoff + 5) = color[(code >> 2) & 1];
-				*((UINT16 *) vic6560_bitmap->line[y + yoff] + xoff + 6) = color[(code >> 1) & 1];
-				*((UINT16 *) vic6560_bitmap->line[y + yoff] + xoff + 7) = color[code & 1];
+				*((UINT16 *) vic6560_bitmap.line[y + yoff] + xoff) = color[code >> 7];
+				*((UINT16 *) vic6560_bitmap.line[y + yoff] + xoff + 1) = color[(code >> 6) & 1];
+				*((UINT16 *) vic6560_bitmap.line[y + yoff] + xoff + 2) = color[(code >> 5) & 1];
+				*((UINT16 *) vic6560_bitmap.line[y + yoff] + xoff + 3) = color[(code >> 4) & 1];
+				*((UINT16 *) vic6560_bitmap.line[y + yoff] + xoff + 4) = color[(code >> 3) & 1];
+				*((UINT16 *) vic6560_bitmap.line[y + yoff] + xoff + 5) = color[(code >> 2) & 1];
+				*((UINT16 *) vic6560_bitmap.line[y + yoff] + xoff + 6) = color[(code >> 1) & 1];
+				*((UINT16 *) vic6560_bitmap.line[y + yoff] + xoff + 7) = color[code & 1];
 			}
 		}
 	}
@@ -342,19 +342,19 @@ public class vic6560
 	{
 		int y, code;
 	
-		if (Machine->color_depth == 8)
+		if (Machine.color_depth == 8)
 		{
 			for (y = ybegin; y <= yend; y++)
 			{
 				code = vic_dma_read ((chargenaddr + ch * charheight + y) & 0x3fff);
-				vic6560_bitmap->line[y + yoff][xoff + 1] =
-					vic6560_bitmap->line[y + yoff][xoff] = color[code >> 6];
-				vic6560_bitmap->line[y + yoff][xoff + 3] =
-					vic6560_bitmap->line[y + yoff][xoff + 2] = color[(code >> 4) & 3];
-				vic6560_bitmap->line[y + yoff][xoff + 5] =
-					vic6560_bitmap->line[y + yoff][xoff + 4] = color[(code >> 2) & 3];
-				vic6560_bitmap->line[y + yoff][xoff + 7] =
-					vic6560_bitmap->line[y + yoff][xoff + 6] = color[code & 3];
+				vic6560_bitmap.line[y + yoff][xoff + 1] =
+					vic6560_bitmap.line[y + yoff][xoff] = color[code >> 6];
+				vic6560_bitmap.line[y + yoff][xoff + 3] =
+					vic6560_bitmap.line[y + yoff][xoff + 2] = color[(code >> 4) & 3];
+				vic6560_bitmap.line[y + yoff][xoff + 5] =
+					vic6560_bitmap.line[y + yoff][xoff + 4] = color[(code >> 2) & 3];
+				vic6560_bitmap.line[y + yoff][xoff + 7] =
+					vic6560_bitmap.line[y + yoff][xoff + 6] = color[code & 3];
 			}
 		}
 		else
@@ -362,14 +362,14 @@ public class vic6560
 			for (y = ybegin; y <= yend; y++)
 			{
 				code = vic_dma_read ((chargenaddr + ch * charheight + y) & 0x3fff);
-				*((UINT16 *) vic6560_bitmap->line[y + yoff] + xoff + 1) =
-					*((UINT16 *) vic6560_bitmap->line[y + yoff] + xoff) = color[code >> 6];
-				*((UINT16 *) vic6560_bitmap->line[y + yoff] + xoff + 3) =
-					*((UINT16 *) vic6560_bitmap->line[y + yoff] + xoff + 2) = color[(code >> 4) & 3];
-				*((UINT16 *) vic6560_bitmap->line[y + yoff] + xoff + 5) =
-					*((UINT16 *) vic6560_bitmap->line[y + yoff] + xoff + 4) = color[(code >> 2) & 3];
-				*((UINT16 *) vic6560_bitmap->line[y + yoff] + xoff + 7) =
-					*((UINT16 *) vic6560_bitmap->line[y + yoff] + xoff + 6) = color[code & 3];
+				*((UINT16 *) vic6560_bitmap.line[y + yoff] + xoff + 1) =
+					*((UINT16 *) vic6560_bitmap.line[y + yoff] + xoff) = color[code >> 6];
+				*((UINT16 *) vic6560_bitmap.line[y + yoff] + xoff + 3) =
+					*((UINT16 *) vic6560_bitmap.line[y + yoff] + xoff + 2) = color[(code >> 4) & 3];
+				*((UINT16 *) vic6560_bitmap.line[y + yoff] + xoff + 5) =
+					*((UINT16 *) vic6560_bitmap.line[y + yoff] + xoff + 4) = color[(code >> 2) & 3];
+				*((UINT16 *) vic6560_bitmap.line[y + yoff] + xoff + 7) =
+					*((UINT16 *) vic6560_bitmap.line[y + yoff] + xoff + 6) = color[code & 3];
 			}
 		}
 	}
@@ -387,29 +387,29 @@ public class vic6560
 		{0xf0, 0x80, 0x80, 0x80, 0x00, 0x00, 0x00, 0x00};
 		int i, j, y, x;
 	
-		if (Machine->color_depth == 8)
+		if (Machine.color_depth == 8)
 		{
-			for (y = visible->min_y, j = yoff; y <= visible->max_y; y++, j++)
+			for (y = visible.min_y, j = yoff; y <= visible.max_y; y++, j++)
 			{
-				for (x = visible->min_x, i = xoff; x <= visible->max_x; x++, i++)
+				for (x = visible.min_x, i = xoff; x <= visible.max_x; x++, i++)
 				{
 					if ((blackmask[j] << i) & 0x80)
-						bitmap->line[y][x] = black;
+						bitmap.line[y][x] = black;
 					else if ((whitemask[j] << (i & ~1)) & 0x80)
-						bitmap->line[y][x] = white;
+						bitmap.line[y][x] = white;
 				}
 			}
 		}
 		else
 		{
-			for (y = visible->min_y, j = yoff; y <= visible->max_y; y++, j++)
+			for (y = visible.min_y, j = yoff; y <= visible.max_y; y++, j++)
 			{
-				for (x = visible->min_x, i = xoff; x <= visible->max_x; x++, i++)
+				for (x = visible.min_x, i = xoff; x <= visible.max_x; x++, i++)
 				{
 					if ((blackmask[j] << i) & 0x80)
-						*((UINT16 *) bitmap->line[y] + x) = black;
+						*((UINT16 *) bitmap.line[y] + x) = black;
 					else if ((whitemask[j] << (i & ~1)) & 0x80)
-						*((UINT16 *) bitmap->line[y] + x) = white;
+						*((UINT16 *) bitmap.line[y] + x) = white;
 				}
 			}
 		}
@@ -426,23 +426,23 @@ public class vic6560
 		if (first >= last)
 			return;
 	
-		if (Machine->color_depth == 8)
+		if (Machine.color_depth == 8)
 		{
 			for (line = first; (line < ypos) && (line < last); line++)
 			{
-				memset (vic6560_bitmap->line[line], framecolor, vic656x_xsize);
+				memset (vic6560_bitmap.line[line], framecolor, vic656x_xsize);
 			}
 		}
 		else
 		{
 			for (line = first; (line < ypos) && (line < last); line++)
 			{
-				memset16 (vic6560_bitmap->line[line], framecolor, vic656x_xsize);
+				memset16 (vic6560_bitmap.line[line], framecolor, vic656x_xsize);
 			}
 		}
 		for (vline = line - ypos; (line < last) && (line < ypos + ysize);)
 		{
-			if (matrix8x16)
+			if (matrix8x16 != 0)
 			{
 				offs = (vline >> 4) * chars_x;
 				yoff = (vline & ~0xf) + ypos;
@@ -459,65 +459,65 @@ public class vic6560
 	
 			if (xpos > 0)
 			{
-				if (Machine->color_depth == 8)
+				if (Machine.color_depth == 8)
 				{
 					for (i = ybegin; i <= yend; i++)
-						memset (vic6560_bitmap->line[yoff + i], framecolor, xpos);
+						memset (vic6560_bitmap.line[yoff + i], framecolor, xpos);
 				}
 				else
 				{
 					for (i = ybegin; i <= yend; i++)
-						memset16 (vic6560_bitmap->line[yoff + i], framecolor, xpos);
+						memset16 (vic6560_bitmap.line[yoff + i], framecolor, xpos);
 				}
 			}
 			for (xoff = xpos; (xoff < xpos + xsize) && (xoff < vic656x_xsize); xoff += 8, offs++)
 			{
 				ch = vic_dma_read ((videoaddr + offs) & 0x3fff);
 				attr = (vic_dma_read_color ((videoaddr + offs) & 0x3fff)) & 0xf;
-				if (inverted)
+				if (inverted != 0)
 				{
-					if (attr & 8)
+					if ((attr & 8) != 0)
 					{
-						multiinverted[0] = Machine->pens[attr & 7];
+						multiinverted[0] = Machine.pens[attr & 7];
 						vic6560_draw_character_multi (ybegin, yend, ch, yoff, xoff,
 													  multiinverted);
 					}
 					else
 					{
-						monoinverted[0] = Machine->pens[attr];
+						monoinverted[0] = Machine.pens[attr];
 						vic6560_draw_character (ybegin, yend, ch, yoff, xoff, monoinverted);
 					}
 				}
 				else
 				{
-					if (attr & 8)
+					if ((attr & 8) != 0)
 					{
-						multi[2] = Machine->pens[attr & 7];
+						multi[2] = Machine.pens[attr & 7];
 						vic6560_draw_character_multi (ybegin, yend, ch, yoff, xoff, multi);
 					}
 					else
 					{
-						mono[1] = Machine->pens[attr];
+						mono[1] = Machine.pens[attr];
 						vic6560_draw_character (ybegin, yend, ch, yoff, xoff, mono);
 					}
 				}
 			}
 			if (xoff < vic656x_xsize)
 			{
-				if (Machine->color_depth == 8)
+				if (Machine.color_depth == 8)
 				{
 					for (i = ybegin; i <= yend; i++)
-						memset (vic6560_bitmap->line[yoff + i] + xoff, framecolor,
+						memset (vic6560_bitmap.line[yoff + i] + xoff, framecolor,
 								vic656x_xsize - xoff);
 				}
 				else
 				{
 					for (i = ybegin; i <= yend; i++)
-						memset16 ((UINT16 *) vic6560_bitmap->line[yoff + i] + xoff,
+						memset16 ((UINT16 *) vic6560_bitmap.line[yoff + i] + xoff,
 								  framecolor, vic656x_xsize - xoff);
 				}
 			}
-			if (matrix8x16)
+			if (matrix8x16 != 0)
 			{
 				vline = (vline + 16) & ~0xf;
 				line = vline + ypos;
@@ -528,49 +528,49 @@ public class vic6560
 				line = vline + ypos;
 			}
 		}
-		if (Machine->color_depth == 8)
+		if (Machine.color_depth == 8)
 		{
 			for (; line < last; line++)
 			{
-				memset (vic6560_bitmap->line[line], framecolor, vic656x_xsize);
+				memset (vic6560_bitmap.line[line], framecolor, vic656x_xsize);
 			}
 		}
 		else
 		{
 			for (; line < last; line++)
 			{
-				memset16 (vic6560_bitmap->line[line], framecolor, vic656x_xsize);
+				memset16 (vic6560_bitmap.line[line], framecolor, vic656x_xsize);
 			}
 		}
 	}
 	
 	static void vic6560_draw_text (struct osd_bitmap *bitmap, char *text, int *y)
 	{
-		int x, x0, y1v, width = (Machine->visible_area.max_x -
-								 Machine->visible_area.min_x) / Machine->uifont->width;
+		int x, x0, y1v, width = (Machine.visible_area.max_x -
+								 Machine.visible_area.min_x) / Machine.uifont.width;
 	
 		if (text[0] != 0)
 		{
 			x = strlen (text);
-			*y -= Machine->uifont->height * ((x + width - 1) / width);
-			y1v = *y + Machine->uifont->height;
+			*y -= Machine.uifont.height * ((x + width - 1) / width);
+			y1v = *y + Machine.uifont.height;
 			x = 0;
 			while (text[x])
 			{
-				for (x0 = Machine->visible_area.min_x;
-					 text[x] && (x0 < Machine->visible_area.max_x -
-								 Machine->uifont->width);
-					 x++, x0 += Machine->uifont->width)
+				for (x0 = Machine.visible_area.min_x;
+					 text[x] && (x0 < Machine.visible_area.max_x -
+								 Machine.uifont.width);
+					 x++, x0 += Machine.uifont.width)
 				{
-					drawgfx (bitmap, Machine->uifont, text[x], 0, 0, 0, x0, y1v, 0,
+					drawgfx (bitmap, Machine.uifont, text[x], 0, 0, 0, x0, y1v, 0,
 							 TRANSPARENCY_NONE, 0);
 				}
-				y1v += Machine->uifont->height;
+				y1v += Machine.uifont.height;
 			}
 		}
 	}
 	
-	int vic656x_raster_interrupt (void)
+	public static InterruptPtr vic656x_raster_interrupt = new InterruptPtr() { public int handler() 
 	{
 		struct rectangle r;
 		int y;
@@ -583,7 +583,7 @@ public class vic6560
 			vic6560_drawlines (lastline, vic656x_lines);
 			lastline = 0;
 	
-			if (LIGHTPEN_POINTER)
+			if (LIGHTPEN_POINTER != 0)
 			{
 	
 				r.min_x = LIGHTPEN_X_VALUE - 1 + VIC656X_MAME_XPOS;
@@ -591,7 +591,7 @@ public class vic6560
 				r.min_y = LIGHTPEN_Y_VALUE - 1 + VIC656X_MAME_YPOS;
 				r.max_y = r.min_y + 8 - 1;
 	
-				if (DOCLIP (&r, &Machine->visible_area))
+				if (DOCLIP (&r, &Machine.visible_area))
 				{
 					osd_mark_dirty (r.min_x, r.min_y, r.max_x, r.max_y, 0);
 	#ifndef GFX
@@ -604,7 +604,7 @@ public class vic6560
 	#endif
 				}
 			}
-			y = Machine->visible_area.max_y + 1 - Machine->uifont->height;
+			y = Machine.visible_area.max_y + 1 - Machine.uifont.height;
 	
 			vc20_tape_status (text, sizeof (text));
 			vic6560_draw_text (vic6560_bitmap, text, &y);
@@ -619,9 +619,9 @@ public class vic6560
 			vic6560_draw_text (vic6560_bitmap, text, &y);
 		}
 		return ignore_interrupt ();
-	}
+	} };
 	
-	void vic6560_vh_screenrefresh (struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr vic6560_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
-	}
+	} };
 }

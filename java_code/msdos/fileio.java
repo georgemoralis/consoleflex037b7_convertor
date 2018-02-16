@@ -36,7 +36,7 @@ public class fileio
 	
 	typedef struct {
 		FILE *file;
-		unsigned char *data;
+		UBytePtr data;
 		unsigned int offset;
 		unsigned int length;
 		eFileType type;
@@ -44,8 +44,8 @@ public class fileio
 	} FakeFileHandle;
 	
 	
-	extern unsigned int crc32(unsigned int crc, const unsigned char *buf, unsigned int len);
-	static int checksum_file(const char *file, unsigned char **p, unsigned int *size, unsigned int *crc);
+	extern unsigned int crc32(unsigned int crc, const UBytePtr buf, unsigned int len);
+	static int checksum_file(const char *file, UBytePtr *p, unsigned int *size, unsigned int *crc);
 	
 	/*
 	 * File stat cache LRU (Last Recently Used)
@@ -68,7 +68,7 @@ public class fileio
 	/* AM 980919 */
 	static int cache_stat(const char *path, struct stat *statbuf)
 	{
-		if (file_cache_max)
+		if (file_cache_max != 0)
 		{
 			unsigned i;
 			struct file_cache_entry *entry;
@@ -76,7 +76,7 @@ public class fileio
 			/* search in the cache */
 			for (i = 0; i < file_cache_max; ++i)
 			{
-				if (file_cache_map[i]->file && strcmp(file_cache_map[i]->file, path) == 0)
+				if (file_cache_map[i].file && strcmp(file_cache_map[i].file, path) == 0)
 				{							/* found */
 					unsigned j;
 	
@@ -91,17 +91,17 @@ public class fileio
 					/* set the first entry */
 					file_cache_map[0] = entry;
 	
-					if (entry->result == 0)
-						memcpy(statbuf, &entry->stat_buffer, sizeof (struct stat));
+					if (entry.result == 0)
+						memcpy(statbuf, &entry.stat_buffer, sizeof (struct stat));
 	
-					return entry->result;
+					return entry.result;
 				}
 			}
 	/*		LOG(("File cache FAIL for %s\n", path)); */
 	
 			/* oldest entry */
 			entry = file_cache_map[file_cache_max - 1];
-			free(entry->file);
+			free(entry.file);
 	
 			/* shift */
 			for (i = file_cache_max - 1; i > 0; --i)
@@ -111,16 +111,16 @@ public class fileio
 			file_cache_map[0] = entry;
 	
 			/* file */
-			entry->file = (char *) malloc(strlen(path) + 1);
-			strcpy(entry->file, path);
+			entry.file = (char *) malloc(strlen(path) + 1);
+			strcpy(entry.file, path);
 	
 			/* result and stat */
-			entry->result = stat(path, &entry->stat_buffer);
+			entry.result = stat(path, &entry.stat_buffer);
 	
-			if (entry->result == 0)
-				memcpy(statbuf, &entry->stat_buffer, sizeof (struct stat));
+			if (entry.result == 0)
+				memcpy(statbuf, &entry.stat_buffer, sizeof (struct stat));
 	
-			return entry->result;
+			return entry.result;
 		}
 		else
 		{
@@ -131,7 +131,7 @@ public class fileio
 	/* AM 980919 */
 	static void cache_allocate(unsigned entries)
 	{
-		if (entries)
+		if (entries != 0)
 		{
 			unsigned i;
 	
@@ -181,7 +181,7 @@ public class fileio
 		token = strtok(roms, ";");
 		while (token)
 		{
-			if (rompathc)
+			if (rompathc != 0)
 				rompathv = realloc(rompathv, (rompathc + 1) * sizeof (char *));
 			else
 				rompathv = malloc(sizeof (char *));
@@ -196,7 +196,7 @@ public class fileio
 		token = strtok(samples, ";");
 		while (token)
 		{
-			if (samplepathc)
+			if (samplepathc != 0)
 				samplepathv = realloc(samplepathv, (samplepathc + 1) * sizeof (char *));
 			else
 				samplepathv = malloc(sizeof (char *));
@@ -244,7 +244,7 @@ public class fileio
 		token = strtok(soft, ";");
 		while (token)
 		{
-			if (softpathc)
+			if (softpathc != 0)
 				softpathv = realloc(softpathv, (softpathc + 1) * sizeof (char *));
 			else
 				softpathv = malloc(sizeof (char *));
@@ -313,7 +313,7 @@ public class fileio
 	
 			sprintf(name, "%s/%s.png", screenshotdir, newfilename);
 			f = fopen(name, "rb");
-			if (f)
+			if (f != 0)
 			{
 				fclose(f);
 				return 1;
@@ -375,7 +375,7 @@ public class fileio
 		gamename = (char *) game;
 	
 		/* Support "-romdir" yuck. */
-		if (alternate_name)
+		if (alternate_name != 0)
 		{
 			logerror("osd_fopen: -romdir overrides '%s' by '%s'\n", gamename, alternate_name);
 			gamename = alternate_name;
@@ -387,7 +387,7 @@ public class fileio
 		case OSD_FILETYPE_SAMPLE:
 	
 			/* only for reading */
-			if (_write)
+			if (_write != 0)
 			{
 				logerror("osd_fopen: type %02x write not supported\n", filetype);
 				break;
@@ -419,18 +419,18 @@ public class fileio
 						sprintf(name, "%s/%s/%s", dir_name, gamename, filename);
 						if (filetype == OSD_FILETYPE_ROM)
 						{
-							if (checksum_file(name, &f->data, &f->length, &f->crc) == 0)
+							if (checksum_file(name, &f.data, &f.length, &f.crc) == 0)
 							{
-								f->type = kRAMFile;
-								f->offset = 0;
+								f.type = kRAMFile;
+								f.offset = 0;
 								found = 1;
 							}
 						}
 						else
 						{
-							f->type = kPlainFile;
-							f->file = fopen(name, "rb");
-							found = f->file != 0;
+							f.type = kPlainFile;
+							f.file = fopen(name, "rb");
+							found = f.file != 0;
 						}
 					}
 				}
@@ -442,12 +442,12 @@ public class fileio
 					logerror("Trying %s\n", name);
 					if (cache_stat(name, &stat_buffer) == 0)
 					{
-						if (load_zipped_file(name, filename, &f->data, &f->length) == 0)
+						if (load_zipped_file(name, filename, &f.data, &f.length) == 0)
 						{
 							logerror("Using (osd_fopen) zip file for %s\n", filename);
-							f->type = kZippedFile;
-							f->offset = 0;
-							f->crc = crc32(0L, f->data, f->length);
+							f.type = kZippedFile;
+							f.offset = 0;
+							f.crc = crc32(0L, f.data, f.length);
 							found = 1;
 						}
 					}
@@ -463,18 +463,18 @@ public class fileio
 						sprintf(name, "%s/%s.zip/%s", dir_name, gamename, filename);
 						if (filetype == OSD_FILETYPE_ROM)
 						{
-							if (checksum_file(name, &f->data, &f->length, &f->crc) == 0)
+							if (checksum_file(name, &f.data, &f.length, &f.crc) == 0)
 							{
-								f->type = kRAMFile;
-								f->offset = 0;
+								f.type = kRAMFile;
+								f.offset = 0;
 								found = 1;
 							}
 						}
 						else
 						{
-							f->type = kPlainFile;
-							f->file = fopen(name, "rb");
-							found = f->file != 0;
+							f.type = kPlainFile;
+							f.file = fopen(name, "rb");
+							found = f.file != 0;
 						}
 					}
 				}
@@ -484,7 +484,7 @@ public class fileio
 	
 		case OSD_FILETYPE_IMAGE_R:
 			/* only for reading */
-			if (_write)
+			if (_write != 0)
 			{
 				logerror("osd_fopen: type %02x write not supported\n", filetype);
 				break;
@@ -510,11 +510,11 @@ public class fileio
 					if (cache_stat(name, &stat_buffer) == 0 && (stat_buffer.st_mode & S_IFDIR))
 					{
 						sprintf(name, "%s/%s", dir_name, filename);
-						if (checksum_file(name, &f->data, &f->length, &f->crc) == 0)
+						if (checksum_file(name, &f.data, &f.length, &f.crc) == 0)
 						{
 							logerror("Found '%s'\n", name);
-							f->type = kRAMFile;
-							f->offset = 0;
+							f.type = kRAMFile;
+							f.offset = 0;
 							found = 1;
 						}
 					}
@@ -527,11 +527,11 @@ public class fileio
 					if (cache_stat(name, &stat_buffer) == 0 && (stat_buffer.st_mode & S_IFDIR))
 					{
 						sprintf(name, "%s/%s/%s", dir_name, game, filename);
-						if (checksum_file(name, &f->data, &f->length, &f->crc) == 0)
+						if (checksum_file(name, &f.data, &f.length, &f.crc) == 0)
 						{
 							logerror("Found '%s'\n", name);
-							f->type = kRAMFile;
-							f->offset = 0;
+							f.type = kRAMFile;
+							f.offset = 0;
 							found = 1;
 						}
 					}
@@ -542,19 +542,19 @@ public class fileio
 				{
 					sprintf(name, "%s/%s", dir_name, filename);
 					extension = strrchr(name, '.');		/* find extension */
-					if (extension)
+					if (extension != 0)
 						strcpy(extension, ".zip");
 					else
 						strcat(name, ".zip");
 					logerror("Trying %s\n", name);
 					if (cache_stat(name, &stat_buffer) == 0)
 					{
-						if (load_zipped_file(name, filename, &f->data, &f->length) == 0)
+						if (load_zipped_file(name, filename, &f.data, &f.length) == 0)
 						{
 							logerror("Found '%s'\n", name);
-							f->type = kZippedFile;
-							f->offset = 0;
-							f->crc = crc32(0L, f->data, f->length);
+							f.type = kZippedFile;
+							f.offset = 0;
+							f.crc = crc32(0L, f.data, f.length);
 							found = 1;
 						}
 					}
@@ -565,19 +565,19 @@ public class fileio
 				{
 					sprintf(name, "%s/%s/%s", dir_name, game, filename);
 					extension = strrchr(name, '.');		/* find extension */
-					if (extension)
+					if (extension != 0)
 						strcpy(extension, ".zip");
 					else
 						strcat(name, ".zip");
 					logerror("Trying %s\n", name);
 					if (cache_stat(name, &stat_buffer) == 0)
 					{
-						if (load_zipped_file(name, filename, &f->data, &f->length) == 0)
+						if (load_zipped_file(name, filename, &f.data, &f.length) == 0)
 						{
 							logerror("Found '%s'\n", name);
-							f->type = kZippedFile;
-							f->offset = 0;
-							f->crc = crc32(0L, f->data, f->length);
+							f.type = kZippedFile;
+							f.offset = 0;
+							f.crc = crc32(0L, f.data, f.length);
 							found = 1;
 						}
 					}
@@ -590,12 +590,12 @@ public class fileio
 					logerror("Trying %s\n", name);
 					if (cache_stat(name, &stat_buffer) == 0)
 					{
-						if (load_zipped_file(name, filename, &f->data, &f->length) == 0)
+						if (load_zipped_file(name, filename, &f.data, &f.length) == 0)
 						{
 							logerror("Found '%s'\n", name);
-							f->type = kZippedFile;
-							f->offset = 0;
-							f->crc = crc32(0L, f->data, f->length);
+							f.type = kZippedFile;
+							f.offset = 0;
+							f.crc = crc32(0L, f.data, f.length);
 							found = 1;
 						}
 					}
@@ -612,11 +612,11 @@ public class fileio
 						if (cache_stat(name, &stat_buffer) == 0 && (stat_buffer.st_mode & S_IFDIR))
 						{
 							sprintf(name, "%s/%s/%s", dir_name, extension, filename);
-							if (checksum_file(name, &f->data, &f->length, &f->crc) == 0)
+							if (checksum_file(name, &f.data, &f.length, &f.crc) == 0)
 							{
 								logerror("Found '%s'\n", name);
-								f->type = kRAMFile;
-								f->offset = 0;
+								f.type = kRAMFile;
+								f.offset = 0;
 								found = 1;
 							}
 						}
@@ -629,11 +629,11 @@ public class fileio
 						if (cache_stat(name, &stat_buffer) == 0 && (stat_buffer.st_mode & S_IFDIR))
 						{
 							sprintf(name, "%s/%s/%s/%s", dir_name, game, extension, filename);
-							if (checksum_file(name, &f->data, &f->length, &f->crc) == 0)
+							if (checksum_file(name, &f.data, &f.length, &f.crc) == 0)
 							{
 								logerror("Found '%s'\n", name);
-								f->type = kRAMFile;
-								f->offset = 0;
+								f.type = kRAMFile;
+								f.offset = 0;
 								found = 1;
 							}
 						}
@@ -646,12 +646,12 @@ public class fileio
 						logerror("Trying %s\n", name);
 						if (cache_stat(name, &stat_buffer) == 0)
 						{
-							if (load_zipped_file(name, filename, &f->data, &f->length) == 0)
+							if (load_zipped_file(name, filename, &f.data, &f.length) == 0)
 							{
 								logerror("Found '%s'\n", name);
-								f->type = kZippedFile;
-								f->offset = 0;
-								f->crc = crc32(0L, f->data, f->length);
+								f.type = kZippedFile;
+								f.offset = 0;
+								f.crc = crc32(0L, f.data, f.length);
 								found = 1;
 							}
 						}
@@ -664,12 +664,12 @@ public class fileio
 						logerror("Trying %s\n", name);
 						if (cache_stat(name, &stat_buffer) == 0)
 						{
-							if (load_zipped_file(name, filename, &f->data, &f->length) == 0)
+							if (load_zipped_file(name, filename, &f.data, &f.length) == 0)
 							{
 								logerror("Found '%s'\n", name);
-								f->type = kZippedFile;
-								f->offset = 0;
-								f->crc = crc32(0L, f->data, f->length);
+								f.type = kZippedFile;
+								f.offset = 0;
+								f.crc = crc32(0L, f.data, f.length);
 								found = 1;
 							}
 						}
@@ -682,19 +682,19 @@ public class fileio
 						logerror("Trying %s\n", name);
 						if (cache_stat(name, &stat_buffer) == 0)
 						{
-							if (load_zipped_file(name, filename, &f->data, &f->length) == 0)
+							if (load_zipped_file(name, filename, &f.data, &f.length) == 0)
 							{
 								logerror("Found '%s'\n", name);
-								f->type = kZippedFile;
-								f->offset = 0;
-								f->crc = crc32(0L, f->data, f->length);
+								f.type = kZippedFile;
+								f.offset = 0;
+								f.crc = crc32(0L, f.data, f.length);
 								found = 1;
 							}
 						}
 					}
 	            }
 	
-	            if (found)
+	            if (found != 0)
 					logerror("IMAGE_R %s FOUND in %s!\n", filename, name);
 			}
 			break;							/* end of IMAGE_R */
@@ -727,12 +727,12 @@ public class fileio
 							{
 								sprintf(name, "%s/%s/%s", dir_name, gamename, file);
 								logerror("Trying %s\n", name);
-								f->file = fopen(name, write_modes[_write]);
-								found = f->file != 0;
+								f.file = fopen(name, write_modes[_write]);
+								found = f.file != 0;
 								if (!found && _write == 3)
 								{
-									f->file = fopen(name, write_modes[4]);
-									found = f->file != 0;
+									f.file = fopen(name, write_modes[4]);
+									found = f.file != 0;
 								}
 							}
 						}
@@ -742,19 +742,19 @@ public class fileio
 						{
 							extension = strrchr(name, '.');		/* find extension */
 							/* add .zip for zipfile */
-							if (extension)
+							if (extension != 0)
 								strcpy(extension, ".zip");
 							else
 								strcat(extension, ".zip");
 							logerror("Trying %s\n", name);
 							if (cache_stat(name, &stat_buffer) == 0)
 							{
-								if (load_zipped_file(name, filename, &f->data, &f->length) == 0)
+								if (load_zipped_file(name, filename, &f.data, &f.length) == 0)
 								{
 									logerror("Using (osd_fopen) zip file for %s\n", filename);
-									f->type = kZippedFile;
-									f->offset = 0;
-									f->crc = crc32(0L, f->data, f->length);
+									f.type = kZippedFile;
+									f.offset = 0;
+									f.crc = crc32(0L, f.data, f.length);
 									found = 1;
 								}
 							}
@@ -768,12 +768,12 @@ public class fileio
 							{
 								sprintf(name, "%s/%s", dir_name, file);
 								logerror("Trying %s\n", name);
-								f->file = fopen(name, write_modes[_write]);
-								found = f->file != 0;
+								f.file = fopen(name, write_modes[_write]);
+								found = f.file != 0;
 								if (!found && _write == 3)
 								{
-									f->file = fopen(name, write_modes[4]);
-									found = f->file != 0;
+									f.file = fopen(name, write_modes[4]);
+									found = f.file != 0;
 								}
 							}
 						}
@@ -782,19 +782,19 @@ public class fileio
 						{
 							extension = strrchr(name, '.');		/* find extension */
 							/* add .zip for zipfile */
-							if (extension)
+							if (extension != 0)
 								strcpy(extension, ".zip");
 							else
 								strcat(extension, ".zip");
 							logerror("Trying %s\n", name);
 							if (cache_stat(name, &stat_buffer) == 0)
 							{
-								if (load_zipped_file(name, filename, &f->data, &f->length) == 0)
+								if (load_zipped_file(name, filename, &f.data, &f.length) == 0)
 								{
 									logerror("Using (osd_fopen) zip file for %s\n", filename);
-									f->type = kZippedFile;
-									f->offset = 0;
-									f->crc = crc32(0L, f->data, f->length);
+									f.type = kZippedFile;
+									f.offset = 0;
+									f.crc = crc32(0L, f.data, f.length);
 									found = 1;
 								}
 							}
@@ -807,12 +807,12 @@ public class fileio
 							logerror("Trying %s\n", name);
 							if (cache_stat(name, &stat_buffer) == 0)
 							{
-								if (load_zipped_file(name, file, &f->data, &f->length) == 0)
+								if (load_zipped_file(name, file, &f.data, &f.length) == 0)
 								{
 									logerror("Using (osd_fopen) zip file for %s\n", filename);
-									f->type = kZippedFile;
-									f->offset = 0;
-									f->crc = crc32(0L, f->data, f->length);
+									f.type = kZippedFile;
+									f.offset = 0;
+									f.crc = crc32(0L, f.data, f.length);
 									found = 1;
 								}
 							}
@@ -827,21 +827,21 @@ public class fileio
 							{
 								sprintf(name, "%s/%s.zip/%s", dir_name, gamename, file);
 								logerror("Trying %s\n", name);
-								f->file = fopen(name, write_modes[_write]);
-								found = f->file != 0;
+								f.file = fopen(name, write_modes[_write]);
+								found = f.file != 0;
 								if (!found && _write == 3)
 								{
-									f->file = fopen(name, write_modes[4]);
-									found = f->file != 0;
+									f.file = fopen(name, write_modes[4]);
+									found = f.file != 0;
 								}
 							}
 						}
-						if (found)
+						if (found != 0)
 							logerror("IMAGE_RW %s FOUND in %s!\n", file, name);
 					}
 	
 					extension = strrchr(file, '.');
-					if (extension)
+					if (extension != 0)
 						*extension = '\0';
 				} while (!found && extension);
 			}
@@ -851,27 +851,27 @@ public class fileio
 			if (!found)
 			{
 				sprintf(name, "%s/%s.nv", nvdir, gamename);
-				f->type = kPlainFile;
-				f->file = fopen(name, _write ? "wb" : "rb");
-				found = f->file != 0;
+				f.type = kPlainFile;
+				f.file = fopen(name, _write ? "wb" : "rb");
+				found = f.file != 0;
 			}
 	
 			if (!found)
 			{
 				/* try with a .zip directory (if ZipMagic is installed) */
 				sprintf(name, "%s.zip/%s.nv", nvdir, gamename);
-				f->type = kPlainFile;
-				f->file = fopen(name, _write ? "wb" : "rb");
-				found = f->file != 0;
+				f.type = kPlainFile;
+				f.file = fopen(name, _write ? "wb" : "rb");
+				found = f.file != 0;
 			}
 	
 			if (!found)
 			{
 				/* try with a .zif directory (if ZipFolders is installed) */
 				sprintf(name, "%s.zif/%s.nv", nvdir, gamename);
-				f->type = kPlainFile;
-				f->file = fopen(name, _write ? "wb" : "rb");
-				found = f->file != 0;
+				f.type = kPlainFile;
+				f.file = fopen(name, _write ? "wb" : "rb");
+				found = f.file != 0;
 			}
 			break;
 	
@@ -881,78 +881,78 @@ public class fileio
 				if (!found)
 				{
 					sprintf(name, "%s/%s.hi", hidir, gamename);
-					f->type = kPlainFile;
-					f->file = fopen(name, _write ? "wb" : "rb");
-					found = f->file != 0;
+					f.type = kPlainFile;
+					f.file = fopen(name, _write ? "wb" : "rb");
+					found = f.file != 0;
 				}
 	
 				if (!found)
 				{
 					/* try with a .zip directory (if ZipMagic is installed) */
 					sprintf(name, "%s.zip/%s.hi", hidir, gamename);
-					f->type = kPlainFile;
-					f->file = fopen(name, _write ? "wb" : "rb");
-					found = f->file != 0;
+					f.type = kPlainFile;
+					f.file = fopen(name, _write ? "wb" : "rb");
+					found = f.file != 0;
 				}
 	
 				if (!found)
 				{
 					/* try with a .zif directory (if ZipFolders is installed) */
 					sprintf(name, "%s.zif/%s.hi", hidir, gamename);
-					f->type = kPlainFile;
-					f->file = fopen(name, _write ? "wb" : "rb");
-					found = f->file != 0;
+					f.type = kPlainFile;
+					f.file = fopen(name, _write ? "wb" : "rb");
+					found = f.file != 0;
 				}
 			}
 			break;
 	
 		case OSD_FILETYPE_CONFIG:
 			sprintf(name, "%s/%s.cfg", cfgdir, gamename);
-			f->type = kPlainFile;
-			f->file = fopen(name, _write ? "wb" : "rb");
-			found = f->file != 0;
+			f.type = kPlainFile;
+			f.file = fopen(name, _write ? "wb" : "rb");
+			found = f.file != 0;
 	
 			if (!found)
 			{
 				/* try with a .zip directory (if ZipMagic is installed) */
 				sprintf(name, "%s.zip/%s.cfg", cfgdir, gamename);
-				f->type = kPlainFile;
-				f->file = fopen(name, _write ? "wb" : "rb");
-				found = f->file != 0;
+				f.type = kPlainFile;
+				f.file = fopen(name, _write ? "wb" : "rb");
+				found = f.file != 0;
 			}
 	
 			if (!found)
 			{
 				/* try with a .zif directory (if ZipFolders is installed) */
 				sprintf(name, "%s.zif/%s.cfg", cfgdir, gamename);
-				f->type = kPlainFile;
-				f->file = fopen(name, _write ? "wb" : "rb");
-				found = f->file != 0;
+				f.type = kPlainFile;
+				f.file = fopen(name, _write ? "wb" : "rb");
+				found = f.file != 0;
 			}
 			break;
 	
 		case OSD_FILETYPE_INPUTLOG:
 			sprintf(name, "%s/%s.inp", inpdir, gamename);
-			f->type = kPlainFile;
-			f->file = fopen(name, _write ? "wb" : "rb");
-			found = f->file != 0;
+			f.type = kPlainFile;
+			f.file = fopen(name, _write ? "wb" : "rb");
+			found = f.file != 0;
 	
 			if (!found)
 			{
 				/* try with a .zip directory (if ZipMagic is installed) */
 				sprintf(name, "%s.zip/%s.cfg", inpdir, gamename);
-				f->type = kPlainFile;
-				f->file = fopen(name, _write ? "wb" : "rb");
-				found = f->file != 0;
+				f.type = kPlainFile;
+				f.file = fopen(name, _write ? "wb" : "rb");
+				found = f.file != 0;
 			}
 	
 			if (!found)
 			{
 				/* try with a .zif directory (if ZipFolders is installed) */
 				sprintf(name, "%s.zif/%s.cfg", inpdir, gamename);
-				f->type = kPlainFile;
-				f->file = fopen(name, _write ? "wb" : "rb");
-				found = f->file != 0;
+				f.type = kPlainFile;
+				f.file = fopen(name, _write ? "wb" : "rb");
+				found = f.file != 0;
 			}
 	
 			if (!_write)
@@ -964,11 +964,11 @@ public class fileio
 				logerror("Trying %s in %s\n", file, name);
 				if (cache_stat(name, &stat_buffer) == 0)
 				{
-					if (load_zipped_file(name, file, &f->data, &f->length) == 0)
+					if (load_zipped_file(name, file, &f.data, &f.length) == 0)
 					{
 						logerror("Using (osd_fopen) zip file %s for %s\n", name, file);
-						f->type = kZippedFile;
-						f->offset = 0;
+						f.type = kZippedFile;
+						f.offset = 0;
 						found = 1;
 					}
 				}
@@ -978,51 +978,51 @@ public class fileio
 	
 		case OSD_FILETYPE_STATE:
 			sprintf(name, "%s/%s.sta", stadir, gamename);
-			f->file = fopen(name, _write ? "wb" : "rb");
-			found = !(f->file == 0);
+			f.file = fopen(name, _write ? "wb" : "rb");
+			found = !(f.file == 0);
 			if (!found)
 			{
 				/* try with a .zip directory (if ZipMagic is installed) */
 				sprintf(name, "%s.zip/%s.sta", stadir, gamename);
-				f->file = fopen(name, _write ? "wb" : "rb");
-				found = !(f->file == 0);
+				f.file = fopen(name, _write ? "wb" : "rb");
+				found = !(f.file == 0);
 			}
 			if (!found)
 			{
 				/* try with a .zif directory (if ZipFolders is installed) */
 				sprintf(name, "%s.zif/%s.sta", stadir, gamename);
-				f->file = fopen(name, _write ? "wb" : "rb");
-				found = !(f->file == 0);
+				f.file = fopen(name, _write ? "wb" : "rb");
+				found = !(f.file == 0);
 			}
 			break;
 	
 		case OSD_FILETYPE_ARTWORK:
 			/* only for reading */
-			if (_write)
+			if (_write != 0)
 			{
 				logerror("osd_fopen: type %02x write not supported\n", filetype);
 				break;
 			}
 			sprintf(name, "%s/%s", artworkdir, filename);
-			f->type = kPlainFile;
-			f->file = fopen(name, _write ? "wb" : "rb");
-			found = f->file != 0;
+			f.type = kPlainFile;
+			f.file = fopen(name, _write ? "wb" : "rb");
+			found = f.file != 0;
 			if (!found)
 			{
 				/* try with a .zip directory (if ZipMagic is installed) */
 				sprintf(name, "%s.zip/%s.png", artworkdir, filename);
-				f->type = kPlainFile;
-				f->file = fopen(name, _write ? "wb" : "rb");
-				found = f->file != 0;
+				f.type = kPlainFile;
+				f.file = fopen(name, _write ? "wb" : "rb");
+				found = f.file != 0;
 			}
 	
 			if (!found)
 			{
 				/* try with a .zif directory (if ZipFolders is installed) */
 				sprintf(name, "%s.zif/%s.png", artworkdir, filename);
-				f->type = kPlainFile;
-				f->file = fopen(name, _write ? "wb" : "rb");
-				found = f->file != 0;
+				f.type = kPlainFile;
+				f.file = fopen(name, _write ? "wb" : "rb");
+				found = f.file != 0;
 			}
 	
 			if (!found)
@@ -1032,18 +1032,18 @@ public class fileio
 				sprintf(file, "%s", filename);
 				sprintf(name, "%s/%s", artworkdir, filename);
 				extension = strrchr(name, '.');
-				if (extension)
+				if (extension != 0)
 					strcpy(extension, ".zip");
 				else
 					strcat(name, ".zip");
 				logerror("Trying %s in %s\n", file, name);
 				if (cache_stat(name, &stat_buffer) == 0)
 				{
-					if (load_zipped_file(name, file, &f->data, &f->length) == 0)
+					if (load_zipped_file(name, file, &f.data, &f.length) == 0)
 					{
 						logerror("Using (osd_fopen) zip file %s\n", name);
-						f->type = kZippedFile;
-						f->offset = 0;
+						f.type = kZippedFile;
+						f.offset = 0;
 						found = 1;
 					}
 				}
@@ -1053,11 +1053,11 @@ public class fileio
 					logerror("Trying %s in %s\n", file, name);
 					if (cache_stat(name, &stat_buffer) == 0)
 					{
-						if (load_zipped_file(name, file, &f->data, &f->length) == 0)
+						if (load_zipped_file(name, file, &f.data, &f.length) == 0)
 						{
 							logerror("Using (osd_fopen) zip file %s\n", name);
-							f->type = kZippedFile;
-							f->offset = 0;
+							f.type = kZippedFile;
+							f.offset = 0;
 							found = 1;
 						}
 					}
@@ -1067,9 +1067,9 @@ public class fileio
 	
 		case OSD_FILETYPE_MEMCARD:
 			sprintf(name, "%s/%s", memcarddir, filename);
-			f->type = kPlainFile;
-			f->file = fopen(name, _write ? "wb" : "rb");
-			found = f->file != 0;
+			f.type = kPlainFile;
+			f.file = fopen(name, _write ? "wb" : "rb");
+			found = f.file != 0;
 			break;
 	
 		case OSD_FILETYPE_SCREENSHOT:
@@ -1081,47 +1081,47 @@ public class fileio
 			}
 	
 			sprintf(name, "%s/%s.png", screenshotdir, filename);
-			f->type = kPlainFile;
-			f->file = fopen(name, _write ? "wb" : "rb");
-			found = f->file != 0;
+			f.type = kPlainFile;
+			f.file = fopen(name, _write ? "wb" : "rb");
+			found = f.file != 0;
 			break;
 	
 		case OSD_FILETYPE_HIGHSCORE_DB:
 		case OSD_FILETYPE_HISTORY:
 			/* only for reading */
-			if (_write)
+			if (_write != 0)
 			{
 				logerror("osd_fopen: type %02x write not supported\n", filetype);
 				break;
 			}
-			f->type = kPlainFile;
+			f.type = kPlainFile;
 			/* open as ASCII files, not binary like the others */
-			f->file = fopen(filename, _write ? "w" : "r");
-			found = f->file != 0;
+			f.file = fopen(filename, _write ? "w" : "r");
+			found = f.file != 0;
 			break;
 	
 			/* Steph */
 		case OSD_FILETYPE_CHEAT:
 			sprintf(name, "%s/%s", cheatdir, filename);
-			f->type = kPlainFile;
+			f.type = kPlainFile;
 			/* open as ASCII files, not binary like the others */
-			f->file = fopen(filename, _write ? "a" : "r");
-			found = f->file != 0;
+			f.file = fopen(filename, _write ? "a" : "r");
+			found = f.file != 0;
 			break;
 	
 		case OSD_FILETYPE_LANGUAGE:
 			/* only for reading */
-			if (_write)
+			if (_write != 0)
 			{
 				logerror("osd_fopen: type %02x write not supported\n", filetype);
 				break;
 			}
 			sprintf(name, "%s.lng", filename);
-			f->type = kPlainFile;
+			f.type = kPlainFile;
 			/* open as ASCII files, not binary like the others */
-			f->file = fopen(name, _write ? "w" : "r");
-			found = f->file != 0;
-			logerror("fopen %s = %08x\n", name, (int) f->file);
+			f.file = fopen(name, _write ? "w" : "r");
+			found = f.file != 0;
+			logerror("fopen %s = %08x\n", name, (int) f.file);
 			break;
 	
 		default:
@@ -1142,20 +1142,20 @@ public class fileio
 	{
 		FakeFileHandle *f = (FakeFileHandle *) file;
 	
-		switch (f->type)
+		switch (f.type)
 		{
 		case kPlainFile:
-			return fread(buffer, 1, length, f->file);
+			return fread(buffer, 1, length, f.file);
 			break;
 		case kZippedFile:
 		case kRAMFile:
 			/* reading from the RAM image of a file */
-			if (f->data)
+			if (f.data)
 			{
-				if (length + f->offset > f->length)
-					length = f->length - f->offset;
-				memcpy(buffer, f->offset + f->data, length);
-				f->offset += length;
+				if (length + f.offset > f.length)
+					length = f.length - f.offset;
+				memcpy(buffer, f.offset + f.data, length);
+				f.offset += length;
 				return length;
 			}
 			break;
@@ -1167,7 +1167,7 @@ public class fileio
 	int osd_fread_swap(void *file, void *buffer, int length)
 	{
 		int i;
-		unsigned char *buf;
+		UBytePtr buf;
 		unsigned char temp;
 		int res;
 	
@@ -1191,10 +1191,10 @@ public class fileio
 	{
 		FakeFileHandle *f = (FakeFileHandle *) file;
 	
-		switch (f->type)
+		switch (f.type)
 		{
 		case kPlainFile:
-			return fwrite(buffer, 1, length, ((FakeFileHandle *) file)->file);
+			return fwrite(buffer, 1, length, ((FakeFileHandle *) file).file);
 		default:
 			return 0;
 		}
@@ -1203,12 +1203,12 @@ public class fileio
 	int osd_fwrite_swap(void *file, const void *buffer, int length)
 	{
 		int i;
-		unsigned char *buf;
+		UBytePtr buf;
 		unsigned char temp;
 		int res;
 	
 	
-		buf = (unsigned char *) buffer;
+		buf = (UBytePtr ) buffer;
 		for (i = 0; i < length; i += 2)
 		{
 			temp = buf[i];
@@ -1230,12 +1230,12 @@ public class fileio
 	
 	int osd_fread_scatter(void *file, void *buffer, int length, int increment)
 	{
-		unsigned char *buf = buffer;
+		UBytePtr buf = buffer;
 		FakeFileHandle *f = (FakeFileHandle *) file;
 		unsigned char tempbuf[4096];
 		int totread, r, i;
 	
-		switch (f->type)
+		switch (f.type)
 		{
 		case kPlainFile:
 			totread = 0;
@@ -1244,7 +1244,7 @@ public class fileio
 				r = length;
 				if (r > 4096)
 					r = 4096;
-				r = fread(tempbuf, 1, r, f->file);
+				r = fread(tempbuf, 1, r, f.file);
 				if (r == 0)
 					return totread;			/* error */
 				for (i = 0; i < r; i++)
@@ -1260,16 +1260,16 @@ public class fileio
 		case kZippedFile:
 		case kRAMFile:
 			/* reading from the RAM image of a file */
-			if (f->data)
+			if (f.data)
 			{
-				if (length + f->offset > f->length)
-					length = f->length - f->offset;
+				if (length + f.offset > f.length)
+					length = f.length - f.offset;
 				for (i = 0; i < length; i++)
 				{
-					*buf = f->data[f->offset + i];
+					*buf = f.data[f.offset + i];
 					buf += increment;
 				}
-				f->offset += length;
+				f.offset += length;
 				return length;
 			}
 			break;
@@ -1285,10 +1285,10 @@ public class fileio
 		FakeFileHandle *f = (FakeFileHandle *) file;
 		int err = 0;
 	
-		switch (f->type)
+		switch (f.type)
 		{
 		case kPlainFile:
-			return fseek(f->file, offset, whence);
+			return fseek(f.file, offset, whence);
 			break;
 		case kZippedFile:
 		case kRAMFile:
@@ -1296,13 +1296,13 @@ public class fileio
 			switch (whence)
 			{
 			case SEEK_SET:
-				f->offset = offset;
+				f.offset = offset;
 				break;
 			case SEEK_CUR:
-				f->offset += offset;
+				f.offset += offset;
 				break;
 			case SEEK_END:
-				f->offset = f->length + offset;
+				f.offset = f.length + offset;
 				break;
 			}
 			break;
@@ -1316,15 +1316,15 @@ public class fileio
 	{
 		FakeFileHandle *f = (FakeFileHandle *) file;
 	
-		switch (f->type)
+		switch (f.type)
 		{
 		case kPlainFile:
-			fclose(f->file);
+			fclose(f.file);
 			break;
 		case kZippedFile:
 		case kRAMFile:
-			if (f->data)
-				free(f->data);
+			if (f.data)
+				free(f.data);
 			break;
 		}
 		free(f);
@@ -1332,10 +1332,10 @@ public class fileio
 	
 	/* JB 980920 update */
 	/* AM 980919 */
-	static int checksum_file(const char *file, unsigned char **p, unsigned int *size, unsigned int *crc)
+	static int checksum_file(const char *file, UBytePtr *p, unsigned int *size, unsigned int *crc)
 	{
 		int length;
-		unsigned char *data;
+		UBytePtr data;
 		FILE *f;
 	
 		f = fopen(file, "rb");
@@ -1357,7 +1357,7 @@ public class fileio
 		}
 	
 		/* allocate space for entire file */
-		data = (unsigned char *) malloc(length);
+		data = (UBytePtr ) malloc(length);
 		if (!data)
 		{
 			fclose(f);
@@ -1381,7 +1381,7 @@ public class fileio
 	
 		*size = length;
 		*crc = crc32(0L, data, length);
-		if (p)
+		if (p != 0)
 			*p = data;
 		else
 			free(data);
@@ -1402,7 +1402,7 @@ public class fileio
 		const char *gamename = game;
 	
 		/* Support "-romdir" yuck. */
-		if (alternate_name)
+		if (alternate_name != 0)
 			gamename = alternate_name;
 	
 		for (indx = 0; indx < rompathc && !found; indx++)
@@ -1462,17 +1462,17 @@ public class fileio
 	{
 		FakeFileHandle *f = (FakeFileHandle *) file;
 	
-		if (f->type == kRAMFile || f->type == kZippedFile)
-			return f->length;
+		if (f.type == kRAMFile || f.type == kZippedFile)
+			return f.length;
 	
-		if (f->file)
+		if (f.file)
 		{
 			int size, offs;
 	
-			offs = ftell(f->file);
-			fseek(f->file, 0, SEEK_END);
-			size = ftell(f->file);
-			fseek(f->file, offs, SEEK_SET);
+			offs = ftell(f.file);
+			fseek(f.file, 0, SEEK_END);
+			size = ftell(f.file);
+			fseek(f.file, offs, SEEK_SET);
 			return size;
 		}
 	
@@ -1484,15 +1484,15 @@ public class fileio
 	{
 		FakeFileHandle *f = (FakeFileHandle *) file;
 	
-		return f->crc;
+		return f.crc;
 	}
 	
 	int osd_fgetc(void *file)
 	{
 		FakeFileHandle *f = (FakeFileHandle *) file;
 	
-		if (f->type == kPlainFile && f->file)
-			return fgetc(f->file);
+		if (f.type == kPlainFile && f.file)
+			return fgetc(f.file);
 		else
 			return EOF;
 	}
@@ -1501,8 +1501,8 @@ public class fileio
 	{
 		FakeFileHandle *f = (FakeFileHandle *) file;
 	
-		if (f->type == kPlainFile && f->file)
-			return ungetc(c, f->file);
+		if (f.type == kPlainFile && f.file)
+			return ungetc(c, f.file);
 		else
 			return EOF;
 	}
@@ -1511,8 +1511,8 @@ public class fileio
 	{
 		FakeFileHandle *f = (FakeFileHandle *) file;
 	
-		if (f->type == kPlainFile && f->file)
-			return fgets(s, n, f->file);
+		if (f.type == kPlainFile && f.file)
+			return fgets(s, n, f.file);
 		else
 			return NULL;
 	}
@@ -1521,8 +1521,8 @@ public class fileio
 	{
 		FakeFileHandle *f = (FakeFileHandle *) file;
 	
-		if (f->type == kPlainFile && f->file)
-			return feof(f->file);
+		if (f.type == kPlainFile && f.file)
+			return feof(f.file);
 		else
 			return 1;
 	}
@@ -1531,8 +1531,8 @@ public class fileio
 	{
 		FakeFileHandle *f = (FakeFileHandle *) file;
 	
-		if (f->type == kPlainFile && f->file)
-			return ftell(f->file);
+		if (f.type == kPlainFile && f.file)
+			return ftell(f.file);
 		else
 			return -1L;
 	}
@@ -1543,7 +1543,7 @@ public class fileio
 	/* return non-zero to abort loading */
 	int osd_display_loading_rom_message(const char *name, int current, int total)
 	{
-		if (name)
+		if (name != 0)
 			fprintf(stdout, "loading %-12s\r", name);
 		else
 			fprintf(stdout, "                    \r");

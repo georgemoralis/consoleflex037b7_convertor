@@ -330,7 +330,7 @@ public class ap_disk2
 			case 0x0C:
 				a2_drives[cur_drive].Q6 = SWITCH_OFF;
 				/* TODO: remove following ugly hacked-in code */
-				if (read_state)
+				if (read_state != 0)
 				{
 					return ReadByte(cur_drive);
 				}

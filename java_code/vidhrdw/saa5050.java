@@ -39,18 +39,18 @@ public class saa5050
 			SAA5050_BLUE, SAA5050_MAGENTA, SAA5050_CYAN, SAA5050_WHITE
 	};
 	
-	int	saa5050_vh_start (void)
+	public static VhStartPtr saa5050_vh_start = new VhStartPtr() { public int handler() 
 	{
 		frame_count = 0;
 		if( generic_vh_start() )
 			return 1;
 	    return 0;
-	}
+	} };
 	
-	void saa5050_vh_stop (void)
+	public static VhStopPtr saa5050_vh_stop = new VhStopPtr() { public void handler() 
 	{
 		generic_vh_stop();
-	}
+	} };
 	
 	void saa5050_vh_callback (void)
 	{
@@ -61,13 +61,13 @@ public class saa5050
 	
 	/* BOX and dirtybuffer not implemented */
 	
-	void saa5050_vh_screenrefresh (struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr saa5050_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 	
 	int code, colour;
 	int sx, sy;
 	
-	if (full_refresh) memset (dirtybuffer, 1, videoram_size);
+	if (full_refresh != 0) memset (dirtybuffer, 1, videoram_size[0]);
 	
 	for (sy = 0; sy < 24; sy++) {
 	
@@ -79,7 +79,7 @@ public class saa5050
 	  saa5050_state.saa5050_prvcol = SAA5050_WHITE;
 	
 	  for (sx = 0; sx < 40; sx++) {
-		code = videoram[sy * 80 + sx];
+		code = videoram.read(sy * 80 + sx);
 		if (code < 32) {
 		  switch (code) {
 		  case 0x01: case 0x02: case 0x03: case 0x04:
@@ -150,19 +150,19 @@ public class saa5050
 		}
 		/* if (dirtybuffer[sy * 80 + sx]) { */
 	
-		  if (code & 0x80)
+		  if ((code & 0x80) != 0)
 		  colour = (saa5050_state.saa5050_forecol << 3) |
 		  								saa5050_state.saa5050_backcol;
 		  else colour = saa5050_state.saa5050_forecol |
 		  								(saa5050_state.saa5050_backcol << 3);
 		  if (saa5050_state.saa5050_flags & SAA5050_DBLHI) {
-			drawgfx (bitmap, Machine->gfx[1], code, colour, 0, 0,
-			  sx * 6, sy * 10, &Machine->visible_area, TRANSPARENCY_NONE, 0);
-			drawgfx (bitmap, Machine->gfx[2], code, colour, 0, 0,
-			  sx * 6, (sy + 1) * 10, &Machine->visible_area, TRANSPARENCY_NONE, 0);
+			drawgfx (bitmap, Machine.gfx[1], code, colour, 0, 0,
+			  sx * 6, sy * 10, &Machine.visible_area, TRANSPARENCY_NONE, 0);
+			drawgfx (bitmap, Machine.gfx[2], code, colour, 0, 0,
+			  sx * 6, (sy + 1) * 10, &Machine.visible_area, TRANSPARENCY_NONE, 0);
 		  } else {
-			drawgfx (bitmap, Machine->gfx[0], code, colour, 0, 0,
-			  sx * 6, sy * 10, &Machine->visible_area, TRANSPARENCY_NONE, 0);
+			drawgfx (bitmap, Machine.gfx[0], code, colour, 0, 0,
+			  sx * 6, sy * 10, &Machine.visible_area, TRANSPARENCY_NONE, 0);
 		  }
 	
 		  dirtybuffer[sy * 80 + sx] = 0;
@@ -174,5 +174,5 @@ public class saa5050
 	  }
 	}
 	
-	}
+	} };
 }

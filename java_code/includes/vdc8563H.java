@@ -26,8 +26,7 @@ public class vdc8563H
 	
 	extern void vdc8563_set_rastering(int on);
 	
-	extern int vdc8563_vh_start (void);
-	#define vdc8563_vh_stop praster_vh_stop
+	extern #define vdc8563_vh_stop praster_vh_stop
 	#define vdc8563_vh_screenrefresh praster_vh_screenrefresh
 	#define vdc8563_raster_irq praster_raster_irq
 	

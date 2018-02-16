@@ -41,7 +41,6 @@ public class snesH
 	
 	extern struct CustomSound_interface snesSoundInterface;
 	
-	int spc700Interrupt(void);
 	void spcTimerTick(int);
 	READ_HANDLER ( spc_io_r );
 	WRITE_HANDLER ( spc_io_w );

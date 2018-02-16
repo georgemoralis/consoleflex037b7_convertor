@@ -8,16 +8,11 @@
 
 ******************************************************************************/
 
-extern int bbcb_keyscan(void);
-
-extern void init_machine_bbca(void);
-extern void init_machine_bbcb(void);
-extern void stop_machine_bbcb(void);
-
+extern 
+extern extern extern 
 int bbc_floppy_init(int);
 
 void bbc_floppy_exit(int);
-void check_disc_status(void);
 
 READ_HANDLER ( bbc_wd1770_read);
 WRITE_HANDLER ( bbc_wd1770_write );

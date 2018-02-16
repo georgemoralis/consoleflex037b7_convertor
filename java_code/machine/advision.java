@@ -15,7 +15,7 @@ package machine;
 public class advision
 {
 	
-	unsigned char *advision_ram;
+	UBytePtr advision_ram;
 	int advision_rambank;
 	int advision_framestart;
 	int advision_videoenable;
@@ -23,14 +23,14 @@ public class advision
 	
 	static UINT8 *ROM;
 	
-	void advision_init_machine(void) {
+	public static InitMachinePtr advision_init_machine = new InitMachinePtr() { public void handler()  {
 	
 		advision_ram = memory_region(REGION_CPU1) + 0x2000;
 	    advision_rambank = 0x300;
 	    cpu_setbank(1,memory_region(REGION_CPU1) + 0x1000);
 	    advision_framestart = 0;
 	    advision_videoenable = 0;
-	}
+	} };
 	
 	int advision_id_rom (int id)
 	{
@@ -44,7 +44,7 @@ public class advision
 	
 		if(device_filename(IO_CARTSLOT,id) == NULL)
 		{
-			printf("%s requires Cartridge!\n", Machine->gamedrv->name);
+			printf("%s requires Cartridge!\n", Machine.gamedrv.name);
 			return INIT_FAILED;
 	    }
 	
@@ -83,7 +83,7 @@ public class advision
 	WRITE_HANDLER ( advision_putp1 ) {
 	
 		  ROM = memory_region(REGION_CPU1);
-	      if (data & 0x04) {
+	      if ((data & 0x04) != 0) {
 	        cpu_setbank(1,&ROM[0x0000]);
 	      }
 	      else {
@@ -112,10 +112,10 @@ public class advision
 	    logerror("P1 READ PC=%x\n",cpu_get_pc());
 	    in = input_port_0_r(0);
 	    d = in | 0x0F;
-	    if (in & 0x02) d = d & 0xF7;    /* Button 3 */
-	    if (in & 0x08) d = d & 0xCF;    /* Button 1 */
-	    if (in & 0x04) d = d & 0xAF;    /* Button 2 */
-	    if (in & 0x01) d = d & 0x6F;    /* Button 4 */
+	    if ((in & 0x02) != 0) d = d & 0xF7;    /* Button 3 */
+	    if ((in & 0x08) != 0) d = d & 0xCF;    /* Button 1 */
+	    if ((in & 0x04) != 0) d = d & 0xAF;    /* Button 2 */
+	    if ((in & 0x01) != 0) d = d & 0x6F;    /* Button 4 */
 	
 	    d = d & 0xF8;
 	    return d;
@@ -130,7 +130,7 @@ public class advision
 	}
 	
 	READ_HANDLER ( advision_gett1 ) {
-	    if (advision_framestart) {
+	    if (advision_framestart != 0) {
 	        advision_framestart = 0;
 	        return 0;
 	    }

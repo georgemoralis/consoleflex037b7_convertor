@@ -24,7 +24,7 @@ public class nec765
 	#define MFM_OVERRIDE	0x40
 	
 	#if VERBOSE
-	#define LOG(msg) if (log) fprintf msg
+	#define LOG(msg) if (log != 0) fprintf msg
 	#else
 	#define LOG(msg)
 	#endif
@@ -37,7 +37,7 @@ public class nec765
 		unsigned drive_3:1; 			/* drive 3 in seek mode / busy */
 		unsigned io_active:1;			/* read or write command in progress */
 		unsigned non_dma_mode:1;		/* fdc is in non DMA mode if set */
-		unsigned read_from_fdc:1;		/* request for master (1 fdc->cpu, 0 cpu->fdc) */
+		unsigned read_from_fdc:1;		/* request for master (1 fdc.cpu, 0 cpu.fdc) */
 		unsigned ready:1;				/* data reg ready for i/o */
 	}   STM;
 	
@@ -323,7 +323,7 @@ public class nec765
 	static void results(int sense_interrupt)
 	{
 	
-		if (sense_interrupt)
+		if (sense_interrupt != 0)
 		{
 			if (main_status() && nec.stm.read_from_fdc)
 			{
@@ -453,7 +453,7 @@ public class nec765
 		while (utime < timeout)
 		{
 			main_status();
-			if (irq_flag)
+			if (irq_flag != 0)
 				break;
 			utime = uclock();
 		}
@@ -470,7 +470,7 @@ public class nec765
 	
 	    results(1);
 	
-		if (track)
+		if (track != 0)
 			*track = nec.sta.pcn;
 	}
 	
@@ -490,7 +490,7 @@ public class nec765
 	    outportb(0x3f2, 0x08);      /* reset fdc */
 	    while (utime < timeout)
 		{
-			if (irq_flag)
+			if (irq_flag != 0)
 				break;
 			utime = uclock();
 	    }
@@ -551,7 +551,7 @@ public class nec765
 			for ( ; ; )
 	        {
 				main_status();
-				if (irq_flag)
+				if (irq_flag != 0)
 					break;
 	//			if (!nec.stm.io_active)
 	//				break;
@@ -622,7 +622,7 @@ public class nec765
 			main_status();
 			if (!nec.stm.io_active)
 				break;
-			if (irq_flag)
+			if (irq_flag != 0)
 				break;
 		}
 	
@@ -657,7 +657,7 @@ public class nec765
 		unsigned long _my_ds_base;
 		UINT8 *p;
 	
-		if (initialized)
+		if (initialized != 0)
 			return 1;
 	
 	    log = fopen("nec.log", "w");
@@ -733,7 +733,7 @@ public class nec765
 	
 		outportb(0x3f2, 0x0c);
 	
-		if (log)
+		if (log != 0)
 			fclose(log);
 	
 		__dpmi_get_segment_base_address(_my_cs(), &_my_cs_base);
@@ -753,7 +753,7 @@ public class nec765
 		if (nec_dma.rm_segment)
 		   _go32_dpmi_free_dos_memory(&nec_dma);
 	
-	    if (log)
+	    if (log != 0)
 			fclose(log);
 		log = NULL;
 	
@@ -777,7 +777,7 @@ public class nec765
 	            outportb(0x3f2, 0x2d);
 				break;
 		}
-		if (timer_motors)
+		if (timer_motors != 0)
 			timer_remove(timer_motors);
 		timer_motors = timer_set(10.0, nec.unit, osd_fdc_interrupt);
 	}
@@ -978,7 +978,7 @@ public class nec765
 	
 		seek_exec(track);
 	
-		if (track)
+		if (track != 0)
 			*track = nec.sta.pcn;
 	
 		return FDC_STA1();
@@ -1058,7 +1058,7 @@ public class nec765
 			main_status();
 			if (!nec.stm.io_active)
 				break;
-			if (irq_flag)
+			if (irq_flag != 0)
 				break;
 		}
 	

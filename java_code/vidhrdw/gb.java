@@ -21,11 +21,11 @@ public class gb
 	
 	INLINE void gb_update_sprites (void)
 	{
-		struct osd_bitmap *bitmap = Machine->scrbitmap;
+		struct osd_bitmap *bitmap = Machine.scrbitmap;
 		UINT8 height, tilemask, line, *oam;
 		int i, yindex;
 	
-		if (LCDCONT & 0x04)
+		if ((LCDCONT & 0x04) != 0)
 		{
 			height = 16;
 			tilemask = 0xFE;
@@ -79,7 +79,7 @@ public class gb
 					for (bit = 0; bit < 8; bit++, xindex++)
 					{
 						register int colour = ((data & 0x0100) ? 2 : 0) | ((data & 0x0001) ? 1 : 0);
-	                    if (colour)
+	                    if (colour != 0)
 							plot_pixel(bitmap, xindex, yindex, spal[colour]);
 						data >>= 1;
 					}
@@ -97,7 +97,7 @@ public class gb
 					for (bit = 0; bit < 8; bit++, xindex++)
 					{
 						register int colour = ((data & 0x8000) ? 2 : 0) | ((data & 0x0080) ? 1 : 0);
-						if (colour)
+						if (colour != 0)
 							plot_pixel(bitmap, xindex, yindex, spal[colour]);
 						data <<= 1;
 					}
@@ -120,7 +120,7 @@ public class gb
 	
 	void gb_refresh_scanline (void)
 	{
-		struct osd_bitmap *bitmap = Machine->scrbitmap;
+		struct osd_bitmap *bitmap = Machine.scrbitmap;
 		UINT8 *zbuf = bg_zbuf;
 		int l = 0, yindex = CURLINE;
 	
@@ -130,9 +130,9 @@ public class gb
 		/* if background or screen disabled clear line */
 		if ((LCDCONT & 0x81) != 0x81)
 		{
-			struct rectangle r = Machine->visible_area;
+			struct rectangle r = Machine.visible_area;
 			r.min_y = r.max_y = yindex;
-			fillbitmap(bitmap, Machine->pens[0], &r);
+			fillbitmap(bitmap, Machine.pens[0], &r);
 		}
 	
 		/* if lcd disabled return */
@@ -224,21 +224,21 @@ public class gb
 			l++;
 		}
 	
-		if (LCDCONT & 0x02)
+		if ((LCDCONT & 0x02) != 0)
 			gb_update_sprites();
 	}
 	
-	int gb_vh_start(void)
+	public static VhStartPtr gb_vh_start = new VhStartPtr() { public int handler() 
 	{
 		if( generic_bitmapped_vh_start() )
 			return 1;
 		return 0;
-	}
+	} };
 	
-	void gb_vh_stop(void)
+	public static VhStopPtr gb_vh_stop = new VhStopPtr() { public void handler() 
 	{
 		generic_vh_stop();
-	}
+	} };
 	
 	void gb_vh_screen_refresh(struct osd_bitmap *bitmap, int full_refresh)
 	{

@@ -27,7 +27,6 @@ typedef struct tms9901reset_param
 
 
 void tms9901_init(tms9901reset_param *param);
-void tms9901_cleanup(void);
 
 void tms9901_set_single_int(int pin_number, int state);
 

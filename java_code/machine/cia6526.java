@@ -29,25 +29,25 @@ public class cia6526
 	
 	
 	/* todin pin 50 or 60 hertz frequency */
-	#define TODIN_50HZ (This->cra&0x80)  /* else 60 Hz */
+	#define TODIN_50HZ (This.cra&0x80)  /* else 60 Hz */
 	
-	#define TIMER1_B6 (This->cra&2)
-	#define TIMER1_B6_TOGGLE (This->cra&4)	/* else single pulse */
-	#define TIMER1_ONESHOT (This->cra&8) /* else continuous */
-	#define TIMER1_STOP (!(This->cra&1))
-	#define TIMER1_RELOAD (This->cra&0x10)
-	#define TIMER1_COUNT_CNT (This->cra&0x20)	/* else clock 2 input */
+	#define TIMER1_B6 (This.cra&2)
+	#define TIMER1_B6_TOGGLE (This.cra&4)	/* else single pulse */
+	#define TIMER1_ONESHOT (This.cra&8) /* else continuous */
+	#define TIMER1_STOP (!(This.cra&1))
+	#define TIMER1_RELOAD (This.cra&0x10)
+	#define TIMER1_COUNT_CNT (This.cra&0x20)	/* else clock 2 input */
 	
-	#define TIMER2_ONESHOT (This->crb&8) /* else continuous */
-	#define TIMER2_STOP (!(This->crb&1))
-	#define TIMER2_RELOAD (This->crb&0x10)
-	#define TIMER2_COUNT_CLOCK ((This->crb&0x60)==0)
-	#define TIMER2_COUNT_CNT ((This->crb&0x60)==0x20)
-	#define TIMER2_COUNT_TIMER1 ((This->crb&0x60)==0x40)
-	#define TIMER2_COUNT_TIMER1_CNT ((This->crb&0x60)==0x60)
+	#define TIMER2_ONESHOT (This.crb&8) /* else continuous */
+	#define TIMER2_STOP (!(This.crb&1))
+	#define TIMER2_RELOAD (This.crb&0x10)
+	#define TIMER2_COUNT_CLOCK ((This.crb&0x60)==0)
+	#define TIMER2_COUNT_CNT ((This.crb&0x60)==0x20)
+	#define TIMER2_COUNT_TIMER1 ((This.crb&0x60)==0x40)
+	#define TIMER2_COUNT_TIMER1_CNT ((This.crb&0x60)==0x60)
 	
-	#define SERIAL_MODE_OUT ((This->cra&0x40))
-	#define TOD_ALARM (This->crb&0x80)   /* else write to tod clock */
+	#define SERIAL_MODE_OUT ((This.cra&0x40))
+	#define TOD_ALARM (This.crb&0x80)   /* else write to tod clock */
 	#define BCD_INC(v) ( ((v)&0xf)==9?(v)+=0x10-9:(v)++)
 	
 	typedef struct {
@@ -99,9 +99,6 @@ public class cia6526
 		{0}
 	};
 	
-	static void cia_timer1_timeout (int which);
-	static void cia_timer2_timeout (int which);
-	static void cia_tod_timeout (int which);
 	
 	/******************* configuration *******************/
 	
@@ -147,28 +144,28 @@ public class cia6526
 	
 	static void cia_set_interrupt (CIA6526 *This, int data)
 	{
-		This->ifr |= data;
-		if (This->ier & data)
+		This.ifr |= data;
+		if (This.ier & data)
 		{
-			if (!(This->ifr & 0x80))
+			if (!(This.ifr & 0x80))
 			{
 				DBG_LOG (3, "cia set interrupt", ("%d %.2x\n",
-												  This->number, data));
-				if (This->intf->irq_func)
-					This->intf->irq_func (1);
-				This->ifr |= 0x80;
+												  This.number, data));
+				if (This.intf.irq_func)
+					This.intf.irq_func (1);
+				This.ifr |= 0x80;
 			}
 		}
 	}
 	
 	static void cia_clear_interrupt (CIA6526 *This, int data)
 	{
-		This->ifr &= ~data;
-		if ((This->ifr & 0x9f) == 0x80)
+		This.ifr &= ~data;
+		if ((This.ifr & 0x9f) == 0x80)
 		{
-			This->ifr &= ~0x80;
-			if (This->intf->irq_func)
-				This->intf->irq_func (0);
+			This.ifr &= ~0x80;
+			if (This.intf.irq_func)
+				This.intf.irq_func (0);
 		}
 	}
 	
@@ -177,184 +174,184 @@ public class cia6526
 	{
 		CIA6526 *This = cia + which;
 	
-		This->tod10ths++;
-		if (This->tod10ths > 9)
+		This.tod10ths++;
+		if (This.tod10ths > 9)
 		{
-			This->tod10ths = 0;
-			BCD_INC (This->todsec);
-			if (This->todsec > 0x59)
+			This.tod10ths = 0;
+			BCD_INC (This.todsec);
+			if (This.todsec > 0x59)
 			{
-				This->todsec = 0;
-				BCD_INC (This->todmin);
-				if (This->todmin > 0x59)
+				This.todsec = 0;
+				BCD_INC (This.todmin);
+				if (This.todmin > 0x59)
 				{
-					This->todmin = 0;
-					if (This->todhour == 0x91)
-						This->todhour = 0;
-					else if (This->todhour == 0x89)
-						This->todhour = 0x90;
-					else if (This->todhour == 0x11)
-						This->todhour = 0x80;
-					else if (This->todhour == 0x09)
-						This->todhour = 0x10;
+					This.todmin = 0;
+					if (This.todhour == 0x91)
+						This.todhour = 0;
+					else if (This.todhour == 0x89)
+						This.todhour = 0x90;
+					else if (This.todhour == 0x11)
+						This.todhour = 0x80;
+					else if (This.todhour == 0x09)
+						This.todhour = 0x10;
 					else
-						This->todhour++;
+						This.todhour++;
 				}
 			}
 		}
-		if ((This->todhour == This->alarmhour)
-			&& (This->todmin == This->alarmmin)
-			&& (This->todsec == This->alarmsec)
-			&& (This->tod10ths == This->alarm10ths))
+		if ((This.todhour == This.alarmhour)
+			&& (This.todmin == This.alarmmin)
+			&& (This.todsec == This.alarmsec)
+			&& (This.tod10ths == This.alarm10ths))
 			cia_set_interrupt (This, 4);
-		if (TODIN_50HZ)
+		if (TODIN_50HZ != 0)
 		{
-			if (This->intf->todin50hz)
-				timer_reset (This->todtimer, 0.1);
+			if (This.intf.todin50hz)
+				timer_reset (This.todtimer, 0.1);
 			else
-				timer_reset (This->todtimer, 5.0 / 60);
+				timer_reset (This.todtimer, 5.0 / 60);
 		}
 		else
 		{
-			if (This->intf->todin50hz)
-				timer_reset (This->todtimer, 6.0 / 50);
+			if (This.intf.todin50hz)
+				timer_reset (This.todtimer, 6.0 / 50);
 			else
-				timer_reset (This->todtimer, 0.1);
+				timer_reset (This.todtimer, 0.1);
 		}
 	}
 	
 	static void cia_timer1_state (CIA6526 *This)
 	{
 	
-		DBG_LOG (1, "timer1 state", ("%d\n", This->timer1_state));
-		switch (This->timer1_state)
+		DBG_LOG (1, "timer1 state", ("%d\n", This.timer1_state));
+		switch (This.timer1_state)
 		{
 		case 0:						   /* timer stopped */
-			if (TIMER1_RELOAD)
+			if (TIMER1_RELOAD != 0)
 			{
-				This->cra &= ~0x10;
-				This->t1c = This->t1l;
+				This.cra &= ~0x10;
+				This.t1c = This.t1l;
 			}
 			if (!TIMER1_STOP)
 			{
-				if (TIMER1_COUNT_CNT)
+				if (TIMER1_COUNT_CNT != 0)
 				{
-					This->timer1_state = 2;
+					This.timer1_state = 2;
 				}
 				else
 				{
-					This->timer1_state = 1;
-					This->timer1 = timer_set (TIME_IN_CYCLES (This->t1c, 0),
-											  This->number, cia_timer1_timeout);
+					This.timer1_state = 1;
+					This.timer1 = timer_set (TIME_IN_CYCLES (This.t1c, 0),
+											  This.number, cia_timer1_timeout);
 				}
 			}
 			break;
 		case 1:						   /* counting clock input */
-			if (TIMER1_RELOAD)
+			if (TIMER1_RELOAD != 0)
 			{
-				This->cra &= ~0x10;
-				This->t1c = This->t1l;
+				This.cra &= ~0x10;
+				This.t1c = This.t1l;
 				if (!TIMER1_STOP)
-					timer_reset (This->timer1, TIME_IN_CYCLES (This->t1c, 0));
+					timer_reset (This.timer1, TIME_IN_CYCLES (This.t1c, 0));
 			}
-			if (TIMER1_STOP)
+			if (TIMER1_STOP != 0)
 			{
-				This->timer1_state = 0;
-				timer_remove (This->timer1);
-				This->timer1 = 0;
+				This.timer1_state = 0;
+				timer_remove (This.timer1);
+				This.timer1 = 0;
 			}
-			else if (TIMER1_COUNT_CNT)
+			else if (TIMER1_COUNT_CNT != 0)
 			{
-				This->timer1_state = 2;
-				timer_remove (This->timer1);
-				This->timer1 = 0;
+				This.timer1_state = 2;
+				timer_remove (This.timer1);
+				This.timer1 = 0;
 			}
 			break;
 		case 2:						   /* counting cnt input */
-			if (TIMER1_RELOAD)
+			if (TIMER1_RELOAD != 0)
 			{
-				This->cra &= ~0x10;
-				This->t1c = This->t1l;
+				This.cra &= ~0x10;
+				This.t1c = This.t1l;
 			}
-			if (TIMER1_STOP)
+			if (TIMER1_STOP != 0)
 			{
-				This->timer1_state = 0;
+				This.timer1_state = 0;
 			}
 			else if (!TIMER1_COUNT_CNT)
 			{
-				This->timer1 = timer_set (TIME_IN_CYCLES (This->t1c, 0),
-										  This->number, cia_timer1_timeout);
-				This->timer1_state = 1;
+				This.timer1 = timer_set (TIME_IN_CYCLES (This.t1c, 0),
+										  This.number, cia_timer1_timeout);
+				This.timer1_state = 1;
 			}
 			break;
 		}
-		DBG_LOG (1, "timer1 state", ("%d\n", This->timer1_state));
+		DBG_LOG (1, "timer1 state", ("%d\n", This.timer1_state));
 	}
 	
 	static void cia_timer2_state (CIA6526 *This)
 	{
-		switch (This->timer2_state)
+		switch (This.timer2_state)
 		{
 		case 0:						   /* timer stopped */
-			if (TIMER2_RELOAD)
+			if (TIMER2_RELOAD != 0)
 			{
-				This->crb &= ~0x10;
-				This->t2c = This->t2l;
+				This.crb &= ~0x10;
+				This.t2c = This.t2l;
 			}
 			if (!TIMER2_STOP)
 			{
-				if (TIMER2_COUNT_CLOCK)
+				if (TIMER2_COUNT_CLOCK != 0)
 				{
-					This->timer2_state = 1;
-					This->timer2 = timer_set (TIME_IN_CYCLES (This->t2c, 0),
-											  This->number, cia_timer2_timeout);
+					This.timer2_state = 1;
+					This.timer2 = timer_set (TIME_IN_CYCLES (This.t2c, 0),
+											  This.number, cia_timer2_timeout);
 				}
 				else
 				{
-					This->timer2_state = 2;
+					This.timer2_state = 2;
 				}
 			}
 			break;
 		case 1:						   /* counting clock input */
-			if (TIMER2_RELOAD)
+			if (TIMER2_RELOAD != 0)
 			{
-				This->crb &= ~0x10;
-				This->t2c = This->t2l;
-				timer_reset (This->timer2, TIME_IN_CYCLES (This->t2c, 0));
+				This.crb &= ~0x10;
+				This.t2c = This.t2l;
+				timer_reset (This.timer2, TIME_IN_CYCLES (This.t2c, 0));
 			}
-			if (TIMER2_STOP )
+			if (TIMER2_STOP != 0)
 			{
-				This->timer2_state = 0;
-				timer_remove (This->timer2);
-				This->timer2 = 0;
+				This.timer2_state = 0;
+				timer_remove (This.timer2);
+				This.timer2 = 0;
 			}
 			else if (!TIMER2_COUNT_CLOCK)
 			{
-				This->timer2_state = 2;
-				timer_remove (This->timer2);
-				This->timer2 = 0;
+				This.timer2_state = 2;
+				timer_remove (This.timer2);
+				This.timer2 = 0;
 			}
 			break;
 		case 2:						   /* counting cnt, timer1  input */
-			if (This->t2c == 0)
+			if (This.t2c == 0)
 			{
 				cia_set_interrupt (This, 2);
-				This->crb |= 0x10;
+				This.crb |= 0x10;
 			}
-			if (TIMER2_RELOAD)
+			if (TIMER2_RELOAD != 0)
 			{
-				This->crb &= ~0x10;
-				This->t2c = This->t2l;
+				This.crb &= ~0x10;
+				This.t2c = This.t2l;
 			}
-			if (TIMER2_STOP)
+			if (TIMER2_STOP != 0)
 			{
-				This->timer2_state = 0;
+				This.timer2_state = 0;
 			}
-			else if (TIMER2_COUNT_CLOCK)
+			else if (TIMER2_COUNT_CLOCK != 0)
 			{
-				This->timer2 = timer_set (TIME_IN_CYCLES (This->t2c, 0),
-										  This->number, cia_timer2_timeout);
-				This->timer2_state = 1;
+				This.timer2 = timer_set (TIME_IN_CYCLES (This.t2c, 0),
+										  This.number, cia_timer2_timeout);
+				This.timer2_state = 1;
 			}
 			break;
 		}
@@ -364,41 +361,41 @@ public class cia6526
 	{
 		CIA6526 *This = cia + which;
 	
-		This->t1c = This->t1l;
+		This.t1c = This.t1l;
 	
-		if (TIMER1_ONESHOT)
+		if (TIMER1_ONESHOT != 0)
 		{
-			This->cra &= ~1;
-			This->timer1_state = 0;
+			This.cra &= ~1;
+			This.timer1_state = 0;
 		}
 		else
 		{
-			timer_reset (This->timer1, TIME_IN_CYCLES (This->t1c, 0));
+			timer_reset (This.timer1, TIME_IN_CYCLES (This.t1c, 0));
 		}
 		cia_set_interrupt (This, 1);
-		if (SERIAL_MODE_OUT)
+		if (SERIAL_MODE_OUT != 0)
 		{
-			if (This->shift || This->loaded)
+			if (This.shift || This.loaded)
 			{
-				if (This->cnt)
+				if (This.cnt)
 				{
-					if (This->shift == 0)
+					if (This.shift == 0)
 					{
-						This->loaded = 0;
-						This->serial = This->sdr;
+						This.loaded = 0;
+						This.serial = This.sdr;
 					}
-					This->sp = (This->serial & 0x80) ? 1 : 0;
-					This->shift++;
-					This->serial <<= 1;
-					This->cnt = 0;
+					This.sp = (This.serial & 0x80) ? 1 : 0;
+					This.shift++;
+					This.serial <<= 1;
+					This.cnt = 0;
 				}
 				else
 				{
-					This->cnt = 1;
-					if (This->shift == 8)
+					This.cnt = 1;
+					if (This.shift == 8)
 					{
 						cia_set_interrupt (This, 8);
-						This->shift = 0;
+						This.shift = 0;
 					}
 				}
 			}
@@ -406,9 +403,9 @@ public class cia6526
 	
 		/*  cia_timer1_state(This); */
 	
-		if (TIMER2_COUNT_TIMER1 || ((TIMER2_COUNT_TIMER1_CNT ) && (This->cnt)))
+		if (TIMER2_COUNT_TIMER1 || ((TIMER2_COUNT_TIMER1_CNT ) && (This.cnt)))
 		{
-			This->t2c--;
+			This.t2c--;
 			cia_timer2_state (This);
 		}
 	}
@@ -417,16 +414,16 @@ public class cia6526
 	{
 		CIA6526 *This = cia + which;
 	
-		This->t2c = This->t2l;
+		This.t2c = This.t2l;
 	
-		if (TIMER2_ONESHOT)
+		if (TIMER2_ONESHOT != 0)
 		{
-			This->crb &= ~1;
-			This->timer2_state = 0;
+			This.crb &= ~1;
+			This.timer2_state = 0;
 		}
 		else
 		{
-			timer_reset (This->timer2, TIME_IN_CYCLES (This->t2c, 0));
+			timer_reset (This.timer2, TIME_IN_CYCLES (This.t2c, 0));
 		}
 	
 		cia_set_interrupt (This, 2);
@@ -444,92 +441,92 @@ public class cia6526
 		switch (offset)
 		{
 		case 0:
-			if (This->intf->in_a_func)
-				This->in_a = This->intf->in_a_func (This->number);
-			val = ((This->out_a & This->ddr_a)
-				   | (This->intf->a_pullup & ~This->ddr_a)) & This->in_a;
+			if (This.intf.in_a_func)
+				This.in_a = This.intf.in_a_func (This.number);
+			val = ((This.out_a & This.ddr_a)
+				   | (This.intf.a_pullup & ~This.ddr_a)) & This.in_a;
 			break;
 		case 1:
-			if (This->intf->in_b_func)
-				This->in_b = This->intf->in_b_func (This->number);
-			val = ((This->out_b & This->ddr_b)
-				   | (This->intf->b_pullup & ~This->ddr_b)) & This->in_b;
+			if (This.intf.in_b_func)
+				This.in_b = This.intf.in_b_func (This.number);
+			val = ((This.out_b & This.ddr_b)
+				   | (This.intf.b_pullup & ~This.ddr_b)) & This.in_b;
 			break;
 		case 2:
-			val = This->ddr_a;
+			val = This.ddr_a;
 			break;
 		case 3:
-			val = This->ddr_b;
+			val = This.ddr_b;
 			break;
 		case 8:
-			if (This->todlatched)
-				val = This->latch10ths;
+			if (This.todlatched)
+				val = This.latch10ths;
 			else
-				val = This->tod10ths;
-			This->todlatched = 0;
+				val = This.tod10ths;
+			This.todlatched = 0;
 			break;
 		case 9:
-			if (This->todlatched)
-				val = This->latchsec;
+			if (This.todlatched)
+				val = This.latchsec;
 			else
-				val = This->todsec;
+				val = This.todsec;
 			break;
 		case 0xa:
-			if (This->todlatched)
-				val = This->latchmin;
+			if (This.todlatched)
+				val = This.latchmin;
 			else
-				val = This->todmin;
+				val = This.todmin;
 			break;
 		case 0xb:
-			This->latch10ths = This->tod10ths;
-			This->latchsec = This->todsec;
-			This->latchmin = This->todmin;
-			val = This->latchhour = This->todhour;
-			This->todlatched = 1;
+			This.latch10ths = This.tod10ths;
+			This.latchsec = This.todsec;
+			This.latchmin = This.todmin;
+			val = This.latchhour = This.todhour;
+			This.todlatched = 1;
 			break;
 		case 0xd:
-			val = This->ifr & ~0x60;
+			val = This.ifr & ~0x60;
 			cia_clear_interrupt (This, 0x1f);
 			break;
 		case 4:
-			if (This->timer1)
-				val = TIME_TO_CYCLES (0, timer_timeleft (This->timer1)) & 0xff;
+			if (This.timer1)
+				val = TIME_TO_CYCLES (0, timer_timeleft (This.timer1)) & 0xff;
 			else
-				val = This->t1c & 0xff;
-			DBG_LOG (3, "cia timer 1 lo", ("%d %.2x\n", This->number, val));
+				val = This.t1c & 0xff;
+			DBG_LOG (3, "cia timer 1 lo", ("%d %.2x\n", This.number, val));
 			break;
 		case 5:
-			if (This->timer1)
-				val = TIME_TO_CYCLES (0, timer_timeleft (This->timer1)) >> 8;
+			if (This.timer1)
+				val = TIME_TO_CYCLES (0, timer_timeleft (This.timer1)) >> 8;
 			else
-				val = This->t1c >> 8;
-			DBG_LOG (3, "cia timer 1 hi", ("%d %.2x\n", This->number, val));
+				val = This.t1c >> 8;
+			DBG_LOG (3, "cia timer 1 hi", ("%d %.2x\n", This.number, val));
 			break;
 		case 6:
-			if (This->timer2)
-				val = TIME_TO_CYCLES (0, timer_timeleft (This->timer2)) & 0xff;
+			if (This.timer2)
+				val = TIME_TO_CYCLES (0, timer_timeleft (This.timer2)) & 0xff;
 			else
-				val = This->t2c & 0xff;
-			DBG_LOG (3, "cia timer 2 lo", ("%d %.2x\n", This->number, val));
+				val = This.t2c & 0xff;
+			DBG_LOG (3, "cia timer 2 lo", ("%d %.2x\n", This.number, val));
 			break;
 		case 7:
-			if (This->timer2)
-				val = TIME_TO_CYCLES (0, timer_timeleft (This->timer2)) >> 8;
+			if (This.timer2)
+				val = TIME_TO_CYCLES (0, timer_timeleft (This.timer2)) >> 8;
 			else
-				val = This->t2c >> 8;
-			DBG_LOG (3, "cia timer 2 hi", ("%d %.2x\n", This->number, val));
+				val = This.t2c >> 8;
+			DBG_LOG (3, "cia timer 2 hi", ("%d %.2x\n", This.number, val));
 			break;
 		case 0xe:
-			val = This->cra;
+			val = This.cra;
 			break;
 		case 0xf:
-			val = This->crb;
+			val = This.crb;
 			break;
 		case 0xc:
-			val = This->sdr;
+			val = This.sdr;
 			break;
 		}
-		DBG_LOG (1, "cia read", ("%d %.2x:%.2x\n", This->number, offset, val));
+		DBG_LOG (1, "cia read", ("%d %.2x:%.2x\n", This.number, offset, val));
 		return val;
 	}
 	
@@ -538,154 +535,154 @@ public class cia6526
 	
 	static void cia6526_write (CIA6526 *This, int offset, int data)
 	{
-		DBG_LOG (1, "cia write", ("%d %.2x:%.2x\n", This->number, offset, data));
+		DBG_LOG (1, "cia write", ("%d %.2x:%.2x\n", This.number, offset, data));
 		offset &= 0xf;
 	
 		switch (offset)
 		{
 		case 0:
-			This->out_a = data;
-			if (This->intf->out_a_func)
-				This->intf->out_a_func (This->number, (This->out_a & This->ddr_a)
-									 | (~This->ddr_a & This->intf->a_pullup));
+			This.out_a = data;
+			if (This.intf.out_a_func)
+				This.intf.out_a_func (This.number, (This.out_a & This.ddr_a)
+									 | (~This.ddr_a & This.intf.a_pullup));
 			break;
 		case 1:
-			This->out_b = data;
-			if (This->intf->out_b_func)
-				This->intf->out_b_func (This->number, (This->out_b & This->ddr_b)
-									 | (~This->ddr_b & This->intf->b_pullup));
+			This.out_b = data;
+			if (This.intf.out_b_func)
+				This.intf.out_b_func (This.number, (This.out_b & This.ddr_b)
+									 | (~This.ddr_b & This.intf.b_pullup));
 			break;
 		case 2:
-			This->ddr_a = data;
-			if (This->intf->out_a_func)
-				This->intf->out_a_func (This->number, (This->out_a & This->ddr_a)
-									 | (~This->ddr_a & This->intf->a_pullup));
+			This.ddr_a = data;
+			if (This.intf.out_a_func)
+				This.intf.out_a_func (This.number, (This.out_a & This.ddr_a)
+									 | (~This.ddr_a & This.intf.a_pullup));
 			break;
 		case 3:
-			This->ddr_b = data;
-			if (This->intf->out_b_func)
-				This->intf->out_b_func (This->number, (This->out_b & This->ddr_b)
-									 | (~This->ddr_b & This->intf->b_pullup));
+			This.ddr_b = data;
+			if (This.intf.out_b_func)
+				This.intf.out_b_func (This.number, (This.out_b & This.ddr_b)
+									 | (~This.ddr_b & This.intf.b_pullup));
 			break;
 		case 8:
-			if (TOD_ALARM)
-				This->alarm10ths = data;
+			if (TOD_ALARM != 0)
+				This.alarm10ths = data;
 			else
 			{
-				This->tod10ths = data;
-				if (This->todstopped)
+				This.tod10ths = data;
+				if (This.todstopped)
 				{
-					if (TODIN_50HZ)
+					if (TODIN_50HZ != 0)
 					{
-						if (This->intf->todin50hz)
-							This->todtimer = timer_set (0.1, This->number,
+						if (This.intf.todin50hz)
+							This.todtimer = timer_set (0.1, This.number,
 														cia_tod_timeout);
 						else
-							This->todtimer = timer_set (5.0 / 60, This->number,
+							This.todtimer = timer_set (5.0 / 60, This.number,
 														cia_tod_timeout);
 					}
 					else
 					{
-						if (This->intf->todin50hz)
-							This->todtimer = timer_set (60 / 5.0, This->number,
+						if (This.intf.todin50hz)
+							This.todtimer = timer_set (60 / 5.0, This.number,
 														cia_tod_timeout);
 						else
-							This->todtimer = timer_set (0.1, This->number,
+							This.todtimer = timer_set (0.1, This.number,
 													 cia_tod_timeout);
 					}
 				}
-				This->todstopped = 0;
+				This.todstopped = 0;
 			}
 			break;
 		case 9:
-			if (TOD_ALARM)
-				This->alarmsec = data;
+			if (TOD_ALARM != 0)
+				This.alarmsec = data;
 			else
-				This->todsec = data;
+				This.todsec = data;
 			break;
 		case 0xa:
-			if (TOD_ALARM)
-				This->alarmmin = data;
+			if (TOD_ALARM != 0)
+				This.alarmmin = data;
 			else
-				This->todmin = data;
+				This.todmin = data;
 			break;
 		case 0xb:
-			if (TOD_ALARM)
-				This->alarmhour = data;
+			if (TOD_ALARM != 0)
+				This.alarmhour = data;
 			else
 			{
-				if (This->todtimer)
-					timer_remove (This->todtimer);
-				This->todtimer = 0;
-				This->todstopped = 1;
-				This->todhour = data;
+				if (This.todtimer)
+					timer_remove (This.todtimer);
+				This.todtimer = 0;
+				This.todstopped = 1;
+				This.todhour = data;
 			}
 			break;
 		case 0xd:
-			DBG_LOG (1, "cia interrupt enable", ("%d %.2x\n", This->number, data));
-			if (data & 0x80)
+			DBG_LOG (1, "cia interrupt enable", ("%d %.2x\n", This.number, data));
+			if ((data & 0x80) != 0)
 			{
-				This->ier |= data;
+				This.ier |= data;
 				cia_set_interrupt (This, data & 0x1f);
 			}
 			else
 			{
-				This->ier &= ~data;
+				This.ier &= ~data;
 				cia_clear_interrupt (This, data & 0x1f);
 			}
 			break;
 		case 4:
-			This->t1l = (This->t1l & ~0xff) | data;
-			if (This->t1l == 0)
-				This->t1l = 0x10000;		   /*avoid hanging in timer_schedule */
-			DBG_LOG (3, "cia timer 1 lo write", ("%d %.2x\n", This->number, data));
+			This.t1l = (This.t1l & ~0xff) | data;
+			if (This.t1l == 0)
+				This.t1l = 0x10000;		   /*avoid hanging in timer_schedule */
+			DBG_LOG (3, "cia timer 1 lo write", ("%d %.2x\n", This.number, data));
 			break;
 		case 5:
-			This->t1l = (This->t1l & 0xff) | (data << 8);
-			if (This->t1l == 0)
-				This->t1l = 0x10000;		   /*avoid hanging in timer_schedule */
-			if (TIMER1_STOP)
-				This->t1c = This->t1l;
-			DBG_LOG (3, "cia timer 1 hi write", ("%d %.2x\n", This->number, data));
+			This.t1l = (This.t1l & 0xff) | (data << 8);
+			if (This.t1l == 0)
+				This.t1l = 0x10000;		   /*avoid hanging in timer_schedule */
+			if (TIMER1_STOP != 0)
+				This.t1c = This.t1l;
+			DBG_LOG (3, "cia timer 1 hi write", ("%d %.2x\n", This.number, data));
 			break;
 		case 6:
-			This->t2l = (This->t2l & ~0xff) | data;
-			if (This->t2l == 0)
-				This->t2l = 0x10000;		   /*avoid hanging in timer_schedule */
-			DBG_LOG (3, "cia timer 2 lo write", ("%d %.2x\n", This->number, data));
+			This.t2l = (This.t2l & ~0xff) | data;
+			if (This.t2l == 0)
+				This.t2l = 0x10000;		   /*avoid hanging in timer_schedule */
+			DBG_LOG (3, "cia timer 2 lo write", ("%d %.2x\n", This.number, data));
 			break;
 		case 7:
-			This->t2l = (This->t2l & 0xff) | (data << 8);
-			if (This->t2l == 0)
-				This->t2l = 0x10000;		   /*avoid hanging in timer_schedule */
-			if (TIMER2_STOP)
-				This->t2c = This->t2l;
-			DBG_LOG (3, "cia timer 2 hi write", ("%d %.2x\n", This->number, data));
+			This.t2l = (This.t2l & 0xff) | (data << 8);
+			if (This.t2l == 0)
+				This.t2l = 0x10000;		   /*avoid hanging in timer_schedule */
+			if (TIMER2_STOP != 0)
+				This.t2c = This.t2l;
+			DBG_LOG (3, "cia timer 2 hi write", ("%d %.2x\n", This.number, data));
 			break;
 		case 0xe:
-			DBG_LOG (3, "cia write cra", ("%d %.2x\n", This->number, data));
-			if ((This->cra & 0x40) != (data & 0x40))
+			DBG_LOG (3, "cia write cra", ("%d %.2x\n", This.number, data));
+			if ((This.cra & 0x40) != (data & 0x40))
 			{
-				if (!(This->cra & 0x40))
+				if (!(This.cra & 0x40))
 				{
-					This->loaded = 0;
-					This->shift = 0;
-					This->cnt = 1;
+					This.loaded = 0;
+					This.shift = 0;
+					This.cnt = 1;
 				}
 			}
-			This->cra = data;
+			This.cra = data;
 			cia_timer1_state (This);
 			break;
 		case 0xf:
-			DBG_LOG (3, "cia write crb", ("%d %.2x\n", This->number, data));
-			This->crb = data;
+			DBG_LOG (3, "cia write crb", ("%d %.2x\n", This.number, data));
+			This.crb = data;
 			cia_timer2_state (This);
 			break;
 		case 0xc:
-			This->sdr = data;
-			if (SERIAL_MODE_OUT)
+			This.sdr = data;
+			if (SERIAL_MODE_OUT != 0)
 			{
-				This->loaded = 1;
+				This.loaded = 1;
 			}
 			break;
 		}
@@ -693,45 +690,45 @@ public class cia6526
 	
 	static void cia_set_input_a (CIA6526 *This, int data)
 	{
-		This->in_a = data;
+		This.in_a = data;
 	}
 	
 	static void cia_set_input_b (CIA6526 *This, int data)
 	{
-		This->in_b = data;
+		This.in_b = data;
 	}
 	
 	static void cia6526_set_input_flag (CIA6526 *This, int data)
 	{
-		if (This->flag && !data)
+		if (This.flag && !data)
 			cia_set_interrupt (This, 0x10);
-		This->flag = data;
+		This.flag = data;
 	}
 	
 	static void cia6526_set_input_sp (CIA6526 *This, int data)
 	{
-		This->sp = data;
+		This.sp = data;
 	}
 	
 	static void cia6526_set_input_cnt (CIA6526 *This, int data)
 	{
-		if (!This->cnt && data)
+		if (!This.cnt && data)
 		{
 			if (!SERIAL_MODE_OUT)
 			{
-				This->serial >>= 1;
-				if (This->sp)
-					This->serial |= 0x80;
-				if (++This->shift == 8)
+				This.serial >>= 1;
+				if (This.sp)
+					This.serial |= 0x80;
+				if (++This.shift == 8)
 				{
-					This->sdr = This->serial;
-					This->serial = 0;
-					This->shift = 0;
+					This.sdr = This.serial;
+					This.serial = 0;
+					This.shift = 0;
 					cia_set_interrupt (This, 8);
 				}
 			}
 		}
-		This->cnt = data;
+		This.cnt = data;
 	}
 	
 	READ_HANDLER ( cia6526_0_port_r )

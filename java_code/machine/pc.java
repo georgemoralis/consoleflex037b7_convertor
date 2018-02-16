@@ -36,14 +36,13 @@ public class pc
 	#define FDC_DMA 2
 	
 	
-	void pc_fdc_setup(void);
 	
 	/* called when a interrupt is set/cleared from com hardware */
 	static void pc_com_interrupt(int nr, int state)
 	{
 		static const int irq[4]={4,3,4,3};
 		/* issue COM1/3 IRQ4, COM2/4 IRQ3 */
-		if (state)
+		if (state != 0)
 		{
 			pic8259_0_issue_irq(irq[nr]);
 		}
@@ -92,13 +91,7 @@ public class pc
 		}
 	};
 	
-	/* static READ_HANDLER( pc_ppi_porta_r ); */
-	/* static READ_HANDLER( pc_ppi_portb_r ); */
-	static READ_HANDLER( pc_ppi_portc_r );
-	static WRITE_HANDLER( pc_ppi_porta_w );
-	/* static WRITE_HANDLER( pc_ppi_portb_w ); */
-	static WRITE_HANDLER( pc_ppi_portc_w );
-	
+	/* /* /* 
 	
 	/* PC-XT has a 8255 which is connected to keyboard and other
 	status information */
@@ -148,7 +141,7 @@ public class pc
 		}
 	};
 	
-	void init_pc_common(void)
+	public static InitDriverPtr init_pc_common = new InitDriverPtr() { public void handler() 
 	{
 		pit8253_config(0,&pc_pit8253_config);
 		/* FDC hardware */
@@ -179,9 +172,9 @@ public class pc
 		/* should be in init for DMA controller? */
 		pc_DMA_status &= ~(0x10 << FDC_DMA);	/* reset DMA running flag */
 		pc_DMA_status |= 0x01 << FDC_DMA;		/* set DMA terminal count flag */
-	}
+	} };
 	
-	void init_pc(void)
+	public static InitDriverPtr init_pc = new InitDriverPtr() { public void handler() 
 	{
 		UINT8 *gfx = &memory_region(REGION_GFX1)[0x1000];
 		int i;
@@ -191,17 +184,17 @@ public class pc
 	
 		init_pc_common();
 		at_keyboard_set_type(AT_KEYBOARD_TYPE_PC);
-	}
+	} };
 	
-	void init_pc1512(void)
+	public static InitDriverPtr init_pc1512 = new InitDriverPtr() { public void handler() 
 	{
 		init_pc();
 	
 		at_keyboard_set_type(AT_KEYBOARD_TYPE_PC);
 		mc146818_init(MC146818_IGNORE_CENTURY);
-	}
+	} };
 	
-	extern void init_pc1640(void)
+	extern public static InitDriverPtr init_pc1640 = new InitDriverPtr() { public void handler() 
 	{
 		init_pc_common();
 		at_keyboard_set_type(AT_KEYBOARD_TYPE_PC);
@@ -209,9 +202,9 @@ public class pc
 		mc146818_init(MC146818_IGNORE_CENTURY);
 	
 		vga_init(input_port_0_r);
-	}
+	} };
 	
-	void init_pc_vga(void)
+	public static InitDriverPtr init_pc_vga = new InitDriverPtr() { public void handler() 
 	{
 	#if 0
 	        int i;
@@ -239,7 +232,7 @@ public class pc
 		at_keyboard_set_type(AT_KEYBOARD_TYPE_PC);
 	
 		vga_init(input_port_0_r);
-	}
+	} };
 	
 	extern void pc1512_close_machine(void)
 	{
@@ -252,7 +245,7 @@ public class pc
 		mc146818_close();
 	}
 	
-	void pc_mda_init_machine(void)
+	public static InitMachinePtr pc_mda_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		int i;
 	
@@ -264,21 +257,21 @@ public class pc
 			if( i < 176 || i > 223 )
 			{
 				int y;
-				for( y = 0; y < Machine->gfx[0]->height; y++ )
-					Machine->gfx[0]->gfxdata[(i * Machine->gfx[0]->height + y) * Machine->gfx[0]->width + 8] = 0;
+				for( y = 0; y < Machine.gfx[0].height; y++ )
+					Machine.gfx[0].gfxdata[(i * Machine.gfx[0].height + y) * Machine.gfx[0].width + 8] = 0;
 			}
 		}
-	}
+	} };
 	
-	void pc_cga_init_machine(void)
+	public static InitMachinePtr pc_cga_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		pc_keyboard_init();
-	}
+	} };
 	
-	void pc_vga_init_machine(void)
+	public static InitMachinePtr pc_vga_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		pc_keyboard_init();
-	}
+	} };
 	
 	/*************************************
 	 *
@@ -376,7 +369,7 @@ public class pc
 	 *
 	 *************************************************************************/
 	
-	READ_HANDLER( pc_ppi_porta_r )
+	public static ReadHandlerPtr pc_ppi_porta_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		int data;
 	
@@ -384,9 +377,9 @@ public class pc
 	    data = pc_port[0x60];
 	    PIO_LOG(1,"PIO_A_r",("$%02x\n", data));
 	    return data;
-	}
+	} };
 	
-	READ_HANDLER( pc_ppi_portb_r )
+	public static ReadHandlerPtr pc_ppi_portb_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		int data;
 	
@@ -394,12 +387,12 @@ public class pc
 		data = pc_port[0x61] /*& 0x03f*/;
 		PIO_LOG(1,"PIO_B_r",("$%02x\n", data));
 		return data;
-	}
+	} };
 	
 	/* tandy1000hx
 	   bit 4 input eeprom data in
 	   bit 3 output turbo mode */
-	READ_HANDLER( pc_ppi_portc_r )
+	public static ReadHandlerPtr pc_ppi_portc_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		int data=0xff;
 	
@@ -409,27 +402,27 @@ public class pc
 		if (pc_port[0x61] & 0x08)
 		{
 			/* read hi nibble of S2 */
-			data = (data&0xf0)|((input_port_1_r(0) >> 4) & 0x0f);
+			data = (data&0xf0)|((input_port_1_r.handler(0) >> 4) & 0x0f);
 			PIO_LOG(1,"PIO_C_r (hi)",("$%02x\n", data));
 		}
 		else
 		{
 			/* read lo nibble of S2 */
-			data = (data&0xf0)|(input_port_1_r(0) & 0x0f);
+			data = (data&0xf0)|(input_port_1_r.handler(0) & 0x0f);
 			PIO_LOG(1,"PIO_C_r (lo)",("$%02x\n", data));
 		}
 	
 		return data;
-	}
+	} };
 	
-	WRITE_HANDLER( pc_ppi_porta_w )
+	public static WriteHandlerPtr pc_ppi_porta_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		/* KB controller port A */
 		PIO_LOG(1,"PIO_A_w",("$%02x\n", data));
 		pc_port[0x60] = data;
-	}
+	} };
 	
-	WRITE_HANDLER( pc_ppi_portb_w )
+	public static WriteHandlerPtr pc_ppi_portb_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		/* KB controller port B */
 		PIO_LOG(1,"PIO_B_w",("$%02x\n", data));
@@ -441,14 +434,14 @@ public class pc
 			case 2: pc_sh_speaker(1); break;
 			case 3: pc_sh_speaker(2); break;
 		}
-	}
+	} };
 	
-	WRITE_HANDLER( pc_ppi_portc_w )
+	public static WriteHandlerPtr pc_ppi_portc_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		/* KB controller port C */
 		PIO_LOG(1,"PIO_C_w",("$%02x\n", data));
 		pc_port[0x62] = data;
-	}
+	} };
 	
 	/*************************************************************************
 	 *
@@ -601,7 +594,7 @@ public class pc
 		}
 	}
 	
-	int pc_mda_frame_interrupt (void)
+	public static InterruptPtr pc_mda_frame_interrupt = new InterruptPtr() { public int handler() 
 	{
 		static int turboswitch=-1;
 	
@@ -619,9 +612,9 @@ public class pc
 			pc_keyboard();
 	
 	    return ignore_interrupt ();
-	}
+	} };
 	
-	int pc_cga_frame_interrupt (void)
+	public static InterruptPtr pc_cga_frame_interrupt = new InterruptPtr() { public int handler() 
 	{
 		static int turboswitch=-1;
 	
@@ -639,9 +632,9 @@ public class pc
 			pc_keyboard();
 	
 	    return ignore_interrupt ();
-	}
+	} };
 	
-	int pc_vga_frame_interrupt (void)
+	public static InterruptPtr pc_vga_frame_interrupt = new InterruptPtr() { public int handler() 
 	{
 		static int turboswitch=-1;
 	
@@ -658,5 +651,5 @@ public class pc
 			pc_keyboard();
 	
 	    return ignore_interrupt ();
-	}
+	} };
 }

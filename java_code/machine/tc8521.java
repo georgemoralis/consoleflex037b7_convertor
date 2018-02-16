@@ -172,7 +172,7 @@ public class tc8521
 	        rtc.registers[0x0d] &= ~ (1<<3);
 	
 	        memset(&rtc.interface, 0, sizeof(struct tc8521_interface));
-	        if (intf)
+	        if (intf != 0)
 	        {
 	            memcpy(&rtc.interface, intf, sizeof(struct tc8521_interface));
 	        }
@@ -206,22 +206,22 @@ public class tc8521
 	        {
 	                case 0x0D:
 	                {
-	                        if (data & 0x08)
+	                        if ((data & 0x08) != 0)
 	                        {
 	                            logerror("timer enable\r\n");
 	                        }
 	
-	                        if (data & 0x04)
+	                        if ((data & 0x04) != 0)
 	                        {
 	                            logerror("alarm enable\r\n");
 	                        }
 	
-	                        if (data & 0x02)
+	                        if ((data & 0x02) != 0)
 	                        {
 	                            logerror("PA1\r\n");
 	                        }
 	
-	                        if (data & 0x01)
+	                        if ((data & 0x01) != 0)
 	                        {
 	                            logerror("PA0\r\n");
 	                        }
@@ -230,22 +230,22 @@ public class tc8521
 	
 	                case 0x0e:
 	                {
-	                        if (data & 0x08)
+	                        if ((data & 0x08) != 0)
 	                        {
 	                            logerror("test 3\r\n");
 	                        }
 	
-	                        if (data & 0x04)
+	                        if ((data & 0x04) != 0)
 	                        {
 	                            logerror("test 2\r\n");
 	                        }
 	
-	                        if (data & 0x02)
+	                        if ((data & 0x02) != 0)
 	                        {
 	                            logerror("test 1\r\n");
 	                        }
 	
-	                        if (data & 0x01)
+	                        if ((data & 0x01) != 0)
 	                        {
 	                            logerror("test 0\r\n");
 	                        }
@@ -254,22 +254,22 @@ public class tc8521
 	
 	                case 0x0f:
 	                {
-	                        if (data & 0x08)
+	                        if ((data & 0x08) != 0)
 	                        {
 	                           logerror("1hz enable\r\n");
 	                        }
 	
-	                        if (data & 0x04)
+	                        if ((data & 0x04) != 0)
 	                        {
 	                           logerror("16hz enable\r\n");
 	                        }
 	
-	                        if (data & 0x02)
+	                        if ((data & 0x02) != 0)
 	                        {
 	                           logerror("reset timer\r\n");
 	                        }
 	
-	                        if (data & 0x01)
+	                        if ((data & 0x01) != 0)
 	                        {
 	                           logerror("reset alarm\r\n");
 	                        }

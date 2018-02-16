@@ -39,17 +39,10 @@ public class amstrad
 	
 	/*-------------------------------------------*/
 	/* MULTIFACE */
-	static void multiface_rethink_memory(void);
-	static WRITE_HANDLER(multiface_io_write);
-	void multiface_init(void);
-	void multiface_exit(void);
-	void multiface_stop(void);
-	int multiface_hardware_enabled(void);
-	void multiface_reset(void);
+	static static WRITE_HANDLER(multiface_io_write);
 	
 	/*-------------------------------------------*/
-	static void amstrad_clear_top_bit_of_int_counter(void);
-	
+	static 
 	/* machine name is defined in bits 3,2,1.
 	Names are: Isp, Triumph, Saisho, Solavox, Awa, Schneider, Orion, Amstrad.
 	Name is set by a link on the PCB
@@ -92,7 +85,7 @@ public class amstrad
 		}
 	}
 	
-	static void amstrad_eof_callback(void)
+	static public static VhEofCallbackPtr amstrad_eof_callback = new VhEofCallbackPtr() { public void handler() 
 	{
 		if ((readinputport(11) & 0x02)!=0)
 		{
@@ -104,7 +97,7 @@ public class amstrad
 		// update cycle count
 		amstrad_cycles_at_frame_end += cpu_getcurrentcycles();
 	#endif
-	}
+	} };
 	
 	/* psg access operation:
 	0 = inactive, 1 = read register data, 2 = write register data,
@@ -255,13 +248,13 @@ public class amstrad
 	};
 	
 	/* pointers to current ram configuration selected for banks */
-	static unsigned char *AmstradCPC_RamBanks[4];
+	static UBytePtr AmstradCPC_RamBanks[4];
 	
 	/* base of all ram allocated - 128k */
-	unsigned char *Amstrad_Memory;
+	UBytePtr Amstrad_Memory;
 	
 	/* current selected upper rom */
-	static unsigned char *Amstrad_UpperRom;
+	static UBytePtr Amstrad_UpperRom;
 	
 	/* bit 0,1 = mode, 2 = if zero, os rom is enabled, otherwise
 	disabled, 3 = if zero, upper rom is enabled, otherwise disabled */
@@ -312,7 +305,7 @@ public class amstrad
 		/* the following is used for banked memory read/writes and for setting up
 		 * opcode and opcode argument reads */
 		{
-			unsigned char *BankBase;
+			UBytePtr BankBase;
 	
 			/* bank 0 - 0x0000..0x03fff */
 			if ((AmstradCPC_GA_RomConfiguration & 0x04) == 0)
@@ -372,7 +365,7 @@ public class amstrad
 	{
 		int ConfigurationIndex = AmstradCPC_GA_RamConfiguration & 0x07;
 		int BankIndex;
-		unsigned char *BankAddr;
+		UBytePtr BankAddr;
 	
 		BankIndex = RamConfigurations[(ConfigurationIndex << 2)];
 		BankAddr = Amstrad_Memory + (BankIndex << 14);
@@ -416,7 +409,7 @@ public class amstrad
 				int PenIndex;
 	
 				/* colour selection */
-				if (AmstradCPC_GA_PenSelected & 0x010)
+				if ((AmstradCPC_GA_PenSelected & 0x010) != 0)
 				{
 					/* specify border colour */
 					PenIndex = 16;
@@ -725,7 +718,7 @@ public class amstrad
 	
 	
 	
-	static unsigned char *multiface_ram;
+	static UBytePtr multiface_ram;
 	static unsigned long multiface_flags;
 	
 	/* stop button has been pressed */
@@ -789,7 +782,7 @@ public class amstrad
 		multiface_flags = MULTIFACE_VISIBLE;
 	
 		/* allocate ram */
-			multiface_ram = (unsigned char *)malloc(8192);
+			multiface_ram = (UBytePtr )malloc(8192);
 	}
 	
 	void	multiface_exit(void)
@@ -861,7 +854,7 @@ public class amstrad
 	
 	static void multiface_rethink_memory(void)
 	{
-			unsigned char *multiface_rom;
+			UBytePtr multiface_rom;
 	
 		/* multiface hardware enabled? */
 			if (!multiface_hardware_enabled())
@@ -891,7 +884,7 @@ public class amstrad
 			return;
 	
 			/* visible? */
-		if (multiface_flags & MULTIFACE_VISIBLE)
+		if ((multiface_flags & MULTIFACE_VISIBLE) != 0)
 		{
 			if (offset==0x0fee8)
 			{
@@ -2326,7 +2319,7 @@ public class amstrad
 	
 	}
 	
-	void amstrad_init_machine(void)
+	public static InitMachinePtr amstrad_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		amstrad_common_init();
 	
@@ -2350,9 +2343,9 @@ public class amstrad
 		ppi_port_inputs[1] = readinputport(10) & 0x01e;
 	
 		multiface_init();
-	}
+	} };
 	
-	void kccomp_init_machine(void)
+	public static InitMachinePtr kccomp_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		amstrad_common_init();
 	
@@ -2365,7 +2358,7 @@ public class amstrad
 		is not supported in the driver */
 		/* bit 3,4 are tied to +5V, bit 2 is tied to 0V */
 		ppi_port_inputs[1] = (1<<4) | (1<<3) | 2;
-	}
+	} };
 	
 	
 	/* sets up for a machine reset */
@@ -2423,7 +2416,7 @@ public class amstrad
 	
 	
 	/* Initialise the palette */
-	static void amstrad_init_palette(unsigned char *sys_palette, unsigned short *sys_colortable, const unsigned char *color_prom)
+	static void amstrad_init_palette(UBytePtr sys_palette, unsigned short *sys_colortable, const UBytePtr color_prom)
 	{
 		memcpy(sys_palette, amstrad_palette, sizeof (amstrad_palette));
 		memcpy(sys_colortable, amstrad_colour_table, sizeof (amstrad_colour_table));
@@ -2433,49 +2426,49 @@ public class amstrad
 	/* Memory is banked in 16k blocks. However, the multiface
 	pages the memory in 8k blocks! The ROM can
 	be paged into bank 0 and bank 3. */
-	static struct MemoryReadAddress readmem_amstrad[] =
+	static MemoryReadAddress readmem_amstrad[] =
 	{
-		{0x00000, 0x01fff, MRA_BANK1},
-		{0x02000, 0x03fff, MRA_BANK2},
-		{0x04000, 0x05fff, MRA_BANK3},
-		{0x06000, 0x07fff, MRA_BANK4},
-		{0x08000, 0x09fff, MRA_BANK5},
-		{0x0a000, 0x0bfff, MRA_BANK6},
-		{0x0c000, 0x0dfff, MRA_BANK7},
-		{0x0e000, 0x0ffff, MRA_BANK8},
-		{0x010000, 0x013fff, MRA_ROM},	   /* OS */
-		{0x014000, 0x017fff, MRA_ROM},	   /* BASIC */
-		{0x018000, 0x01bfff, MRA_ROM},	   /* AMSDOS */
-		{-1}							   /* end of table */
+		new MemoryReadAddress(0x00000, 0x01fff, MRA_BANK1),
+		new MemoryReadAddress(0x02000, 0x03fff, MRA_BANK2),
+		new MemoryReadAddress(0x04000, 0x05fff, MRA_BANK3),
+		new MemoryReadAddress(0x06000, 0x07fff, MRA_BANK4),
+		new MemoryReadAddress(0x08000, 0x09fff, MRA_BANK5),
+		new MemoryReadAddress(0x0a000, 0x0bfff, MRA_BANK6),
+		new MemoryReadAddress(0x0c000, 0x0dfff, MRA_BANK7),
+		new MemoryReadAddress(0x0e000, 0x0ffff, MRA_BANK8),
+		new MemoryReadAddress(0x010000, 0x013fff, MRA_ROM),	   /* OS */
+		new MemoryReadAddress(0x014000, 0x017fff, MRA_ROM),	   /* BASIC */
+		new MemoryReadAddress(0x018000, 0x01bfff, MRA_ROM),	   /* AMSDOS */
+		new MemoryReadAddress(-1)							   /* end of table */
 	};
 	
 	
-	static struct MemoryWriteAddress writemem_amstrad[] =
+	static MemoryWriteAddress writemem_amstrad[] =
 	{
-		{0x00000, 0x01fff, MWA_BANK9},
-		{0x02000, 0x03fff, MWA_BANK10},
-		{0x04000, 0x05fff, MWA_BANK11},
-		{0x06000, 0x07fff, MWA_BANK12},
-		{0x08000, 0x09fff, MWA_BANK13},
-		{0x0a000, 0x0bfff, MWA_BANK14},
-		{0x0c000, 0x0dfff, MWA_BANK15},
-		{0x0e000, 0x0ffff, MWA_BANK16},
-		{-1}							   /* end of table */
+		new MemoryWriteAddress(0x00000, 0x01fff, MWA_BANK9),
+		new MemoryWriteAddress(0x02000, 0x03fff, MWA_BANK10),
+		new MemoryWriteAddress(0x04000, 0x05fff, MWA_BANK11),
+		new MemoryWriteAddress(0x06000, 0x07fff, MWA_BANK12),
+		new MemoryWriteAddress(0x08000, 0x09fff, MWA_BANK13),
+		new MemoryWriteAddress(0x0a000, 0x0bfff, MWA_BANK14),
+		new MemoryWriteAddress(0x0c000, 0x0dfff, MWA_BANK15),
+		new MemoryWriteAddress(0x0e000, 0x0ffff, MWA_BANK16),
+		new MemoryWriteAddress(-1)							   /* end of table */
 	};
 	
 	/* I've handled the I/O ports in this way, because the ports
 	are not fully decoded by the CPC h/w. Doing it this way means
 	I can decode it myself and a lot of  software should work */
-	static struct IOReadPort readport_amstrad[] =
+	static IOReadPort readport_amstrad[] =
 	{
-		{0x0000, 0x0ffff, AmstradCPC_ReadPortHandler},
-		{-1}							   /* end of table */
+		new IOReadPort(0x0000, 0x0ffff, AmstradCPC_ReadPortHandler),
+		new IOReadPort(-1)							   /* end of table */
 	};
 	
-	static struct IOWritePort writeport_amstrad[] =
+	static IOWritePort writeport_amstrad[] =
 	{
-		{0x0000, 0x0ffff, AmstradCPC_WritePortHandler},
-		{-1}							   /* end of table */
+		new IOWritePort(0x0000, 0x0ffff, AmstradCPC_WritePortHandler),
+		new IOWritePort(-1)							   /* end of table */
 	};
 	
 	/* read PSG port A */
@@ -2486,143 +2479,143 @@ public class amstrad
 	}
 	
 	
-	static struct AY8910interface amstrad_ay_interface =
-	{
+	static AY8910interface amstrad_ay_interface = new AY8910interface
+	(
 		1,								   /* 1 chips */
 		1000000,						   /* 1.0 MHz  */
-		{25, 25},
-		{amstrad_psg_porta_read},
-		{0},
-		{0},
-		{0}
-	};
+		new int[] {25, 25},
+		new ReadHandlerPtr[] {amstrad_psg_porta_read},
+		new ReadHandlerPtr[] {0},
+		new WriteHandlerPtr[] {0},
+		new WriteHandlerPtr[] {0}
+	);
 	
 	#define KEYBOARD_PORTS \
 		/* keyboard row 0 */ \
-		PORT_START \
-		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "Cursor Up", KEYCODE_UP, IP_JOY_NONE) \
-		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "Cursor Right", KEYCODE_RIGHT, IP_JOY_NONE) \
-		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "Cursor Down", KEYCODE_DOWN, IP_JOY_NONE) \
-		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "F9", KEYCODE_9_PAD, IP_JOY_NONE) \
-		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD, "F6", KEYCODE_6_PAD, IP_JOY_NONE) \
-		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD, "F3", KEYCODE_3_PAD, IP_JOY_NONE) \
-		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD, "Small Enter", KEYCODE_ENTER_PAD, IP_JOY_NONE) \
-		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD, "F.", KEYCODE_DEL_PAD, IP_JOY_NONE) \
+		PORT_START();  \
+		PORT_BITX(0x01, IP_ACTIVE_LOW, IPT_KEYBOARD, "Cursor Up", KEYCODE_UP, IP_JOY_NONE);\
+		PORT_BITX(0x02, IP_ACTIVE_LOW, IPT_KEYBOARD, "Cursor Right", KEYCODE_RIGHT, IP_JOY_NONE);\
+		PORT_BITX(0x04, IP_ACTIVE_LOW, IPT_KEYBOARD, "Cursor Down", KEYCODE_DOWN, IP_JOY_NONE);\
+		PORT_BITX(0x08, IP_ACTIVE_LOW, IPT_KEYBOARD, "F9", KEYCODE_9_PAD, IP_JOY_NONE);\
+		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD, "F6", KEYCODE_6_PAD, IP_JOY_NONE);\
+		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD, "F3", KEYCODE_3_PAD, IP_JOY_NONE);\
+		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD, "Small Enter", KEYCODE_ENTER_PAD, IP_JOY_NONE);\
+		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD, "F.", KEYCODE_DEL_PAD, IP_JOY_NONE);\
 	\
 		/* keyboard line 1 */ \
-		PORT_START \
-		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD, "Cursor Left", KEYCODE_LEFT, IP_JOY_NONE) \
-		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD, "Copy", KEYCODE_LALT, IP_JOY_NONE) \
-		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD, "F7", KEYCODE_7_PAD, IP_JOY_NONE) \
-		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD, "F8", KEYCODE_8_PAD, IP_JOY_NONE) \
-		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD, "F5", KEYCODE_5_PAD, IP_JOY_NONE) \
-		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD, "F1", KEYCODE_1_PAD, IP_JOY_NONE) \
-		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD, "F2", KEYCODE_2_PAD, IP_JOY_NONE) \
-		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD, "F0", KEYCODE_0_PAD, IP_JOY_NONE) \
+		PORT_START();  \
+		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD, "Cursor Left", KEYCODE_LEFT, IP_JOY_NONE);\
+		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD, "Copy", KEYCODE_LALT, IP_JOY_NONE);\
+		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD, "F7", KEYCODE_7_PAD, IP_JOY_NONE);\
+		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD, "F8", KEYCODE_8_PAD, IP_JOY_NONE);\
+		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD, "F5", KEYCODE_5_PAD, IP_JOY_NONE);\
+		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD, "F1", KEYCODE_1_PAD, IP_JOY_NONE);\
+		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD, "F2", KEYCODE_2_PAD, IP_JOY_NONE);\
+		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD, "F0", KEYCODE_0_PAD, IP_JOY_NONE);\
 	\
 		/* keyboard row 2 */ \
-		PORT_START \
-		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD, "CLR", KEYCODE_DEL, IP_JOY_NONE) \
-		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD, "[", KEYCODE_CLOSEBRACE, IP_JOY_NONE) \
-		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD, "RETURN", KEYCODE_ENTER, IP_JOY_NONE) \
-		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD, "]", KEYCODE_TILDE, IP_JOY_NONE) \
-		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD, "F4", KEYCODE_4_PAD, IP_JOY_NONE) \
-		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD, "SHIFT", KEYCODE_LSHIFT, IP_JOY_NONE) \
-			PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD, "SHIFT", KEYCODE_RSHIFT, IP_JOY_NONE) \
-		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD, "SLASH", IP_KEY_NONE, IP_JOY_NONE) \
-		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD, "CTRL", KEYCODE_LCONTROL, IP_JOY_NONE) \
+		PORT_START();  \
+		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD, "CLR", KEYCODE_DEL, IP_JOY_NONE);\
+		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD, "[", KEYCODE_CLOSEBRACE, IP_JOY_NONE);\
+		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD, "RETURN", KEYCODE_ENTER, IP_JOY_NONE);\
+		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD, "]", KEYCODE_TILDE, IP_JOY_NONE);\
+		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD, "F4", KEYCODE_4_PAD, IP_JOY_NONE);\
+		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD, "SHIFT", KEYCODE_LSHIFT, IP_JOY_NONE);\
+			PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD, "SHIFT", KEYCODE_RSHIFT, IP_JOY_NONE);\
+		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD, "SLASH", IP_KEY_NONE, IP_JOY_NONE);\
+		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD, "CTRL", KEYCODE_LCONTROL, IP_JOY_NONE);\
 	\
 		/* keyboard row 3 */ \
-		PORT_START \
-		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD, "^", KEYCODE_EQUALS, IP_JOY_NONE) \
-		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD, "=", KEYCODE_MINUS, IP_JOY_NONE) \
-		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD, "[", KEYCODE_OPENBRACE, IP_JOY_NONE) \
-		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD, "P", KEYCODE_P, IP_JOY_NONE) \
-		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD, ";", KEYCODE_COLON, IP_JOY_NONE) \
-		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD, ":", KEYCODE_QUOTE, IP_JOY_NONE) \
-		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD, "/", KEYCODE_SLASH, IP_JOY_NONE) \
-		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD, ".", KEYCODE_STOP, IP_JOY_NONE) \
+		PORT_START();  \
+		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD, "^", KEYCODE_EQUALS, IP_JOY_NONE);\
+		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD, "=", KEYCODE_MINUS, IP_JOY_NONE);\
+		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD, "[", KEYCODE_OPENBRACE, IP_JOY_NONE);\
+		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD, "P", KEYCODE_P, IP_JOY_NONE);\
+		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD, ";", KEYCODE_COLON, IP_JOY_NONE);\
+		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD, ":", KEYCODE_QUOTE, IP_JOY_NONE);\
+		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD, "/", KEYCODE_SLASH, IP_JOY_NONE);\
+		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD, ".", KEYCODE_STOP, IP_JOY_NONE);\
 	\
 		/* keyboard line 4 */ \
-		PORT_START \
-		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD, "0", KEYCODE_0, IP_JOY_NONE) \
-		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD, "9", KEYCODE_9, IP_JOY_NONE) \
-		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD, "O", KEYCODE_O, IP_JOY_NONE) \
-		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD, "I", KEYCODE_I, IP_JOY_NONE) \
-		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD, "L", KEYCODE_L, IP_JOY_NONE) \
-		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD, "K", KEYCODE_K, IP_JOY_NONE) \
-		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD, "M", KEYCODE_M, IP_JOY_NONE) \
-		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD, ",", KEYCODE_COMMA, IP_JOY_NONE) \
+		PORT_START();  \
+		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD, "0", KEYCODE_0, IP_JOY_NONE);\
+		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD, "9", KEYCODE_9, IP_JOY_NONE);\
+		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD, "O", KEYCODE_O, IP_JOY_NONE);\
+		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD, "I", KEYCODE_I, IP_JOY_NONE);\
+		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD, "L", KEYCODE_L, IP_JOY_NONE);\
+		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD, "K", KEYCODE_K, IP_JOY_NONE);\
+		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD, "M", KEYCODE_M, IP_JOY_NONE);\
+		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD, ",", KEYCODE_COMMA, IP_JOY_NONE);\
 	\
 		/* keyboard line 5 */ \
-		PORT_START \
-		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD, "8", KEYCODE_8, IP_JOY_NONE) \
-		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD, "7", KEYCODE_7, IP_JOY_NONE) \
-		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD, "U", KEYCODE_U, IP_JOY_NONE) \
-		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD, "Y", KEYCODE_Y, IP_JOY_NONE) \
-		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD, "H", KEYCODE_H, IP_JOY_NONE) \
-		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD, "J", KEYCODE_J, IP_JOY_NONE) \
-		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD, "N", KEYCODE_N, IP_JOY_NONE) \
-		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD, "SPACE", KEYCODE_SPACE, IP_JOY_NONE) \
+		PORT_START();  \
+		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD, "8", KEYCODE_8, IP_JOY_NONE);\
+		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD, "7", KEYCODE_7, IP_JOY_NONE);\
+		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD, "U", KEYCODE_U, IP_JOY_NONE);\
+		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD, "Y", KEYCODE_Y, IP_JOY_NONE);\
+		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD, "H", KEYCODE_H, IP_JOY_NONE);\
+		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD, "J", KEYCODE_J, IP_JOY_NONE);\
+		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD, "N", KEYCODE_N, IP_JOY_NONE);\
+		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD, "SPACE", KEYCODE_SPACE, IP_JOY_NONE);\
 	\
 		/* keyboard line 6 */ \
-		PORT_START \
-		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD, "6/JOYSTICK 1 UP", KEYCODE_6, JOYCODE_2_UP) \
-		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD, "5/JOYSTICK 1 DOWN", KEYCODE_5, JOYCODE_2_DOWN) \
-		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD, "R/JOYSTICK 1 LEFT", KEYCODE_R, JOYCODE_2_LEFT) \
-		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD, "T/JOYSTICK 1 RIGHT", KEYCODE_T, JOYCODE_2_RIGHT) \
-		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD, "G/JOYSTICK 1 FIRE 1", KEYCODE_G, JOYCODE_2_BUTTON1) \
-		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD, "F/JOYSTICK 1 FIRE 2", KEYCODE_F, JOYCODE_2_BUTTON2) \
-		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD, "B/JOYSTICK 1 FIRE 3", KEYCODE_B, JOYCODE_2_BUTTON3) \
-		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD, "V", KEYCODE_V, IP_JOY_NONE) \
+		PORT_START();  \
+		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD, "6/JOYSTICK 1 UP", KEYCODE_6, JOYCODE_2_UP);\
+		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD, "5/JOYSTICK 1 DOWN", KEYCODE_5, JOYCODE_2_DOWN);\
+		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD, "R/JOYSTICK 1 LEFT", KEYCODE_R, JOYCODE_2_LEFT);\
+		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD, "T/JOYSTICK 1 RIGHT", KEYCODE_T, JOYCODE_2_RIGHT);\
+		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD, "G/JOYSTICK 1 FIRE 1", KEYCODE_G, JOYCODE_2_BUTTON1);\
+		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD, "F/JOYSTICK 1 FIRE 2", KEYCODE_F, JOYCODE_2_BUTTON2);\
+		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD, "B/JOYSTICK 1 FIRE 3", KEYCODE_B, JOYCODE_2_BUTTON3);\
+		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD, "V", KEYCODE_V, IP_JOY_NONE);\
 	\
 		/* keyboard line 7 */ \
-		PORT_START \
-		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD, "4", KEYCODE_4, IP_JOY_NONE) \
-		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD, "3", KEYCODE_3, IP_JOY_NONE) \
-		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD, "E", KEYCODE_E, IP_JOY_NONE) \
-		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD, "W", KEYCODE_W, IP_JOY_NONE) \
-		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD, "S", KEYCODE_S, IP_JOY_NONE) \
-		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD, "D", KEYCODE_D, IP_JOY_NONE) \
-		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD, "C", KEYCODE_C, IP_JOY_NONE) \
-		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD, "X", KEYCODE_X, IP_JOY_NONE) \
+		PORT_START();  \
+		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD, "4", KEYCODE_4, IP_JOY_NONE);\
+		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD, "3", KEYCODE_3, IP_JOY_NONE);\
+		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD, "E", KEYCODE_E, IP_JOY_NONE);\
+		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD, "W", KEYCODE_W, IP_JOY_NONE);\
+		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD, "S", KEYCODE_S, IP_JOY_NONE);\
+		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD, "D", KEYCODE_D, IP_JOY_NONE);\
+		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD, "C", KEYCODE_C, IP_JOY_NONE);\
+		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD, "X", KEYCODE_X, IP_JOY_NONE);\
 	\
 		/* keyboard line 8 */ \
-		PORT_START \
-		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD, "1", KEYCODE_1, IP_JOY_NONE) \
-		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD, "2", KEYCODE_2, IP_JOY_NONE) \
-		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD, "ESC", KEYCODE_ESC, IP_JOY_NONE) \
-		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD, "Q", KEYCODE_Q, IP_JOY_NONE) \
-		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD, "TAB", KEYCODE_TAB, IP_JOY_NONE) \
-		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD, "A", KEYCODE_A, IP_JOY_NONE) \
-		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD, "CAPS LOCK", KEYCODE_CAPSLOCK, IP_JOY_NONE) \
-		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD, "Z", KEYCODE_Z, IP_JOY_NONE) \
+		PORT_START();  \
+		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD, "1", KEYCODE_1, IP_JOY_NONE);\
+		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD, "2", KEYCODE_2, IP_JOY_NONE);\
+		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD, "ESC", KEYCODE_ESC, IP_JOY_NONE);\
+		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD, "Q", KEYCODE_Q, IP_JOY_NONE);\
+		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD, "TAB", KEYCODE_TAB, IP_JOY_NONE);\
+		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD, "A", KEYCODE_A, IP_JOY_NONE);\
+		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD, "CAPS LOCK", KEYCODE_CAPSLOCK, IP_JOY_NONE);\
+		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD, "Z", KEYCODE_Z, IP_JOY_NONE);\
 	\
 		/* keyboard line 9 */ \
-		PORT_START \
-		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD, "JOYSTICK 0 UP", IP_KEY_NONE, JOYCODE_1_UP) \
-		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD, "JOYSTICK 0 DOWN", IP_KEY_NONE, JOYCODE_1_DOWN) \
-		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD, "JOYSTICK 0 LEFT", IP_KEY_NONE, JOYCODE_1_LEFT) \
-		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD, "JOYSTICK 0 RIGHT", IP_KEY_NONE, JOYCODE_1_RIGHT) \
-		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD, "JOYSTICK 0 FIRE 1", IP_KEY_NONE, JOYCODE_1_BUTTON1) \
-		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD, "JOYSTICK 0 FIRE 2", IP_KEY_NONE, JOYCODE_1_BUTTON2) \
-		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD, "JOYSTICK 0 FIRE 3", IP_KEY_NONE, JOYCODE_1_BUTTON3) \
-		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD, "DEL", KEYCODE_BACKSPACE, IP_JOY_NONE) \
+		PORT_START();  \
+		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD, "JOYSTICK 0 UP", IP_KEY_NONE, JOYCODE_1_UP);\
+		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD, "JOYSTICK 0 DOWN", IP_KEY_NONE, JOYCODE_1_DOWN);\
+		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD, "JOYSTICK 0 LEFT", IP_KEY_NONE, JOYCODE_1_LEFT);\
+		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD, "JOYSTICK 0 RIGHT", IP_KEY_NONE, JOYCODE_1_RIGHT);\
+		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD, "JOYSTICK 0 FIRE 1", IP_KEY_NONE, JOYCODE_1_BUTTON1);\
+		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD, "JOYSTICK 0 FIRE 2", IP_KEY_NONE, JOYCODE_1_BUTTON2);\
+		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD, "JOYSTICK 0 FIRE 3", IP_KEY_NONE, JOYCODE_1_BUTTON3);\
+		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD, "DEL", KEYCODE_BACKSPACE, IP_JOY_NONE);\
 	
 	
 	#define MULTIFACE_PORTS \
-		PORT_START \
-			PORT_BITX(0x001, 0x000, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Multiface Hardware", IP_KEY_NONE, IP_JOY_NONE) \
-		PORT_DIPSETTING(0x00, DEF_STR( Off) ) \
-		PORT_DIPSETTING(0x01, DEF_STR( On) ) \
-		PORT_BITX(0x002, IP_ACTIVE_HIGH, IPT_KEYBOARD, "Multiface Stop", KEYCODE_F1, IP_JOY_NONE) \
+		PORT_START();  \
+			PORT_BITX(0x001, 0x000, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Multiface Hardware", IP_KEY_NONE, IP_JOY_NONE);\
+		PORT_DIPSETTING(0x00, DEF_STR( "Off")); \
+		PORT_DIPSETTING(0x01, DEF_STR( "On")); \
+		PORT_BITX(0x002, IP_ACTIVE_HIGH, IPT_KEYBOARD, "Multiface Stop", KEYCODE_F1, IP_JOY_NONE);\
 	
 	
 	
 	
 	
 	
-	INPUT_PORTS_START(amstrad)
+	static InputPortPtr input_ports_amstrad = new InputPortPtr(){ public void handler() { 
 	
 		KEYBOARD_PORTS
 	
@@ -2630,27 +2623,27 @@ public class amstrad
 		 * curcuit board. The links are open or closed when the PCB is made, and are set depending on which country
 		 * the Amstrad system was to go to */
 	
-		PORT_START
-		PORT_BITX(0x02, 0x02, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Machine Name (bit 0)", IP_KEY_NONE, IP_JOY_NONE)
-		PORT_DIPSETTING(0, DEF_STR( Off) )
-		PORT_DIPSETTING(0x02, DEF_STR( On) )
-		PORT_BITX(0x04, 0x04, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Machine Name (bit 1)", IP_KEY_NONE, IP_JOY_NONE)
-		PORT_DIPSETTING(0, DEF_STR( Off) )
-		PORT_DIPSETTING(0x04, DEF_STR( On) )
-		PORT_BITX(0x08, 0x08, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Machine Name (bit 2)", IP_KEY_NONE, IP_JOY_NONE)
-		PORT_DIPSETTING(0, DEF_STR( Off) )
-		PORT_DIPSETTING(0x08, DEF_STR( On) )
-		PORT_BITX(0x010, 0x010, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "TV Refresh Rate", IP_KEY_NONE, IP_JOY_NONE)
-		PORT_DIPSETTING(0x00, "60hz")
-		PORT_DIPSETTING(0x010, "50hz")
+		PORT_START(); 
+		PORT_BITX(0x02, 0x02, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Machine Name (bit 0);, IP_KEY_NONE, IP_JOY_NONE)
+		PORT_DIPSETTING(0, DEF_STR( "Off"));
+		PORT_DIPSETTING(0x02, DEF_STR( "On"));
+		PORT_BITX(0x04, 0x04, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Machine Name (bit 1);, IP_KEY_NONE, IP_JOY_NONE)
+		PORT_DIPSETTING(0, DEF_STR( "Off"));
+		PORT_DIPSETTING(0x04, DEF_STR( "On"));
+		PORT_BITX(0x08, 0x08, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Machine Name (bit 2);, IP_KEY_NONE, IP_JOY_NONE)
+		PORT_DIPSETTING(0, DEF_STR( "Off"));
+		PORT_DIPSETTING(0x08, DEF_STR( "On"));
+		PORT_BITX(0x010, 0x010, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "TV Refresh Rate", IP_KEY_NONE, IP_JOY_NONE);
+		PORT_DIPSETTING(0x00, "60hz");
+		PORT_DIPSETTING(0x010, "50hz");
 	
 		MULTIFACE_PORTS
 	
-	INPUT_PORTS_END
+	INPUT_PORTS_END(); }}; 
 	
-	INPUT_PORTS_START(kccomp)
+	static InputPortPtr input_ports_kccomp = new InputPortPtr(){ public void handler() { 
 			KEYBOARD_PORTS
-	INPUT_PORTS_END
+	INPUT_PORTS_END(); }}; 
 	
 	static struct Wave_interface wave_interface = {
 		1,		/* 1 cassette recorder */
@@ -2677,23 +2670,23 @@ public class amstrad
 	  the visible area.
 		*/
 	
-	static struct MachineDriver machine_driver_amstrad =
-	{
+	static MachineDriver machine_driver_amstrad = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
+		new MachineCPU[] {
 			/* MachineCPU */
-			{
+			new MachineCPU(
 				CPU_Z80 | CPU_16BIT_PORT,  /* type */
 							4000000,	/*((AMSTRAD_US_PER_FRAME*AMSTRAD_FPS)*4)*/ /* clock: See Note Above */
 				readmem_amstrad,		   /* MemoryReadAddress */
 				writemem_amstrad,		   /* MemoryWriteAddress */
 				readport_amstrad,		   /* IOReadPort */
 				writeport_amstrad,		   /* IOWritePort */
-				0,						   /*amstrad_frame_interrupt, *//* VBlank
+				null,						   /*amstrad_frame_interrupt, *//* VBlank
 											* Interrupt */
 				0 /*1 */ ,				   /* vblanks per frame */
 							0, 0,	/* every scanline */
-			},
+			),
 		},
 		50.08,							   /* frames per second */
 		DEFAULT_60HZ_VBLANK_DURATION,	   /* vblank duration */
@@ -2703,8 +2696,8 @@ public class amstrad
 		/* video hardware */
 		AMSTRAD_MONITOR_SCREEN_WIDTH, /* screen width */
 		AMSTRAD_MONITOR_SCREEN_HEIGHT,	/* screen height */
-		{0, (AMSTRAD_SCREEN_WIDTH - 1), 0, (AMSTRAD_SCREEN_HEIGHT - 1)},	/* rectangle: visible_area */
-		0,								   /*amstrad_gfxdecodeinfo, 			 *//* graphics
+		new rectangle(0, (AMSTRAD_SCREEN_WIDTH - 1), 0, (AMSTRAD_SCREEN_HEIGHT - 1)),	/* rectangle: visible_area */
+		null,								   /*amstrad_gfxdecodeinfo, 			 *//* graphics
 											* decode info */
 		32, 							   /* total colours */
 		32, 							   /* color table len */
@@ -2721,36 +2714,36 @@ public class amstrad
 		0,								   /* sh start */
 		0,								   /* sh stop */
 		0,								   /* sh update */
-		{
+		new MachineSound[] {
 			/* MachineSound */
-			{
+			new MachineSound(
 				SOUND_AY8910,
-				&amstrad_ay_interface
-			},
-			{
+				amstrad_ay_interface
+			),
+			new MachineSound(
 				SOUND_WAVE,
-				&wave_interface
-			}
+				wave_interface
+			)
 		}
-	};
+	);
 	
-	static struct MachineDriver machine_driver_kccomp =
-	{
+	static MachineDriver machine_driver_kccomp = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
+		new MachineCPU[] {
 			/* MachineCPU */
-			{
+			new MachineCPU(
 				CPU_Z80 | CPU_16BIT_PORT,  /* type */
 							4000000,  /* clock: See Note Above */
 				readmem_amstrad,		   /* MemoryReadAddress */
 				writemem_amstrad,		   /* MemoryWriteAddress */
 				readport_amstrad,		   /* IOReadPort */
 				writeport_amstrad,		   /* IOWritePort */
-				0,						   /*amstrad_frame_interrupt, *//* VBlank
+				null,						   /*amstrad_frame_interrupt, *//* VBlank
 											* Interrupt */
 							0,
 							0, 0,
-			},
+			),
 		},
 		50, 							   /* frames per second */
 		DEFAULT_60HZ_VBLANK_DURATION,	   /* vblank duration */
@@ -2760,8 +2753,8 @@ public class amstrad
 		/* video hardware */
 			AMSTRAD_MONITOR_SCREEN_WIDTH,					   /* screen width */
 			AMSTRAD_MONITOR_SCREEN_HEIGHT,					   /* screen height */
-		{0, (AMSTRAD_SCREEN_WIDTH - 1), 0, (AMSTRAD_SCREEN_HEIGHT - 1)},	/* rectangle: visible_area */
-		0,								   /*amstrad_gfxdecodeinfo, 			 *//* graphics
+		new rectangle(0, (AMSTRAD_SCREEN_WIDTH - 1), 0, (AMSTRAD_SCREEN_HEIGHT - 1)),	/* rectangle: visible_area */
+		null,								   /*amstrad_gfxdecodeinfo, 			 *//* graphics
 											* decode info */
 		32, 							   /* total colours */
 		32, 							   /* color table len */
@@ -2778,18 +2771,18 @@ public class amstrad
 		0,								   /* sh start */
 		0,								   /* sh stop */
 		0,								   /* sh update */
-		{
+		new MachineSound[] {
 			/* MachineSound */
-			{
+			new MachineSound(
 				SOUND_AY8910,
-				&amstrad_ay_interface
-			},
-			{
+				amstrad_ay_interface
+			),
+			new MachineSound(
 				SOUND_WAVE,
-				&wave_interface
-			}
+				wave_interface
+			)
 		}
-	};
+	);
 	
 	
 	
@@ -2804,51 +2797,51 @@ public class amstrad
 	
 	/* I am loading the roms outside of the Z80 memory area, because they
 	are banked. */
-	ROM_START(cpc6128)
+	static RomLoadPtr rom_cpc6128 = new RomLoadPtr(){ public void handler(){ 
 		/* this defines the total memory size - 64k ram, 16k OS, 16k BASIC, 16k DOS */
-		ROM_REGION(0x020000, REGION_CPU1)
+		ROM_REGION(0x020000, REGION_CPU1);
 		/* load the os to offset 0x01000 from memory base */
-		ROM_LOAD("cpc6128.rom", 0x10000, 0x8000, 0x9e827fe1)
-		ROM_LOAD("cpcados.rom", 0x18000, 0x4000, 0x1fe22ecd)
+		ROM_LOAD("cpc6128.rom", 0x10000, 0x8000, 0x9e827fe1);
+		ROM_LOAD("cpcados.rom", 0x18000, 0x4000, 0x1fe22ecd);
 	
 		/* optional Multiface hardware */
-			ROM_LOAD_OPTIONAL("multface.rom", 0x01c000, 0x02000, 0xf36086de)
+			ROM_LOAD_OPTIONAL("multface.rom", 0x01c000, 0x02000, 0xf36086de);
 	
 		/* fake region - required by graphics decode structure */
-		/*ROM_REGION(0x0100,REGION_GFX1) */
-	ROM_END
+		/*ROM_REGION(0x0100,REGION_GFX1);*/
+	ROM_END(); }}; 
 	
-	ROM_START(cpc464)
+	static RomLoadPtr rom_cpc464 = new RomLoadPtr(){ public void handler(){ 
 		/* this defines the total memory size - 64k ram, 16k OS, 16k BASIC, 16k DOS */
-		ROM_REGION(0x01c000, REGION_CPU1)
+		ROM_REGION(0x01c000, REGION_CPU1);
 		/* load the os to offset 0x01000 from memory base */
-		ROM_LOAD("cpc464.rom", 0x10000, 0x8000, 0x040852f25)
-		ROM_LOAD("cpcados.rom", 0x18000, 0x4000, 0x1fe22ecd)
+		ROM_LOAD("cpc464.rom", 0x10000, 0x8000, 0x040852f25);
+		ROM_LOAD("cpcados.rom", 0x18000, 0x4000, 0x1fe22ecd);
 	
 		/* fake region - required by graphics decode structure */
-		/*ROM_REGION(0x0100,REGION_GFX1) */
-	ROM_END
+		/*ROM_REGION(0x0100,REGION_GFX1);*/
+	ROM_END(); }}; 
 	
-	ROM_START(cpc664)
+	static RomLoadPtr rom_cpc664 = new RomLoadPtr(){ public void handler(){ 
 		/* this defines the total memory size - 64k ram, 16k OS, 16k BASIC, 16k DOS */
-		ROM_REGION(0x01c000, REGION_CPU1)
+		ROM_REGION(0x01c000, REGION_CPU1);
 		/* load the os to offset 0x01000 from memory base */
-		ROM_LOAD("cpc664.rom", 0x10000, 0x8000, 0x09AB5A036)
-		ROM_LOAD("cpcados.rom", 0x18000, 0x4000, 0x1fe22ecd)
+		ROM_LOAD("cpc664.rom", 0x10000, 0x8000, 0x09AB5A036);
+		ROM_LOAD("cpcados.rom", 0x18000, 0x4000, 0x1fe22ecd);
 	
 		/* fake region - required by graphics decode structure */
-		/*ROM_REGION(0x0100,REGION_GFX1) */
-	ROM_END
+		/*ROM_REGION(0x0100,REGION_GFX1);*/
+	ROM_END(); }}; 
 	
 	
-	ROM_START(kccomp)
-		ROM_REGION(0x01c000, REGION_CPU1)
-		ROM_LOAD("kccos.rom", 0x10000, 0x04000, 0x7f9ab3f7)
-		ROM_LOAD("kccbas.rom", 0x14000, 0x04000, 0xca6af63d)
+	static RomLoadPtr rom_kccomp = new RomLoadPtr(){ public void handler(){ 
+		ROM_REGION(0x01c000, REGION_CPU1);
+		ROM_LOAD("kccos.rom", 0x10000, 0x04000, 0x7f9ab3f7);
+		ROM_LOAD("kccbas.rom", 0x14000, 0x04000, 0xca6af63d);
 	
 		/* fake region - required by graphics decode structure */
-		/*ROM_REGION(0x0c00, REGION_GFX1) */
-	ROM_END
+		/*ROM_REGION(0x0c00, REGION_GFX1);*/
+	ROM_END(); }}; 
 	
 	static const struct IODevice io_cpc6128[] =
 	{

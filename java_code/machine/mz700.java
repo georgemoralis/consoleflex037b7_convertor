@@ -24,7 +24,7 @@ public class mz700
 	
 	#if VERBOSE
 	#define LOG(N,M,A)	\
-		if(VERBOSE>=N){ if( M )logerror("%11.6f: %-24s",timer_get_time(),(char*)M ); logerror A; }
+		if(VERBOSE>=N){ if (M != 0)logerror("%11.6f: %-24s",timer_get_time(),(char*)M ); logerror A; }
 	#else
 	#define LOG(N,M,A)
 	#endif
@@ -35,12 +35,6 @@ public class mz700
 	static UINT8 mz700_motor_ff = 0;    /* cassette motor control flipflop */
 	static UINT8 mz700_motor_on = 0;	/* cassette motor key (play key) */
 	
-	static READ_HANDLER( pio_port_a_r );
-	static READ_HANDLER( pio_port_b_r );
-	static READ_HANDLER( pio_port_c_r );
-	static WRITE_HANDLER( pio_port_a_w );
-	static WRITE_HANDLER( pio_port_b_w );
-	static WRITE_HANDLER( pio_port_c_w );
 	
 	static ppi8255_interface ppi8255 = {
 	    1,
@@ -50,7 +44,6 @@ public class mz700
 	
 	static void pit_clk_0(double clock);
 	static void pit_clk_1(double clock);
-	static void pit_irq_2(int which);
 	
 	PIT8253_CONFIG pit8253 = {
 		TYPE8253,
@@ -62,7 +55,7 @@ public class mz700
 		}
 	};
 	
-	int mz700_interrupt(void)
+	public static InterruptPtr mz700_interrupt = new InterruptPtr() { public int handler() 
 	{
 		if (readinputport(12) & 0x20)
 		{
@@ -81,26 +74,26 @@ public class mz700
 			device_seek(IO_CASSETTE, 0, 0, SEEK_SET);
 	
 	    return ignore_interrupt();
-	}
+	} };
 	
-	static void ne556_callback(int param)
+	public static timer_callback ne556_callback = new timer_callback() { public void handler(int param) 
 	{
 		/* toggle the NE556 output signal */
 		ne556_out[param] ^= 1;
-	}
+	} };
 	
-	void init_mz700(void)
+	public static InitDriverPtr init_mz700 = new InitDriverPtr() { public void handler() 
 	{
 	    mz700_bank_w(4, 0);
-	}
+	} };
 	
-	void mz700_init_machine(void)
+	public static InitMachinePtr mz700_init_machine = new InitMachinePtr() { public void handler() 
 	{
 	    ppi8255_init(&ppi8255);
 	    pit8253_config(0, &pit8253);
 	    ne556_timer[0] = timer_pulse(TIME_IN_HZ(1.5), 0, ne556_callback);
 		ne556_timer[1] = timer_pulse(TIME_IN_HZ(34.5), 1, ne556_callback);
-	}
+	} };
 	
 	void mz700_stop_machine(void)
 	{
@@ -136,15 +129,15 @@ public class mz700
 	
 	/************************ PIO ************************************************/
 	
-	static READ_HANDLER( pio_port_a_r )
+	public static ReadHandlerPtr pio_port_a_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 	    data_t data = ppi8255_peek(0, 0);
 		LOG(2,"mz700_pio_port_a_r",("%02X\n", data));
 	    return data;
-	}
+	} };
 	
 	/* read keyboard row - indexed by a demux LS145 which is connected to PA0-3 */
-	static READ_HANDLER( pio_port_b_r )
+	public static ReadHandlerPtr pio_port_b_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		data_t demux_LS145, data = 0xff;
 	
@@ -156,9 +149,9 @@ public class mz700
 		LOG(2,"mz700_pio_port_b_r",("%02X\n", data));
 	
 	    return data;
-	}
+	} };
 	
-	static READ_HANDLER( pio_port_c_r )
+	public static ReadHandlerPtr pio_port_c_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 	    data_t data = ppi8255_peek(0, 2) & 0x0f;
 	
@@ -168,7 +161,7 @@ public class mz700
 	     * bit 5 in     tape data (RDATA)
 	     * bit 4 in     motor (1 = on)
 	     */
-	    if (mz700_motor_on)
+	    if (mz700_motor_on != 0)
 	        data |= 0x10;
 	
 	    if (device_input(IO_CASSETTE,0) > 255)
@@ -182,14 +175,14 @@ public class mz700
 		LOG(2,"mz700_pio_port_c_r",("%02X\n", data));
 	
 	    return data;
-	}
+	} };
 	
-	static WRITE_HANDLER( pio_port_a_w )
+	public static WriteHandlerPtr pio_port_a_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		LOG(2,"mz700_pio_port_a_w",("%02X\n", data));
-	}
+	} };
 	
-	static WRITE_HANDLER( pio_port_b_w )
+	public static WriteHandlerPtr pio_port_b_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		/*
 		 * bit 7	NE556 reset
@@ -205,9 +198,9 @@ public class mz700
 	
 		/* enable/disable NE556 cursor flash timer */
 	    timer_enable(ne556_timer[0], (data & 0x80) ? 0 : 1);
-	}
+	} };
 	
-	static WRITE_HANDLER( pio_port_c_w )
+	public static WriteHandlerPtr pio_port_c_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 	    /*
 	     * bit 3 out    motor control (0 = on)
@@ -221,7 +214,7 @@ public class mz700
 		device_status(IO_CASSETTE, 0, mz700_motor_ff & mz700_motor_on);
 	
 	    device_output(IO_CASSETTE, 0, (data & 0x02) ? 32767 : -32768);
-	}
+	} };
 	
 	/************************ MMIO ***********************************************/
 	
@@ -243,7 +236,7 @@ public class mz700
 		case 8:
 			data = ne556_out[1] ? 0x01 : 0x00;
 			data |= readinputport(12);	/* get joystick ports */
-			if (cpu_gethorzbeampos() >= Machine->visible_area.max_x - 32)
+			if (cpu_gethorzbeampos() >= Machine.visible_area.max_x - 32)
 				data |= 0x80;
 			LOG(1,"mz700_e008_r",("%02X\n", data));
 	        break;
@@ -780,7 +773,7 @@ public class mz700
 		void *file;
 	
 	    file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-	    if( file )
+	    if (file != 0)
 		{
 			struct wave_args wa = {0,};
 			wa.file = file;
@@ -809,13 +802,13 @@ public class mz700
 		}
 	
 	    file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_RW_CREATE);
-		if( file )
+		if (file != 0)
 		{
 			struct wave_args wa = {0,};
 			wa.file = file;
 			wa.display = 1;
 			wa.fill_wave = NULL;
-			wa.smpfreq = Machine->sample_rate;
+			wa.smpfreq = Machine.sample_rate;
 			if( device_open(IO_CASSETTE,id,1,&wa) )
 				return INIT_FAILED;
 	
@@ -847,15 +840,15 @@ public class mz700
 	static UINT8 mz800_palette_bank;
 	
 	/* port CE */
-	READ_HANDLER( mz800_crtc_r )
+	public static ReadHandlerPtr mz800_crtc_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		data_t data = 0x00;
 		LOG(1,"mz800_crtc_r",("%02X\n",data));
 	    return data;
-	}
+	} };
 	
 	/* port D0 - D7 / memory E000 - FFFF */
-	READ_HANDLER( mz800_mmio_r )
+	public static ReadHandlerPtr mz800_mmio_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		data_t data = 0x7e;
 	
@@ -875,10 +868,10 @@ public class mz700
 	        break;
 	    }
 	    return data;
-	}
+	} };
 	
 	/* port E0 - E9 */
-	READ_HANDLER( mz800_bank_r )
+	public static ReadHandlerPtr mz800_bank_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		UINT8 *mem = memory_region(REGION_CPU1);
 	    data_t data = 0xff;
@@ -892,7 +885,7 @@ public class mz700
 			{
 				LOG(1,0,("; 8000-9FFF videoram"));
 	            bank3_VID(mem);
-				if (mz800_display_mode & 0x04)
+				if ((mz800_display_mode & 0x04) != 0)
 				{
 					LOG(1,0,("; A000-BFFF videoram"));
 	                /* 640x480 mode so A000-BFFF is videoram too */
@@ -937,30 +930,30 @@ public class mz700
 			break;
 	    }
 		return data;
-	}
+	} };
 	
 	/* port EA */
-	READ_HANDLER( mz800_ramdisk_r )
+	public static ReadHandlerPtr mz800_ramdisk_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		UINT8 *mem = memory_region(REGION_USER1);
 		data_t data = mem[mz800_ramaddr];
-		LOG(2,"mz800_ramdisk_r",("[%04X] -> %02X\n", mz800_ramaddr, data));
+		LOG(2,"mz800_ramdisk_r",("[%04X] . %02X\n", mz800_ramaddr, data));
 		if (mz800_ramaddr++ == 0)
 			LOG(1,"mz800_ramdisk_r",("address wrap 0000\n"));
 	    return data;
-	}
+	} };
 	
 	/* port CC */
-	WRITE_HANDLER( mz800_write_format_w )
+	public static WriteHandlerPtr mz800_write_format_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		LOG(1,"mz800_write_format_w",("%02X\n", data));
-	}
+	} };
 	
 	/* port CD */
-	WRITE_HANDLER( mz800_read_format_w )
+	public static WriteHandlerPtr mz800_read_format_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		LOG(1,"mz800_read_format_w",("%02X\n", data));
-	}
+	} };
 	
 	/* port CE
 	 * bit 3	1: MZ700 mode		0: MZ800 mode
@@ -968,7 +961,7 @@ public class mz700
 	 * bit 1	1: 4bpp/2bpp		0: 2bpp/1bpp
 	 * bit 0	???
 	 */
-	WRITE_HANDLER( mz800_display_mode_w )
+	public static WriteHandlerPtr mz800_display_mode_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		UINT8 *mem = memory_region(REGION_CPU1);
 		LOG(1,"mz800_display_mode_w",("%02X\n", data));
@@ -977,20 +970,20 @@ public class mz700
 		{
 			bank8_RAM(mem);
 		}
-	}
+	} };
 	
 	/* port CF */
-	WRITE_HANDLER( mz800_scroll_border_w )
+	public static WriteHandlerPtr mz800_scroll_border_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		LOG(1,"mz800_scroll_border_w",("%02X\n", data));
-	}
+	} };
 	
 	/* port D0-D7 */
-	WRITE_HANDLER( mz800_mmio_w )
+	public static WriteHandlerPtr mz800_mmio_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		/* just wrap to the mz700 handler */
 	    mz700_mmio_w(offset,data);
-	}
+	} };
 	
 	/* port E0-E9 */
 	WRITE_HANDLER ( mz800_bank_w )
@@ -1062,7 +1055,7 @@ public class mz700
 	
 		case 8: /* set MZ700 enable bit 7 ? */
 			mz800_port_e8 = data;
-			if (mz800_port_e8 & 0x80)
+			if ((mz800_port_e8 & 0x80) != 0)
 			{
 				bank6_VIO(mem);
 				bank7_VIO(mem);
@@ -1079,26 +1072,26 @@ public class mz700
 	}
 	
 	/* port EA */
-	WRITE_HANDLER( mz800_ramdisk_w )
+	public static WriteHandlerPtr mz800_ramdisk_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		UINT8 *mem = memory_region(REGION_USER1);
 		LOG(2,"mz800_ramdisk_w",("[%04X] <- %02X\n", mz800_ramaddr, data));
 		mem[mz800_ramaddr] = data;
 		if (mz800_ramaddr++ == 0)
 			LOG(1,"mz800_ramdisk_w",("address wrap 0000\n"));
-	}
+	} };
 	
 	/* port EB */
-	WRITE_HANDLER( mz800_ramaddr_w )
+	public static WriteHandlerPtr mz800_ramaddr_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		mz800_ramaddr = (cpu_get_reg(Z80_BC) & 0xff00) | (data & 0xff);
 		LOG(1,"mz800_ramaddr_w",("%04X\n", mz800_ramaddr));
-	}
+	} };
 	
 	/* port F0 */
-	WRITE_HANDLER( mz800_palette_w )
+	public static WriteHandlerPtr mz800_palette_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
-		if (data & 0x40)
+		if ((data & 0x40) != 0)
 		{
 	        mz800_palette_bank = data & 3;
 			LOG(1,"mz800_palette_w",("bank: %d\n", mz800_palette_bank));
@@ -1110,16 +1103,16 @@ public class mz700
 			LOG(1,"mz800_palette_w",("palette[%d] <- %d\n", idx, val));
 			mz800_palette[idx] = val;
 		}
-	}
+	} };
 	
 	/* videoram wrappers */
-	WRITE_HANDLER( videoram0_w ) { videoram_w(offset + 0x0000, data); }
-	WRITE_HANDLER( videoram1_w ) { videoram_w(offset + 0x1000, data); }
-	WRITE_HANDLER( videoram2_w ) { videoram_w(offset + 0x2000, data); }
-	WRITE_HANDLER( videoram3_w ) { videoram_w(offset + 0x3000, data); }
-	WRITE_HANDLER( pcgram_w ) { videoram_w(offset + 0x4000, data); }
+	public static WriteHandlerPtr videoram0_w = new WriteHandlerPtr() {public void handler(int offset, int data) { videoram_w(offset + 0x0000, data); } };
+	public static WriteHandlerPtr videoram1_w = new WriteHandlerPtr() {public void handler(int offset, int data) { videoram_w(offset + 0x1000, data); } };
+	public static WriteHandlerPtr videoram2_w = new WriteHandlerPtr() {public void handler(int offset, int data) { videoram_w(offset + 0x2000, data); } };
+	public static WriteHandlerPtr videoram3_w = new WriteHandlerPtr() {public void handler(int offset, int data) { videoram_w(offset + 0x3000, data); } };
+	public static WriteHandlerPtr pcgram_w = new WriteHandlerPtr() {public void handler(int offset, int data) { videoram_w(offset + 0x4000, data); } };
 	
-	void init_mz800(void)
+	public static InitDriverPtr init_mz800 = new InitDriverPtr() { public void handler() 
 	{
 		UINT8 *mem = memory_region(REGION_CPU1);
 	
@@ -1133,7 +1126,7 @@ public class mz700
 	    mz800_display_mode_w(0,0x08);   /* set MZ700 mode */
 		mz800_bank_r(1);
 		mz800_bank_w(4, 0);
-	}
+	} };
 	
 	
 }

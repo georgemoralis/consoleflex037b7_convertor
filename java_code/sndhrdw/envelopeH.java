@@ -19,8 +19,8 @@ public class envelopeH
 	void enveEmuResetOperator(sidOperator* pVoice);
 	
 	
-	extern ptr2sidUwordFunc enveModeTable[];   // -> envelope.cpp
-	extern const ubyte masterVolumeLevels[16];  // -> envelope.cpp
+	extern ptr2sidUwordFunc enveModeTable[];   // . envelope.cpp
+	extern const ubyte masterVolumeLevels[16];  // . envelope.cpp
 	
 	static const ubyte ENVE_STARTATTACK = 0;
 	static const ubyte ENVE_STARTRELEASE = 2;

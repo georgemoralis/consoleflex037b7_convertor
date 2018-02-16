@@ -14,26 +14,26 @@ public class mac
 	
 	
 	
-	int mac_vh_start(void)
+	public static VhStartPtr mac_vh_start = new VhStartPtr() { public int handler() 
 	{
-		videoram_size = (512 * 384 / 8);
+		videoram_size[0] = (512 * 384 / 8);
 	
-		old_display = (UINT16 *) malloc(videoram_size);
+		old_display = (UINT16 *) malloc(videoram_size[0]);
 		if (! old_display)
 		{
 			return 1;
 		}
-		memset(old_display, 0, videoram_size);
+		memset(old_display, 0, videoram_size[0]);
 	
 		return 0;
-	}
+	} };
 	
-	void mac_vh_stop(void)
+	public static VhStopPtr mac_vh_stop = new VhStopPtr() { public void handler() 
 	{
 		free(old_display);
-	}
+	} };
 	
-	void mac_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr mac_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 		UINT16	data;
 		UINT16	*old;
@@ -41,8 +41,8 @@ public class mac
 		int		fg, bg, x, y;
 	
 		v = videoram;
-		bg = Machine->pens[0];
-		fg = Machine->pens[1];
+		bg = Machine.pens[0];
+		fg = Machine.pens[1];
 		old = old_display;
 	
 		for (y = 0; y < 342; y++) {
@@ -71,6 +71,6 @@ public class mac
 				old++;
 			}
 		}
-	}
+	} };
 	
 }

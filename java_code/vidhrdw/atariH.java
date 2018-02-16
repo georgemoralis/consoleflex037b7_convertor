@@ -371,15 +371,7 @@ typedef struct {
 
 extern ANTIC antic;
 
-int atari_vh_init(void);
-int atari_vh_start(void);
-void atari_vh_stop(void);
-void atari_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh);
 
-int a400_interrupt(void);
-int a800_interrupt(void);
-int a800xl_interrupt(void);
-int a5200_interrupt(void);
 
 #if ACCURATE_ANTIC_READMEM
 #define RDANTIC()	cpu_readmem16(antic.dpage+antic.doffs)
@@ -388,11 +380,11 @@ int a5200_interrupt(void);
 #define RDPMGFXS(o) cpu_readmem16(antic.pmbase_s+(o)+(antic.scanline>>1))
 #define RDPMGFXD(o) cpu_readmem16(antic.pmbase_d+(o)+antic.scanline)
 #else
-#define RDANTIC()	Machine->memory_region[0][antic.dpage+antic.doffs]
-#define RDVIDEO(o)	Machine->memory_region[0][antic.vpage+((antic.voffs+(o))&VOFFS)]
-#define RDCHGEN(o)	Machine->memory_region[0][antic.chbase+(o)]
-#define RDPMGFXS(o) Machine->memory_region[0][antic.pmbase_s+(o)+(antic.scanline>>1)]
-#define RDPMGFXD(o) Machine->memory_region[0][antic.pmbase_d+(o)+antic.scanline]
+#define RDANTIC()	Machine.memory_region[0][antic.dpage+antic.doffs]
+#define RDVIDEO(o)	Machine.memory_region[0][antic.vpage+((antic.voffs+(o))&VOFFS)]
+#define RDCHGEN(o)	Machine.memory_region[0][antic.chbase+(o)]
+#define RDPMGFXS(o) Machine.memory_region[0][antic.pmbase_s+(o)+(antic.scanline>>1)]
+#define RDPMGFXD(o) Machine.memory_region[0][antic.pmbase_d+(o)+antic.scanline]
 #endif
 
 #define PREPARE()												\
@@ -404,7 +396,7 @@ int a5200_interrupt(void);
 	for( i = 0; i < width; i++ )								\
 	{															\
 		UINT16 ch = RDVIDEO(i) << 3;							\
-		if( ch & 0x400 )										\
+		if ((ch & 0x400) != 0)										\
 		{														\
 			ch = RDCHGEN((ch & 0x3f8) + antic.w.chbasl);		\
 			ch = (ch ^ antic.chxor) & antic.chand;				\
@@ -413,7 +405,7 @@ int a5200_interrupt(void);
 		{														\
 			ch = RDCHGEN(ch + antic.w.chbasl);					\
 		}														\
-		video->data[i] = ch;									\
+		video.data[i] = ch;									\
 	}
 
 #define PREPARE_TXT3(width) 									\
@@ -422,7 +414,7 @@ int a5200_interrupt(void);
 	for( i = 0; i < width; i++ )								\
 	{															\
 		UINT16 ch = RDVIDEO(i) << 3;							\
-		if( ch & 0x400 )										\
+		if ((ch & 0x400) != 0)										\
 		{														\
 			ch &= 0x3f8;										\
 			if( (ch & 0x300) == 0x300 ) 						\
@@ -458,7 +450,7 @@ int a5200_interrupt(void);
 					ch = RDCHGEN(ch + antic.w.chbasl);			\
 			}													\
 		}														\
-        video->data[i] = ch;                                    \
+        video.data[i] = ch;                                    \
 	}
 
 #define PREPARE_TXT45(width,shift)								\
@@ -468,7 +460,7 @@ int a5200_interrupt(void);
 	{															\
 		UINT16 ch = RDVIDEO(i) << 3;							\
 		ch = ((ch>>2)&0x100)|RDCHGEN((ch&0x3f8)+(antic.w.chbasl>>shift)); \
-		video->data[i] = ch;									\
+		video.data[i] = ch;									\
 	}
 
 
@@ -479,56 +471,56 @@ int a5200_interrupt(void);
 	{															\
 		UINT16 ch = RDVIDEO(i) << 3;							\
 		ch = (ch&0x600)|(RDCHGEN((ch&0x1f8)+(antic.w.chbasl>>shift))<<1); \
-		video->data[i] = ch;									\
+		video.data[i] = ch;									\
 	}
 
 #define PREPARE_GFX8(width)                                     \
 	UINT32 *dst = (UINT32 *)&antic.cclock[PMOFFSET];			\
     int i;                                                      \
 	for( i = 0; i < width; i++ )								\
-		video->data[i] = RDVIDEO(i) << 2
+		video.data[i] = RDVIDEO(i) << 2
 
 #define PREPARE_GFX9BC(width)									\
 	UINT32 *dst = (UINT32 *)&antic.cclock[PMOFFSET];			\
     int i;                                                      \
 	for( i = 0; i < width; i++ )								\
-		video->data[i] = RDVIDEO(i) << 1
+		video.data[i] = RDVIDEO(i) << 1
 
 #define PREPARE_GFXA(width) 									\
 	UINT32 *dst = (UINT32 *)&antic.cclock[PMOFFSET];			\
     int i;                                                      \
 	for( i = 0; i < width; i++ )								\
-		video->data[i] = RDVIDEO(i) << 1
+		video.data[i] = RDVIDEO(i) << 1
 
 #define PREPARE_GFXDE(width)									\
 	UINT32 *dst = (UINT32 *)&antic.cclock[PMOFFSET];			\
     int i;                                                      \
 	for( i = 0; i < width; i++ )								\
-		video->data[i] = RDVIDEO(i)
+		video.data[i] = RDVIDEO(i)
 
 #define PREPARE_GFXF(width) 									\
 	UINT32 *dst = (UINT32 *)&antic.cclock[PMOFFSET];			\
     int i;                                                      \
 	for( i = 0; i < width; i++ )								\
-		video->data[i] = RDVIDEO(i)
+		video.data[i] = RDVIDEO(i)
 
 #define PREPARE_GFXG1(width)									\
 	UINT32 *dst = (UINT32 *)&antic.cclock[PMOFFSET];			\
     int i;                                                      \
 	for( i = 0; i < width; i++ )								\
-		video->data[i] = RDVIDEO(i)
+		video.data[i] = RDVIDEO(i)
 
 #define PREPARE_GFXG2(width)									\
 	UINT32 *dst = (UINT32 *)&antic.cclock[PMOFFSET];			\
     int i;                                                      \
 	for( i = 0; i < width; i++ )								\
-		video->data[i] = RDVIDEO(i)
+		video.data[i] = RDVIDEO(i)
 
 #define PREPARE_GFXG3(width)									\
 	UINT32 *dst = (UINT32 *)&antic.cclock[PMOFFSET];			\
     int i;                                                      \
 	for( i = 0; i < width; i++ )								\
-		video->data[i] = RDVIDEO(i)
+		video.data[i] = RDVIDEO(i)
 
 /******************************************************************
  * common end of a single antic/gtia mode emulation function

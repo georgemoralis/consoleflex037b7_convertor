@@ -29,7 +29,7 @@ public class advision
 	  Start the video hardware emulation.
 	
 	***************************************************************************/
-	int advision_vh_start(void)
+	public static VhStartPtr advision_vh_start = new VhStartPtr() { public int handler() 
 	{
 	    advision_vh_hpos = 0;
 		advision_display = (UINT8 *)malloc(8 * 8 * 256);
@@ -37,7 +37,7 @@ public class advision
 			return 1;
 		memset(advision_display, 0, 8 * 8 * 256);
 	    return 0;
-	}
+	} };
 	
 	/***************************************************************************
 	
@@ -45,7 +45,7 @@ public class advision
 	
 	***************************************************************************/
 	
-	void advision_vh_init_palette(unsigned char *game_palette, unsigned short *game_colortable,const unsigned char *color_prom)
+	void advision_vh_init_palette(UBytePtr game_palette, unsigned short *game_colortable,const UBytePtr color_prom)
 	{
 		int i;
 		for( i = 0; i < 8; i++ )
@@ -64,12 +64,12 @@ public class advision
 		game_palette[9*3+2] = 0xf0;
 	}
 	
-	void advision_vh_stop(void)
+	public static VhStopPtr advision_vh_stop = new VhStopPtr() { public void handler() 
 	{
-		if( advision_display )
+		if (advision_display != 0)
 			free(advision_display);
 		advision_display = NULL;
-	}
+	} };
 	
 	void advision_vh_write(int data)
 	{
@@ -104,7 +104,7 @@ public class advision
 	
 	***************************************************************************/
 	
-	void advision_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr advision_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 		int x, y, bit;
 	
@@ -124,12 +124,12 @@ public class advision
 				for( bit = 0; bit < 8; bit++ )
 				{
 					if( *led > 0 )
-						plot_pixel(bitmap, 85 + x, 30 + 2 *( y * 8 + bit), Machine->pens[--(*led)]);
+						plot_pixel(bitmap, 85 + x, 30 + 2 *( y * 8 + bit), Machine.pens[--(*led)]);
 					led += 256;
 				}
 			}
 		}
-	}
+	} };
 	
 	
 }

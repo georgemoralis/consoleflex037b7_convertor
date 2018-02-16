@@ -17,81 +17,81 @@ public class cbmbH
 	
 	
 	#define C64_DIPS \
-	     PORT_START \
-	     PORT_BIT( 0x800, IP_ACTIVE_HIGH, IPT_BUTTON1) \
-	     PORT_BIT( 0x400, IP_ACTIVE_HIGH, IPT_BUTTON2) \
-	     PORT_BIT( 0x8000, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT | IPF_8WAY )\
-	     PORT_BIT( 0x4000, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT | IPF_8WAY )\
-		PORT_BIT( 0x2000, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP | IPF_8WAY ) \
-		PORT_BIT( 0x1000, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN | IPF_8WAY )\
+	     PORT_START();  \
+	     PORT_BIT( 0x800, IP_ACTIVE_HIGH, IPT_BUTTON1);\
+	     PORT_BIT( 0x400, IP_ACTIVE_HIGH, IPT_BUTTON2);\
+	     PORT_BIT( 0x8000, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT | IPF_8WAY );
+	     PORT_BIT( 0x4000, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT | IPF_8WAY );
+		PORT_BIT( 0x2000, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP | IPF_8WAY );\
+		PORT_BIT( 0x1000, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN | IPF_8WAY );
 		PORT_BITX( 8, IP_ACTIVE_HIGH, IPT_BUTTON1|IPF_PLAYER2, \
-			   "P2 Button", KEYCODE_LALT,JOYCODE_2_BUTTON1 )\
+			   "P2 Button", KEYCODE_LALT,JOYCODE_2_BUTTON1 );
 		PORT_BITX( 4, IP_ACTIVE_HIGH, IPT_BUTTON2|IPF_PLAYER2, \
-			   "P2 Button 2", KEYCODE_LCONTROL,JOYCODE_2_BUTTON2 )\
+			   "P2 Button 2", KEYCODE_LCONTROL,JOYCODE_2_BUTTON2 );
 		PORT_BITX( 0x80, IP_ACTIVE_HIGH, \
 			   IPT_JOYSTICK_LEFT|IPF_PLAYER2 | IPF_8WAY,\
-			   "P2 Left",KEYCODE_DEL,JOYCODE_2_LEFT )\
+			   "P2 Left",KEYCODE_DEL,JOYCODE_2_LEFT );
 		PORT_BITX( 0x40, IP_ACTIVE_HIGH, \
 			   IPT_JOYSTICK_RIGHT|IPF_PLAYER2 | IPF_8WAY,\
-			   "P2 Right",KEYCODE_PGDN,JOYCODE_2_RIGHT )\
+			   "P2 Right",KEYCODE_PGDN,JOYCODE_2_RIGHT );
 		PORT_BITX( 0x20, IP_ACTIVE_HIGH, \
 			   IPT_JOYSTICK_UP|IPF_PLAYER2 | IPF_8WAY,\
-			   "P2 Up", KEYCODE_HOME, JOYCODE_2_UP)\
+			   "P2 Up", KEYCODE_HOME, JOYCODE_2_UP);
 		PORT_BITX( 0x10, IP_ACTIVE_HIGH, \
 			   IPT_JOYSTICK_DOWN|IPF_PLAYER2 | IPF_8WAY,\
-			   "P2 Down", KEYCODE_END, JOYCODE_2_DOWN)\
-		PORT_BIT ( 0x7, 0x0,	 IPT_UNUSED )\
-		PORT_START \
+			   "P2 Down", KEYCODE_END, JOYCODE_2_DOWN);
+		PORT_BIT ( 0x7, 0x0,	 IPT_UNUSED );
+		PORT_START();  \
 		PORT_BITX( 0x100, IP_ACTIVE_HIGH, IPT_BUTTON1, \
-			   "Paddle 1 Button", KEYCODE_LCONTROL, 0)\
+			   "Paddle 1 Button", KEYCODE_LCONTROL, 0);
 		PORT_ANALOGX(0xff,128,IPT_PADDLE|IPF_REVERSE,\
 			     30,20,0,0,255,KEYCODE_LEFT,KEYCODE_RIGHT,\
-			     JOYCODE_1_LEFT,JOYCODE_1_RIGHT)\
-		PORT_START \
+			     JOYCODE_1_LEFT,JOYCODE_1_RIGHT);
+		PORT_START();  \
 		PORT_BITX( 0x100, IP_ACTIVE_HIGH, IPT_BUTTON2, \
-			   "Paddle 2 Button", KEYCODE_LALT, 0)\
+			   "Paddle 2 Button", KEYCODE_LALT, 0);
 		PORT_ANALOGX(0xff,128,IPT_PADDLE|IPF_PLAYER2|IPF_REVERSE,\
-			     30,20,0,0,255,KEYCODE_DOWN,KEYCODE_UP,0,0)\
-		PORT_START \
+			     30,20,0,0,255,KEYCODE_DOWN,KEYCODE_UP,0,0);
+		PORT_START();  \
 		PORT_BITX( 0x100, IP_ACTIVE_HIGH, IPT_BUTTON3, \
-			   "Paddle 3 Button", KEYCODE_INSERT, 0)\
+			   "Paddle 3 Button", KEYCODE_INSERT, 0);
 		PORT_ANALOGX(0xff,128,IPT_PADDLE|IPF_PLAYER3|IPF_REVERSE,\
-			     30,20,0,0,255,KEYCODE_HOME,KEYCODE_PGUP,0,0)\
-	     PORT_START \
+			     30,20,0,0,255,KEYCODE_HOME,KEYCODE_PGUP,0,0);
+	     PORT_START();  \
 		PORT_BITX( 0x100, IP_ACTIVE_HIGH, IPT_BUTTON4, \
-			   "Paddle 4 Button", KEYCODE_DEL, 0)\
+			   "Paddle 4 Button", KEYCODE_DEL, 0);
 		PORT_ANALOGX(0xff,128,IPT_PADDLE|IPF_PLAYER4|IPF_REVERSE,\
 			     30,20,0,0,255,KEYCODE_END,KEYCODE_PGDN,\
-			     JOYCODE_1_UP,JOYCODE_1_DOWN)\
-		PORT_START \
+			     JOYCODE_1_UP,JOYCODE_1_DOWN);
+		PORT_START();  \
 		PORT_BITX( 0x8000, IP_ACTIVE_HIGH, IPT_BUTTON2, \
-			   "Lightpen Signal", KEYCODE_LCONTROL, 0)\
+			   "Lightpen Signal", KEYCODE_LCONTROL, 0);
 	     PORT_ANALOGX(0x1ff,0,IPT_PADDLE|IPF_PLAYER1,\
 			  30,2,0,0,320-1,KEYCODE_LEFT,KEYCODE_RIGHT,\
-			  JOYCODE_1_LEFT,JOYCODE_1_RIGHT)\
-	     PORT_START \
+			  JOYCODE_1_LEFT,JOYCODE_1_RIGHT);
+	     PORT_START();  \
 	     PORT_ANALOGX(0xff,0,IPT_PADDLE|IPF_PLAYER2,\
 			  30,2,0,0,200-1,KEYCODE_UP,KEYCODE_DOWN,\
-			  JOYCODE_1_UP,JOYCODE_1_DOWN)\
-		PORT_START \
-		PORT_DIPNAME ( 0xe000, 0x2000, "Gameport A")\
-		PORT_DIPSETTING(  0, "None" )\
-		PORT_DIPSETTING(	0x2000, "Joystick 1" )\
-		PORT_DIPSETTING(	0x4000, "Paddles 1, 2" )\
-		PORT_DIPSETTING(	0x6000, "Mouse Joystick Emulation/2 Button Joystick" )\
-		PORT_DIPSETTING(	0x8000, "Mouse" )\
-		PORT_DIPSETTING(	0xa000, "Lightpen" )\
-		PORT_DIPNAME ( 0x1000, 0x1000, "Lightpen Draw Pointer")\
-		PORT_DIPSETTING(  0, DEF_STR( Off ) )\
-		PORT_DIPSETTING(  0x1000, DEF_STR( On ) )\
-		PORT_DIPNAME ( 0xe00, 0x200, "Gameport B")\
-		PORT_DIPSETTING(  0, "None" )\
-		PORT_DIPSETTING(	0x0200, "Joystick 2" )\
-		PORT_DIPSETTING(	0x0400, "Paddles 3, 4" )\
-		PORT_DIPSETTING(	0x0600, "Mouse Joystick Emulation/2 Button Joystick" )\
-		PORT_DIPSETTING(	0x0800, "Mouse" )\
+			  JOYCODE_1_UP,JOYCODE_1_DOWN);
+		PORT_START();  \
+		PORT_DIPNAME ( 0xe000, 0x2000, "Gameport A");
+		PORT_DIPSETTING(  0, "None" );
+		PORT_DIPSETTING(	0x2000, "Joystick 1" );
+		PORT_DIPSETTING(	0x4000, "Paddles 1, 2" );
+		PORT_DIPSETTING(	0x6000, "Mouse Joystick Emulation/2 Button Joystick" );
+		PORT_DIPSETTING(	0x8000, "Mouse" );
+		PORT_DIPSETTING(	0xa000, "Lightpen" );
+		PORT_DIPNAME ( 0x1000, 0x1000, "Lightpen Draw Pointer");
+		PORT_DIPSETTING(  0, DEF_STR( "Off") );\
+		PORT_DIPSETTING(  0x1000, DEF_STR( "On") );\
+		PORT_DIPNAME ( 0xe00, 0x200, "Gameport B");
+		PORT_DIPSETTING(  0, "None" );
+		PORT_DIPSETTING(	0x0200, "Joystick 2" );
+		PORT_DIPSETTING(	0x0400, "Paddles 3, 4" );
+		PORT_DIPSETTING(	0x0600, "Mouse Joystick Emulation/2 Button Joystick" );
+		PORT_DIPSETTING(	0x0800, "Mouse" );
 	    PORT_BITX( 0x100, IP_ACTIVE_HIGH, IPF_TOGGLE,\
-			   "Swap Gameport 1 and 2", KEYCODE_NUMLOCK, IP_JOY_NONE)
+			   "Swap Gameport 1 and 2", KEYCODE_NUMLOCK, IP_JOY_NONE);
 	
 	#define LIGHTPEN ((input_port_7_r(0)&0xe000)==0xa000)
 	#define MOUSE1 ((input_port_7_r(0)&0xe000)==0x8000)
@@ -256,17 +256,8 @@ public class cbmbH
 	
 	WRITE_HANDLER ( cbmb_colorram_w );
 	
-	extern void cbm500_driver_init (void);
-	extern void cbm600_driver_init (void);
-	extern void cbm600pal_driver_init (void);
-	extern void cbm700_driver_init (void);
-	extern void cbmb_driver_shutdown (void);
-	extern void cbmb_init_machine (void);
-	extern void cbmb_common_init_machine (void);
-	extern void cbmb_shutdown_machine (void);
-	extern void cbmb_frame_interrupt (int param);
+	extern extern extern extern extern extern extern extern extern void cbmb_frame_interrupt (int param);
 	
-	void cbmb_rom_load(void);
 	
 	void cbmb_state(PRASTER *This);
 	

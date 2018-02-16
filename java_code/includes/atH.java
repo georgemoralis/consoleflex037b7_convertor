@@ -1,12 +1,6 @@
 
-void init_at(void);
-void init_at_vga(void);
 
-void at_machine_init(void);
 
-void at_driver_close(void);
-int at_cga_frame_interrupt (void);
-int at_vga_frame_interrupt (void);
 
 READ_HANDLER(at_mfm_0_r);
 WRITE_HANDLER(at_mfm_0_w);

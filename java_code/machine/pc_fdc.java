@@ -24,7 +24,6 @@ public class pc_fdc
 	}
 	
 	static void pc_fdc_dma_drq(int,int);
-	static void pc_fdc_interrupt(int);
 	
 	static pc_fdc_hw_interface pc_fdc_interface=
 	{
@@ -34,7 +33,7 @@ public class pc_fdc
 	
 	static void pc_fdc_interrupt(int state)
 	{
-		if (state)
+		if (state != 0)
 		{
 	//		/* bodge for code below. */
 	//		/* if dma was running and int was issued, shut off dma */
@@ -118,7 +117,7 @@ public class pc_fdc
 	
 	void	pc_fdc_dma_drq(int state, int read)
 	{
-		if (state)
+		if (state != 0)
 		{
 			if (pc_DMA_mask & (0x10 << FDC_DMA)) {
 				FDC_LOG(1,"FDC_DMA_write",("DMA %d is masked\n", FDC_DMA));
@@ -133,7 +132,7 @@ public class pc_fdc
 	
 				logerror("DMA Bytes To Transfer: %d\r\n", pc_DMA_count[FDC_DMA]+1);
 	
-				if (read)
+				if (read != 0)
 				{
 					pc_DMA_status |= 0x010<<FDC_DMA;
 	

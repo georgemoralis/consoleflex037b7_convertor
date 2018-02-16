@@ -12,8 +12,8 @@ public class pce
 	#define PCE_ROM_MAXSIZE  (0x2000 * 256 + 512)
 	
 	/* system RAM */
-	unsigned char *pce_user_ram;    /* scratch RAM at F8 */
-	unsigned char *pce_save_ram;    /* battery backed RAM at F7 */
+	UBytePtr pce_user_ram;    /* scratch RAM at F8 */
+	UBytePtr pce_save_ram;    /* battery backed RAM at F7 */
 	
 	/* joystick related data*/
 	
@@ -27,7 +27,7 @@ public class pce
 	{
 		int size;
 	    FILE *fp = NULL;
-		unsigned char *ROM;
+		UBytePtr ROM;
 		logerror("*** pce_load_rom : %s\n", device_filename(IO_CARTSLOT,id));
 	
 	    /* open file to get size */
@@ -60,7 +60,7 @@ public class pce
 	    return 0;
 	}
 	
-	void pce_init_machine(void)
+	public static InitMachinePtr pce_init_machine = new InitMachinePtr() { public void handler() 
 	{
 	    void *f;
 	
@@ -70,14 +70,14 @@ public class pce
 	
 	
 	    /* load battery backed memory from disk */
-	    f = osd_fopen(Machine->gamedrv->name, 0, OSD_FILETYPE_HIGHSCORE, 0);
-	    if(f)
+	    f = osd_fopen(Machine.gamedrv.name, 0, OSD_FILETYPE_HIGHSCORE, 0);
+	    if (f != 0)
 	    {
 	        logerror("*** pce_init_machine - BRAM loaded\n");
 	        osd_fread(f, pce_save_ram, 0x2000);
 	        osd_fclose(f);
 	    }
-	}
+	} };
 	
 	void pce_stop_machine(void)
 	{
@@ -86,16 +86,16 @@ public class pce
 	    logerror("*** pce_stop_machine\n");
 	
 	    /* write battery backed memory to disk */
-	    f = osd_fopen(Machine->gamedrv->name, 0, OSD_FILETYPE_HIGHSCORE, 1);
-	    if(f)
+	    f = osd_fopen(Machine.gamedrv.name, 0, OSD_FILETYPE_HIGHSCORE, 1);
+	    if (f != 0)
 	    {
 	        logerror("*** pce_stop_machine - BRAM saved\n");
 	        osd_fwrite(f, pce_save_ram, 0x2000);
 	        osd_fclose(f);
 	    }
 	
-	    if(pce_user_ram) free(pce_user_ram);
-	    if(pce_save_ram) free(pce_save_ram);
+	    if (pce_user_ram != 0) free(pce_user_ram);
+	    if (pce_save_ram != 0) free(pce_save_ram);
 	}
 	
 	
@@ -113,7 +113,7 @@ public class pce
 	    joystick_data_select = data & JOY_CLOCK;
 	
 	    /* clear counter if bit 2 is set */
-	    if(data & JOY_RESET)
+	    if ((data & JOY_RESET) != 0)
 	    {
 	        joystick_port_select = 0;
 	    }
@@ -122,7 +122,7 @@ public class pce
 	READ_HANDLER ( pce_joystick_r )
 	{
 	    int data = readinputport(0);
-	    if(joystick_data_select) data >>= 4;
+	    if (joystick_data_select != 0) data >>= 4;
 	    return (data);
 	}
 }

@@ -20,10 +20,7 @@ public class i8271
 	
 	I8271_STATE_t I8271_STATE;
 	
-	static void i8271_command_execute(void);
-	static void i8271_command_continue(void);
-	static void i8271_data_request(void);
-	
+	static static static 
 	static char temp_buffer[16384];
 	
 	// uncomment to give verbose debug information
@@ -61,7 +58,7 @@ public class i8271
 	static void i8271_set_irq_state(int state)
 	{
 		i8271.StatusRegister &= ~I8271_STATUS_INT_REQUEST;
-		if (state)
+		if (state != 0)
 		{
 			i8271.StatusRegister |= I8271_STATUS_INT_REQUEST;
 		}

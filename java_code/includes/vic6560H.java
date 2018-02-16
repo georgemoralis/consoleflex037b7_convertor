@@ -109,15 +109,11 @@ extern bool vic6560_pal;
 #define VIC656X_CLOCK	(vic6560_pal?VIC6561_CLOCK:VIC6560_CLOCK)
 
 
-extern int vic6560_vh_start (void);
-extern void vic6560_vh_stop (void);
-extern void vic6560_vh_screenrefresh (struct osd_bitmap *bitmap, int full_refresh);
-extern unsigned char vic6560_palette[16 * 3];
+extern extern extern extern unsigned char vic6560_palette[16 * 3];
 
 /* to be inserted in GameDriver-Structure */
 extern struct CustomSound_interface vic6560_sound_interface;
 
-int vic656x_raster_interrupt (void);
 
 /* to be called when writting to port */
 extern WRITE_HANDLER ( vic6560_port_w );
@@ -129,9 +125,7 @@ extern READ_HANDLER ( vic6560_port_r );
 
 /* from sndhrdw/pc.c */
 extern int vic6560_custom_start (const struct MachineSound *driver);
-extern void vic6560_custom_stop (void);
-extern void vic6560_custom_update (void);
-extern void vic6560_soundport_w (int mode, int data);
+extern extern extern void vic6560_soundport_w (int mode, int data);
 
 extern UINT8 vic6560[16];
 #ifdef __cplusplus

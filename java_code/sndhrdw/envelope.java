@@ -130,7 +130,7 @@ public class envelope
 			for ( j = 0; j < 256; j++ )
 			{
 				uword tmpVol = j;
-				if (measuredValues)
+				if (measuredValues != 0)
 				{
 					tmpVol = (uword) ((293.0*(1-exp(j/-130.0)))+4.0);
 					if (j == 0)
@@ -187,21 +187,21 @@ public class envelope
 	void enveEmuResetOperator(sidOperator* pVoice)
 	{
 		/* mute, end of R-phase */
-		pVoice->ADSRctrl = ENVE_MUTE;
-		pVoice->gateOnCtrl = (pVoice->gateOffCtrl = false);
+		pVoice.ADSRctrl = ENVE_MUTE;
+		pVoice.gateOnCtrl = (pVoice.gateOffCtrl = false);
 	
 	#ifdef SID_FPUENVE
-		pVoice->fenveStep = (pVoice->fenveStepAdd = 0);
-		pVoice->enveStep = 0;
+		pVoice.fenveStep = (pVoice.fenveStepAdd = 0);
+		pVoice.enveStep = 0;
 	#elif defined(DIRECT_FIXPOINT)
-		pVoice->enveStep.l = (pVoice->enveStepAdd.l = 0);
+		pVoice.enveStep.l = (pVoice.enveStepAdd.l = 0);
 	#else
-		pVoice->enveStep = (pVoice->enveStepPnt = 0);
-		pVoice->enveStepAdd = (pVoice->enveStepAddPnt = 0);
+		pVoice.enveStep = (pVoice.enveStepPnt = 0);
+		pVoice.enveStepAdd = (pVoice.enveStepAddPnt = 0);
 	#endif
-		pVoice->enveSusVol = 0;
-		pVoice->enveVol = 0;
-		pVoice->enveShortAttackCount = 0;
+		pVoice.enveSusVol = 0;
+		pVoice.enveVol = 0;
+		pVoice.enveShortAttackCount = 0;
 	}
 	
 	INLINE uword enveEmuStartAttack(sidOperator*);
@@ -252,13 +252,13 @@ public class envelope
 	INLINE void enveEmuEnveAdvance(sidOperator* pVoice)
 	{
 	#ifdef SID_FPUENVE
-		pVoice->fenveStep += pVoice->fenveStepAdd;
+		pVoice.fenveStep += pVoice.fenveStepAdd;
 	#elif defined(DIRECT_FIXPOINT)
-		pVoice->enveStep.l += pVoice->enveStepAdd.l;
+		pVoice.enveStep.l += pVoice.enveStepAdd.l;
 	#else
-		pVoice->enveStepPnt += pVoice->enveStepAddPnt;
-		pVoice->enveStep += pVoice->enveStepAdd + ( pVoice->enveStepPnt > 65535 );
-		pVoice->enveStepPnt &= 0xFFFF;
+		pVoice.enveStepPnt += pVoice.enveStepAddPnt;
+		pVoice.enveStep += pVoice.enveStepAdd + ( pVoice.enveStepPnt > 65535 );
+		pVoice.enveStepPnt &= 0xFFFF;
 	#endif
 	}
 	
@@ -279,55 +279,55 @@ public class envelope
 	INLINE uword enveEmuRelease(sidOperator* pVoice)
 	{
 	#ifdef SID_FPUENVE
-		pVoice->enveStep = (uword)pVoice->fenveStep;
+		pVoice.enveStep = (uword)pVoice.fenveStep;
 	#endif
 	#if defined(DIRECT_FIXPOINT) && !defined(SID_FPUENVE)
-		if ( pVoice->enveStep.w[HI] >= releaseTabLen )
+		if ( pVoice.enveStep.w[HI] >= releaseTabLen )
 	#else
-		if ( pVoice->enveStep >= releaseTabLen )
+		if ( pVoice.enveStep >= releaseTabLen )
 	#endif
 		{
-			pVoice->enveVol = releaseTab[releaseTabLen -1];
-			return masterAmplModTable[ masterVolumeAmplIndex + pVoice->enveVol ];
+			pVoice.enveVol = releaseTab[releaseTabLen -1];
+			return masterAmplModTable[ masterVolumeAmplIndex + pVoice.enveVol ];
 		}
 		else
 		{
 	#if defined(DIRECT_FIXPOINT) && !defined(SID_FPUENVE)
-			pVoice->enveVol = releaseTab[pVoice->enveStep.w[HI]];
+			pVoice.enveVol = releaseTab[pVoice.enveStep.w[HI]];
 	#else
-			pVoice->enveVol = releaseTab[pVoice->enveStep];
+			pVoice.enveVol = releaseTab[pVoice.enveStep];
 	#endif
 			enveEmuEnveAdvance(pVoice);
-			return masterAmplModTable[ masterVolumeAmplIndex + pVoice->enveVol ];
+			return masterAmplModTable[ masterVolumeAmplIndex + pVoice.enveVol ];
 		}
 	}
 	
 	INLINE uword enveEmuAlterRelease(sidOperator* pVoice)
 	{
-		ubyte release = pVoice->SIDSR & 0x0F;
+		ubyte release = pVoice.SIDSR & 0x0F;
 	#ifdef SID_FPUENVE
-		pVoice->fenveStepAdd = decayReleaseRates[release];
+		pVoice.fenveStepAdd = decayReleaseRates[release];
 	#elif defined(DIRECT_FIXPOINT)
-		pVoice->enveStepAdd.l = decayReleaseRates[release];
+		pVoice.enveStepAdd.l = decayReleaseRates[release];
 	#else
-		pVoice->enveStepAdd = decayReleaseRates[release];
-		pVoice->enveStepAddPnt = decayReleaseRatesP[release];
+		pVoice.enveStepAdd = decayReleaseRates[release];
+		pVoice.enveStepAddPnt = decayReleaseRatesP[release];
 	#endif
-		pVoice->ADSRproc = &enveEmuRelease;
+		pVoice.ADSRproc = &enveEmuRelease;
 		return enveEmuRelease(pVoice);
 	}
 	
 	INLINE uword enveEmuStartRelease(sidOperator* pVoice)
 	{
-		pVoice->ADSRctrl = ENVE_RELEASE;
+		pVoice.ADSRctrl = ENVE_RELEASE;
 	#ifdef SID_FPUENVE
-		pVoice->fenveStep = releasePos[pVoice->enveVol];
+		pVoice.fenveStep = releasePos[pVoice.enveVol];
 	#elif defined(DIRECT_FIXPOINT)
-		pVoice->enveStep.w[HI] = releasePos[pVoice->enveVol];
-		pVoice->enveStep.w[LO] = 0;
+		pVoice.enveStep.w[HI] = releasePos[pVoice.enveVol];
+		pVoice.enveStep.w[LO] = 0;
 	#else
-		pVoice->enveStep = releasePos[pVoice->enveVol];
-		pVoice->enveStepPnt = 0;
+		pVoice.enveStep = releasePos[pVoice.enveVol];
+		pVoice.enveStepPnt = 0;
 	#endif
 		return enveEmuAlterRelease(pVoice);
 	}
@@ -338,40 +338,40 @@ public class envelope
 	
 	INLINE uword enveEmuSustain(sidOperator* pVoice)
 	{
-		return masterAmplModTable[masterVolumeAmplIndex+pVoice->enveVol];
+		return masterAmplModTable[masterVolumeAmplIndex+pVoice.enveVol];
 	}
 	
 	INLINE uword enveEmuSustainDecay(sidOperator* pVoice)
 	{
 	#ifdef SID_FPUENVE
-		pVoice->enveStep = (uword)pVoice->fenveStep;
+		pVoice.enveStep = (uword)pVoice.fenveStep;
 	#endif
 	#if defined(DIRECT_FIXPOINT) && !defined(SID_FPUENVE)
-		if ( pVoice->enveStep.w[HI] >= releaseTabLen )
+		if ( pVoice.enveStep.w[HI] >= releaseTabLen )
 	#else
-		if ( pVoice->enveStep >= releaseTabLen )
+		if ( pVoice.enveStep >= releaseTabLen )
 	#endif
 		{
-			pVoice->enveVol = releaseTab[releaseTabLen-1];
+			pVoice.enveVol = releaseTab[releaseTabLen-1];
 			return enveEmuAlterSustain(pVoice);
 		}
 		else
 		{
 	#if defined(DIRECT_FIXPOINT) && !defined(SID_FPUENVE)
-			pVoice->enveVol = releaseTab[pVoice->enveStep.w[HI]];
+			pVoice.enveVol = releaseTab[pVoice.enveStep.w[HI]];
 	#else
-			pVoice->enveVol = releaseTab[pVoice->enveStep];
+			pVoice.enveVol = releaseTab[pVoice.enveStep];
 	#endif
 			/* Will be controlled from sidEmuSet2(). */
-			if ( pVoice->enveVol <= pVoice->enveSusVol )
+			if ( pVoice.enveVol <= pVoice.enveSusVol )
 			{
-				pVoice->enveVol = pVoice->enveSusVol;
+				pVoice.enveVol = pVoice.enveSusVol;
 				return enveEmuAlterSustain(pVoice);
 			}
 			else
 			{
 				enveEmuEnveAdvance(pVoice);
-				return masterAmplModTable[ masterVolumeAmplIndex + pVoice->enveVol ];
+				return masterAmplModTable[ masterVolumeAmplIndex + pVoice.enveVol ];
 			}
 		}
 	}
@@ -379,32 +379,32 @@ public class envelope
 	/* This is the same as enveEmuStartSustainDecay(). */
 	INLINE uword enveEmuAlterSustainDecay(sidOperator* pVoice)
 	{
-		ubyte decay = pVoice->SIDAD & 0x0F ;
+		ubyte decay = pVoice.SIDAD & 0x0F ;
 	#ifdef SID_FPUENVE
-		pVoice->fenveStepAdd = decayReleaseRates[decay];
+		pVoice.fenveStepAdd = decayReleaseRates[decay];
 	#elif defined(DIRECT_FIXPOINT)
-		pVoice->enveStepAdd.l = decayReleaseRates[decay];
+		pVoice.enveStepAdd.l = decayReleaseRates[decay];
 	#else
-		pVoice->enveStepAdd = decayReleaseRates[decay];
-		pVoice->enveStepAddPnt = decayReleaseRatesP[decay];
+		pVoice.enveStepAdd = decayReleaseRates[decay];
+		pVoice.enveStepAddPnt = decayReleaseRatesP[decay];
 	#endif
-		pVoice->ADSRproc = &enveEmuSustainDecay;
+		pVoice.ADSRproc = &enveEmuSustainDecay;
 		return enveEmuSustainDecay(pVoice);
 	}
 	
 	/* This is the same as enveEmuStartSustain(). */
 	INLINE uword enveEmuAlterSustain(sidOperator* pVoice)
 	{
-		if ( pVoice->enveVol > pVoice->enveSusVol )
+		if ( pVoice.enveVol > pVoice.enveSusVol )
 		{
-			pVoice->ADSRctrl = ENVE_SUSTAINDECAY;
-			pVoice->ADSRproc = &enveEmuSustainDecay;
+			pVoice.ADSRctrl = ENVE_SUSTAINDECAY;
+			pVoice.ADSRproc = &enveEmuSustainDecay;
 			return enveEmuAlterSustainDecay(pVoice);
 		}
 		else
 		{
-			pVoice->ADSRctrl = ENVE_SUSTAIN;
-			pVoice->ADSRproc = &enveEmuSustain;
+			pVoice.ADSRctrl = ENVE_SUSTAIN;
+			pVoice.ADSRproc = &enveEmuSustain;
 			return enveEmuSustain(pVoice);
 		}
 	}
@@ -416,62 +416,62 @@ public class envelope
 	INLINE uword enveEmuDecay(sidOperator* pVoice)
 	{
 	#ifdef SID_FPUENVE
-		pVoice->enveStep = (uword)pVoice->fenveStep;
+		pVoice.enveStep = (uword)pVoice.fenveStep;
 	#endif
 	#if defined(DIRECT_FIXPOINT) && !defined(SID_FPUENVE)
-		if ( pVoice->enveStep.w[HI] >= releaseTabLen )
+		if ( pVoice.enveStep.w[HI] >= releaseTabLen )
 	#else
-		if ( pVoice->enveStep >= releaseTabLen )
+		if ( pVoice.enveStep >= releaseTabLen )
 	#endif
 		{
-			pVoice->enveVol = pVoice->enveSusVol;
+			pVoice.enveVol = pVoice.enveSusVol;
 			return enveEmuAlterSustain(pVoice);  /* start sustain */
 		}
 		else
 		{
 	#if defined(DIRECT_FIXPOINT) && !defined(SID_FPUENVE)
-			pVoice->enveVol = releaseTab[pVoice->enveStep.w[HI]];
+			pVoice.enveVol = releaseTab[pVoice.enveStep.w[HI]];
 	#else
-			pVoice->enveVol = releaseTab[pVoice->enveStep];
+			pVoice.enveVol = releaseTab[pVoice.enveStep];
 	#endif
 			/* Will be controlled from sidEmuSet2(). */
-			if ( pVoice->enveVol <= pVoice->enveSusVol )
+			if ( pVoice.enveVol <= pVoice.enveSusVol )
 			{
-				pVoice->enveVol = pVoice->enveSusVol;
+				pVoice.enveVol = pVoice.enveSusVol;
 				return enveEmuAlterSustain(pVoice);  /* start sustain */
 			}
 			else
 			{
 				enveEmuEnveAdvance(pVoice);
-				return masterAmplModTable[ masterVolumeAmplIndex + pVoice->enveVol ];
+				return masterAmplModTable[ masterVolumeAmplIndex + pVoice.enveVol ];
 			}
 		}
 	}
 	
 	INLINE uword enveEmuAlterDecay(sidOperator* pVoice)
 	{
-		ubyte decay = pVoice->SIDAD & 0x0F ;
+		ubyte decay = pVoice.SIDAD & 0x0F ;
 	#ifdef SID_FPUENVE
-		pVoice->fenveStepAdd = decayReleaseRates[decay];
+		pVoice.fenveStepAdd = decayReleaseRates[decay];
 	#elif defined(DIRECT_FIXPOINT)
-		pVoice->enveStepAdd.l = decayReleaseRates[decay];
+		pVoice.enveStepAdd.l = decayReleaseRates[decay];
 	#else
-		pVoice->enveStepAdd = decayReleaseRates[decay];
-		pVoice->enveStepAddPnt = decayReleaseRatesP[decay];
+		pVoice.enveStepAdd = decayReleaseRates[decay];
+		pVoice.enveStepAddPnt = decayReleaseRatesP[decay];
 	#endif
-		pVoice->ADSRproc = &enveEmuDecay;
+		pVoice.ADSRproc = &enveEmuDecay;
 		return enveEmuDecay(pVoice);
 	}
 	
 	INLINE uword enveEmuStartDecay(sidOperator* pVoice)
 	{
-		pVoice->ADSRctrl = ENVE_DECAY;
+		pVoice.ADSRctrl = ENVE_DECAY;
 	#ifdef SID_FPUENVE
-		pVoice->fenveStep = 0;
+		pVoice.fenveStep = 0;
 	#elif defined(DIRECT_FIXPOINT)
-		pVoice->enveStep.l = 0;
+		pVoice.enveStep.l = 0;
 	#else
-		pVoice->enveStep = (pVoice->enveStepPnt = 0);
+		pVoice.enveStep = (pVoice.enveStepPnt = 0);
 	#endif
 		return enveEmuAlterDecay(pVoice);
 	}
@@ -483,52 +483,52 @@ public class envelope
 	INLINE uword enveEmuAttack(sidOperator* pVoice)
 	{
 	#ifdef SID_FPUENVE
-		pVoice->enveStep = (uword)pVoice->fenveStep;
+		pVoice.enveStep = (uword)pVoice.fenveStep;
 	#endif
 	#if defined(DIRECT_FIXPOINT) && !defined(SID_FPUENVE)
-		if ( pVoice->enveStep.w[HI] > attackTabLen )
+		if ( pVoice.enveStep.w[HI] > attackTabLen )
 	#else
-		if ( pVoice->enveStep >= attackTabLen )
+		if ( pVoice.enveStep >= attackTabLen )
 	#endif
 			return enveEmuStartDecay(pVoice);
 		else
 		{
 	#if defined(DIRECT_FIXPOINT) && !defined(SID_FPUENVE)
-			pVoice->enveVol = pVoice->enveStep.w[HI];
+			pVoice.enveVol = pVoice.enveStep.w[HI];
 	#else
-			pVoice->enveVol = pVoice->enveStep;
+			pVoice.enveVol = pVoice.enveStep;
 	#endif
 			enveEmuEnveAdvance(pVoice);
-			return masterAmplModTable[ masterVolumeAmplIndex + pVoice->enveVol ];
+			return masterAmplModTable[ masterVolumeAmplIndex + pVoice.enveVol ];
 		}
 	}
 	
 	INLINE uword enveEmuAlterAttack(sidOperator* pVoice)
 	{
-		ubyte attack = pVoice->SIDAD >> 4;
+		ubyte attack = pVoice.SIDAD >> 4;
 	#ifdef SID_FPUENVE
-		pVoice->fenveStepAdd = attackRates[attack];
+		pVoice.fenveStepAdd = attackRates[attack];
 	#elif defined(DIRECT_FIXPOINT)
-		pVoice->enveStepAdd.l = attackRates[attack];
+		pVoice.enveStepAdd.l = attackRates[attack];
 	#else
-		pVoice->enveStepAdd = attackRates[attack];
-		pVoice->enveStepAddPnt = attackRatesP[attack];
+		pVoice.enveStepAdd = attackRates[attack];
+		pVoice.enveStepAddPnt = attackRatesP[attack];
 	#endif
-		pVoice->ADSRproc = &enveEmuAttack;
+		pVoice.ADSRproc = &enveEmuAttack;
 		return enveEmuAttack(pVoice);
 	}
 	
 	INLINE uword enveEmuStartAttack(sidOperator* pVoice)
 	{
-		pVoice->ADSRctrl = ENVE_ATTACK;
+		pVoice.ADSRctrl = ENVE_ATTACK;
 	#ifdef SID_FPUENVE
-		pVoice->fenveStep = (float)pVoice->enveVol;
+		pVoice.fenveStep = (float)pVoice.enveVol;
 	#elif defined(DIRECT_FIXPOINT)
-		pVoice->enveStep.w[HI] = pVoice->enveVol;
-		pVoice->enveStep.w[LO] = 0;
+		pVoice.enveStep.w[HI] = pVoice.enveVol;
+		pVoice.enveStep.w[LO] = 0;
 	#else
-		pVoice->enveStep = pVoice->enveVol;
-		pVoice->enveStepPnt = 0;
+		pVoice.enveStep = pVoice.enveVol;
+		pVoice.enveStepPnt = 0;
 	#endif
 		return enveEmuAlterAttack(pVoice);
 	}
@@ -541,59 +541,59 @@ public class envelope
 	INLINE uword enveEmuShortAttack(sidOperator* pVoice)
 	{
 	#ifdef SID_FPUENVE
-		pVoice->enveStep = (uword)pVoice->fenveStep;
+		pVoice.enveStep = (uword)pVoice.fenveStep;
 	#endif
 	#if defined(DIRECT_FIXPOINT) && !defined(SID_FPUENVE)
-		if ((pVoice->enveStep.w[HI] > attackTabLen) ||
-			(pVoice->enveShortAttackCount == 0))
+		if ((pVoice.enveStep.w[HI] > attackTabLen) ||
+			(pVoice.enveShortAttackCount == 0))
 	#else
-		if ((pVoice->enveStep >= attackTabLen) ||
-			(pVoice->enveShortAttackCount == 0))
+		if ((pVoice.enveStep >= attackTabLen) ||
+			(pVoice.enveShortAttackCount == 0))
 	#endif
 	/*		return enveEmuStartRelease(pVoice); */
 			return enveEmuStartDecay(pVoice);
 		else
 		{
 	#if defined(DIRECT_FIXPOINT) && !defined(SID_FPUENVE)
-			pVoice->enveVol = pVoice->enveStep.w[HI];
+			pVoice.enveVol = pVoice.enveStep.w[HI];
 	#else
-			pVoice->enveVol = pVoice->enveStep;
+			pVoice.enveVol = pVoice.enveStep;
 	#endif
-		    pVoice->enveShortAttackCount--;
-	/*		cout << hex << pVoice->enveShortAttackCount << " / " << pVoice->enveVol << endl; */
+		    pVoice.enveShortAttackCount--;
+	/*		cout << hex << pVoice.enveShortAttackCount << " / " << pVoice.enveVol << endl; */
 			enveEmuEnveAdvance(pVoice);
-			return masterAmplModTable[ masterVolumeAmplIndex + pVoice->enveVol ];
+			return masterAmplModTable[ masterVolumeAmplIndex + pVoice.enveVol ];
 		}
 	}
 	
 	INLINE uword enveEmuAlterShortAttack(sidOperator* pVoice)
 	{
-		ubyte attack = pVoice->SIDAD >> 4;
+		ubyte attack = pVoice.SIDAD >> 4;
 	#ifdef SID_FPUENVE
-		pVoice->fenveStepAdd = attackRates[attack];
+		pVoice.fenveStepAdd = attackRates[attack];
 	#elif defined(DIRECT_FIXPOINT)
-		pVoice->enveStepAdd.l = attackRates[attack];
+		pVoice.enveStepAdd.l = attackRates[attack];
 	#else
-		pVoice->enveStepAdd = attackRates[attack];
-		pVoice->enveStepAddPnt = attackRatesP[attack];
+		pVoice.enveStepAdd = attackRates[attack];
+		pVoice.enveStepAddPnt = attackRatesP[attack];
 	#endif
-		pVoice->ADSRproc = &enveEmuShortAttack;
+		pVoice.ADSRproc = &enveEmuShortAttack;
 		return enveEmuShortAttack(pVoice);
 	}
 	
 	INLINE uword enveEmuStartShortAttack(sidOperator* pVoice)
 	{
-		pVoice->ADSRctrl = ENVE_SHORTATTACK;
+		pVoice.ADSRctrl = ENVE_SHORTATTACK;
 	#ifdef SID_FPUENVE
-		pVoice->fenveStep = (float)pVoice->enveVol;
+		pVoice.fenveStep = (float)pVoice.enveVol;
 	#elif defined(DIRECT_FIXPOINT)
-		pVoice->enveStep.w[HI] = pVoice->enveVol;
-		pVoice->enveStep.w[LO] = 0;
+		pVoice.enveStep.w[HI] = pVoice.enveVol;
+		pVoice.enveStep.w[LO] = 0;
 	#else
-		pVoice->enveStep = pVoice->enveVol;
-		pVoice->enveStepPnt = 0;
+		pVoice.enveStep = pVoice.enveVol;
+		pVoice.enveStepPnt = 0;
 	#endif
-		pVoice->enveShortAttackCount = 65535;  /* unused */
+		pVoice.enveShortAttackCount = 65535;  /* unused */
 		return enveEmuAlterShortAttack(pVoice);
 	}
 }

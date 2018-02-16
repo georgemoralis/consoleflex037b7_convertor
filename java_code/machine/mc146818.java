@@ -51,36 +51,36 @@ public class mc146818
 	
 	static void mc146818_from_gmtime(struct tm *tmtime)
 	{
-		if (BCD_MODE) {
-			mc146818.data[0]=dec_2_bcd(tmtime->tm_sec);
-			mc146818.data[2]=dec_2_bcd(tmtime->tm_min);
-			if ((mc146818.data[0xb]&2)||(tmtime->tm_hour<12))
-				mc146818.data[4]=dec_2_bcd(tmtime->tm_hour);
+		if (BCD_MODE != 0) {
+			mc146818.data[0]=dec_2_bcd(tmtime.tm_sec);
+			mc146818.data[2]=dec_2_bcd(tmtime.tm_min);
+			if ((mc146818.data[0xb]&2)||(tmtime.tm_hour<12))
+				mc146818.data[4]=dec_2_bcd(tmtime.tm_hour);
 			else
-				mc146818.data[4]=dec_2_bcd(tmtime->tm_hour-12)|0x80;
+				mc146818.data[4]=dec_2_bcd(tmtime.tm_hour-12)|0x80;
 			
-			mc146818.data[7]=dec_2_bcd(tmtime->tm_mday);
-			mc146818.data[8]=dec_2_bcd(tmtime->tm_mon+1);
-			mc146818.data[9]=dec_2_bcd(tmtime->tm_year%100);
+			mc146818.data[7]=dec_2_bcd(tmtime.tm_mday);
+			mc146818.data[8]=dec_2_bcd(tmtime.tm_mon+1);
+			mc146818.data[9]=dec_2_bcd(tmtime.tm_year%100);
 			
 			if (mc146818.type!=MC146818_IGNORE_CENTURY)
-				mc146818.data[50]=dec_2_bcd((tmtime->tm_year+1900)/100);
+				mc146818.data[50]=dec_2_bcd((tmtime.tm_year+1900)/100);
 		} else {
-			mc146818.data[0]=tmtime->tm_sec;
-			mc146818.data[2]=tmtime->tm_min;
-			if ((mc146818.data[0xb]&2)||(tmtime->tm_hour<12))
-				mc146818.data[4]=tmtime->tm_hour;
+			mc146818.data[0]=tmtime.tm_sec;
+			mc146818.data[2]=tmtime.tm_min;
+			if ((mc146818.data[0xb]&2)||(tmtime.tm_hour<12))
+				mc146818.data[4]=tmtime.tm_hour;
 			else
-				mc146818.data[4]=(tmtime->tm_hour-12)|0x80;
+				mc146818.data[4]=(tmtime.tm_hour-12)|0x80;
 			
-			mc146818.data[7]=tmtime->tm_mday;
-			mc146818.data[8]=tmtime->tm_mon+1;
-			mc146818.data[9]=tmtime->tm_year%100;
+			mc146818.data[7]=tmtime.tm_mday;
+			mc146818.data[8]=tmtime.tm_mon+1;
+			mc146818.data[9]=tmtime.tm_year%100;
 			if (mc146818.type!=MC146818_IGNORE_CENTURY)
-				mc146818.data[50]=(tmtime->tm_year+1900)/100;
+				mc146818.data[50]=(tmtime.tm_year+1900)/100;
 		}
-		mc146818.data[6]=tmtime->tm_wday;
-		if (tmtime->tm_isdst) mc146818.data[0xb]|=1;
+		mc146818.data[6]=tmtime.tm_wday;
+		if (tmtime.tm_isdst) mc146818.data[0xb]|=1;
 		else mc146818.data[0xb]&=~1;
 	}
 	
@@ -96,7 +96,7 @@ public class mc146818
 		tp=gmtime(&t);
 		mc146818_from_gmtime(tp);
 	#else
-		if (BCD_MODE) {
+		if (BCD_MODE != 0) {
 			mc146818.data[0]=bcd_adjust(mc146818.data[0]+1);
 			if (mc146818.data[0]>=0x60) {
 				mc146818.data[0]=0;
@@ -153,8 +153,8 @@ public class mc146818
 		mc146818.last_refresh=timer_get_time();
 	
 		mc146818.timer=timer_pulse(1.0,0,mc146818_timer);
-		if ( (file=osd_fopen(Machine->gamedrv->name, 
-							 Machine->gamedrv->name, OSD_FILETYPE_NVRAM, 0))==NULL)
+		if ( (file=osd_fopen(Machine.gamedrv.name, 
+							 Machine.gamedrv.name, OSD_FILETYPE_NVRAM, 0))==NULL)
 			return;
 		osd_fread(file,mc146818.data, sizeof(mc146818.data));
 		osd_fclose(file);	
@@ -171,8 +171,8 @@ public class mc146818
 	void mc146818_close(void)
 	{
 		FILE *file;
-		if ( (file=osd_fopen(Machine->gamedrv->name, 
-							 Machine->gamedrv->name, OSD_FILETYPE_NVRAM, 1))==NULL)
+		if ( (file=osd_fopen(Machine.gamedrv.name, 
+							 Machine.gamedrv.name, OSD_FILETYPE_NVRAM, 1))==NULL)
 			return;
 		osd_fwrite(file, mc146818.data, sizeof(mc146818.data));
 		osd_fclose(file);

@@ -60,9 +60,9 @@ public class snes
 	
 	int brightnessValue[16]={0x00,0x02,0x04,0x06,0x08,0x0A,0x0C,0x0E,0x10,0x13,0x15,0x17,0x19,0x1B,0x1D,0x1F};
 	
-	int snes_line_interrupt(void)
+	public static InterruptPtr snes_line_interrupt = new InterruptPtr() { public int handler() 
 	{
-		struct osd_bitmap *bitmap = Machine->scrbitmap;
+		struct osd_bitmap *bitmap = Machine.scrbitmap;
 		unsigned short pal,bri;
 		static int CURLINE=0,a;
 		int maxLines,r,g,b;
@@ -72,7 +72,7 @@ public class snes
 	//	else
 	//		maxLines=223;
 	
-		if (paletteChanged)
+		if (paletteChanged != 0)
 		{
 			bri=brightnessValue[0x0F - (port21xx[0x00] & 0x0F)];
 	
@@ -132,7 +132,7 @@ public class snes
 		}
 	
 		return ignore_interrupt();
-	}
+	} };
 	
 	#ifndef EMULATE_SPC700
 	unsigned char SPCSkipper(void)
@@ -307,7 +307,7 @@ public class snes
 	
 		while (bMask)
 		{
-			if (bMask&bits)
+			if ((bMask & bits) != 0)
 			{
 				// Channel set so figure out operations
 				if (port43xx[dmaBase + 0x00] & 0x08)
@@ -324,29 +324,29 @@ public class snes
 				BUSB=BBUS(dmaBase);
 	
 				if (port43xx[dmaBase + 0x00] & 0x80)
-					direc=1;							// Copy from PPU -> CPU
+					direc=1;							// Copy from PPU . CPU
 				else
-					direc=0;							// Copy from CPU -> PPU
+					direc=0;							// Copy from CPU . PPU
 	
 				LEN=DMAL(dmaBase);
 	
 				type=port43xx[dmaBase + 0x00] & 0x07;
 	/*
-				logerror("CPU -> %06X , DMA43%02X Type [%d] from %sPU [%08X] -> %sPU [%08X], %05X bytes , ABUS inc = %d\n",cpu_get_pc(),dmaBase,type,direc==1 ? "P" : "C",direc==1 ? BUSB : BUSA,direc==1 ? "C" : "P",direc==1 ? BUSA : BUSB,LEN==0 ? 0x10000 : LEN,increment);
+				logerror("CPU . %06X , DMA43%02X Type [%d] from %sPU [%08X] . %sPU [%08X], %05X bytes , ABUS inc = %d\n",cpu_get_pc(),dmaBase,type,direc==1 ? "P" : "C",direc==1 ? BUSB : BUSA,direc==1 ? "C" : "P",direc==1 ? BUSA : BUSB,LEN==0 ? 0x10000 : LEN,increment);
 				if ((BUSB&0xFF)==0x18 || (BUSB&0xFF)==0x19)
 				{
-					logerror("VMAIN -> %02X\n",port21xx[0x15]);
-					logerror("VRAM ADDRESS -> %04X\n",(port21xx[0x17]<<8)|port21xx[0x16]);
+					logerror("VMAIN . %02X\n",port21xx[0x15]);
+					logerror("VRAM ADDRESS . %04X\n",(port21xx[0x17]<<8)|port21xx[0x16]);
 				}
 				if ((BUSB&0xFF)==0x22)
-					logerror("CRAM ADDRESS -> %04X\n",(port21xx[0x21]<<1));
+					logerror("CRAM ADDRESS . %04X\n",(port21xx[0x21]<<1));
 	*/
 				switch (type)
 				{
 					case 0x00:							// DMA 1 ppu address
 						while (LEN)
 						{
-							if (direc)		// PPU->CPU
+							if (direc != 0)		// PPU.CPU
 								cpu_writemem24(BUSA,cpu_readmem24(BUSB));
 							else
 								cpu_writemem24(BUSB,cpu_readmem24(BUSA));
@@ -357,7 +357,7 @@ public class snes
 					case 0x01:
 						while (LEN)
 						{
-							if (direc)		// PPU->CPU
+							if (direc != 0)		// PPU.CPU
 								cpu_writemem24(BUSA,cpu_readmem24(BUSB));
 							else
 								cpu_writemem24(BUSB,cpu_readmem24(BUSA));
@@ -365,7 +365,7 @@ public class snes
 							LEN--;
 							if (!LEN)
 								break;
-							if (direc)		// PPU->CPU
+							if (direc != 0)		// PPU.CPU
 								cpu_writemem24(BUSA,cpu_readmem24(BUSB+1));
 							else
 								cpu_writemem24(BUSB+1,cpu_readmem24(BUSA));
@@ -376,7 +376,7 @@ public class snes
 					case 0x02:
 						while (LEN)
 						{
-							if (direc)		// PPU->CPU
+							if (direc != 0)		// PPU.CPU
 								cpu_writemem24(BUSA,cpu_readmem24(BUSB));
 							else
 								cpu_writemem24(BUSB,cpu_readmem24(BUSA));
@@ -384,7 +384,7 @@ public class snes
 							LEN--;
 							if (!LEN)
 								break;
-							if (direc)		// PPU->CPU
+							if (direc != 0)		// PPU.CPU
 								cpu_writemem24(BUSA,cpu_readmem24(BUSB));
 							else
 								cpu_writemem24(BUSB,cpu_readmem24(BUSA));
@@ -512,11 +512,11 @@ public class snes
 				temp1=(fixedColour & 0x001F);				// This is the fixed colour to ADD/SUB in CGADDSUB mode
 				temp2=(fixedColour & 0x03E0);				//when back is specified this value is used as the furthest colour away
 				temp3=(fixedColour & 0x7C00);				//ie. if no bpls or sprites obscure a pixel this value will be seen!
-				if (data & 0x20)
+				if ((data & 0x20) != 0)
 					temp1=temps&0x1F;
-				if (data & 0x40)
+				if ((data & 0x40) != 0)
 					temp2=(temps&0x1F)<<5;
-				if (data & 0x80)
+				if ((data & 0x80) != 0)
 					temp3=(temps&0x1F)<<10;
 				fixedColour=temp3 | temp2 | temp1;
 				port21xx[0x32]=data;
@@ -569,7 +569,7 @@ public class snes
 			case 0x2206:			//	WRDIVB	: %vvvvvvvv - v = value of divisor
 				// Perform division 16bit / 8bit
 				temp1=(port42xx[0x05]<<8)+port42xx[0x04];
-				if (data)
+				if (data != 0)
 				{
 					temp2=temp1/((unsigned char)data);
 					temp3=temp1%((unsigned char)data);
@@ -711,29 +711,29 @@ public class snes
 		logerror("Write To Unhandled Address : %04X,%02X\n",offset+0x2000,data);
 	}
 	
-	static struct GfxDecodeInfo snes_gfxdecodeinfo[] = {
-		{ -1 } /* end of array */
+	static GfxDecodeInfo snes_gfxdecodeinfo[] ={
+		new GfxDecodeInfo( -1 ) /* end of array */
 	};
 	
-	INPUT_PORTS_START( snes )
+	static InputPortPtr input_ports_snes = new InputPortPtr(){ public void handler() { 
 	
-		PORT_START	// Joypad 1 - L
-		PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_BUTTON3 )
-		PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_BUTTON4 )
-		PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_BUTTON5 )
-		PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON6 )
+		PORT_START(); 	// Joypad 1 - L
+		PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_BUTTON3 );
+		PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_BUTTON4 );
+		PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_BUTTON5 );
+		PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_BUTTON6 );
 	
-		PORT_START	// Joypad 1 - H
-		PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_BUTTON1 )
-		PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_BUTTON2 )
-		PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_SELECT1 )
-		PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_START1 )
-		PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP )
-		PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN )
-		PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT )
-		PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT )
+		PORT_START(); 	// Joypad 1 - H
+		PORT_BIT ( 0x80, IP_ACTIVE_HIGH, IPT_BUTTON1 );
+		PORT_BIT ( 0x40, IP_ACTIVE_HIGH, IPT_BUTTON2 );
+		PORT_BIT ( 0x20, IP_ACTIVE_HIGH, IPT_SELECT1 );
+		PORT_BIT ( 0x10, IP_ACTIVE_HIGH, IPT_START1 );
+		PORT_BIT ( 0x08, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP );
+		PORT_BIT ( 0x04, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN );
+		PORT_BIT ( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT );
+		PORT_BIT ( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT );
 	
-	INPUT_PORTS_END
+	INPUT_PORTS_END(); }}; 
 	
 	READ_HANDLER (MRA_WRAM)
 	{
@@ -755,211 +755,211 @@ public class snes
 		SNES_SRAM[offset]=data;
 	}
 	
-	static struct MemoryReadAddress snes_readmem[] = {
-		{ 0x000000,0x001FFF,MRA_WRAM},
-		{ 0x002000,0x007FFF,snes_io_r},
-		{ 0x008000,0x00FFFF,MRA_ROM},
-		{ 0x010000,0x011FFF,MRA_WRAM},
-		{ 0x012000,0x017FFF,snes_io_r},
-		{ 0x018000,0x01FFFF,MRA_ROM},
-		{ 0x020000,0x021FFF,MRA_WRAM},
-		{ 0x022000,0x027FFF,snes_io_r},
-		{ 0x028000,0x02FFFF,MRA_ROM},
-		{ 0x030000,0x031FFF,MRA_WRAM},
-		{ 0x032000,0x037FFF,snes_io_r},
-		{ 0x038000,0x03FFFF,MRA_ROM},
-		{ 0x040000,0x041FFF,MRA_WRAM},
-		{ 0x042000,0x047FFF,snes_io_r},
-		{ 0x048000,0x04FFFF,MRA_ROM},
-		{ 0x050000,0x051FFF,MRA_WRAM},
-		{ 0x052000,0x057FFF,snes_io_r},
-		{ 0x058000,0x05FFFF,MRA_ROM},
-		{ 0x060000,0x061FFF,MRA_WRAM},
-		{ 0x062000,0x067FFF,snes_io_r},
-		{ 0x068000,0x06FFFF,MRA_ROM},
-		{ 0x070000,0x071FFF,MRA_WRAM},
-		{ 0x072000,0x077FFF,snes_io_r},
-		{ 0x078000,0x07FFFF,MRA_ROM},
-		{ 0x080000,0x081FFF,MRA_WRAM},
-		{ 0x082000,0x087FFF,snes_io_r},
-		{ 0x088000,0x08FFFF,MRA_ROM},
-		{ 0x090000,0x091FFF,MRA_WRAM},
-		{ 0x092000,0x097FFF,snes_io_r},
-		{ 0x098000,0x09FFFF,MRA_ROM},
-		{ 0x0A0000,0x0A1FFF,MRA_WRAM},
-		{ 0x0A2000,0x0A7FFF,snes_io_r},
-		{ 0x0A8000,0x0AFFFF,MRA_ROM},
-		{ 0x0B0000,0x0B1FFF,MRA_WRAM},
-		{ 0x0B2000,0x0B7FFF,snes_io_r},
-		{ 0x0B8000,0x0BFFFF,MRA_ROM},
-		{ 0x0C0000,0x0C1FFF,MRA_WRAM},
-		{ 0x0C2000,0x0C7FFF,snes_io_r},
-		{ 0x0C8000,0x0CFFFF,MRA_ROM},
-		{ 0x0D0000,0x0D1FFF,MRA_WRAM},
-		{ 0x0D2000,0x0D7FFF,snes_io_r},
-		{ 0x0D8000,0x0DFFFF,MRA_ROM},
-		{ 0x0E0000,0x0E1FFF,MRA_WRAM},
-		{ 0x0E2000,0x0E7FFF,snes_io_r},
-		{ 0x0E8000,0x0EFFFF,MRA_ROM},
-		{ 0x0F0000,0x0F1FFF,MRA_WRAM},
-		{ 0x0F2000,0x0F7FFF,snes_io_r},
-		{ 0x0F8000,0x0FFFFF,MRA_ROM},
-	/*	{ 0x100000,0x101FFF,MRA_WRAM},
-		{ 0x102000,0x107FFF,snes_io_r},
-		{ 0x108000,0x10FFFF,MRA_ROM},
-		{ 0x110000,0x111FFF,MRA_WRAM},
-		{ 0x112000,0x117FFF,snes_io_r},
-		{ 0x118000,0x11FFFF,MRA_ROM},
-		{ 0x120000,0x121FFF,MRA_WRAM},
-		{ 0x122000,0x127FFF,snes_io_r},
-		{ 0x128000,0x12FFFF,MRA_ROM},
-		{ 0x130000,0x131FFF,MRA_WRAM},
-		{ 0x132000,0x137FFF,snes_io_r},
-		{ 0x138000,0x13FFFF,MRA_ROM},
-		{ 0x140000,0x141FFF,MRA_WRAM},
-		{ 0x142000,0x147FFF,snes_io_r},
-		{ 0x148000,0x14FFFF,MRA_ROM},
-		{ 0x150000,0x151FFF,MRA_WRAM},
-		{ 0x152000,0x157FFF,snes_io_r},
-		{ 0x158000,0x15FFFF,MRA_ROM},
-		{ 0x160000,0x161FFF,MRA_WRAM},
-		{ 0x162000,0x167FFF,snes_io_r},
-		{ 0x168000,0x16FFFF,MRA_ROM},
-		{ 0x170000,0x171FFF,MRA_WRAM},
-		{ 0x172000,0x177FFF,snes_io_r},
-		{ 0x178000,0x17FFFF,MRA_ROM},
-		{ 0x180000,0x181FFF,MRA_WRAM},
-		{ 0x182000,0x187FFF,snes_io_r},
-		{ 0x188000,0x18FFFF,MRA_ROM},
-		{ 0x190000,0x191FFF,MRA_WRAM},
-		{ 0x192000,0x197FFF,snes_io_r},
-		{ 0x198000,0x19FFFF,MRA_ROM},
-		{ 0x1A0000,0x1A1FFF,MRA_WRAM},
-		{ 0x1A2000,0x1A7FFF,snes_io_r},
-		{ 0x1A8000,0x1AFFFF,MRA_ROM},
-		{ 0x1B0000,0x1B1FFF,MRA_WRAM},
-		{ 0x1B2000,0x1B7FFF,snes_io_r},
-		{ 0x1B8000,0x1BFFFF,MRA_ROM},
-		{ 0x1C0000,0x1C1FFF,MRA_WRAM},
-		{ 0x1C2000,0x1C7FFF,snes_io_r},
-		{ 0x1C8000,0x1CFFFF,MRA_ROM},
-		{ 0x1D0000,0x1D1FFF,MRA_WRAM},
-		{ 0x1D2000,0x1D7FFF,snes_io_r},
-		{ 0x1D8000,0x1DFFFF,MRA_ROM},
-		{ 0x1E0000,0x1E1FFF,MRA_WRAM},
-		{ 0x1E2000,0x1E7FFF,snes_io_r},
-		{ 0x1E8000,0x1EFFFF,MRA_ROM},
-		{ 0x1F0000,0x1F1FFF,MRA_WRAM},
-		{ 0x1F2000,0x1F7FFF,snes_io_r},
-		{ 0x1F8000,0x1FFFFF,MRA_ROM},*/
-		{ 0x700000,0x74FFFF,MRA_SRAM},
-		{ 0x7E0000,0x7FFFFF,MRA_WRAM},
-		{ -1 }  /* end of table */
+	static MemoryReadAddress snes_readmem[] ={
+		new MemoryReadAddress( 0x000000,0x001FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x002000,0x007FFF,snes_io_r),
+		new MemoryReadAddress( 0x008000,0x00FFFF,MRA_ROM),
+		new MemoryReadAddress( 0x010000,0x011FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x012000,0x017FFF,snes_io_r),
+		new MemoryReadAddress( 0x018000,0x01FFFF,MRA_ROM),
+		new MemoryReadAddress( 0x020000,0x021FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x022000,0x027FFF,snes_io_r),
+		new MemoryReadAddress( 0x028000,0x02FFFF,MRA_ROM),
+		new MemoryReadAddress( 0x030000,0x031FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x032000,0x037FFF,snes_io_r),
+		new MemoryReadAddress( 0x038000,0x03FFFF,MRA_ROM),
+		new MemoryReadAddress( 0x040000,0x041FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x042000,0x047FFF,snes_io_r),
+		new MemoryReadAddress( 0x048000,0x04FFFF,MRA_ROM),
+		new MemoryReadAddress( 0x050000,0x051FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x052000,0x057FFF,snes_io_r),
+		new MemoryReadAddress( 0x058000,0x05FFFF,MRA_ROM),
+		new MemoryReadAddress( 0x060000,0x061FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x062000,0x067FFF,snes_io_r),
+		new MemoryReadAddress( 0x068000,0x06FFFF,MRA_ROM),
+		new MemoryReadAddress( 0x070000,0x071FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x072000,0x077FFF,snes_io_r),
+		new MemoryReadAddress( 0x078000,0x07FFFF,MRA_ROM),
+		new MemoryReadAddress( 0x080000,0x081FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x082000,0x087FFF,snes_io_r),
+		new MemoryReadAddress( 0x088000,0x08FFFF,MRA_ROM),
+		new MemoryReadAddress( 0x090000,0x091FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x092000,0x097FFF,snes_io_r),
+		new MemoryReadAddress( 0x098000,0x09FFFF,MRA_ROM),
+		new MemoryReadAddress( 0x0A0000,0x0A1FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x0A2000,0x0A7FFF,snes_io_r),
+		new MemoryReadAddress( 0x0A8000,0x0AFFFF,MRA_ROM),
+		new MemoryReadAddress( 0x0B0000,0x0B1FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x0B2000,0x0B7FFF,snes_io_r),
+		new MemoryReadAddress( 0x0B8000,0x0BFFFF,MRA_ROM),
+		new MemoryReadAddress( 0x0C0000,0x0C1FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x0C2000,0x0C7FFF,snes_io_r),
+		new MemoryReadAddress( 0x0C8000,0x0CFFFF,MRA_ROM),
+		new MemoryReadAddress( 0x0D0000,0x0D1FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x0D2000,0x0D7FFF,snes_io_r),
+		new MemoryReadAddress( 0x0D8000,0x0DFFFF,MRA_ROM),
+		new MemoryReadAddress( 0x0E0000,0x0E1FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x0E2000,0x0E7FFF,snes_io_r),
+		new MemoryReadAddress( 0x0E8000,0x0EFFFF,MRA_ROM),
+		new MemoryReadAddress( 0x0F0000,0x0F1FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x0F2000,0x0F7FFF,snes_io_r),
+		new MemoryReadAddress( 0x0F8000,0x0FFFFF,MRA_ROM),
+	/*	new MemoryReadAddress( 0x100000,0x101FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x102000,0x107FFF,snes_io_r),
+		new MemoryReadAddress( 0x108000,0x10FFFF,MRA_ROM),
+		new MemoryReadAddress( 0x110000,0x111FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x112000,0x117FFF,snes_io_r),
+		new MemoryReadAddress( 0x118000,0x11FFFF,MRA_ROM),
+		new MemoryReadAddress( 0x120000,0x121FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x122000,0x127FFF,snes_io_r),
+		new MemoryReadAddress( 0x128000,0x12FFFF,MRA_ROM),
+		new MemoryReadAddress( 0x130000,0x131FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x132000,0x137FFF,snes_io_r),
+		new MemoryReadAddress( 0x138000,0x13FFFF,MRA_ROM),
+		new MemoryReadAddress( 0x140000,0x141FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x142000,0x147FFF,snes_io_r),
+		new MemoryReadAddress( 0x148000,0x14FFFF,MRA_ROM),
+		new MemoryReadAddress( 0x150000,0x151FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x152000,0x157FFF,snes_io_r),
+		new MemoryReadAddress( 0x158000,0x15FFFF,MRA_ROM),
+		new MemoryReadAddress( 0x160000,0x161FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x162000,0x167FFF,snes_io_r),
+		new MemoryReadAddress( 0x168000,0x16FFFF,MRA_ROM),
+		new MemoryReadAddress( 0x170000,0x171FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x172000,0x177FFF,snes_io_r),
+		new MemoryReadAddress( 0x178000,0x17FFFF,MRA_ROM),
+		new MemoryReadAddress( 0x180000,0x181FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x182000,0x187FFF,snes_io_r),
+		new MemoryReadAddress( 0x188000,0x18FFFF,MRA_ROM),
+		new MemoryReadAddress( 0x190000,0x191FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x192000,0x197FFF,snes_io_r),
+		new MemoryReadAddress( 0x198000,0x19FFFF,MRA_ROM),
+		new MemoryReadAddress( 0x1A0000,0x1A1FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x1A2000,0x1A7FFF,snes_io_r),
+		new MemoryReadAddress( 0x1A8000,0x1AFFFF,MRA_ROM),
+		new MemoryReadAddress( 0x1B0000,0x1B1FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x1B2000,0x1B7FFF,snes_io_r),
+		new MemoryReadAddress( 0x1B8000,0x1BFFFF,MRA_ROM),
+		new MemoryReadAddress( 0x1C0000,0x1C1FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x1C2000,0x1C7FFF,snes_io_r),
+		new MemoryReadAddress( 0x1C8000,0x1CFFFF,MRA_ROM),
+		new MemoryReadAddress( 0x1D0000,0x1D1FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x1D2000,0x1D7FFF,snes_io_r),
+		new MemoryReadAddress( 0x1D8000,0x1DFFFF,MRA_ROM),
+		new MemoryReadAddress( 0x1E0000,0x1E1FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x1E2000,0x1E7FFF,snes_io_r),
+		new MemoryReadAddress( 0x1E8000,0x1EFFFF,MRA_ROM),
+		new MemoryReadAddress( 0x1F0000,0x1F1FFF,MRA_WRAM),
+		new MemoryReadAddress( 0x1F2000,0x1F7FFF,snes_io_r),
+		new MemoryReadAddress( 0x1F8000,0x1FFFFF,MRA_ROM),*/
+		new MemoryReadAddress( 0x700000,0x74FFFF,MRA_SRAM),
+		new MemoryReadAddress( 0x7E0000,0x7FFFFF,MRA_WRAM),
+		new MemoryReadAddress( -1 )  /* end of table */
 	};
 	
-	static struct MemoryWriteAddress snes_writemem[] = {
-		{ 0x000000,0x001FFF,MWA_WRAM},
-		{ 0x002000,0x007FFF,snes_io_w},
-		{ 0x008000,0x00FFFF,MWA_NOP},
-		{ 0x010000,0x011FFF,MWA_WRAM},
-		{ 0x012000,0x017FFF,snes_io_w},
-		{ 0x018000,0x01FFFF,MWA_NOP},
-		{ 0x020000,0x021FFF,MWA_WRAM},
-		{ 0x022000,0x027FFF,snes_io_w},
-		{ 0x028000,0x02FFFF,MWA_NOP},
-		{ 0x030000,0x031FFF,MWA_WRAM},
-		{ 0x032000,0x037FFF,snes_io_w},
-		{ 0x038000,0x03FFFF,MWA_NOP},
-		{ 0x040000,0x041FFF,MWA_WRAM},
-		{ 0x042000,0x047FFF,snes_io_w},
-		{ 0x048000,0x04FFFF,MWA_NOP},
-		{ 0x050000,0x051FFF,MWA_WRAM},
-		{ 0x052000,0x057FFF,snes_io_w},
-		{ 0x058000,0x05FFFF,MWA_NOP},
-		{ 0x060000,0x061FFF,MWA_WRAM},
-		{ 0x062000,0x067FFF,snes_io_w},
-		{ 0x068000,0x06FFFF,MWA_NOP},
-		{ 0x070000,0x071FFF,MWA_WRAM},
-		{ 0x072000,0x077FFF,snes_io_w},
-		{ 0x078000,0x07FFFF,MWA_NOP},
-		{ 0x080000,0x081FFF,MWA_WRAM},
-		{ 0x082000,0x087FFF,snes_io_w},
-		{ 0x088000,0x08FFFF,MWA_NOP},
-		{ 0x090000,0x091FFF,MWA_WRAM},
-		{ 0x092000,0x097FFF,snes_io_w},
-		{ 0x098000,0x09FFFF,MWA_NOP},
-		{ 0x0A0000,0x0A1FFF,MWA_WRAM},
-		{ 0x0A2000,0x0A7FFF,snes_io_w},
-		{ 0x0A8000,0x0AFFFF,MWA_NOP},
-		{ 0x0B0000,0x0B1FFF,MWA_WRAM},
-		{ 0x0B2000,0x0B7FFF,snes_io_w},
-		{ 0x0B8000,0x0BFFFF,MWA_NOP},
-		{ 0x0C0000,0x0C1FFF,MWA_WRAM},
-		{ 0x0C2000,0x0C7FFF,snes_io_w},
-		{ 0x0C8000,0x0CFFFF,MWA_NOP},
-		{ 0x0D0000,0x0D1FFF,MWA_WRAM},
-		{ 0x0D2000,0x0D7FFF,snes_io_w},
-		{ 0x0D8000,0x0DFFFF,MWA_NOP},
-		{ 0x0E0000,0x0E1FFF,MWA_WRAM},
-		{ 0x0E2000,0x0E7FFF,snes_io_w},
-		{ 0x0E8000,0x0EFFFF,MWA_NOP},
-		{ 0x0F0000,0x0F1FFF,MWA_WRAM},
-		{ 0x0F2000,0x0F7FFF,snes_io_w},
-		{ 0x0F8000,0x0FFFFF,MWA_NOP},
-	/*	{ 0x100000,0x101FFF,MWA_WRAM},
-		{ 0x102000,0x107FFF,snes_io_w},
-		{ 0x108000,0x10FFFF,MWA_NOP},
-		{ 0x110000,0x111FFF,MWA_WRAM},
-		{ 0x112000,0x117FFF,snes_io_w},
-		{ 0x118000,0x11FFFF,MWA_NOP},
-		{ 0x120000,0x121FFF,MWA_WRAM},
-		{ 0x122000,0x127FFF,snes_io_w},
-		{ 0x128000,0x12FFFF,MWA_NOP},
-		{ 0x130000,0x131FFF,MWA_WRAM},
-		{ 0x132000,0x137FFF,snes_io_w},
-		{ 0x138000,0x13FFFF,MWA_NOP},
-		{ 0x140000,0x141FFF,MWA_WRAM},
-		{ 0x142000,0x147FFF,snes_io_w},
-		{ 0x148000,0x14FFFF,MWA_NOP},
-		{ 0x150000,0x151FFF,MWA_WRAM},
-		{ 0x152000,0x157FFF,snes_io_w},
-		{ 0x158000,0x15FFFF,MWA_NOP},
-		{ 0x160000,0x161FFF,MWA_WRAM},
-		{ 0x162000,0x167FFF,snes_io_w},
-		{ 0x168000,0x16FFFF,MWA_NOP},
-		{ 0x170000,0x171FFF,MWA_WRAM},
-		{ 0x172000,0x177FFF,snes_io_w},
-		{ 0x178000,0x17FFFF,MWA_NOP},
-		{ 0x180000,0x181FFF,MWA_WRAM},
-		{ 0x182000,0x187FFF,snes_io_w},
-		{ 0x188000,0x18FFFF,MWA_NOP},
-		{ 0x190000,0x191FFF,MWA_WRAM},
-		{ 0x192000,0x197FFF,snes_io_w},
-		{ 0x198000,0x19FFFF,MWA_NOP},
-		{ 0x1A0000,0x1A1FFF,MWA_WRAM},
-		{ 0x1A2000,0x1A7FFF,snes_io_w},
-		{ 0x1A8000,0x1AFFFF,MWA_NOP},
-		{ 0x1B0000,0x1B1FFF,MWA_WRAM},
-		{ 0x1B2000,0x1B7FFF,snes_io_w},
-		{ 0x1B8000,0x1BFFFF,MWA_NOP},
-		{ 0x1C0000,0x1C1FFF,MWA_WRAM},
-		{ 0x1C2000,0x1C7FFF,snes_io_w},
-		{ 0x1C8000,0x1CFFFF,MWA_NOP},
-		{ 0x1D0000,0x1D1FFF,MWA_WRAM},
-		{ 0x1D2000,0x1D7FFF,snes_io_w},
-		{ 0x1D8000,0x1DFFFF,MWA_NOP},
-		{ 0x1E0000,0x1E1FFF,MWA_WRAM},
-		{ 0x1E2000,0x1E7FFF,snes_io_w},
-		{ 0x1E8000,0x1EFFFF,MWA_NOP},
-		{ 0x1F0000,0x1F1FFF,MWA_WRAM},
-		{ 0x1F2000,0x1F7FFF,snes_io_w},
-		{ 0x1F8000,0x1FFFFF,MWA_NOP},*/
-		{ 0x700000,0x74FFFF,MWA_SRAM},
-		{ 0x7E0000,0x7FFFFF,MWA_WRAM},
-		{ -1 }  /* end of table */
+	static MemoryWriteAddress snes_writemem[] ={
+		new MemoryWriteAddress( 0x000000,0x001FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x002000,0x007FFF,snes_io_w),
+		new MemoryWriteAddress( 0x008000,0x00FFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x010000,0x011FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x012000,0x017FFF,snes_io_w),
+		new MemoryWriteAddress( 0x018000,0x01FFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x020000,0x021FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x022000,0x027FFF,snes_io_w),
+		new MemoryWriteAddress( 0x028000,0x02FFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x030000,0x031FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x032000,0x037FFF,snes_io_w),
+		new MemoryWriteAddress( 0x038000,0x03FFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x040000,0x041FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x042000,0x047FFF,snes_io_w),
+		new MemoryWriteAddress( 0x048000,0x04FFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x050000,0x051FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x052000,0x057FFF,snes_io_w),
+		new MemoryWriteAddress( 0x058000,0x05FFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x060000,0x061FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x062000,0x067FFF,snes_io_w),
+		new MemoryWriteAddress( 0x068000,0x06FFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x070000,0x071FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x072000,0x077FFF,snes_io_w),
+		new MemoryWriteAddress( 0x078000,0x07FFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x080000,0x081FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x082000,0x087FFF,snes_io_w),
+		new MemoryWriteAddress( 0x088000,0x08FFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x090000,0x091FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x092000,0x097FFF,snes_io_w),
+		new MemoryWriteAddress( 0x098000,0x09FFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x0A0000,0x0A1FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x0A2000,0x0A7FFF,snes_io_w),
+		new MemoryWriteAddress( 0x0A8000,0x0AFFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x0B0000,0x0B1FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x0B2000,0x0B7FFF,snes_io_w),
+		new MemoryWriteAddress( 0x0B8000,0x0BFFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x0C0000,0x0C1FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x0C2000,0x0C7FFF,snes_io_w),
+		new MemoryWriteAddress( 0x0C8000,0x0CFFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x0D0000,0x0D1FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x0D2000,0x0D7FFF,snes_io_w),
+		new MemoryWriteAddress( 0x0D8000,0x0DFFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x0E0000,0x0E1FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x0E2000,0x0E7FFF,snes_io_w),
+		new MemoryWriteAddress( 0x0E8000,0x0EFFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x0F0000,0x0F1FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x0F2000,0x0F7FFF,snes_io_w),
+		new MemoryWriteAddress( 0x0F8000,0x0FFFFF,MWA_NOP),
+	/*	new MemoryWriteAddress( 0x100000,0x101FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x102000,0x107FFF,snes_io_w),
+		new MemoryWriteAddress( 0x108000,0x10FFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x110000,0x111FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x112000,0x117FFF,snes_io_w),
+		new MemoryWriteAddress( 0x118000,0x11FFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x120000,0x121FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x122000,0x127FFF,snes_io_w),
+		new MemoryWriteAddress( 0x128000,0x12FFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x130000,0x131FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x132000,0x137FFF,snes_io_w),
+		new MemoryWriteAddress( 0x138000,0x13FFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x140000,0x141FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x142000,0x147FFF,snes_io_w),
+		new MemoryWriteAddress( 0x148000,0x14FFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x150000,0x151FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x152000,0x157FFF,snes_io_w),
+		new MemoryWriteAddress( 0x158000,0x15FFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x160000,0x161FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x162000,0x167FFF,snes_io_w),
+		new MemoryWriteAddress( 0x168000,0x16FFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x170000,0x171FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x172000,0x177FFF,snes_io_w),
+		new MemoryWriteAddress( 0x178000,0x17FFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x180000,0x181FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x182000,0x187FFF,snes_io_w),
+		new MemoryWriteAddress( 0x188000,0x18FFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x190000,0x191FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x192000,0x197FFF,snes_io_w),
+		new MemoryWriteAddress( 0x198000,0x19FFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x1A0000,0x1A1FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x1A2000,0x1A7FFF,snes_io_w),
+		new MemoryWriteAddress( 0x1A8000,0x1AFFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x1B0000,0x1B1FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x1B2000,0x1B7FFF,snes_io_w),
+		new MemoryWriteAddress( 0x1B8000,0x1BFFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x1C0000,0x1C1FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x1C2000,0x1C7FFF,snes_io_w),
+		new MemoryWriteAddress( 0x1C8000,0x1CFFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x1D0000,0x1D1FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x1D2000,0x1D7FFF,snes_io_w),
+		new MemoryWriteAddress( 0x1D8000,0x1DFFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x1E0000,0x1E1FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x1E2000,0x1E7FFF,snes_io_w),
+		new MemoryWriteAddress( 0x1E8000,0x1EFFFF,MWA_NOP),
+		new MemoryWriteAddress( 0x1F0000,0x1F1FFF,MWA_WRAM),
+		new MemoryWriteAddress( 0x1F2000,0x1F7FFF,snes_io_w),
+		new MemoryWriteAddress( 0x1F8000,0x1FFFFF,MWA_NOP),*/
+		new MemoryWriteAddress( 0x700000,0x74FFFF,MWA_SRAM),
+		new MemoryWriteAddress( 0x7E0000,0x7FFFFF,MWA_WRAM),
+		new MemoryWriteAddress( -1 )  /* end of table */
 	};
 	
-	void snes_init_palette(unsigned char *palette, unsigned short *colortable,const unsigned char *color_prom)
+	public static VhConvertColorPromPtr snes_init_palette = new VhConvertColorPromPtr() { public void handler(char []palette, char []colortable, UBytePtr color_prom) 
 	{
 		int i;
 	
@@ -977,28 +977,28 @@ public class snes
 	
 			colortable[i] = i;
 		}
-	}
+	} };
 	
-	static struct MachineDriver machine_driver_snes =
-	{
+	static MachineDriver machine_driver_snes = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_G65C816,
 				2680000,        /* 2.68 Mhz */
 			    snes_readmem,snes_writemem,
-				0,0,									// No IO
+				null,null,									// No IO
 				snes_line_interrupt,262,				// 262 scanlines
 	
-			},
+			),
 	#ifdef EMULATE_SPC700
-			{
+			new MachineCPU(
 				CPU_SPC700,
 				2048000,		/* 2.048Mhz */
 				spc_readmem,spc_writemem,
-				0,0,									// No IO
+				null,null,									// No IO
 				spc700Interrupt,262*10,					// Interrupts should never be called. - Done for better sync
-			},
+			),
 	#endif
 		},
 		50, /*2500*/0,       /* frames per second, vblank duration - Emulating a PAL machine at present*/
@@ -1009,31 +1009,31 @@ public class snes
 		/* video hardware */
 		32*8+32,                               /* screen width - only emulating 256 pixel width at present*/
 		32*8+32,                               /* screen height - pal height*/
-		{ 16, 16+32*8-1, 16, 16+32*8-1 },           /* visible_area */
+		new rectangle( 16, 16+32*8-1, 16, 16+32*8-1 ),           /* visible_area */
 		snes_gfxdecodeinfo,					/* graphics decode info */
 		65536, 65536,						/* colors used for the characters */
 		snes_init_palette,
 	
 		VIDEO_TYPE_RASTER,
-		0,
+		null,
 		snes_vh_start,
 		snes_vh_stop,
 		snes_vh_screenrefresh,
 	
 		/* sound hardware */
 		0,0,0,0,
-		{
+		new MachineSound[] {
 	#ifdef EMULATE_SPC700
-			{
+			new MachineSound(
 				SOUND_CUSTOM,			// SNES has its own sample format and since its a multiple rom machine can't use SOUND_SAMPLES
-				&snesSoundInterface
-			},
+				snesSoundInterface
+			),
 	#endif
-			{
+			new MachineSound(
 			0
-			}
+			)
 		}
-	};
+	);
 	
 	/***************************************************************************
 	
@@ -1041,13 +1041,13 @@ public class snes
 	
 	***************************************************************************/
 	
-	ROM_START(snes)
-		ROM_REGION(0x408000,REGION_CPU1)			// SNES RAM/ROM
+	static RomLoadPtr rom_snes = new RomLoadPtr(){ public void handler(){ 
+		ROM_REGION(0x408000,REGION_CPU1);		// SNES RAM/ROM
 	#ifdef EMULATE_SPC700
-		ROM_REGION(0x10000,REGION_CPU2)				// SPC RAM/ROM
-		ROM_LOAD ("spc700.rom", 0xFFC0, 0x0040, 0x38000B6B)
+		ROM_REGION(0x10000,REGION_CPU2);			// SPC RAM/ROM
+		ROM_LOAD ("spc700.rom", 0xFFC0, 0x0040, 0x38000B6B);
 	#endif
-	ROM_END
+	ROM_END(); }}; 
 	
 	static const struct IODevice io_snes[] =
 	{

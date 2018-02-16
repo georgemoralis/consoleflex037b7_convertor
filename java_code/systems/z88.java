@@ -20,7 +20,7 @@ package systems;
 public class z88
 {
 	
-	unsigned char *z88_memory = NULL;
+	UBytePtr z88_memory = NULL;
 	static void *z88_rtc_timer = NULL;
 	
 	
@@ -125,7 +125,7 @@ public class z88
 	
 	static void z88_refresh_memory(void)
 	{
-	        unsigned char *addr;
+	        UBytePtr addr;
 	        int block;
 	
 		addr = z88_memory + (blink.mem[0]<<14);
@@ -215,7 +215,7 @@ public class z88
 		cpu_setbank(10, addr);
 	}
 	
-	void z88_init_machine(void)
+	public static InitMachinePtr z88_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		z88_memory = malloc(512*1024);
 	
@@ -237,7 +237,7 @@ public class z88
 	
 		z88_refresh_memory();
 	
-	}
+	} };
 	
 	
 	void z88_shutdown_machine(void)
@@ -257,25 +257,25 @@ public class z88
 	}
 	 
 	
-	static struct MemoryReadAddress readmem_z88[] =
+	static MemoryReadAddress readmem_z88[] =
 	{
-	        {0x00000, 0x01fff, MRA_BANK1},
-	        {0x02000, 0x03fff, MRA_BANK2},
-	        {0x04000, 0x07fff, MRA_BANK3},
-			{0x08000, 0x0bfff, MRA_BANK4},
-	        {0x0c000, 0x0ffff, MRA_BANK5},
-		{-1}							   /* end of table */
+	        new MemoryReadAddress(0x00000, 0x01fff, MRA_BANK1),
+	        new MemoryReadAddress(0x02000, 0x03fff, MRA_BANK2),
+	        new MemoryReadAddress(0x04000, 0x07fff, MRA_BANK3),
+			new MemoryReadAddress(0x08000, 0x0bfff, MRA_BANK4),
+	        new MemoryReadAddress(0x0c000, 0x0ffff, MRA_BANK5),
+		new MemoryReadAddress(-1)							   /* end of table */
 	};
 	
 	
-	static struct MemoryWriteAddress writemem_z88[] =
+	static MemoryWriteAddress writemem_z88[] =
 	{
-	        {0x00000, 0x01fff, MWA_BANK6},
-			{0x02000, 0x03fff, MWA_BANK7},
-	        {0x04000, 0x07fff, MWA_BANK8},
-	        {0x08000, 0x0bfff, MWA_BANK9},
-	        {0x0c000, 0x0ffff, MWA_BANK10},
-		{-1}							   /* end of table */
+	        new MemoryWriteAddress(0x00000, 0x01fff, MWA_BANK6),
+			new MemoryWriteAddress(0x02000, 0x03fff, MWA_BANK7),
+	        new MemoryWriteAddress(0x04000, 0x07fff, MWA_BANK8),
+	        new MemoryWriteAddress(0x08000, 0x0bfff, MWA_BANK9),
+	        new MemoryWriteAddress(0x0c000, 0x0ffff, MWA_BANK10),
+		new MemoryWriteAddress(-1)							   /* end of table */
 	};
 	
 	static void blink_pb_w(int offset, int data, int reg_index)
@@ -515,16 +515,16 @@ public class z88
 	}
 	
 	
-	static struct IOReadPort readport_z88[] =
+	static IOReadPort readport_z88[] =
 	{
-		{0x0000, 0x0ffff, z88_port_r},
-		{-1}							   /* end of table */
+		new IOReadPort(0x0000, 0x0ffff, z88_port_r),
+		new IOReadPort(-1)							   /* end of table */
 	};
 	
-	static struct IOWritePort writeport_z88[] =
+	static IOWritePort writeport_z88[] =
 	{
-		{0x0000, 0x0ffff, z88_port_w},
-		{-1}                                                       /* end of table */
+		new IOWritePort(0x0000, 0x0ffff, z88_port_w),
+		new IOWritePort(-1)                                                       /* end of table */
 	        
 	};
 	
@@ -543,108 +543,108 @@ public class z88
 	------------------------------------------------------------------------- 
 	*/
 	
-	INPUT_PORTS_START(z88)
-		PORT_START
-		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD,"DEL", KEYCODE_BACKSPACE, IP_JOY_NONE)
-		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD,"ENTER", KEYCODE_ENTER, IP_JOY_NONE)
-		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD,"6", KEYCODE_6, IP_JOY_NONE)
-		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD,"Y", KEYCODE_Y, IP_JOY_NONE)
-		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD,"H", KEYCODE_H, IP_JOY_NONE)
-		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD,"N", KEYCODE_N, IP_JOY_NONE)
-		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD,"7", KEYCODE_7, IP_JOY_NONE)
-		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD,"8", KEYCODE_8, IP_JOY_NONE)
+	static InputPortPtr input_ports_z88 = new InputPortPtr(){ public void handler() { 
+		PORT_START(); 
+		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD,"DEL", KEYCODE_BACKSPACE, IP_JOY_NONE);
+		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD,"ENTER", KEYCODE_ENTER, IP_JOY_NONE);
+		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD,"6", KEYCODE_6, IP_JOY_NONE);
+		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD,"Y", KEYCODE_Y, IP_JOY_NONE);
+		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD,"H", KEYCODE_H, IP_JOY_NONE);
+		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD,"N", KEYCODE_N, IP_JOY_NONE);
+		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD,"7", KEYCODE_7, IP_JOY_NONE);
+		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD,"8", KEYCODE_8, IP_JOY_NONE);
 	
-		PORT_START
-		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD,"\\", KEYCODE_BACKSLASH, IP_JOY_NONE)
-		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD,"UP", KEYCODE_UP, IP_JOY_NONE)
-		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD,"5", KEYCODE_5, IP_JOY_NONE)
-		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD,"T", KEYCODE_T, IP_JOY_NONE)
-		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD,"G", KEYCODE_G, IP_JOY_NONE)
-		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD,"B", KEYCODE_B, IP_JOY_NONE)
-		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD,"U", KEYCODE_U, IP_JOY_NONE)
-		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD,"I", KEYCODE_I, IP_JOY_NONE)
+		PORT_START(); 
+		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD,"\\", KEYCODE_BACKSLASH, IP_JOY_NONE);
+		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD,"UP", KEYCODE_UP, IP_JOY_NONE);
+		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD,"5", KEYCODE_5, IP_JOY_NONE);
+		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD,"T", KEYCODE_T, IP_JOY_NONE);
+		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD,"G", KEYCODE_G, IP_JOY_NONE);
+		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD,"B", KEYCODE_B, IP_JOY_NONE);
+		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD,"U", KEYCODE_U, IP_JOY_NONE);
+		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD,"I", KEYCODE_I, IP_JOY_NONE);
 	
-		PORT_START
-		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD,"=", KEYCODE_EQUALS, IP_JOY_NONE)
-		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD,"DOWN", KEYCODE_DOWN, IP_JOY_NONE)
-		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD,"4", KEYCODE_4, IP_JOY_NONE)
-		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD,"R", KEYCODE_R, IP_JOY_NONE)
-		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD,"F", KEYCODE_F, IP_JOY_NONE)
-		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD,"V", KEYCODE_V, IP_JOY_NONE)
-		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD,"J", KEYCODE_J, IP_JOY_NONE)
-		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD,"O", KEYCODE_O, IP_JOY_NONE)
+		PORT_START(); 
+		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD,"=", KEYCODE_EQUALS, IP_JOY_NONE);
+		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD,"DOWN", KEYCODE_DOWN, IP_JOY_NONE);
+		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD,"4", KEYCODE_4, IP_JOY_NONE);
+		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD,"R", KEYCODE_R, IP_JOY_NONE);
+		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD,"F", KEYCODE_F, IP_JOY_NONE);
+		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD,"V", KEYCODE_V, IP_JOY_NONE);
+		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD,"J", KEYCODE_J, IP_JOY_NONE);
+		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD,"O", KEYCODE_O, IP_JOY_NONE);
 	
-		PORT_START
-		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD,"-", KEYCODE_MINUS, IP_JOY_NONE)
-		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD,"RIGHT", KEYCODE_RIGHT, IP_JOY_NONE)
-		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD,"3", KEYCODE_3, IP_JOY_NONE)
-		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD,"E", KEYCODE_E, IP_JOY_NONE)
-		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD,"D", KEYCODE_D, IP_JOY_NONE)
-		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD,"C", KEYCODE_C, IP_JOY_NONE)
-		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD,"K", KEYCODE_K, IP_JOY_NONE)
-		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD,"9", KEYCODE_9, IP_JOY_NONE)
-	
-	
-		PORT_START
-		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD,"-", KEYCODE_MINUS, IP_JOY_NONE)
-		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD,"RIGHT", KEYCODE_RIGHT, IP_JOY_NONE)
-		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD,"3", KEYCODE_3, IP_JOY_NONE)
-		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD,"E", KEYCODE_E, IP_JOY_NONE)
-		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD,"D", KEYCODE_D, IP_JOY_NONE)
-		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD,"C", KEYCODE_C, IP_JOY_NONE)
-		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD,"K", KEYCODE_K, IP_JOY_NONE)
-		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD,"9", KEYCODE_9, IP_JOY_NONE)
-	
-		PORT_START
-		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD,"[", KEYCODE_OPENBRACE, IP_JOY_NONE)
-		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD,"SPACE", KEYCODE_RIGHT, IP_JOY_NONE)
-		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD,"1", KEYCODE_1, IP_JOY_NONE)
-		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD,"Q", KEYCODE_Q, IP_JOY_NONE)
-		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD,"A", KEYCODE_A, IP_JOY_NONE)
-		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD,"Z", KEYCODE_Z, IP_JOY_NONE)
-		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD,"L", KEYCODE_L, IP_JOY_NONE)
-		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD,"0", KEYCODE_0, IP_JOY_NONE)
-	
-		PORT_START
-		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD,"]", KEYCODE_CLOSEBRACE, IP_JOY_NONE)
-		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD,"LEFT SHIFT", KEYCODE_LSHIFT, IP_JOY_NONE)
-		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD,"TAB", KEYCODE_TAB, IP_JOY_NONE)
-		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD,"DIA", KEYCODE_NONE, IP_JOY_NONE)
-		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD,"MENU", KEYCODE_NONE, IP_JOY_NONE)
-		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD,",", KEYCODE_COMMA, IP_JOY_NONE)
-		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD,";", KEYCODE_COLON, IP_JOY_NONE)
-		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD,"'", KEYCODE_QUOTE, IP_JOY_NONE)
+		PORT_START(); 
+		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD,"-", KEYCODE_MINUS, IP_JOY_NONE);
+		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD,"RIGHT", KEYCODE_RIGHT, IP_JOY_NONE);
+		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD,"3", KEYCODE_3, IP_JOY_NONE);
+		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD,"E", KEYCODE_E, IP_JOY_NONE);
+		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD,"D", KEYCODE_D, IP_JOY_NONE);
+		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD,"C", KEYCODE_C, IP_JOY_NONE);
+		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD,"K", KEYCODE_K, IP_JOY_NONE);
+		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD,"9", KEYCODE_9, IP_JOY_NONE);
 	
 	
-		PORT_START
-		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD,"RIGHT SHIFT", KEYCODE_RSHIFT, IP_JOY_NONE)
-		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD,"SQR", KEYCODE_NONE, IP_JOY_NONE)
-		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD,"ESC", KEYCODE_ESC, IP_JOY_NONE)
-		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD,"INDEX", KEYCODE_NONE, IP_JOY_NONE)
-		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD,"CAPS", KEYCODE_CAPSLOCK, IP_JOY_NONE)
-		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD,".", KEYCODE_STOP, IP_JOY_NONE)
-		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD,"/", KEYCODE_SLASH, IP_JOY_NONE)
-		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD,"£", KEYCODE_TILDE, IP_JOY_NONE)
+		PORT_START(); 
+		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD,"-", KEYCODE_MINUS, IP_JOY_NONE);
+		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD,"RIGHT", KEYCODE_RIGHT, IP_JOY_NONE);
+		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD,"3", KEYCODE_3, IP_JOY_NONE);
+		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD,"E", KEYCODE_E, IP_JOY_NONE);
+		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD,"D", KEYCODE_D, IP_JOY_NONE);
+		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD,"C", KEYCODE_C, IP_JOY_NONE);
+		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD,"K", KEYCODE_K, IP_JOY_NONE);
+		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD,"9", KEYCODE_9, IP_JOY_NONE);
 	
-	INPUT_PORTS_END
+		PORT_START(); 
+		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD,"[", KEYCODE_OPENBRACE, IP_JOY_NONE);
+		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD,"SPACE", KEYCODE_RIGHT, IP_JOY_NONE);
+		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD,"1", KEYCODE_1, IP_JOY_NONE);
+		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD,"Q", KEYCODE_Q, IP_JOY_NONE);
+		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD,"A", KEYCODE_A, IP_JOY_NONE);
+		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD,"Z", KEYCODE_Z, IP_JOY_NONE);
+		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD,"L", KEYCODE_L, IP_JOY_NONE);
+		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD,"0", KEYCODE_0, IP_JOY_NONE);
 	
-	static struct MachineDriver machine_driver_z88 =
-	{
+		PORT_START(); 
+		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD,"]", KEYCODE_CLOSEBRACE, IP_JOY_NONE);
+		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD,"LEFT SHIFT", KEYCODE_LSHIFT, IP_JOY_NONE);
+		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD,"TAB", KEYCODE_TAB, IP_JOY_NONE);
+		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD,"DIA", KEYCODE_NONE, IP_JOY_NONE);
+		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD,"MENU", KEYCODE_NONE, IP_JOY_NONE);
+		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD,",", KEYCODE_COMMA, IP_JOY_NONE);
+		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD,";", KEYCODE_COLON, IP_JOY_NONE);
+		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD,"'", KEYCODE_QUOTE, IP_JOY_NONE);
+	
+	
+		PORT_START(); 
+		PORT_BITX(0x080, IP_ACTIVE_LOW, IPT_KEYBOARD,"RIGHT SHIFT", KEYCODE_RSHIFT, IP_JOY_NONE);
+		PORT_BITX(0x040, IP_ACTIVE_LOW, IPT_KEYBOARD,"SQR", KEYCODE_NONE, IP_JOY_NONE);
+		PORT_BITX(0x020, IP_ACTIVE_LOW, IPT_KEYBOARD,"ESC", KEYCODE_ESC, IP_JOY_NONE);
+		PORT_BITX(0x010, IP_ACTIVE_LOW, IPT_KEYBOARD,"INDEX", KEYCODE_NONE, IP_JOY_NONE);
+		PORT_BITX(0x008, IP_ACTIVE_LOW, IPT_KEYBOARD,"CAPS", KEYCODE_CAPSLOCK, IP_JOY_NONE);
+		PORT_BITX(0x004, IP_ACTIVE_LOW, IPT_KEYBOARD,".", KEYCODE_STOP, IP_JOY_NONE);
+		PORT_BITX(0x002, IP_ACTIVE_LOW, IPT_KEYBOARD,"/", KEYCODE_SLASH, IP_JOY_NONE);
+		PORT_BITX(0x001, IP_ACTIVE_LOW, IPT_KEYBOARD,"£", KEYCODE_TILDE, IP_JOY_NONE);
+	
+	INPUT_PORTS_END(); }}; 
+	
+	static MachineDriver machine_driver_z88 = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
+		new MachineCPU[] {
 			/* MachineCPU */
-			{
+			new MachineCPU(
 	                        CPU_Z80 | CPU_16BIT_PORT ,  /* type */
 	                        3276800, /* clock */
 	                        readmem_z88,                   /* MemoryReadAddress */
 	                        writemem_z88,                  /* MemoryWriteAddress */
 	                        readport_z88,                  /* IOReadPort */
 	                        writeport_z88,                 /* IOWritePort */
-				0,						   /*amstrad_frame_interrupt, *//* VBlank
+				null,						   /*amstrad_frame_interrupt, *//* VBlank
 											* Interrupt */
 				0 /*1 */ ,				   /* vblanks per frame */
 	                        0, 0,   /* every scanline */
-			},
+			),
 		},
 	        50,                                                     /* frames per second */
 		DEFAULT_60HZ_VBLANK_DURATION,	   /* vblank duration */
@@ -654,15 +654,15 @@ public class z88
 		/* video hardware */
 	        Z88_SCREEN_WIDTH, /* screen width */
 	        480,  /* screen height */
-	        {0, (Z88_SCREEN_WIDTH - 1), 0, (480 - 1)},        /* rectangle: visible_area */
-		0,								   /*amstrad_gfxdecodeinfo, 			 *//* graphics
+	        new rectangle(0, (Z88_SCREEN_WIDTH - 1), 0, (480 - 1)),        /* rectangle: visible_area */
+		null,								   /*amstrad_gfxdecodeinfo, 			 *//* graphics
 											* decode info */
 	        Z88_NUM_COLOURS,                                                        /* total colours */
 	        Z88_NUM_COLOURS,                                                        /* color table len */
 	        z88_init_palette,                      /* init palette */
 	
 	        VIDEO_TYPE_RASTER,                                  /* video attributes */
-	        0,                                                                 /* MachineLayer */
+	        null,                                                                 /* MachineLayer */
 	        z88_vh_start,
 	        z88_vh_stop,
 	        z88_vh_screenrefresh,
@@ -672,7 +672,7 @@ public class z88
 		0,								   /* sh start */
 		0,								   /* sh stop */
 		0,								   /* sh update */
-	};
+	);
 	
 	
 	
@@ -683,10 +683,10 @@ public class z88
 	
 	***************************************************************************/
 	
-	ROM_START(z88)
-	        ROM_REGION(((64*1024)+(128*1024)), REGION_CPU1)
-	        ROM_LOAD("z88v400.rom", 0x010000, 0x020000, 0x1356d440)
-	ROM_END
+	static RomLoadPtr rom_z88 = new RomLoadPtr(){ public void handler(){ 
+	        ROM_REGION(((64*1024);(128*1024)), REGION_CPU1)
+	        ROM_LOAD("z88v400.rom", 0x010000, 0x020000, 0x1356d440);
+	ROM_END(); }}; 
 	
 	static const struct IODevice io_z88[] =
 	{

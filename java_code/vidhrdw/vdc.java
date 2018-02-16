@@ -18,7 +18,7 @@ public class vdc
 	void pce_refresh_sprites(int line);
 	
 	
-	int pce_vh_start(void)
+	public static VhStartPtr pce_vh_start = new VhStartPtr() { public int handler() 
 	{
 	    logerror("*** pce_vh_start\n");
 	
@@ -34,18 +34,18 @@ public class vdc
 	    if(!vdc.bmp) return 1;
 	
 	    return 0;
-	}
+	} };
 	
 	
-	void pce_vh_stop(void)
+	public static VhStopPtr pce_vh_stop = new VhStopPtr() { public void handler() 
 	{
 	    logerror("*** pce_vh_stop\n");
 	    if(vdc.vram) free (vdc.vram);
 	    if(vdc.bmp) osd_free_bitmap(vdc.bmp);
-	}
+	} };
 	
 	
-	void pce_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr pce_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 	    /* only refresh the visible portion of the display */
 	    struct rectangle pce_visible_area;
@@ -63,7 +63,7 @@ public class vdc
 	
 	    /* copy our rendering buffer to the display */
 	    copybitmap (bitmap,vdc.bmp,0,0,0,0,&pce_visible_area,TRANSPARENCY_NONE,0);
-	}
+	} };
 	
 	
 	WRITE_HANDLER ( vdc_w )
@@ -282,12 +282,12 @@ public class vdc
 	    int cell_palette;
 	    int x, c, i;
 	
-	    line_buffer = (UINT8 *)&(vdc.bmp->line[center_y+line][(center_x-8)+(8-(scroll_x & 7))]);
+	    line_buffer = (UINT8 *)&(vdc.bmp.line[center_y+line][(center_x-8)+(8-(scroll_x & 7))]);
 	
 	    /* character blanking bit */
 	    if(!(vdc.vdc_data[CR].w & CR_BB))
 	    {
-	        memset(line_buffer, Machine->pens[0], vdc.physical_width);
+	        memset(line_buffer, Machine.pens[0], vdc.physical_width);
 	        return;
 	    }
 	
@@ -318,7 +318,7 @@ public class vdc
 	            i2 = (b2 >> (7-x)) & 1;
 	            i3 = (b3 >> (7-x)) & 1;
 	            c = (cell_palette << 4 | i3 << 3 | i2 << 2 | i1 << 1 | i0);
-	            line_buffer[(i<<3)+x] = Machine->pens[c];
+	            line_buffer[(i<<3)+x] = Machine.pens[c];
 	        }
 	    }
 	
@@ -337,7 +337,7 @@ public class vdc
 	    UINT16 *ptr = (UINT16 *)&(vdc.vram[0]);
 	
 	    l &= 0x0F;
-	    if(vf) l = (15 - l);
+	    if (vf != 0) l = (15 - l);
 	
 	    b0 = ptr[(i << 5) + l + 0x00];
 	    b1 = ptr[(i << 5) + l + 0x10];
@@ -346,7 +346,7 @@ public class vdc
 	
 	    for(x=0;x<16;x++)
 	    {
-	        if(hf) xi = x; else xi = (15 - x);
+	        if (hf != 0) xi = x; else xi = (15 - x);
 	        i0 = (b0 >> xi) & 1;
 	        i1 = (b1 >> xi) & 1;
 	        i2 = (b2 >> xi) & 1;
@@ -370,7 +370,7 @@ public class vdc
 	    int i, x, c /*, b*/;
 	    char buf[16];
 	
-	    UINT8 *line_buffer = (UINT8 *)&(vdc.bmp->line[center_y+line][center_x]);
+	    UINT8 *line_buffer = (UINT8 *)&(vdc.bmp.line[center_y+line][center_x]);
 	
 	    if ((vdc.vdc_data[DVSSR].w & 0x8000) != 0)
 	        return;
@@ -402,7 +402,7 @@ public class vdc
 	        if (obj_l < obj_h)
 	        {
 	            cgypos = (obj_l >> 4);
-	            if(vf) cgypos = ((obj_h - 1) >> 4) - cgypos;
+	            if (vf != 0) cgypos = ((obj_h - 1) >> 4) - cgypos;
 	
 	            if(cgx == 0)
 	            {
@@ -410,7 +410,7 @@ public class vdc
 	                for(x=0;x<16;x++)
 	                {
 	                    c = buf[x];
-	                    if(c) line_buffer[obj_x + x] = Machine->pens[0x100 + (palette << 4) + c];
+	                    if (c != 0) line_buffer[obj_x + x] = Machine.pens[0x100 + (palette << 4) + c];
 	                }
 	            }
 	            else
@@ -419,14 +419,14 @@ public class vdc
 	                for(x=0;x<16;x++)
 	                {
 	                    c = buf[x];
-	                    if(c) line_buffer[obj_x + x] = Machine->pens[0x100 + (palette << 4) + c];
+	                    if (c != 0) line_buffer[obj_x + x] = Machine.pens[0x100 + (palette << 4) + c];
 	                }
 	
 	                conv_obj(obj_i + (cgypos << 2) + (hf ? 0 : 2), obj_l, hf, vf, buf);
 	                for(x=0;x<16;x++)
 	                {
 	                    c = buf[x];
-	                    if(c) line_buffer[obj_x + 0x10 + x] = Machine->pens[0x100 + (palette << 4) + c];
+	                    if (c != 0) line_buffer[obj_x + 0x10 + x] = Machine.pens[0x100 + (palette << 4) + c];
 	                }
 	            }
 	        }

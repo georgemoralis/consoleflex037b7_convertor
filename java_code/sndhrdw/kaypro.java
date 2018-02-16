@@ -29,12 +29,12 @@ public class kaypro
 		{
 			if ((bell_counter -= BELL_FREQ) < 0)
 			{
-				bell_counter += Machine->sample_rate;
+				bell_counter += Machine.sample_rate;
 				bell_signal = -(bell_signal * 127) / 128;
 			}
 			if ((click_counter -= CLICK_FREQ) < 0)
 			{
-				click_counter += Machine->sample_rate;
+				click_counter += Machine.sample_rate;
 				click_signal = -(click_signal * 3) / 4;
 			}
 			*buffer++ = bell_signal + click_signal;
@@ -43,17 +43,17 @@ public class kaypro
 	
 	void kaypro_sh_start(const struct MachineSound *msound)
 	{
-		channel = stream_init("Beeper", 100, Machine->sample_rate, 0, kaypro_sound_update);
+		channel = stream_init("Beeper", 100, Machine.sample_rate, 0, kaypro_sound_update);
 	}
 	
-	void kaypro_sh_stop(void)
+	public static ShStopPtr kaypro_sh_stop = new ShStopPtr() { public void handler() 
 	{
-	}
+	} };
 	
-	void kaypro_sh_update(void)
+	public static ShUpdatePtr kaypro_sh_update = new ShUpdatePtr() { public void handler() 
 	{
 		stream_update(channel,0);
-	}
+	} };
 	
 	/******************************************************
 	 *	Ring my bell ;)

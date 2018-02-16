@@ -21,8 +21,8 @@ public class main
 		fprintf(f, "%s %s %s %s\n",
 			(write_word_usage ? "Usage:" : "      "),
 			basename(argv[0]),
-			c->name,
-			c->usage ? c->usage : "");
+			c.name,
+			c.usage ? c.usage : "");
 	}
 	
 	/* ----------------------------------------------------------------------- */
@@ -68,7 +68,7 @@ public class main
 			src = format;
 			break;
 		case IMGTOOLERR_SRC_FUNCTIONALITY:
-			src = c->name;
+			src = c.name;
 			break;
 		case IMGTOOLERR_SRC_IMAGEFILE:
 			src = imagename;
@@ -82,22 +82,22 @@ public class main
 		default:
 			switch(ERRORSOURCE(err)) {
 			case IMGTOOLERR_SRC_PARAM_CYLINDERS:
-				if (!geoopts->cylinders) {
+				if (!geoopts.cylinders) {
 					sprintf(buf, "Need to specify --cylinders");
 				}
 				else {
 					module = findimagemodule(format);
-					sprintf(buf, "--cylinders should be between %i and %i", module->ranges->minimum.cylinders, module->ranges->maximum.cylinders);
+					sprintf(buf, "--cylinders should be between %i and %i", module.ranges.minimum.cylinders, module.ranges.maximum.cylinders);
 				}
 				err_name = buf;
 				break;
 			case IMGTOOLERR_SRC_PARAM_HEADS:
-				if (!geoopts->cylinders) {
+				if (!geoopts.cylinders) {
 					sprintf(buf, "Need to specify --heads");
 				}
 				else {
 					module = findimagemodule(format);
-					sprintf(buf, "--heads should be between %i and %i", module->ranges->minimum.heads, module->ranges->maximum.heads);
+					sprintf(buf, "--heads should be between %i and %i", module.ranges.minimum.heads, module.ranges.maximum.heads);
 				}
 				err_name = buf;
 				break;
@@ -121,11 +121,11 @@ public class main
 		char attrbuf[50];
 	
 		err = img_open_byname(argv[0], argv[1], OSD_FOPEN_READ, &img);
-		if (err)
+		if (err != 0)
 			goto error;
 	
 		err = img_beginenum(img, &imgenum);
-		if (err) {
+		if (err != 0) {
 			img_close(img);
 			goto error;
 		}
@@ -140,9 +140,9 @@ public class main
 		total_size = 0;
 	
 		fprintf(stdout, "Contents of %s:\n", argv[1]);
-		if (img->module->info) {
+		if (img.module.info) {
 			char string[500];
-			img->module->info(img, string, sizeof(string));
+			img.module.info(img, string, sizeof(string));
 			fprintf(stdout,"%s\n",string);
 		}
 		fprintf(stdout, "------------------------  ------ ---------------\n");
@@ -158,7 +158,7 @@ public class main
 		img_closeenum(imgenum);
 		img_close(img);
 	
-		if (err)
+		if (err != 0)
 			goto error;
 	
 		fprintf(stdout, "------------------------  ------ ---------------\n");
@@ -178,12 +178,12 @@ public class main
 		IMAGE *img;
 	
 		err = img_open_byname(argv[0], argv[1], OSD_FOPEN_READ, &img);
-		if (err)
+		if (err != 0)
 			goto error;
 	
 		err = img_getfile(img, argv[2], (argc == 4) ? argv[3] : NULL);
 		img_close(img);
-		if (err)
+		if (err != 0)
 			goto error;
 	
 		return 0;
@@ -215,13 +215,13 @@ public class main
 			return -1;
 	
 		err = img_open_byname(argv[0], argv[1], OSD_FOPEN_RW, &img);
-		if (err)
+		if (err != 0)
 			goto error;
 	
 	
 		err = img_putfile(img, newfname, argv[2], &opts);
 		img_close(img);
-		if (err)
+		if (err != 0)
 			goto error;
 	
 		return 0;
@@ -240,11 +240,11 @@ public class main
 		char buf[128];
 	
 		err = img_open_byname(argv[0], argv[1], OSD_FOPEN_READ, &img);
-		if (err)
+		if (err != 0)
 			goto error;
 	
 		err = img_beginenum(img, &imgenum);
-		if (err) {
+		if (err != 0) {
 			img_close(img);
 			goto error;
 		}
@@ -257,14 +257,14 @@ public class main
 			fprintf(stdout, "Retrieving %s (%i bytes)\n", ent.fname, ent.filesize);
 	
 			err = img_getfile(img, ent.fname, NULL);
-			if (err)
+			if (err != 0)
 				break;
 		}
 	
 		img_closeenum(imgenum);
 		img_close(img);
 	
-		if (err)
+		if (err != 0)
 			goto error;
 	
 		return 0;
@@ -280,12 +280,12 @@ public class main
 		IMAGE *img;
 	
 		err = img_open_byname(argv[0], argv[1], OSD_FOPEN_RW, &img);
-		if (err)
+		if (err != 0)
 			goto error;
 	
 		err = img_deletefile(img, argv[2]);
 		img_close(img);
-		if (err)
+		if (err != 0)
 			goto error;
 	
 		return 0;
@@ -301,7 +301,7 @@ public class main
 		imageinfo info;
 	
 		err = img_getinfo_byname(argv[0], argv[1], &info);
-		if (err)
+		if (err != 0)
 			goto error;
 	
 		fprintf(stdout, "%s:\n----\n", argv[1]);
@@ -331,7 +331,7 @@ public class main
 		char yearbuf[8];
 	
 		err = img_getinfo_byname(argv[0], argv[1], &info);
-		if (err)
+		if (err != 0)
 			goto error;
 	
 		if (info.year)
@@ -372,7 +372,7 @@ public class main
 		osd_mkdir(gooddir);
 	
 		err = img_goodname_byname(argv[0], argv[1], gooddir, &goodname);
-		if (err)
+		if (err != 0)
 			goto error;
 	
 		if (!goodname) {
@@ -441,7 +441,7 @@ public class main
 			err = img_create_byname(argv[0], argv[1], &opts);
 		}
 	
-		if (err)
+		if (err != 0)
 			goto error;
 	
 		return 0;
@@ -457,13 +457,13 @@ public class main
 		IMAGE *img;
 	
 		err = img_open_byname(argv[0], argv[1], OSD_FOPEN_READ, &img);
-		if (err)
+		if (err != 0)
 			goto error;
 	
 		err = img_extract(img, argv[2]);
 		img_close(img);
 	
-		if (err)
+		if (err != 0)
 			goto error;
 	
 		return 0;
@@ -482,7 +482,7 @@ public class main
 	
 		mod = getmodules(&modcount);
 		while(modcount--) {
-			fprintf(stdout, "  %-10s%s\n", (*mod)->name, (*mod)->humanname);
+			fprintf(stdout, "  %-10s%s\n", (*mod).name, (*mod).humanname);
 			mod++;
 		}
 	
@@ -520,25 +520,25 @@ public class main
 		if (argc > 1) {
 			for (i = 0; i < (sizeof(cmds) / sizeof(cmds[0])); i++) {
 				c = &cmds[i];
-				if (!stricmp(c->name, argv[1])) {
+				if (!stricmp(c.name, argv[1])) {
 					/* Check argument count */
-					if (c->minargs > (argc - 2))
+					if (c.minargs > (argc - 2))
 						goto cmderror;
 	
-					if (c->lastargrepeats && (argc > c->maxargs)) {
-						for (i = c->maxargs+1; i < argc; i++) {
-							argv[c->maxargs+1] = argv[i];
+					if (c.lastargrepeats && (argc > c.maxargs)) {
+						for (i = c.maxargs+1; i < argc; i++) {
+							argv[c.maxargs+1] = argv[i];
 	
-							result = c->cmdproc(c, c->maxargs, argv + 2);
-							if (result)
+							result = c.cmdproc(c, c.maxargs, argv + 2);
+							if (result != 0)
 								return result;
 						}
 						return 0;
 					}
 					else {
-						if ((c->maxargs > 0) && (c->maxargs < (argc - 2)))
+						if ((c.maxargs > 0) && (c.maxargs < (argc - 2)))
 							goto cmderror;
-						return c->cmdproc(c, argc - 2, argv + 2);
+						return c.cmdproc(c, argc - 2, argv + 2);
 					}
 				}
 			}

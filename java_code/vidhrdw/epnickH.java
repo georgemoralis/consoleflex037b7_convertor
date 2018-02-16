@@ -13,7 +13,6 @@ public class epnickH
 {
 	
 	/* initialise palette function */
-	void nick_init_palette(unsigned char *palette, unsigned short *colortable,const unsigned char *color_prom);
 	
 	#define NICK_PALETTE_SIZE	256
 	#define NICK_COLOURTABLE_SIZE	256
@@ -73,7 +72,7 @@ public class epnickH
 		unsigned long LD2;
 	
 		LPT_ENTRY	LPT;
-		unsigned char *dest;
+		UBytePtr dest;
 	
 		unsigned char Reg[16];
 	} NICK_STATE;

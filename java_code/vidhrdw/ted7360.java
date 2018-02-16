@@ -466,12 +466,12 @@ public class ted7360
 		0xd1, 0xff, 0xff, 0xeb, 0xff, 0xff, 0xff, 0xf8, 0xff, 0xed, 0xff, 0xbc
 	};
 	
-	struct CustomSound_interface ted7360_sound_interface =
-	{
+	static CustomSound_interface ted7360_sound_interface = new CustomSound_interface
+	(
 		ted7360_custom_start,
 		ted7360_custom_stop,
 		ted7360_custom_update
-	};
+	);
 	
 	UINT8 ted7360[0x20] =
 	{0};
@@ -491,23 +491,23 @@ public class ted7360
 	
 	static UINT16 c16_bitmap[2], bitmapmulti[4], mono[2], monoinversed[2], multi[4], ecmcolor[2], colors[5];
 	
-	static struct osd_bitmap *ted7360_bitmap;	/* Machine->scrbitmap for speedup */
+	static struct osd_bitmap *ted7360_bitmap;	/* Machine.scrbitmap for speedup */
 	static int rasterline = 0, lastline = 0;
 	static double rastertime;
 	static void ted7360_drawlines (int first, int last);
 	
 	static unsigned short cursorcolortable[2] =
 	{0};
-	static struct GfxLayout cursorlayout =
-	{
+	static GfxLayout cursorlayout = new GfxLayout
+	(
 		8, 8,
 		1,
 		1,
-		{0},
-		{0, 1, 2, 3, 4, 5, 6, 7},
-		{0 * 8, 1 * 8, 2 * 8, 3 * 8, 4 * 8, 5 * 8, 6 * 8, 7 * 8},
+		new int[] {0},
+		new int[] {0, 1, 2, 3, 4, 5, 6, 7},
+		new int[] {0 * 8, 1 * 8, 2 * 8, 3 * 8, 4 * 8, 5 * 8, 6 * 8, 7 * 8},
 		8 * 8
-	};
+	);
 	
 	static UINT8 cursormask[] =
 	{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
@@ -581,7 +581,7 @@ public class ted7360
 		}
 	}
 	
-	int ted7360_frame_interrupt (void)
+	public static InterruptPtr ted7360_frame_interrupt = new InterruptPtr() { public int handler() 
 	{
 		static int count;
 	
@@ -619,7 +619,7 @@ public class ted7360
 		{
 		case 0:						   /* stop timer 1 */
 			ted7360[offset] = data;
-			if (timer1)
+			if (timer1 != 0)
 			{
 				ted7360[1] = TEDTIME_TO_CYCLES (timer_timeleft (timer1)) >> 8;
 				timer_remove (timer1);
@@ -635,7 +635,7 @@ public class ted7360
 			break;
 		case 2:						   /* stop timer 2 */
 			ted7360[offset] = data;
-			if (timer2)
+			if (timer2 != 0)
 			{
 				ted7360[3] = TEDTIME_TO_CYCLES (timer_timeleft (timer2)) >> 8;
 				timer_remove (timer2);
@@ -651,7 +651,7 @@ public class ted7360
 			break;
 		case 4:						   /* stop timer 3 */
 			ted7360[offset] = data;
-			if (timer3)
+			if (timer3 != 0)
 			{
 				ted7360[5] = TEDTIME_TO_CYCLES (timer_timeleft (timer3)) >> 8;
 				timer_remove (timer3);
@@ -670,7 +670,7 @@ public class ted7360
 			{
 				ted7360_drawlines (lastline, rasterline);
 				ted7360[offset] = data;
-				if (LINES25)
+				if (LINES25 != 0)
 				{
 					y_begin = 0;
 					y_end = y_begin + 200;
@@ -688,7 +688,7 @@ public class ted7360
 			{
 				ted7360_drawlines (lastline, rasterline);
 				ted7360[offset] = data;
-				if (COLUMNS40)
+				if (COLUMNS40 != 0)
 				{
 					x_begin = 0;
 					x_end = x_begin + 320;
@@ -707,13 +707,13 @@ public class ted7360
 			ted7360[offset] = c16_read_keyboard (data);
 			break;
 		case 9:
-			if (data & 8)
+			if ((data & 8) != 0)
 				ted7360_clear_interrupt (8);
-			if (data & 0x10)
+			if ((data & 0x10) != 0)
 				ted7360_clear_interrupt (0x10);
-			if (data & 0x40)
+			if ((data & 0x40) != 0)
 				ted7360_clear_interrupt (0x40);
-			if (data & 2)
+			if ((data & 2) != 0)
 				ted7360_clear_interrupt (2);
 			break;
 		case 0xa:
@@ -783,7 +783,7 @@ public class ted7360
 				ted7360_drawlines (lastline, rasterline);
 				ted7360[offset] = data;
 				monoinversed[1] = mono[0] = bitmapmulti[0] = multi[0] = colors[0] =
-					Machine->pens[BACKGROUNDCOLOR];
+					Machine.pens[BACKGROUNDCOLOR];
 			}
 			break;
 		case 0x16:						   /* foregroundcolor */
@@ -791,7 +791,7 @@ public class ted7360
 			{
 				ted7360_drawlines (lastline, rasterline);
 				ted7360[offset] = data;
-				bitmapmulti[3] = multi[1] = colors[1] = Machine->pens[FOREGROUNDCOLOR];
+				bitmapmulti[3] = multi[1] = colors[1] = Machine.pens[FOREGROUNDCOLOR];
 			}
 			break;
 		case 0x17:						   /* multicolor 1 */
@@ -799,7 +799,7 @@ public class ted7360
 			{
 				ted7360_drawlines (lastline, rasterline);
 				ted7360[offset] = data;
-				multi[2] = colors[2] = Machine->pens[MULTICOLOR1];
+				multi[2] = colors[2] = Machine.pens[MULTICOLOR1];
 			}
 			break;
 		case 0x18:						   /* multicolor 2 */
@@ -807,7 +807,7 @@ public class ted7360
 			{
 				ted7360_drawlines (lastline, rasterline);
 				ted7360[offset] = data;
-				colors[3] = Machine->pens[MULTICOLOR2];
+				colors[3] = Machine.pens[MULTICOLOR2];
 			}
 			break;
 		case 0x19:						   /* framecolor */
@@ -815,7 +815,7 @@ public class ted7360
 			{
 				ted7360_drawlines (lastline, rasterline);
 				ted7360[offset] = data;
-				colors[4] = Machine->pens[FRAMECOLOR];
+				colors[4] = Machine.pens[FRAMECOLOR];
 			}
 			break;
 		case 0x1c:
@@ -840,37 +840,37 @@ public class ted7360
 		switch (offset)
 		{
 		case 0:
-			if (timer1)
+			if (timer1 != 0)
 				val = TEDTIME_TO_CYCLES (timer_timeleft (timer1)) & 0xff;
 			else
 				val = ted7360[offset];
 			break;
 		case 1:
-			if (timer1)
+			if (timer1 != 0)
 				val = TEDTIME_TO_CYCLES (timer_timeleft (timer1)) >> 8;
 			else
 				val = ted7360[offset];
 			break;
 		case 2:
-			if (timer2)
+			if (timer2 != 0)
 				val = TEDTIME_TO_CYCLES (timer_timeleft (timer2)) & 0xff;
 			else
 				val = ted7360[offset];
 			break;
 		case 3:
-			if (timer2)
+			if (timer2 != 0)
 				val = TEDTIME_TO_CYCLES (timer_timeleft (timer2)) >> 8;
 			else
 				val = ted7360[offset];
 			break;
 		case 4:
-			if (timer3)
+			if (timer3 != 0)
 				val = TEDTIME_TO_CYCLES (timer_timeleft (timer3)) & 0xff;
 			else
 				val = ted7360[offset];
 			break;
 		case 5:
-			if (timer3)
+			if (timer3 != 0)
 				val = TEDTIME_TO_CYCLES (timer_timeleft (timer3)) >> 8;
 			else
 				val = ted7360[offset];
@@ -895,7 +895,7 @@ public class ted7360
 			break;
 		case 0x13:
 			val = ted7360[offset] & ~1;
-			if (ted7360_rom)
+			if (ted7360_rom != 0)
 				val |= 1;
 			break;
 		case 0x1c:						   /*rasterline */
@@ -925,60 +925,60 @@ public class ted7360
 		return val;
 	}
 	
-	int ted7360_vh_start (void)
+	public static VhStartPtr ted7360_vh_start = new VhStartPtr() { public int handler() 
 	{
 		cursorelement = decodegfx (cursormask, &cursorlayout);
-		cursorelement->colortable = cursorcolortable;
-		cursorcolortable[1] = Machine->pens[1];
-		cursorelement->total_colors = 2;
-		ted7360_bitmap = Machine->scrbitmap;
+		cursorelement.colortable = cursorcolortable;
+		cursorcolortable[1] = Machine.pens[1];
+		cursorelement.total_colors = 2;
+		ted7360_bitmap = Machine.scrbitmap;
 		return 0;
-	}
+	} };
 	
-	void ted7360_vh_stop (void)
+	public static VhStopPtr ted7360_vh_stop = new VhStopPtr() { public void handler() 
 	{
 		freegfx (cursorelement);
-	}
+	} };
 	
 	static void ted7360_draw_character (int ybegin, int yend, int ch, int yoff, int xoff,
 										UINT16 *color)
 	{
 		int y, code;
 	
-		if (Machine->color_depth == 8)
+		if (Machine.color_depth == 8)
 		{
 			for (y = ybegin; y <= yend; y++)
 			{
-				if (INROM)
+				if (INROM != 0)
 					code = vic_dma_read_rom (chargenaddr + ch * 8 + y);
 				else
 					code = vic_dma_read (chargenaddr + ch * 8 + y);
-				ted7360_bitmap->line[y + yoff][xoff] = color[code >> 7];
-				ted7360_bitmap->line[y + yoff][1 + xoff] = color[(code >> 6) & 1];
-				ted7360_bitmap->line[y + yoff][2 + xoff] = color[(code >> 5) & 1];
-				ted7360_bitmap->line[y + yoff][3 + xoff] = color[(code >> 4) & 1];
-				ted7360_bitmap->line[y + yoff][4 + xoff] = color[(code >> 3) & 1];
-				ted7360_bitmap->line[y + yoff][5 + xoff] = color[(code >> 2) & 1];
-				ted7360_bitmap->line[y + yoff][6 + xoff] = color[(code >> 1) & 1];
-				ted7360_bitmap->line[y + yoff][7 + xoff] = color[code & 1];
+				ted7360_bitmap.line[y + yoff][xoff] = color[code >> 7];
+				ted7360_bitmap.line[y + yoff][1 + xoff] = color[(code >> 6) & 1];
+				ted7360_bitmap.line[y + yoff][2 + xoff] = color[(code >> 5) & 1];
+				ted7360_bitmap.line[y + yoff][3 + xoff] = color[(code >> 4) & 1];
+				ted7360_bitmap.line[y + yoff][4 + xoff] = color[(code >> 3) & 1];
+				ted7360_bitmap.line[y + yoff][5 + xoff] = color[(code >> 2) & 1];
+				ted7360_bitmap.line[y + yoff][6 + xoff] = color[(code >> 1) & 1];
+				ted7360_bitmap.line[y + yoff][7 + xoff] = color[code & 1];
 			}
 		}
 		else
 		{
 			for (y = ybegin; y <= yend; y++)
 			{
-				if (INROM)
+				if (INROM != 0)
 					code = vic_dma_read_rom (chargenaddr + ch * 8 + y);
 				else
 					code = vic_dma_read (chargenaddr + ch * 8 + y);
-				*((short *) ted7360_bitmap->line[y + yoff] + xoff) = color[code >> 7];
-				*((short *) ted7360_bitmap->line[y + yoff] + 1 + xoff) = color[(code >> 6) & 1];
-				*((short *) ted7360_bitmap->line[y + yoff] + 2 + xoff) = color[(code >> 5) & 1];
-				*((short *) ted7360_bitmap->line[y + yoff] + 3 + xoff) = color[(code >> 4) & 1];
-				*((short *) ted7360_bitmap->line[y + yoff] + 4 + xoff) = color[(code >> 3) & 1];
-				*((short *) ted7360_bitmap->line[y + yoff] + 5 + xoff) = color[(code >> 2) & 1];
-				*((short *) ted7360_bitmap->line[y + yoff] + 6 + xoff) = color[(code >> 1) & 1];
-				*((short *) ted7360_bitmap->line[y + yoff] + 7 + xoff) = color[code & 1];
+				*((short *) ted7360_bitmap.line[y + yoff] + xoff) = color[code >> 7];
+				*((short *) ted7360_bitmap.line[y + yoff] + 1 + xoff) = color[(code >> 6) & 1];
+				*((short *) ted7360_bitmap.line[y + yoff] + 2 + xoff) = color[(code >> 5) & 1];
+				*((short *) ted7360_bitmap.line[y + yoff] + 3 + xoff) = color[(code >> 4) & 1];
+				*((short *) ted7360_bitmap.line[y + yoff] + 4 + xoff) = color[(code >> 3) & 1];
+				*((short *) ted7360_bitmap.line[y + yoff] + 5 + xoff) = color[(code >> 2) & 1];
+				*((short *) ted7360_bitmap.line[y + yoff] + 6 + xoff) = color[(code >> 1) & 1];
+				*((short *) ted7360_bitmap.line[y + yoff] + 7 + xoff) = color[code & 1];
 			}
 		}
 	}
@@ -988,40 +988,40 @@ public class ted7360
 	{
 		int y, code;
 	
-		if (Machine->color_depth == 8)
+		if (Machine.color_depth == 8)
 		{
 			for (y = ybegin; y <= yend; y++)
 			{
-				if (INROM)
+				if (INROM != 0)
 					code = vic_dma_read_rom (chargenaddr + ch * 8 + y);
 				else
 					code = vic_dma_read (chargenaddr + ch * 8 + y);
-				ted7360_bitmap->line[y + yoff][xoff] =
-					ted7360_bitmap->line[y + yoff][xoff + 1] = multi[code >> 6];
-				ted7360_bitmap->line[y + yoff][xoff + 2] =
-					ted7360_bitmap->line[y + yoff][xoff + 3] = multi[(code >> 4) & 3];
-				ted7360_bitmap->line[y + yoff][xoff + 4] =
-					ted7360_bitmap->line[y + yoff][xoff + 5] = multi[(code >> 2) & 3];
-				ted7360_bitmap->line[y + yoff][xoff + 6] =
-					ted7360_bitmap->line[y + yoff][xoff + 7] = multi[code & 3];
+				ted7360_bitmap.line[y + yoff][xoff] =
+					ted7360_bitmap.line[y + yoff][xoff + 1] = multi[code >> 6];
+				ted7360_bitmap.line[y + yoff][xoff + 2] =
+					ted7360_bitmap.line[y + yoff][xoff + 3] = multi[(code >> 4) & 3];
+				ted7360_bitmap.line[y + yoff][xoff + 4] =
+					ted7360_bitmap.line[y + yoff][xoff + 5] = multi[(code >> 2) & 3];
+				ted7360_bitmap.line[y + yoff][xoff + 6] =
+					ted7360_bitmap.line[y + yoff][xoff + 7] = multi[code & 3];
 			}
 		}
 		else
 		{
 			for (y = ybegin; y <= yend; y++)
 			{
-				if (INROM)
+				if (INROM != 0)
 					code = vic_dma_read_rom (chargenaddr + ch * 8 + y);
 				else
 					code = vic_dma_read (chargenaddr + ch * 8 + y);
-				*((short *) ted7360_bitmap->line[y + yoff] + xoff) =
-					*((short *) ted7360_bitmap->line[y + yoff] + xoff + 1) = multi[code >> 6];
-				*((short *) ted7360_bitmap->line[y + yoff] + xoff + 2) =
-					*((short *) ted7360_bitmap->line[y + yoff] + xoff + 3) = multi[(code >> 4) & 3];
-				*((short *) ted7360_bitmap->line[y + yoff] + xoff + 4) =
-					*((short *) ted7360_bitmap->line[y + yoff] + xoff + 5) = multi[(code >> 2) & 3];
-				*((short *) ted7360_bitmap->line[y + yoff] + xoff + 6) =
-					*((short *) ted7360_bitmap->line[y + yoff] + xoff + 7) = multi[code & 3];
+				*((short *) ted7360_bitmap.line[y + yoff] + xoff) =
+					*((short *) ted7360_bitmap.line[y + yoff] + xoff + 1) = multi[code >> 6];
+				*((short *) ted7360_bitmap.line[y + yoff] + xoff + 2) =
+					*((short *) ted7360_bitmap.line[y + yoff] + xoff + 3) = multi[(code >> 4) & 3];
+				*((short *) ted7360_bitmap.line[y + yoff] + xoff + 4) =
+					*((short *) ted7360_bitmap.line[y + yoff] + xoff + 5) = multi[(code >> 2) & 3];
+				*((short *) ted7360_bitmap.line[y + yoff] + xoff + 6) =
+					*((short *) ted7360_bitmap.line[y + yoff] + xoff + 7) = multi[code & 3];
 			}
 		}
 	}
@@ -1031,19 +1031,19 @@ public class ted7360
 	{
 		int y, code;
 	
-		if (Machine->color_depth == 8)
+		if (Machine.color_depth == 8)
 		{
 			for (y = ybegin; y <= yend; y++)
 			{
 				code = vic_dma_read (bitmapaddr + ch * 8 + y);
-				ted7360_bitmap->line[y + yoff][xoff] = c16_bitmap[code >> 7];
-				ted7360_bitmap->line[y + yoff][1 + xoff] = c16_bitmap[(code >> 6) & 1];
-				ted7360_bitmap->line[y + yoff][2 + xoff] = c16_bitmap[(code >> 5) & 1];
-				ted7360_bitmap->line[y + yoff][3 + xoff] = c16_bitmap[(code >> 4) & 1];
-				ted7360_bitmap->line[y + yoff][4 + xoff] = c16_bitmap[(code >> 3) & 1];
-				ted7360_bitmap->line[y + yoff][5 + xoff] = c16_bitmap[(code >> 2) & 1];
-				ted7360_bitmap->line[y + yoff][6 + xoff] = c16_bitmap[(code >> 1) & 1];
-				ted7360_bitmap->line[y + yoff][7 + xoff] = c16_bitmap[code & 1];
+				ted7360_bitmap.line[y + yoff][xoff] = c16_bitmap[code >> 7];
+				ted7360_bitmap.line[y + yoff][1 + xoff] = c16_bitmap[(code >> 6) & 1];
+				ted7360_bitmap.line[y + yoff][2 + xoff] = c16_bitmap[(code >> 5) & 1];
+				ted7360_bitmap.line[y + yoff][3 + xoff] = c16_bitmap[(code >> 4) & 1];
+				ted7360_bitmap.line[y + yoff][4 + xoff] = c16_bitmap[(code >> 3) & 1];
+				ted7360_bitmap.line[y + yoff][5 + xoff] = c16_bitmap[(code >> 2) & 1];
+				ted7360_bitmap.line[y + yoff][6 + xoff] = c16_bitmap[(code >> 1) & 1];
+				ted7360_bitmap.line[y + yoff][7 + xoff] = c16_bitmap[code & 1];
 			}
 		}
 		else
@@ -1051,14 +1051,14 @@ public class ted7360
 			for (y = ybegin; y <= yend; y++)
 			{
 				code = vic_dma_read (bitmapaddr + ch * 8 + y);
-				*((short *) ted7360_bitmap->line[y + yoff] + xoff) = c16_bitmap[code >> 7];
-				*((short *) ted7360_bitmap->line[y + yoff] + 1 + xoff) = c16_bitmap[(code >> 6) & 1];
-				*((short *) ted7360_bitmap->line[y + yoff] + 2 + xoff) = c16_bitmap[(code >> 5) & 1];
-				*((short *) ted7360_bitmap->line[y + yoff] + 3 + xoff) = c16_bitmap[(code >> 4) & 1];
-				*((short *) ted7360_bitmap->line[y + yoff] + 4 + xoff) = c16_bitmap[(code >> 3) & 1];
-				*((short *) ted7360_bitmap->line[y + yoff] + 5 + xoff) = c16_bitmap[(code >> 2) & 1];
-				*((short *) ted7360_bitmap->line[y + yoff] + 6 + xoff) = c16_bitmap[(code >> 1) & 1];
-				*((short *) ted7360_bitmap->line[y + yoff] + 7 + xoff) = c16_bitmap[code & 1];
+				*((short *) ted7360_bitmap.line[y + yoff] + xoff) = c16_bitmap[code >> 7];
+				*((short *) ted7360_bitmap.line[y + yoff] + 1 + xoff) = c16_bitmap[(code >> 6) & 1];
+				*((short *) ted7360_bitmap.line[y + yoff] + 2 + xoff) = c16_bitmap[(code >> 5) & 1];
+				*((short *) ted7360_bitmap.line[y + yoff] + 3 + xoff) = c16_bitmap[(code >> 4) & 1];
+				*((short *) ted7360_bitmap.line[y + yoff] + 4 + xoff) = c16_bitmap[(code >> 3) & 1];
+				*((short *) ted7360_bitmap.line[y + yoff] + 5 + xoff) = c16_bitmap[(code >> 2) & 1];
+				*((short *) ted7360_bitmap.line[y + yoff] + 6 + xoff) = c16_bitmap[(code >> 1) & 1];
+				*((short *) ted7360_bitmap.line[y + yoff] + 7 + xoff) = c16_bitmap[code & 1];
 			}
 		}
 	}
@@ -1068,19 +1068,19 @@ public class ted7360
 	{
 		int y, code;
 	
-		if (Machine->color_depth == 8)
+		if (Machine.color_depth == 8)
 		{
 			for (y = ybegin; y <= yend; y++)
 			{
 				code = vic_dma_read (bitmapaddr + ch * 8 + y);
-				ted7360_bitmap->line[y + yoff][xoff] =
-					ted7360_bitmap->line[y + yoff][xoff + 1] = bitmapmulti[code >> 6];
-				ted7360_bitmap->line[y + yoff][xoff + 2] =
-					ted7360_bitmap->line[y + yoff][xoff + 3] = bitmapmulti[(code >> 4) & 3];
-				ted7360_bitmap->line[y + yoff][xoff + 4] =
-					ted7360_bitmap->line[y + yoff][xoff + 5] = bitmapmulti[(code >> 2) & 3];
-				ted7360_bitmap->line[y + yoff][xoff + 6] =
-					ted7360_bitmap->line[y + yoff][xoff + 7] = bitmapmulti[code & 3];
+				ted7360_bitmap.line[y + yoff][xoff] =
+					ted7360_bitmap.line[y + yoff][xoff + 1] = bitmapmulti[code >> 6];
+				ted7360_bitmap.line[y + yoff][xoff + 2] =
+					ted7360_bitmap.line[y + yoff][xoff + 3] = bitmapmulti[(code >> 4) & 3];
+				ted7360_bitmap.line[y + yoff][xoff + 4] =
+					ted7360_bitmap.line[y + yoff][xoff + 5] = bitmapmulti[(code >> 2) & 3];
+				ted7360_bitmap.line[y + yoff][xoff + 6] =
+					ted7360_bitmap.line[y + yoff][xoff + 7] = bitmapmulti[code & 3];
 			}
 		}
 		else
@@ -1088,14 +1088,14 @@ public class ted7360
 			for (y = ybegin; y <= yend; y++)
 			{
 				code = vic_dma_read (bitmapaddr + ch * 8 + y);
-				*((short *) ted7360_bitmap->line[y + yoff] + xoff) =
-					*((short *) ted7360_bitmap->line[y + yoff] + xoff + 1) = bitmapmulti[code >> 6];
-				*((short *) ted7360_bitmap->line[y + yoff] + xoff + 2) =
-					*((short *) ted7360_bitmap->line[y + yoff] + xoff + 3) = bitmapmulti[(code >> 4) & 3];
-				*((short *) ted7360_bitmap->line[y + yoff] + xoff + 4) =
-					*((short *) ted7360_bitmap->line[y + yoff] + xoff + 5) = bitmapmulti[(code >> 2) & 3];
-				*((short *) ted7360_bitmap->line[y + yoff] + xoff + 6) =
-					*((short *) ted7360_bitmap->line[y + yoff] + xoff + 7) = bitmapmulti[code & 3];
+				*((short *) ted7360_bitmap.line[y + yoff] + xoff) =
+					*((short *) ted7360_bitmap.line[y + yoff] + xoff + 1) = bitmapmulti[code >> 6];
+				*((short *) ted7360_bitmap.line[y + yoff] + xoff + 2) =
+					*((short *) ted7360_bitmap.line[y + yoff] + xoff + 3) = bitmapmulti[(code >> 4) & 3];
+				*((short *) ted7360_bitmap.line[y + yoff] + xoff + 4) =
+					*((short *) ted7360_bitmap.line[y + yoff] + xoff + 5) = bitmapmulti[(code >> 2) & 3];
+				*((short *) ted7360_bitmap.line[y + yoff] + xoff + 6) =
+					*((short *) ted7360_bitmap.line[y + yoff] + xoff + 7) = bitmapmulti[code & 3];
 			}
 		}
 	}
@@ -1105,18 +1105,18 @@ public class ted7360
 	{
 		int y;
 	
-		if (Machine->color_depth == 8)
+		if (Machine.color_depth == 8)
 		{
 			for (y = ybegin; y <= yend; y++)
 			{
-				memset (ted7360_bitmap->line[yoff + y] + xoff, color, 8);
+				memset (ted7360_bitmap.line[yoff + y] + xoff, color, 8);
 			}
 		}
 		else
 		{
 			for (y = ybegin; y <= yend; y++)
 			{
-				memset16 ((short *) ted7360_bitmap->line[yoff + y] + xoff, color, 8);
+				memset16 ((short *) ted7360_bitmap.line[yoff + y] + xoff, color, 8);
 			}
 		}
 	}
@@ -1143,20 +1143,20 @@ public class ted7360
 	
 		if (!SCREENON)
 		{
-			if (Machine->color_depth == 8)
+			if (Machine.color_depth == 8)
 			{
-				for (line = first; (line < last) && (line < ted7360_bitmap->height); line++)
-					memset (ted7360_bitmap->line[line], Machine->pens[0], ted7360_bitmap->width);
+				for (line = first; (line < last) && (line < ted7360_bitmap.height); line++)
+					memset (ted7360_bitmap.line[line], Machine.pens[0], ted7360_bitmap.width);
 			}
 			else
 			{
-				for (line = first; (line < last) && (line < ted7360_bitmap->height); line++)
-					memset16 (ted7360_bitmap->line[line], Machine->pens[0], ted7360_bitmap->width);
+				for (line = first; (line < last) && (line < ted7360_bitmap.height); line++)
+					memset16 (ted7360_bitmap.line[line], Machine.pens[0], ted7360_bitmap.width);
 			}
 			return;
 		}
 	
-		if (COLUMNS40)
+		if (COLUMNS40 != 0)
 			xbegin = XPOS, xend = xbegin + 320;
 		else
 			xbegin = XPOS + 7, xend = xbegin + 304;
@@ -1165,19 +1165,19 @@ public class ted7360
 			end = last;
 		else
 			end = y_begin + YPOS;
-		if (Machine->color_depth == 8)
+		if (Machine.color_depth == 8)
 		{
 			for (line = first; line < end; line++)
-				memset (ted7360_bitmap->line[line], Machine->pens[FRAMECOLOR],
-						ted7360_bitmap->width);
+				memset (ted7360_bitmap.line[line], Machine.pens[FRAMECOLOR],
+						ted7360_bitmap.width);
 		}
 		else
 		{
 			for (line = first; line < end; line++)
-				memset16 (ted7360_bitmap->line[line], Machine->pens[FRAMECOLOR],
-						  ted7360_bitmap->width);
+				memset16 (ted7360_bitmap.line[line], Machine.pens[FRAMECOLOR],
+						  ted7360_bitmap.width);
 		}
-		if (LINES25)
+		if (LINES25 != 0)
 		{
 			vline = line - y_begin - YPOS;
 		}
@@ -1200,15 +1200,15 @@ public class ted7360
 	
 			for (xoff = x_begin + XPOS; xoff < x_end + XPOS; xoff += 8, offs++)
 			{
-				if (HIRESON)
+				if (HIRESON != 0)
 				{
 					ch = vic_dma_read ((videoaddr | 0x400) + offs);
 					attr = vic_dma_read (((videoaddr) + offs));
 					c1 = ((ch >> 4) & 0xf) | (attr << 4);
 					c2 = (ch & 0xf) | (attr & 0x70);
-					bitmapmulti[1] = c16_bitmap[1] = Machine->pens[c1 & 0x7f];
-					bitmapmulti[2] = c16_bitmap[0] = Machine->pens[c2 & 0x7f];
-					if (MULTICOLORON)
+					bitmapmulti[1] = c16_bitmap[1] = Machine.pens[c1 & 0x7f];
+					bitmapmulti[2] = c16_bitmap[0] = Machine.pens[c2 & 0x7f];
+					if (MULTICOLORON != 0)
 					{
 						ted7360_draw_bitmap_multi (ybegin, yend, offs, yoff, xoff);
 					}
@@ -1226,29 +1226,29 @@ public class ted7360
 					{
 	#ifndef GFX
 						ted7360_draw_cursor (ybegin, yend, yoff, xoff,
-											 Machine->pens[attr & 0x7f]);
+											 Machine.pens[attr & 0x7f]);
 	#else
-						drawgfx (ted7360_bitmap, cursorelement, 0, Machine->pens[attr & 0x7f], 0, 0,
+						drawgfx (ted7360_bitmap, cursorelement, 0, Machine.pens[attr & 0x7f], 0, 0,
 								 xoff, yoff, 0, TRANSPARENCY_NONE, 0);
 	#endif
 					}
-					else if (ECMON)
+					else if (ECMON != 0)
 					{
 						ecm = ch >> 6;
 						ecmcolor[0] = colors[ecm];
-						ecmcolor[1] = Machine->pens[attr & 0x7f];
+						ecmcolor[1] = Machine.pens[attr & 0x7f];
 						ted7360_draw_character (ybegin, yend, ch & ~0xC0, yoff, xoff, ecmcolor);
 					}
 					else if (REVERSEON && (ch & 0x80))
 					{
 						if (MULTICOLORON && (attr & 8))
 						{				   /* multicolor and hardware reverse? */
-							multi[3] = Machine->pens[attr & 0x77];
+							multi[3] = Machine.pens[attr & 0x77];
 							ted7360_draw_character_multi (ybegin, yend, ch & ~0x80, yoff, xoff);
 						}
 						else
 						{
-							monoinversed[0] = Machine->pens[attr & 0x7f];
+							monoinversed[0] = Machine.pens[attr & 0x7f];
 							if (!MULTICOLORON && cursor1 && (attr & 0x80))
 								ted7360_draw_cursor (ybegin, yend, yoff, xoff, monoinversed[0]);
 							else
@@ -1260,12 +1260,12 @@ public class ted7360
 					{
 						if (MULTICOLORON && (attr & 8))
 						{
-							multi[3] = Machine->pens[attr & 0x77];
+							multi[3] = Machine.pens[attr & 0x77];
 							ted7360_draw_character_multi (ybegin, yend, ch, yoff, xoff);
 						}
 						else
 						{
-							mono[1] = Machine->pens[attr & 0x7f];
+							mono[1] = Machine.pens[attr & 0x7f];
 							if (!MULTICOLORON && cursor1 && (attr & 0x80))
 								ted7360_draw_cursor (ybegin, yend, yoff, xoff, mono[0]);
 							else
@@ -1274,71 +1274,71 @@ public class ted7360
 					}
 				}
 			}
-			if (Machine->color_depth == 8)
+			if (Machine.color_depth == 8)
 			{
 				for (i = ybegin; i <= yend; i++)
 				{
-					memset (ted7360_bitmap->line[yoff + i], Machine->pens[FRAMECOLOR], xbegin);
-					memset (ted7360_bitmap->line[yoff + i] + xend, Machine->pens[FRAMECOLOR],
-							ted7360_bitmap->width - xend);
+					memset (ted7360_bitmap.line[yoff + i], Machine.pens[FRAMECOLOR], xbegin);
+					memset (ted7360_bitmap.line[yoff + i] + xend, Machine.pens[FRAMECOLOR],
+							ted7360_bitmap.width - xend);
 				}
 			}
 			else
 			{
 				for (i = ybegin; i <= yend; i++)
 				{
-					memset16 (ted7360_bitmap->line[yoff + i], Machine->pens[FRAMECOLOR],
+					memset16 (ted7360_bitmap.line[yoff + i], Machine.pens[FRAMECOLOR],
 							  xbegin);
-					memset16 ((short *) ted7360_bitmap->line[yoff + i] + xend,
-							  Machine->pens[FRAMECOLOR], ted7360_bitmap->width - xend);
+					memset16 ((short *) ted7360_bitmap.line[yoff + i] + xend,
+							  Machine.pens[FRAMECOLOR], ted7360_bitmap.width - xend);
 				}
 			}
 		}
-		if (last < ted7360_bitmap->height)
+		if (last < ted7360_bitmap.height)
 			end = last;
 		else
-			end = ted7360_bitmap->height;
-		if (Machine->color_depth == 8)
+			end = ted7360_bitmap.height;
+		if (Machine.color_depth == 8)
 		{
 			for (; line < end; line++)
-				memset (ted7360_bitmap->line[line], Machine->pens[FRAMECOLOR],
-						ted7360_bitmap->width);
+				memset (ted7360_bitmap.line[line], Machine.pens[FRAMECOLOR],
+						ted7360_bitmap.width);
 		}
 		else
 		{
 			for (; line < end; line++)
-				memset16 (ted7360_bitmap->line[line], Machine->pens[FRAMECOLOR],
-						  ted7360_bitmap->width);
+				memset16 (ted7360_bitmap.line[line], Machine.pens[FRAMECOLOR],
+						  ted7360_bitmap.width);
 		}
 	}
 	
 	static void ted7360_draw_text (struct osd_bitmap *bitmap, char *text, int *y)
 	{
-		int x, x0, y1t, width = (Machine->visible_area.max_x -
-								 Machine->visible_area.min_x) / Machine->uifont->width;
+		int x, x0, y1t, width = (Machine.visible_area.max_x -
+								 Machine.visible_area.min_x) / Machine.uifont.width;
 	
 		if (text[0] != 0)
 		{
 			x = strlen (text);
-			*y -= Machine->uifont->height * ((x + width - 1) / width);
-			y1t = *y + Machine->uifont->height;
+			*y -= Machine.uifont.height * ((x + width - 1) / width);
+			y1t = *y + Machine.uifont.height;
 			x = 0;
 			while (text[x])
 			{
-				for (x0 = Machine->visible_area.min_x;
-					 text[x] && (x0 < Machine->visible_area.max_x -
-								 Machine->uifont->width);
-					 x++, x0 += Machine->uifont->width)
+				for (x0 = Machine.visible_area.min_x;
+					 text[x] && (x0 < Machine.visible_area.max_x -
+								 Machine.uifont.width);
+					 x++, x0 += Machine.uifont.width)
 				{
-					drawgfx (bitmap, Machine->uifont, text[x], 0, 0, 0, x0, y1t, 0,
+					drawgfx (bitmap, Machine.uifont, text[x], 0, 0, 0, x0, y1t, 0,
 							 TRANSPARENCY_NONE, 0);
 				}
-				y1t += Machine->uifont->height;
+				y1t += Machine.uifont.height;
 			}
 		}
 	}
 	
-	int ted7360_raster_interrupt (void)
+	public static InterruptPtr ted7360_raster_interrupt = new InterruptPtr() { public int handler() 
 	{
 		int y;
 		char text[70];
@@ -1351,12 +1351,12 @@ public class ted7360
 			ted7360_drawlines (lastline, TED7360_LINES);
 			lastline = 0;
 	
-			y = Machine->visible_area.max_y + 1 - Machine->uifont->height;
+			y = Machine.visible_area.max_y + 1 - Machine.uifont.height;
 	
 			vc20_tape_status (text, sizeof (text));
 			ted7360_draw_text (ted7360_bitmap, text, &y);
 	
-			if (REAL_C1551) {
+			if (REAL_C1551 != 0) {
 				vc1541_drive_status (text, sizeof (text));
 				ted7360_draw_text (ted7360_bitmap, text, &y);
 			}
@@ -1373,9 +1373,9 @@ public class ted7360
 			ted7360_set_interrupt (2);
 		}
 		return ignore_interrupt ();
-	}
+	} };
 	
-	void ted7360_vh_screenrefresh (struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr ted7360_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
-	}
+	} };
 }

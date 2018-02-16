@@ -190,7 +190,7 @@ public class vic6567
 	
 		int chargenaddr, videoaddr;
 	
-		struct osd_bitmap *bitmap;		   /* Machine->scrbitmap for speedup */
+		struct osd_bitmap *bitmap;		   /* Machine.scrbitmap for speedup */
 		int x_begin, x_end;
 		int y_begin, y_end;
 	
@@ -342,7 +342,7 @@ public class vic6567
 		{
 		case 1:						   /* light pen */
 			/* and diode must recognize light */
-			if (1)
+			if (1 != 0)
 			{
 				vic2.reg[0x13] = VIC2_X_VALUE;
 				vic2.reg[0x14] = VIC2_Y_VALUE;
@@ -352,10 +352,10 @@ public class vic6567
 		}
 	}
 	
-	int vic2_frame_interrupt (void)
+	public static InterruptPtr vic2_frame_interrupt = new InterruptPtr() { public int handler() 
 	{
 		return ignore_interrupt ();
-	}
+	} };
 	
 	WRITE_HANDLER ( vic2_port_w )
 	{
@@ -437,7 +437,7 @@ public class vic6567
 			if (vic2.reg[offset] != data)
 			{
 				vic2.reg[offset] = data;
-				vic2.spritemulti[1] = Machine->pens[SPRITE_MULTICOLOR1];
+				vic2.spritemulti[1] = Machine.pens[SPRITE_MULTICOLOR1];
 				if (vic2.on)
 					vic2_drawlines (vic2.lastline, vic2.rasterline);
 			}
@@ -446,7 +446,7 @@ public class vic6567
 			if (vic2.reg[offset] != data)
 			{
 				vic2.reg[offset] = data;
-				vic2.spritemulti[3] = Machine->pens[SPRITE_MULTICOLOR2];
+				vic2.spritemulti[3] = Machine.pens[SPRITE_MULTICOLOR2];
 				if (vic2.on) vic2_drawlines (vic2.lastline, vic2.rasterline);
 			}
 			break;
@@ -462,7 +462,7 @@ public class vic6567
 				if (vic2.on)
 					vic2_drawlines (vic2.lastline, vic2.rasterline);
 				vic2.reg[offset] = data;
-				if (LINES25)
+				if (LINES25 != 0)
 				{
 					vic2.y_begin = 0;
 					vic2.y_end = vic2.y_begin + 200;
@@ -486,7 +486,7 @@ public class vic6567
 				if (vic2.on)
 					vic2_drawlines (vic2.lastline, vic2.rasterline);
 				vic2.reg[offset] = data;
-				if (COLUMNS40)
+				if (COLUMNS40 != 0)
 				{
 					vic2.x_begin = 0;
 					vic2.x_end = vic2.x_begin + 320;
@@ -513,7 +513,7 @@ public class vic6567
 				if (vic2.on) vic2_drawlines (vic2.lastline, vic2.rasterline);
 				vic2.reg[offset] = data;
 				vic2.mono[0] = vic2.bitmapmulti[0] = vic2.multi[0] =
-					vic2.colors[0] = Machine->pens[BACKGROUNDCOLOR];
+					vic2.colors[0] = Machine.pens[BACKGROUNDCOLOR];
 			}
 			break;
 		case 0x22:						   /* background color 1 */
@@ -521,7 +521,7 @@ public class vic6567
 			{
 				if (vic2.on) vic2_drawlines (vic2.lastline, vic2.rasterline);
 				vic2.reg[offset] = data;
-				vic2.multi[1] = vic2.colors[1] = Machine->pens[MULTICOLOR1];
+				vic2.multi[1] = vic2.colors[1] = Machine.pens[MULTICOLOR1];
 			}
 			break;
 		case 0x23:						   /* background color 2 */
@@ -530,7 +530,7 @@ public class vic6567
 				if (vic2.on)
 					vic2_drawlines (vic2.lastline, vic2.rasterline);
 				vic2.reg[offset] = data;
-				vic2.multi[2] = vic2.colors[2] = Machine->pens[MULTICOLOR2];
+				vic2.multi[2] = vic2.colors[2] = Machine.pens[MULTICOLOR2];
 			}
 			break;
 		case 0x24:						   /* background color 3 */
@@ -538,7 +538,7 @@ public class vic6567
 			{
 				if (vic2.on) vic2_drawlines (vic2.lastline, vic2.rasterline);
 				vic2.reg[offset] = data;
-				vic2.colors[3] = Machine->pens[FOREGROUNDCOLOR];
+				vic2.colors[3] = Machine.pens[FOREGROUNDCOLOR];
 			}
 			break;
 		case 0x20:						   /* framecolor */
@@ -570,7 +570,7 @@ public class vic6567
 		case 0x31:
 			if (vic2.vic3) {
 				vic2.reg[offset] = data;
-				if (data&0x40) timer_set_overclock(0,1.0);
+				if ((data & 0x40) != 0) timer_set_overclock(0,1.0);
 				else timer_set_overclock(0, 1.0/3.5);
 			}
 			break;
@@ -718,11 +718,11 @@ public class vic6567
 		return val;
 	}
 	
-	int vic2_vh_start (void)
+	public static VhStartPtr vic2_vh_start = new VhStartPtr() { public int handler() 
 	{
 		int i;
 	
-		raster1.display.bitmap=Machine->scrbitmap;
+		raster1.display.bitmap=Machine.scrbitmap;
 		raster1.raytube.screenpos.x=8;
 		raster1.raytube.screenpos.y=8;
 		raster1.text.charsize.x=8;
@@ -733,7 +733,7 @@ public class vic6567
 		raster1.raytube.screenpos.x=336;
 		raster1.raytube.screenpos.y=216;
 	
-		vic2.bitmap = Machine->scrbitmap;
+		vic2.bitmap = Machine.scrbitmap;
 	
 		if (vic2.vic3) {
 			vic2.screen[0] = (UINT8*)malloc (sizeof (UINT8) * 216 * 656 / 8);
@@ -766,82 +766,82 @@ public class vic6567
 		for (i = 0; i < 256; i++)
 		{
 			vic2.expandx[i] = 0;
-			if (i & 1)
+			if ((i & 1) != 0)
 				vic2.expandx[i] |= 3;
-			if (i & 2)
+			if ((i & 2) != 0)
 				vic2.expandx[i] |= 0xc;
-			if (i & 4)
+			if ((i & 4) != 0)
 				vic2.expandx[i] |= 0x30;
-			if (i & 8)
+			if ((i & 8) != 0)
 				vic2.expandx[i] |= 0xc0;
-			if (i & 0x10)
+			if ((i & 0x10) != 0)
 				vic2.expandx[i] |= 0x300;
-			if (i & 0x20)
+			if ((i & 0x20) != 0)
 				vic2.expandx[i] |= 0xc00;
-			if (i & 0x40)
+			if ((i & 0x40) != 0)
 				vic2.expandx[i] |= 0x3000;
-			if (i & 0x80)
+			if ((i & 0x80) != 0)
 				vic2.expandx[i] |= 0xc000;
 		}
 		for (i = 0; i < 256; i++)
 		{
 			vic2.expandx_multi[i] = 0;
-			if (i & 1)
+			if ((i & 1) != 0)
 				vic2.expandx_multi[i] |= 5;
-			if (i & 3)
+			if ((i & 3) != 0)
 				vic2.expandx_multi[i] |= 0xa;
-			if (i & 4)
+			if ((i & 4) != 0)
 				vic2.expandx_multi[i] |= 0x50;
-			if (i & 8)
+			if ((i & 8) != 0)
 				vic2.expandx_multi[i] |= 0xa0;
-			if (i & 0x10)
+			if ((i & 0x10) != 0)
 				vic2.expandx_multi[i] |= 0x500;
-			if (i & 0x20)
+			if ((i & 0x20) != 0)
 				vic2.expandx_multi[i] |= 0xa00;
-			if (i & 0x40)
+			if ((i & 0x40) != 0)
 				vic2.expandx_multi[i] |= 0x5000;
-			if (i & 0x80)
+			if ((i & 0x80) != 0)
 				vic2.expandx_multi[i] |= 0xa000;
 		}
 		for (i = 0; i < 256; i++)
 		{
 			vic2.multi_collision[i] = 0;
-			if (i & 3)
+			if ((i & 3) != 0)
 				vic2.multi_collision[i] |= 3;
-			if (i & 0xc)
+			if ((i & 0xc) != 0)
 				vic2.multi_collision[i] |= 0xc;
-			if (i & 0x30)
+			if ((i & 0x30) != 0)
 				vic2.multi_collision[i] |= 0x30;
-			if (i & 0xc0)
+			if ((i & 0xc0) != 0)
 				vic2.multi_collision[i] |= 0xc0;
 		}
 		return 0;
-	}
+	} };
 	
-	void vic2_vh_stop (void)
+	public static VhStopPtr vic2_vh_stop = new VhStopPtr() { public void handler() 
 	{
 		free (vic2.screen[0]);
-	}
+	} };
 	
 	static void vic2_draw_character (int ybegin, int yend, int ch,
 									 int yoff, int xoff, UINT16 *color)
 	{
 		int y, code;
 	
-		if (Machine->color_depth == 8)
+		if (Machine.color_depth == 8)
 		{
 			for (y = ybegin; y <= yend; y++)
 			{
 				code = vic2.dma_read (vic2.chargenaddr + ch * 8 + y);
 				vic2.screen[y + yoff][xoff >> 3] = code;
-				vic2.bitmap->line[y + yoff][xoff] = color[code >> 7];
-				vic2.bitmap->line[y + yoff][1 + xoff] = color[(code >> 6) & 1];
-				vic2.bitmap->line[y + yoff][2 + xoff] = color[(code >> 5) & 1];
-				vic2.bitmap->line[y + yoff][3 + xoff] = color[(code >> 4) & 1];
-				vic2.bitmap->line[y + yoff][4 + xoff] = color[(code >> 3) & 1];
-				vic2.bitmap->line[y + yoff][5 + xoff] = color[(code >> 2) & 1];
-				vic2.bitmap->line[y + yoff][6 + xoff] = color[(code >> 1) & 1];
-				vic2.bitmap->line[y + yoff][7 + xoff] = color[code & 1];
+				vic2.bitmap.line[y + yoff][xoff] = color[code >> 7];
+				vic2.bitmap.line[y + yoff][1 + xoff] = color[(code >> 6) & 1];
+				vic2.bitmap.line[y + yoff][2 + xoff] = color[(code >> 5) & 1];
+				vic2.bitmap.line[y + yoff][3 + xoff] = color[(code >> 4) & 1];
+				vic2.bitmap.line[y + yoff][4 + xoff] = color[(code >> 3) & 1];
+				vic2.bitmap.line[y + yoff][5 + xoff] = color[(code >> 2) & 1];
+				vic2.bitmap.line[y + yoff][6 + xoff] = color[(code >> 1) & 1];
+				vic2.bitmap.line[y + yoff][7 + xoff] = color[code & 1];
 			}
 		}
 		else
@@ -850,14 +850,14 @@ public class vic6567
 			{
 				code = vic2.dma_read (vic2.chargenaddr + ch * 8 + y);
 				vic2.screen[y + yoff][xoff >> 3] = code;
-				*((short *) vic2.bitmap->line[y + yoff] + xoff) = color[code >> 7];
-				*((short *) vic2.bitmap->line[y + yoff] + 1 + xoff) = color[(code >> 6) & 1];
-				*((short *) vic2.bitmap->line[y + yoff] + 2 + xoff) = color[(code >> 5) & 1];
-				*((short *) vic2.bitmap->line[y + yoff] + 3 + xoff) = color[(code >> 4) & 1];
-				*((short *) vic2.bitmap->line[y + yoff] + 4 + xoff) = color[(code >> 3) & 1];
-				*((short *) vic2.bitmap->line[y + yoff] + 5 + xoff) = color[(code >> 2) & 1];
-				*((short *) vic2.bitmap->line[y + yoff] + 6 + xoff) = color[(code >> 1) & 1];
-				*((short *) vic2.bitmap->line[y + yoff] + 7 + xoff) = color[code & 1];
+				*((short *) vic2.bitmap.line[y + yoff] + xoff) = color[code >> 7];
+				*((short *) vic2.bitmap.line[y + yoff] + 1 + xoff) = color[(code >> 6) & 1];
+				*((short *) vic2.bitmap.line[y + yoff] + 2 + xoff) = color[(code >> 5) & 1];
+				*((short *) vic2.bitmap.line[y + yoff] + 3 + xoff) = color[(code >> 4) & 1];
+				*((short *) vic2.bitmap.line[y + yoff] + 4 + xoff) = color[(code >> 3) & 1];
+				*((short *) vic2.bitmap.line[y + yoff] + 5 + xoff) = color[(code >> 2) & 1];
+				*((short *) vic2.bitmap.line[y + yoff] + 6 + xoff) = color[(code >> 1) & 1];
+				*((short *) vic2.bitmap.line[y + yoff] + 7 + xoff) = color[code & 1];
 			}
 		}
 	}
@@ -867,20 +867,20 @@ public class vic6567
 	{
 		int y, code;
 	
-		if (Machine->color_depth == 8)
+		if (Machine.color_depth == 8)
 		{
 			for (y = ybegin; y <= yend; y++)
 			{
 				code = vic2.dma_read (vic2.chargenaddr + ch * 8 + y);
 				vic2.screen[y + yoff][xoff >> 3] = vic2.foreground[code];
-				vic2.bitmap->line[y + yoff][xoff] =
-					vic2.bitmap->line[y + yoff][xoff + 1] = vic2.multi[code >> 6];
-				vic2.bitmap->line[y + yoff][xoff + 2] =
-					vic2.bitmap->line[y + yoff][xoff + 3] = vic2.multi[(code >> 4) & 3];
-				vic2.bitmap->line[y + yoff][xoff + 4] =
-					vic2.bitmap->line[y + yoff][xoff + 5] = vic2.multi[(code >> 2) & 3];
-				vic2.bitmap->line[y + yoff][xoff + 6] =
-					vic2.bitmap->line[y + yoff][xoff + 7] = vic2.multi[code & 3];
+				vic2.bitmap.line[y + yoff][xoff] =
+					vic2.bitmap.line[y + yoff][xoff + 1] = vic2.multi[code >> 6];
+				vic2.bitmap.line[y + yoff][xoff + 2] =
+					vic2.bitmap.line[y + yoff][xoff + 3] = vic2.multi[(code >> 4) & 3];
+				vic2.bitmap.line[y + yoff][xoff + 4] =
+					vic2.bitmap.line[y + yoff][xoff + 5] = vic2.multi[(code >> 2) & 3];
+				vic2.bitmap.line[y + yoff][xoff + 6] =
+					vic2.bitmap.line[y + yoff][xoff + 7] = vic2.multi[code & 3];
 			}
 		}
 		else
@@ -889,14 +889,14 @@ public class vic6567
 			{
 				code = vic2.dma_read (vic2.chargenaddr + ch * 8 + y);
 				vic2.screen[y + yoff][xoff >> 3] = vic2.foreground[code];
-				*((short *) vic2.bitmap->line[y + yoff] + xoff) =
-					*((short *) vic2.bitmap->line[y + yoff] + xoff + 1) = vic2.multi[code >> 6];
-				*((short *) vic2.bitmap->line[y + yoff] + xoff + 2) =
-					*((short *) vic2.bitmap->line[y + yoff] + xoff + 3) = vic2.multi[(code >> 4) & 3];
-				*((short *) vic2.bitmap->line[y + yoff] + xoff + 4) =
-					*((short *) vic2.bitmap->line[y + yoff] + xoff + 5) = vic2.multi[(code >> 2) & 3];
-				*((short *) vic2.bitmap->line[y + yoff] + xoff + 6) =
-					*((short *) vic2.bitmap->line[y + yoff] + xoff + 7) = vic2.multi[code & 3];
+				*((short *) vic2.bitmap.line[y + yoff] + xoff) =
+					*((short *) vic2.bitmap.line[y + yoff] + xoff + 1) = vic2.multi[code >> 6];
+				*((short *) vic2.bitmap.line[y + yoff] + xoff + 2) =
+					*((short *) vic2.bitmap.line[y + yoff] + xoff + 3) = vic2.multi[(code >> 4) & 3];
+				*((short *) vic2.bitmap.line[y + yoff] + xoff + 4) =
+					*((short *) vic2.bitmap.line[y + yoff] + xoff + 5) = vic2.multi[(code >> 2) & 3];
+				*((short *) vic2.bitmap.line[y + yoff] + xoff + 6) =
+					*((short *) vic2.bitmap.line[y + yoff] + xoff + 7) = vic2.multi[code & 3];
 			}
 		}
 	}
@@ -906,20 +906,20 @@ public class vic6567
 	{
 		int y, code;
 	
-		if (Machine->color_depth == 8)
+		if (Machine.color_depth == 8)
 		{
 			for (y = ybegin; y <= yend; y++)
 			{
 				code = vic2.dma_read ((vic2.chargenaddr&0x2000) + ch * 8 + y);
 				vic2.screen[y + yoff][xoff >> 3] = code;
-				vic2.bitmap->line[y + yoff][xoff] = vic2.c64_bitmap[code >> 7];
-				vic2.bitmap->line[y + yoff][1 + xoff] = vic2.c64_bitmap[(code >> 6) & 1];
-				vic2.bitmap->line[y + yoff][2 + xoff] = vic2.c64_bitmap[(code >> 5) & 1];
-				vic2.bitmap->line[y + yoff][3 + xoff] = vic2.c64_bitmap[(code >> 4) & 1];
-				vic2.bitmap->line[y + yoff][4 + xoff] = vic2.c64_bitmap[(code >> 3) & 1];
-				vic2.bitmap->line[y + yoff][5 + xoff] = vic2.c64_bitmap[(code >> 2) & 1];
-				vic2.bitmap->line[y + yoff][6 + xoff] = vic2.c64_bitmap[(code >> 1) & 1];
-				vic2.bitmap->line[y + yoff][7 + xoff] = vic2.c64_bitmap[code & 1];
+				vic2.bitmap.line[y + yoff][xoff] = vic2.c64_bitmap[code >> 7];
+				vic2.bitmap.line[y + yoff][1 + xoff] = vic2.c64_bitmap[(code >> 6) & 1];
+				vic2.bitmap.line[y + yoff][2 + xoff] = vic2.c64_bitmap[(code >> 5) & 1];
+				vic2.bitmap.line[y + yoff][3 + xoff] = vic2.c64_bitmap[(code >> 4) & 1];
+				vic2.bitmap.line[y + yoff][4 + xoff] = vic2.c64_bitmap[(code >> 3) & 1];
+				vic2.bitmap.line[y + yoff][5 + xoff] = vic2.c64_bitmap[(code >> 2) & 1];
+				vic2.bitmap.line[y + yoff][6 + xoff] = vic2.c64_bitmap[(code >> 1) & 1];
+				vic2.bitmap.line[y + yoff][7 + xoff] = vic2.c64_bitmap[code & 1];
 			}
 		}
 		else
@@ -928,14 +928,14 @@ public class vic6567
 			{
 				code = vic2.dma_read ((vic2.chargenaddr&0x2000) + ch * 8 + y);
 				vic2.screen[y + yoff][xoff >> 3] = code;
-				*((short *) vic2.bitmap->line[y + yoff] + xoff) = vic2.c64_bitmap[code >> 7];
-				*((short *) vic2.bitmap->line[y + yoff] + 1 + xoff) = vic2.c64_bitmap[(code >> 6) & 1];
-				*((short *) vic2.bitmap->line[y + yoff] + 2 + xoff) = vic2.c64_bitmap[(code >> 5) & 1];
-				*((short *) vic2.bitmap->line[y + yoff] + 3 + xoff) = vic2.c64_bitmap[(code >> 4) & 1];
-				*((short *) vic2.bitmap->line[y + yoff] + 4 + xoff) = vic2.c64_bitmap[(code >> 3) & 1];
-				*((short *) vic2.bitmap->line[y + yoff] + 5 + xoff) = vic2.c64_bitmap[(code >> 2) & 1];
-				*((short *) vic2.bitmap->line[y + yoff] + 6 + xoff) = vic2.c64_bitmap[(code >> 1) & 1];
-				*((short *) vic2.bitmap->line[y + yoff] + 7 + xoff) = vic2.c64_bitmap[code & 1];
+				*((short *) vic2.bitmap.line[y + yoff] + xoff) = vic2.c64_bitmap[code >> 7];
+				*((short *) vic2.bitmap.line[y + yoff] + 1 + xoff) = vic2.c64_bitmap[(code >> 6) & 1];
+				*((short *) vic2.bitmap.line[y + yoff] + 2 + xoff) = vic2.c64_bitmap[(code >> 5) & 1];
+				*((short *) vic2.bitmap.line[y + yoff] + 3 + xoff) = vic2.c64_bitmap[(code >> 4) & 1];
+				*((short *) vic2.bitmap.line[y + yoff] + 4 + xoff) = vic2.c64_bitmap[(code >> 3) & 1];
+				*((short *) vic2.bitmap.line[y + yoff] + 5 + xoff) = vic2.c64_bitmap[(code >> 2) & 1];
+				*((short *) vic2.bitmap.line[y + yoff] + 6 + xoff) = vic2.c64_bitmap[(code >> 1) & 1];
+				*((short *) vic2.bitmap.line[y + yoff] + 7 + xoff) = vic2.c64_bitmap[code & 1];
 			}
 		}
 	}
@@ -945,20 +945,20 @@ public class vic6567
 	{
 		int y, code;
 	
-		if (Machine->color_depth == 8)
+		if (Machine.color_depth == 8)
 		{
 			for (y = ybegin; y <= yend; y++)
 			{
 				code = vic2.dma_read ((vic2.chargenaddr&0x2000)+ ch * 8 + y);
 				vic2.screen[y + yoff][xoff >> 3] = vic2.foreground[code];
-				vic2.bitmap->line[y + yoff][xoff] =
-					vic2.bitmap->line[y + yoff][xoff + 1] = vic2.bitmapmulti[code >> 6];
-				vic2.bitmap->line[y + yoff][xoff + 2] =
-					vic2.bitmap->line[y + yoff][xoff + 3] = vic2.bitmapmulti[(code >> 4) & 3];
-				vic2.bitmap->line[y + yoff][xoff + 4] =
-					vic2.bitmap->line[y + yoff][xoff + 5] = vic2.bitmapmulti[(code >> 2) & 3];
-				vic2.bitmap->line[y + yoff][xoff + 6] =
-					vic2.bitmap->line[y + yoff][xoff + 7] = vic2.bitmapmulti[code & 3];
+				vic2.bitmap.line[y + yoff][xoff] =
+					vic2.bitmap.line[y + yoff][xoff + 1] = vic2.bitmapmulti[code >> 6];
+				vic2.bitmap.line[y + yoff][xoff + 2] =
+					vic2.bitmap.line[y + yoff][xoff + 3] = vic2.bitmapmulti[(code >> 4) & 3];
+				vic2.bitmap.line[y + yoff][xoff + 4] =
+					vic2.bitmap.line[y + yoff][xoff + 5] = vic2.bitmapmulti[(code >> 2) & 3];
+				vic2.bitmap.line[y + yoff][xoff + 6] =
+					vic2.bitmap.line[y + yoff][xoff + 7] = vic2.bitmapmulti[code & 3];
 			}
 		}
 		else
@@ -967,14 +967,14 @@ public class vic6567
 			{
 				code = vic2.dma_read ((vic2.chargenaddr&0x2000) + ch * 8 + y);
 				vic2.screen[y + yoff][xoff >> 3] = vic2.foreground[code];
-				*((short *) vic2.bitmap->line[y + yoff] + xoff) =
-					*((short *) vic2.bitmap->line[y + yoff] + xoff + 1) = vic2.bitmapmulti[code >> 6];
-				*((short *) vic2.bitmap->line[y + yoff] + xoff + 2) =
-					*((short *) vic2.bitmap->line[y + yoff] + xoff + 3) = vic2.bitmapmulti[(code >> 4) & 3];
-				*((short *) vic2.bitmap->line[y + yoff] + xoff + 4) =
-					*((short *) vic2.bitmap->line[y + yoff] + xoff + 5) = vic2.bitmapmulti[(code >> 2) & 3];
-				*((short *) vic2.bitmap->line[y + yoff] + xoff + 6) =
-					*((short *) vic2.bitmap->line[y + yoff] + xoff + 7) = vic2.bitmapmulti[code & 3];
+				*((short *) vic2.bitmap.line[y + yoff] + xoff) =
+					*((short *) vic2.bitmap.line[y + yoff] + xoff + 1) = vic2.bitmapmulti[code >> 6];
+				*((short *) vic2.bitmap.line[y + yoff] + xoff + 2) =
+					*((short *) vic2.bitmap.line[y + yoff] + xoff + 3) = vic2.bitmapmulti[(code >> 4) & 3];
+				*((short *) vic2.bitmap.line[y + yoff] + xoff + 4) =
+					*((short *) vic2.bitmap.line[y + yoff] + xoff + 5) = vic2.bitmapmulti[(code >> 2) & 3];
+				*((short *) vic2.bitmap.line[y + yoff] + xoff + 6) =
+					*((short *) vic2.bitmap.line[y + yoff] + xoff + 7) = vic2.bitmapmulti[code & 3];
 			}
 		}
 	}
@@ -986,25 +986,25 @@ public class vic6567
 	
 		if ((y < YPOS) || (y >= 208) || (xbegin <= 1) || (xbegin >= 328))
 			return;
-		if (Machine->color_depth == 8)
+		if (Machine.color_depth == 8)
 		{
 			for (x = 0, mask = 0xc0, shift = 6; x < 8; x += 2, mask >>= 2, shift -= 2)
 			{
-				if (code & mask)
+				if ((code & mask) != 0)
 				{
 					switch ((prior & mask) >> shift)
 					{
 					case 1:
-						vic2.bitmap->line[y][xbegin + x + 1] =
+						vic2.bitmap.line[y][xbegin + x + 1] =
 							vic2.spritemulti[(code >> shift) & 3];
 						break;
 					case 2:
-						vic2.bitmap->line[y][xbegin + x] =
+						vic2.bitmap.line[y][xbegin + x] =
 							vic2.spritemulti[(code >> shift) & 3];
 						break;
 					case 3:
-						vic2.bitmap->line[y][xbegin + x] =
-							vic2.bitmap->line[y][xbegin + x + 1] =
+						vic2.bitmap.line[y][xbegin + x] =
+							vic2.bitmap.line[y][xbegin + x + 1] =
 							vic2.spritemulti[(code >> shift) & 3];
 						break;
 					}
@@ -1015,21 +1015,21 @@ public class vic6567
 		{
 			for (x = 0, mask = 0xc0, shift = 6; x < 8; x += 2, mask >>= 2, shift -= 2)
 			{
-				if (code & mask)
+				if ((code & mask) != 0)
 				{
 					switch ((prior & mask) >> shift)
 					{
 					case 1:
-						((short *) vic2.bitmap->line[y])[xbegin + x + 1] =
+						((short *) vic2.bitmap.line[y])[xbegin + x + 1] =
 							vic2.spritemulti[(code >> shift) & 3];
 						break;
 					case 2:
-						((short *) vic2.bitmap->line[y])[xbegin + x] =
+						((short *) vic2.bitmap.line[y])[xbegin + x] =
 							vic2.spritemulti[(code >> shift) & 3];
 						break;
 					case 3:
-						((short *) vic2.bitmap->line[y])[xbegin + x] =
-							((short *) vic2.bitmap->line[y])[xbegin + x + 1] =
+						((short *) vic2.bitmap.line[y])[xbegin + x] =
+							((short *) vic2.bitmap.line[y])[xbegin + x + 1] =
 							vic2.spritemulti[(code >> shift) & 3];
 						break;
 					}
@@ -1044,13 +1044,13 @@ public class vic6567
 	
 		if ((y < YPOS) || (y >= 208) || (xbegin <= 1) || (xbegin >= 328))
 			return;
-		if (Machine->color_depth == 8)
+		if (Machine.color_depth == 8)
 		{
 			for (x = 0, mask = 0x80; x < 8; x++, mask >>= 1)
 			{
-				if (code & mask)
+				if ((code & mask) != 0)
 				{
-					vic2.bitmap->line[y][xbegin + x] = color;
+					vic2.bitmap.line[y][xbegin + x] = color;
 				}
 			}
 		}
@@ -1058,9 +1058,9 @@ public class vic6567
 		{
 			for (x = 0, mask = 0x80; x < 8; x++, mask >>= 1)
 			{
-				if (code & mask)
+				if ((code & mask) != 0)
 				{
-					((short *) vic2.bitmap->line[y])[xbegin + x] = color;
+					((short *) vic2.bitmap.line[y])[xbegin + x] = color;
 				}
 			}
 		}
@@ -1088,7 +1088,7 @@ public class vic6567
 				UINT8 *vp = vic2.sprites[i].bitmap[y]+(xdiff>>3);
 				value = ((vp[1] | (*vp << 8)) >> (8 - (xdiff&7) )) & 0xff;
 			}
-			if (value & mask)
+			if ((value & mask) != 0)
 			{
 				SPRITE_SET_COLLISION (i);
 				SPRITE_SET_COLLISION (nr);
@@ -1104,11 +1104,11 @@ public class vic6567
 	
 		xbegin = SPRITE_X_POS (nr);
 		addr = vic2.dma_read (SPRITE_ADDR (nr)) << 6;
-		vic2.spritemulti[2] = Machine->pens[SPRITE_COLOR (nr)];
+		vic2.spritemulti[2] = Machine.pens[SPRITE_COLOR (nr)];
 		prior = SPRITE_PRIORITY (nr);
 		collision = SPRITE_BG_COLLISION (nr);
-		color[0] = Machine->pens[0];
-		color[1] = Machine->pens[1];
+		color[0] = Machine.pens[0];
+		color[1] = Machine.pens[1];
 	
 		if (SPRITE_X_EXPAND (nr))
 		{
@@ -1133,7 +1133,7 @@ public class vic6567
 						SPRITE_SET_BG_COLLISION (nr);
 						vic2_set_interrupt (2);
 					}
-					if (prior)
+					if (prior != 0)
 					{
 						vic2_draw_sprite_code_multi (yoff + y, xbegin + i * 16, value >> 8,
 													 (value3 >> 8) ^ 0xff);
@@ -1183,7 +1183,7 @@ public class vic6567
 						SPRITE_SET_BG_COLLISION (nr);
 						vic2_set_interrupt (2);
 					}
-					if (prior)
+					if (prior != 0)
 					{
 						vic2_draw_sprite_code_multi (yoff + y, xbegin + i * 8, value, value3 ^ 0xff);
 					}
@@ -1217,7 +1217,7 @@ public class vic6567
 	
 		xbegin = SPRITE_X_POS (nr);
 		addr = vic2.dma_read (SPRITE_ADDR (nr)) << 6;
-		color = Machine->pens[SPRITE_COLOR (nr)];
+		color = Machine.pens[SPRITE_COLOR (nr)];
 		prior = SPRITE_PRIORITY (nr);
 		collision = SPRITE_BG_COLLISION (nr);
 	
@@ -1241,7 +1241,7 @@ public class vic6567
 						SPRITE_SET_BG_COLLISION (nr);
 						vic2_set_interrupt (2);
 					}
-					if (prior)
+					if (prior != 0)
 						value &= ~value3;
 					vic2_draw_sprite_code (yoff + y, xbegin + i * 16, value >> 8, color);
 					vic2_draw_sprite_code (yoff + y, xbegin + i * 16 + 8, value & 0xff, color);
@@ -1280,7 +1280,7 @@ public class vic6567
 						SPRITE_SET_BG_COLLISION (nr);
 						vic2_set_interrupt (2);
 					}
-					if (prior)
+					if (prior != 0)
 						value &= ~value3;
 					vic2_draw_sprite_code (yoff + y, xbegin + i * 8, value, color);
 				}
@@ -1331,19 +1331,19 @@ public class vic6567
 	
 		if (!SCREENON)
 		{
-			if (Machine->color_depth == 8)
+			if (Machine.color_depth == 8)
 			{
-				for (line = first; (line < last) && (line < vic2.bitmap->height); line++)
-					memset (vic2.bitmap->line[line], Machine->pens[0], vic2.bitmap->width);
+				for (line = first; (line < last) && (line < vic2.bitmap.height); line++)
+					memset (vic2.bitmap.line[line], Machine.pens[0], vic2.bitmap.width);
 			}
 			else
 			{
-				for (line = first; (line < last) && (line < vic2.bitmap->height); line++)
-					memset16 (vic2.bitmap->line[line], Machine->pens[0], vic2.bitmap->width);
+				for (line = first; (line < last) && (line < vic2.bitmap.height); line++)
+					memset16 (vic2.bitmap.line[line], Machine.pens[0], vic2.bitmap.width);
 			}
 			return;
 		}
-		if (COLUMNS40)
+		if (COLUMNS40 != 0)
 			xbegin = XPOS, xend = xbegin + 640;
 		else
 			xbegin = XPOS + 7, xend = xbegin + 624;
@@ -1352,19 +1352,19 @@ public class vic6567
 			end = last;
 		else
 			end = vic2.y_begin + YPOS;
-		if (Machine->color_depth == 8)
+		if (Machine.color_depth == 8)
 		{
 			for (line = first; line < end; line++)
-				memset (vic2.bitmap->line[line], Machine->pens[FRAMECOLOR],
-						vic2.bitmap->width);
+				memset (vic2.bitmap.line[line], Machine.pens[FRAMECOLOR],
+						vic2.bitmap.width);
 		}
 		else
 		{
 			for (line = first; line < end; line++)
-				memset16 (vic2.bitmap->line[line], Machine->pens[FRAMECOLOR],
-						  vic2.bitmap->width);
+				memset16 (vic2.bitmap.line[line], Machine.pens[FRAMECOLOR],
+						  vic2.bitmap.width);
 		}
-		if (LINES25)
+		if (LINES25 != 0)
 		{
 			vline = line - vic2.y_begin - YPOS;
 		}
@@ -1391,13 +1391,13 @@ public class vic6567
 			{
 				ch = vic2.dma_read (vic2.videoaddr + offs);
 				attr = vic2.dma_read_color (vic2.videoaddr + offs);
-				if (HIRESON)
+				if (HIRESON != 0)
 				{
-					vic2.bitmapmulti[1] = vic2.c64_bitmap[1] = Machine->pens[ch >> 4];
-					vic2.bitmapmulti[2] = vic2.c64_bitmap[0] = Machine->pens[ch & 0xf];
-					if (MULTICOLORON)
+					vic2.bitmapmulti[1] = vic2.c64_bitmap[1] = Machine.pens[ch >> 4];
+					vic2.bitmapmulti[2] = vic2.c64_bitmap[0] = Machine.pens[ch & 0xf];
+					if (MULTICOLORON != 0)
 					{
-						vic2.bitmapmulti[3] = Machine->pens[attr];
+						vic2.bitmapmulti[3] = Machine.pens[attr];
 						vic2_draw_bitmap_multi (ybegin, yend, offs, yoff, xoff);
 					}
 					else
@@ -1405,21 +1405,21 @@ public class vic6567
 						vic2_draw_bitmap (ybegin, yend, offs, yoff, xoff);
 					}
 				}
-				else if (ECMON)
+				else if (ECMON != 0)
 				{
 					ecm = ch >> 6;
 					vic2.ecmcolor[0] = vic2.colors[ecm];
-					vic2.ecmcolor[1] = Machine->pens[attr];
+					vic2.ecmcolor[1] = Machine.pens[attr];
 					vic2_draw_character (ybegin, yend, ch & ~0xC0, yoff, xoff, vic2.ecmcolor);
 				}
 				else if (MULTICOLORON && (attr & 8))
 				{
-					vic2.multi[3] = Machine->pens[attr & 7];
+					vic2.multi[3] = Machine.pens[attr & 7];
 					vic2_draw_character_multi (ybegin, yend, ch, yoff, xoff);
 				}
 				else
 				{
-					vic2.mono[1] = Machine->pens[attr];
+					vic2.mono[1] = Machine.pens[attr];
 					vic2_draw_character (ybegin, yend, ch, yoff, xoff, vic2.mono);
 				}
 			}
@@ -1486,41 +1486,41 @@ public class vic6567
 					memset (vic2.sprites[i].paintedline, 0, sizeof (vic2.sprites[i].paintedline));
 				}
 			}
-			if (Machine->color_depth == 8)
+			if (Machine.color_depth == 8)
 			{
 				for (i = ybegin; i <= yend; i++)
 				{
-					memset (vic2.bitmap->line[yoff + i], Machine->pens[FRAMECOLOR], xbegin);
-					memset (vic2.bitmap->line[yoff + i] + xend, Machine->pens[FRAMECOLOR],
-							vic2.bitmap->width - xend);
+					memset (vic2.bitmap.line[yoff + i], Machine.pens[FRAMECOLOR], xbegin);
+					memset (vic2.bitmap.line[yoff + i] + xend, Machine.pens[FRAMECOLOR],
+							vic2.bitmap.width - xend);
 				}
 			}
 			else
 			{
 				for (i = ybegin; i <= yend; i++)
 				{
-					memset16 (vic2.bitmap->line[yoff + i], Machine->pens[FRAMECOLOR],
+					memset16 (vic2.bitmap.line[yoff + i], Machine.pens[FRAMECOLOR],
 							  xbegin);
-					memset16 ((short *) vic2.bitmap->line[yoff + i] + xend,
-							  Machine->pens[FRAMECOLOR], vic2.bitmap->width - xend);
+					memset16 ((short *) vic2.bitmap.line[yoff + i] + xend,
+							  Machine.pens[FRAMECOLOR], vic2.bitmap.width - xend);
 				}
 			}
 		}
-		if (last < vic2.bitmap->height)
+		if (last < vic2.bitmap.height)
 			end = last;
 		else
-			end = vic2.bitmap->height;
-		if (Machine->color_depth == 8)
+			end = vic2.bitmap.height;
+		if (Machine.color_depth == 8)
 		{
 			for (; line < end; line++)
-				memset (vic2.bitmap->line[line], Machine->pens[FRAMECOLOR],
-						vic2.bitmap->width);
+				memset (vic2.bitmap.line[line], Machine.pens[FRAMECOLOR],
+						vic2.bitmap.width);
 		}
 		else
 		{
 			for (; line < end; line++)
-				memset16 (vic2.bitmap->line[line], Machine->pens[FRAMECOLOR],
-						  vic2.bitmap->width);
+				memset16 (vic2.bitmap.line[line], Machine.pens[FRAMECOLOR],
+						  vic2.bitmap.width);
 		}
 	}
 	
@@ -1559,20 +1559,20 @@ public class vic6567
 	
 		if (!SCREENON)
 		{
-			if (Machine->color_depth == 8)
+			if (Machine.color_depth == 8)
 			{
-				for (line = first; (line < last) && (line < vic2.bitmap->height); line++)
-					memset (vic2.bitmap->line[line], Machine->pens[0], vic2.bitmap->width);
+				for (line = first; (line < last) && (line < vic2.bitmap.height); line++)
+					memset (vic2.bitmap.line[line], Machine.pens[0], vic2.bitmap.width);
 			}
 			else
 			{
-				for (line = first; (line < last) && (line < vic2.bitmap->height); line++)
-					memset16 (vic2.bitmap->line[line], Machine->pens[0], vic2.bitmap->width);
+				for (line = first; (line < last) && (line < vic2.bitmap.height); line++)
+					memset16 (vic2.bitmap.line[line], Machine.pens[0], vic2.bitmap.width);
 			}
 			return;
 		}
 	
-		if (COLUMNS40)
+		if (COLUMNS40 != 0)
 			xbegin = XPOS, xend = xbegin + 320;
 		else
 			xbegin = XPOS + 7, xend = xbegin + 304;
@@ -1581,19 +1581,19 @@ public class vic6567
 			end = last;
 		else
 			end = vic2.y_begin + YPOS;
-		if (Machine->color_depth == 8)
+		if (Machine.color_depth == 8)
 		{
 			for (line = first; line < end; line++)
-				memset (vic2.bitmap->line[line], Machine->pens[FRAMECOLOR],
-						vic2.bitmap->width);
+				memset (vic2.bitmap.line[line], Machine.pens[FRAMECOLOR],
+						vic2.bitmap.width);
 		}
 		else
 		{
 			for (line = first; line < end; line++)
-				memset16 (vic2.bitmap->line[line], Machine->pens[FRAMECOLOR],
-						  vic2.bitmap->width);
+				memset16 (vic2.bitmap.line[line], Machine.pens[FRAMECOLOR],
+						  vic2.bitmap.width);
 		}
-		if (LINES25)
+		if (LINES25 != 0)
 		{
 			vline = line - vic2.y_begin - YPOS;
 		}
@@ -1624,13 +1624,13 @@ public class vic6567
 				/* temporaery until vic3 finished */
 				attr = vic2.dma_read_color ((vic2.videoaddr + offs)&0x3ff)&0x0f;
 	#endif
-				if (HIRESON)
+				if (HIRESON != 0)
 				{
-					vic2.bitmapmulti[1] = vic2.c64_bitmap[1] = Machine->pens[ch >> 4];
-					vic2.bitmapmulti[2] = vic2.c64_bitmap[0] = Machine->pens[ch & 0xf];
-					if (MULTICOLORON)
+					vic2.bitmapmulti[1] = vic2.c64_bitmap[1] = Machine.pens[ch >> 4];
+					vic2.bitmapmulti[2] = vic2.c64_bitmap[0] = Machine.pens[ch & 0xf];
+					if (MULTICOLORON != 0)
 					{
-						vic2.bitmapmulti[3] = Machine->pens[attr];
+						vic2.bitmapmulti[3] = Machine.pens[attr];
 						vic2_draw_bitmap_multi (ybegin, yend, offs, yoff, xoff);
 					}
 					else
@@ -1638,21 +1638,21 @@ public class vic6567
 						vic2_draw_bitmap (ybegin, yend, offs, yoff, xoff);
 					}
 				}
-				else if (ECMON)
+				else if (ECMON != 0)
 				{
 					ecm = ch >> 6;
 					vic2.ecmcolor[0] = vic2.colors[ecm];
-					vic2.ecmcolor[1] = Machine->pens[attr];
+					vic2.ecmcolor[1] = Machine.pens[attr];
 					vic2_draw_character (ybegin, yend, ch & ~0xC0, yoff, xoff, vic2.ecmcolor);
 				}
 				else if (MULTICOLORON && (attr & 8))
 				{
-					vic2.multi[3] = Machine->pens[attr & 7];
+					vic2.multi[3] = Machine.pens[attr & 7];
 					vic2_draw_character_multi (ybegin, yend, ch, yoff, xoff);
 				}
 				else
 				{
-					vic2.mono[1] = Machine->pens[attr];
+					vic2.mono[1] = Machine.pens[attr];
 					vic2_draw_character (ybegin, yend, ch, yoff, xoff, vic2.mono);
 				}
 			}
@@ -1719,41 +1719,41 @@ public class vic6567
 					memset (vic2.sprites[i].paintedline, 0, sizeof (vic2.sprites[i].paintedline));
 				}
 			}
-			if (Machine->color_depth == 8)
+			if (Machine.color_depth == 8)
 			{
 				for (i = ybegin; i <= yend; i++)
 				{
-					memset (vic2.bitmap->line[yoff + i], Machine->pens[FRAMECOLOR], xbegin);
-					memset (vic2.bitmap->line[yoff + i] + xend, Machine->pens[FRAMECOLOR],
-							vic2.bitmap->width - xend);
+					memset (vic2.bitmap.line[yoff + i], Machine.pens[FRAMECOLOR], xbegin);
+					memset (vic2.bitmap.line[yoff + i] + xend, Machine.pens[FRAMECOLOR],
+							vic2.bitmap.width - xend);
 				}
 			}
 			else
 			{
 				for (i = ybegin; i <= yend; i++)
 				{
-					memset16 (vic2.bitmap->line[yoff + i], Machine->pens[FRAMECOLOR],
+					memset16 (vic2.bitmap.line[yoff + i], Machine.pens[FRAMECOLOR],
 							  xbegin);
-					memset16 ((short *) vic2.bitmap->line[yoff + i] + xend,
-							  Machine->pens[FRAMECOLOR], vic2.bitmap->width - xend);
+					memset16 ((short *) vic2.bitmap.line[yoff + i] + xend,
+							  Machine.pens[FRAMECOLOR], vic2.bitmap.width - xend);
 				}
 			}
 		}
-		if (last < vic2.bitmap->height)
+		if (last < vic2.bitmap.height)
 			end = last;
 		else
-			end = vic2.bitmap->height;
-		if (Machine->color_depth == 8)
+			end = vic2.bitmap.height;
+		if (Machine.color_depth == 8)
 		{
 			for (; line < end; line++)
-				memset (vic2.bitmap->line[line], Machine->pens[FRAMECOLOR],
-						vic2.bitmap->width);
+				memset (vic2.bitmap.line[line], Machine.pens[FRAMECOLOR],
+						vic2.bitmap.width);
 		}
 		else
 		{
 			for (; line < end; line++)
-				memset16 (vic2.bitmap->line[line], Machine->pens[FRAMECOLOR],
-						  vic2.bitmap->width);
+				memset16 (vic2.bitmap.line[line], Machine.pens[FRAMECOLOR],
+						  vic2.bitmap.width);
 		}
 	}
 	
@@ -1789,28 +1789,28 @@ public class vic6567
 	
 	INLINE void vic3_block_2_color(int offset, UINT8 colors[8])
 	{
-		if (VIC3_BITPLANES_MASK&1) {
+		if ((VIC3_BITPLANES_MASK & 1) != 0) {
 			colors[0]=c64_memory[VIC3_BITPLANE_ADDR(0)+offset];
 		}
-		if (VIC3_BITPLANES_MASK&2) {
+		if ((VIC3_BITPLANES_MASK & 2) != 0) {
 			colors[1]=c64_memory[VIC3_BITPLANE_ADDR(1)+offset];
 		}
-		if (VIC3_BITPLANES_MASK&4) {
+		if ((VIC3_BITPLANES_MASK & 4) != 0) {
 			colors[2]=c64_memory[VIC3_BITPLANE_ADDR(2)+offset];
 		}
-		if (VIC3_BITPLANES_MASK&8) {
+		if ((VIC3_BITPLANES_MASK & 8) != 0) {
 			colors[3]=c64_memory[VIC3_BITPLANE_ADDR(3)+offset];
 		}
-		if (VIC3_BITPLANES_MASK&0x10) {
+		if ((VIC3_BITPLANES_MASK & 0x10) != 0) {
 			colors[4]=c64_memory[VIC3_BITPLANE_ADDR(4)+offset];
 		}
-		if (VIC3_BITPLANES_MASK&0x20) {
+		if ((VIC3_BITPLANES_MASK & 0x20) != 0) {
 			colors[5]=c64_memory[VIC3_BITPLANE_ADDR(5)+offset];
 		}
-		if (VIC3_BITPLANES_MASK&0x40) {
+		if ((VIC3_BITPLANES_MASK & 0x40) != 0) {
 			colors[6]=c64_memory[VIC3_BITPLANE_ADDR(6)+offset];
 		}
-		if (VIC3_BITPLANES_MASK&0x80) {
+		if ((VIC3_BITPLANES_MASK & 0x80) != 0) {
 			colors[7]=c64_memory[VIC3_BITPLANE_ADDR(7)+offset];
 		}
 	}
@@ -1818,50 +1818,50 @@ public class vic6567
 	INLINE void vic3_interlace_block_2_color(int offset, UINT8 colors[8])
 	{
 	
-		if (VIC3_BITPLANES_MASK&1) {
+		if ((VIC3_BITPLANES_MASK & 1) != 0) {
 			colors[0]=c64_memory[VIC3_BITPLANE_IADDR(0)+offset];
 		}
-		if (VIC3_BITPLANES_MASK&2) {
+		if ((VIC3_BITPLANES_MASK & 2) != 0) {
 			colors[1]=c64_memory[VIC3_BITPLANE_IADDR(1)+offset];
 		}
-		if (VIC3_BITPLANES_MASK&4) {
+		if ((VIC3_BITPLANES_MASK & 4) != 0) {
 			colors[2]=c64_memory[VIC3_BITPLANE_IADDR(2)+offset];
 		}
-		if (VIC3_BITPLANES_MASK&8) {
+		if ((VIC3_BITPLANES_MASK & 8) != 0) {
 			colors[3]=c64_memory[VIC3_BITPLANE_IADDR(3)+offset];
 		}
-		if (VIC3_BITPLANES_MASK&0x10) {
+		if ((VIC3_BITPLANES_MASK & 0x10) != 0) {
 			colors[4]=c64_memory[VIC3_BITPLANE_IADDR(4)+offset];
 		}
-		if (VIC3_BITPLANES_MASK&0x20) {
+		if ((VIC3_BITPLANES_MASK & 0x20) != 0) {
 			colors[5]=c64_memory[VIC3_BITPLANE_IADDR(5)+offset];
 		}
-		if (VIC3_BITPLANES_MASK&0x40) {
+		if ((VIC3_BITPLANES_MASK & 0x40) != 0) {
 			colors[6]=c64_memory[VIC3_BITPLANE_IADDR(6)+offset];
 		}
-		if (VIC3_BITPLANES_MASK&0x80) {
+		if ((VIC3_BITPLANES_MASK & 0x80) != 0) {
 			colors[7]=c64_memory[VIC3_BITPLANE_IADDR(7)+offset];
 		}
 	}
 	
 	INLINE void vic3_draw_block(int x, int y, UINT8 colors[8])
 	{
-		vic2.bitmap->line[YPOS+y][XPOS+x]=
-			Machine->pens[vic3_bitplane_to_packed(colors, vic2.reg[0x32], 7)];
-		vic2.bitmap->line[YPOS+y][XPOS+x+1]=
-			Machine->pens[vic3_bitplane_to_packed(colors, vic2.reg[0x32], 6)];
-		vic2.bitmap->line[YPOS+y][XPOS+x+2]=
-			Machine->pens[vic3_bitplane_to_packed(colors, vic2.reg[0x32], 5)];
-		vic2.bitmap->line[YPOS+y][XPOS+x+3]=
-			Machine->pens[vic3_bitplane_to_packed(colors, vic2.reg[0x32], 4)];
-		vic2.bitmap->line[YPOS+y][XPOS+x+4]=
-			Machine->pens[vic3_bitplane_to_packed(colors, vic2.reg[0x32], 3)];
-		vic2.bitmap->line[YPOS+y][XPOS+x+5]=
-			Machine->pens[vic3_bitplane_to_packed(colors, vic2.reg[0x32], 2)];
-		vic2.bitmap->line[YPOS+y][XPOS+x+6]=
-			Machine->pens[vic3_bitplane_to_packed(colors, vic2.reg[0x32], 1)];
-		vic2.bitmap->line[YPOS+y][XPOS+x+7]=
-			Machine->pens[vic3_bitplane_to_packed(colors, vic2.reg[0x32], 0)];
+		vic2.bitmap.line[YPOS+y][XPOS+x]=
+			Machine.pens[vic3_bitplane_to_packed(colors, vic2.reg[0x32], 7)];
+		vic2.bitmap.line[YPOS+y][XPOS+x+1]=
+			Machine.pens[vic3_bitplane_to_packed(colors, vic2.reg[0x32], 6)];
+		vic2.bitmap.line[YPOS+y][XPOS+x+2]=
+			Machine.pens[vic3_bitplane_to_packed(colors, vic2.reg[0x32], 5)];
+		vic2.bitmap.line[YPOS+y][XPOS+x+3]=
+			Machine.pens[vic3_bitplane_to_packed(colors, vic2.reg[0x32], 4)];
+		vic2.bitmap.line[YPOS+y][XPOS+x+4]=
+			Machine.pens[vic3_bitplane_to_packed(colors, vic2.reg[0x32], 3)];
+		vic2.bitmap.line[YPOS+y][XPOS+x+5]=
+			Machine.pens[vic3_bitplane_to_packed(colors, vic2.reg[0x32], 2)];
+		vic2.bitmap.line[YPOS+y][XPOS+x+6]=
+			Machine.pens[vic3_bitplane_to_packed(colors, vic2.reg[0x32], 1)];
+		vic2.bitmap.line[YPOS+y][XPOS+x+7]=
+			Machine.pens[vic3_bitplane_to_packed(colors, vic2.reg[0x32], 0)];
 	}
 	
 	#else
@@ -1893,33 +1893,33 @@ public class vic6567
 			VIC3_MASK(0xff)
 			break;
 		default:
-			if (VIC3_BITPLANES_MASK&1) {
+			if ((VIC3_BITPLANES_MASK & 1) != 0) {
 				colors[0]=c64_memory[VIC3_BITPLANE_IADDR(0)+offset];
 			}
-			if (VIC3_BITPLANES_MASK&2) {
+			if ((VIC3_BITPLANES_MASK & 2) != 0) {
 				colors[1]=c64_memory[VIC3_BITPLANE_IADDR(1)+offset]<<1;
 			}
-			if (VIC3_BITPLANES_MASK&4) {
+			if ((VIC3_BITPLANES_MASK & 4) != 0) {
 				colors[2]=c64_memory[VIC3_BITPLANE_IADDR(2)+offset]<<2;
 			}
-			if (VIC3_BITPLANES_MASK&8) {
+			if ((VIC3_BITPLANES_MASK & 8) != 0) {
 				colors[3]=c64_memory[VIC3_BITPLANE_IADDR(3)+offset]<<3;
 			}
-			if (VIC3_BITPLANES_MASK&0x10) {
+			if ((VIC3_BITPLANES_MASK & 0x10) != 0) {
 				colors[4]=c64_memory[VIC3_BITPLANE_IADDR(4)+offset]<<4;
 			}
-			if (VIC3_BITPLANES_MASK&0x20) {
+			if ((VIC3_BITPLANES_MASK & 0x20) != 0) {
 				colors[5]=c64_memory[VIC3_BITPLANE_IADDR(5)+offset]<<5;
 			}
-			if (VIC3_BITPLANES_MASK&0x40) {
+			if ((VIC3_BITPLANES_MASK & 0x40) != 0) {
 				colors[6]=c64_memory[VIC3_BITPLANE_IADDR(6)+offset]<<6;
 			}
-			if (VIC3_BITPLANES_MASK&0x80) {
+			if ((VIC3_BITPLANES_MASK & 0x80) != 0) {
 				colors[7]=c64_memory[VIC3_BITPLANE_IADDR(7)+offset]<<7;
 			}
 			for (i=7;i>=0;i--) {
-				vic2.bitmap->line[YPOS+y][XPOS+x+i]=
-					Machine->pens[(colors[0]&1)|(colors[1]&2)
+				vic2.bitmap.line[YPOS+y][XPOS+x+i]=
+					Machine.pens[(colors[0]&1)|(colors[1]&2)
 								 |(colors[2]&4)|(colors[3]&8)
 								 |(colors[4]&0x10)|(colors[5]&0x20)
 								 |(colors[6]&0x40)|(colors[7]&0x80)];
@@ -1962,33 +1962,33 @@ public class vic6567
 			VIC3_MASK(0xff)
 	        break;
 		default:
-			if (VIC3_BITPLANES_MASK&1) {
+			if ((VIC3_BITPLANES_MASK & 1) != 0) {
 				colors[0]=c64_memory[VIC3_BITPLANE_ADDR(0)+offset];
 			}
-			if (VIC3_BITPLANES_MASK&2) {
+			if ((VIC3_BITPLANES_MASK & 2) != 0) {
 				colors[1]=c64_memory[VIC3_BITPLANE_ADDR(1)+offset]<<1;
 			}
-			if (VIC3_BITPLANES_MASK&4) {
+			if ((VIC3_BITPLANES_MASK & 4) != 0) {
 				colors[2]=c64_memory[VIC3_BITPLANE_ADDR(2)+offset]<<2;
 			}
-			if (VIC3_BITPLANES_MASK&8) {
+			if ((VIC3_BITPLANES_MASK & 8) != 0) {
 				colors[3]=c64_memory[VIC3_BITPLANE_ADDR(3)+offset]<<3;
 			}
-			if (VIC3_BITPLANES_MASK&0x10) {
+			if ((VIC3_BITPLANES_MASK & 0x10) != 0) {
 				colors[4]=c64_memory[VIC3_BITPLANE_ADDR(4)+offset]<<4;
 			}
-			if (VIC3_BITPLANES_MASK&0x20) {
+			if ((VIC3_BITPLANES_MASK & 0x20) != 0) {
 				colors[5]=c64_memory[VIC3_BITPLANE_ADDR(5)+offset]<<5;
 			}
-			if (VIC3_BITPLANES_MASK&0x40) {
+			if ((VIC3_BITPLANES_MASK & 0x40) != 0) {
 				colors[6]=c64_memory[VIC3_BITPLANE_ADDR(6)+offset]<<6;
 			}
-			if (VIC3_BITPLANES_MASK&0x80) {
+			if ((VIC3_BITPLANES_MASK & 0x80) != 0) {
 				colors[7]=c64_memory[VIC3_BITPLANE_ADDR(7)+offset]<<7;
 			}
 			for (i=7;i>=0;i--) {
-				vic2.bitmap->line[YPOS+y][XPOS+x+i]=
-					Machine->pens[(colors[0]&1)|(colors[1]&2)
+				vic2.bitmap.line[YPOS+y][XPOS+x+i]=
+					Machine.pens[(colors[0]&1)|(colors[1]&2)
 								 |(colors[2]&4)|(colors[3]&8)
 								 |(colors[4]&0x10)|(colors[5]&0x20)
 								 |(colors[6]&0x40)|(colors[7]&0x80)];
@@ -2019,7 +2019,7 @@ public class vic6567
 				for (x=0; x<VIC3_BITPLANES_WIDTH; x+=8) {
 					for ( y=y1s; y<y1s+16; y+=2, offset++) {
 	#ifndef OPTIMIZE
-						if (interlace) {
+						if (interlace != 0) {
 							vic3_block_2_color(offset,colors);
 							vic3_draw_block(x,y,colors);
 						} else {
@@ -2027,7 +2027,7 @@ public class vic6567
 							vic3_draw_block(x,y+1,colors);
 						}
 	#else
-						if (interlace)
+						if (interlace != 0)
 							vic3_draw_block(x,y,offset);
 						else
 							vic3_interlace_draw_block(x,y+1,offset);
@@ -2054,30 +2054,30 @@ public class vic6567
 			vis.min_x=0;
 			vis.max_x=XPOS-1;
 			vis.min_y=0;
-			vis.max_y=Machine->visible_area.max_y;
-			fillbitmap(vic2.bitmap, Machine->pens[FRAMECOLOR],&vis);
+			vis.max_y=Machine.visible_area.max_y;
+			fillbitmap(vic2.bitmap, Machine.pens[FRAMECOLOR],&vis);
 		}
-		if (XPOS+VIC3_BITPLANES_WIDTH<Machine->visible_area.max_x) {
+		if (XPOS+VIC3_BITPLANES_WIDTH<Machine.visible_area.max_x) {
 			vis.min_x=XPOS+VIC3_BITPLANES_WIDTH;
-			vis.max_x=Machine->visible_area.max_x;
+			vis.max_x=Machine.visible_area.max_x;
 			vis.min_y=0;
-			vis.max_y=Machine->visible_area.max_y;
-			fillbitmap(vic2.bitmap, Machine->pens[FRAMECOLOR],&vis);
+			vis.max_y=Machine.visible_area.max_y;
+			fillbitmap(vic2.bitmap, Machine.pens[FRAMECOLOR],&vis);
 		}
 		if (YPOS>0) {
 			vis.min_y=0;
 			vis.max_y=YPOS-1;
 			vis.min_x=0;
-			vis.max_x=Machine->visible_area.max_x;
-			fillbitmap(vic2.bitmap, Machine->pens[FRAMECOLOR],&vis);
+			vis.max_x=Machine.visible_area.max_x;
+			fillbitmap(vic2.bitmap, Machine.pens[FRAMECOLOR],&vis);
 		}
 	#if 0
-		if (YPOS+VIC3_LINES<Machine->visible_area.max_y) {
+		if (YPOS+VIC3_LINES<Machine.visible_area.max_y) {
 			vis.min_y=YPOS+VIC3_LINES;
-			vis.max_y=Machine->visible_area.max_y;
+			vis.max_y=Machine.visible_area.max_y;
 			vis.min_x=0;
-			vis.max_x=Machine->visible_area.max_x;
-			fillbitmap(vic2.bitmap, Machine->pens[FRAMECOLOR],&vis);
+			vis.max_x=Machine.visible_area.max_x;
+			fillbitmap(vic2.bitmap, Machine.pens[FRAMECOLOR],&vis);
 		}
 	#endif
 	}
@@ -2086,31 +2086,31 @@ public class vic6567
 	
 	void vic2_draw_text (struct osd_bitmap *bitmap, char *text, int *y)
 	{
-		int x, x0, y2, width = (Machine->visible_area.max_x -
-								Machine->visible_area.min_x) / Machine->uifont->width;
+		int x, x0, y2, width = (Machine.visible_area.max_x -
+								Machine.visible_area.min_x) / Machine.uifont.width;
 	
 		if (text[0] != 0)
 		{
 			x = strlen (text);
-			*y -= Machine->uifont->height * ((x + width - 1) / width);
-			y2 = *y + Machine->uifont->height;
+			*y -= Machine.uifont.height * ((x + width - 1) / width);
+			y2 = *y + Machine.uifont.height;
 			x = 0;
 			while (text[x])
 			{
-				for (x0 = Machine->visible_area.min_x;
-					 text[x] && (x0 < Machine->visible_area.max_x -
-								 Machine->uifont->width);
-					 x++, x0 += Machine->uifont->width)
+				for (x0 = Machine.visible_area.min_x;
+					 text[x] && (x0 < Machine.visible_area.max_x -
+								 Machine.uifont.width);
+					 x++, x0 += Machine.uifont.width)
 				{
-					drawgfx (vic2.bitmap, Machine->uifont, text[x], 0, 0, 0, x0, y2, 0,
+					drawgfx (vic2.bitmap, Machine.uifont, text[x], 0, 0, 0, x0, y2, 0,
 							 TRANSPARENCY_NONE, 0);
 				}
-				y2 += Machine->uifont->height;
+				y2 += Machine.uifont.height;
 			}
 		}
 	}
 	
-	int vic2_raster_irq (void)
+	public static InterruptPtr vic2_raster_irq = new InterruptPtr() { public int handler() 
 	{
 		static int columns=640, raws=200;
 		int new_columns, new_raws;
@@ -2130,21 +2130,21 @@ public class vic6567
 				}
 				palette_recalc();
 				if (vic2.palette_dirty) {
-					vic2.spritemulti[1] = Machine->pens[SPRITE_MULTICOLOR1];
-					vic2.spritemulti[3] = Machine->pens[SPRITE_MULTICOLOR2];
+					vic2.spritemulti[1] = Machine.pens[SPRITE_MULTICOLOR1];
+					vic2.spritemulti[3] = Machine.pens[SPRITE_MULTICOLOR2];
 					vic2.mono[0] = vic2.bitmapmulti[0] = vic2.multi[0] =
-						vic2.colors[0] = Machine->pens[BACKGROUNDCOLOR];
-					vic2.multi[1] = vic2.colors[1] = Machine->pens[MULTICOLOR1];
-					vic2.multi[2] = vic2.colors[2] = Machine->pens[MULTICOLOR2];
-					vic2.colors[3] = Machine->pens[FOREGROUNDCOLOR];
+						vic2.colors[0] = Machine.pens[BACKGROUNDCOLOR];
+					vic2.multi[1] = vic2.colors[1] = Machine.pens[MULTICOLOR1];
+					vic2.multi[2] = vic2.colors[2] = Machine.pens[MULTICOLOR2];
+					vic2.colors[3] = Machine.pens[FOREGROUNDCOLOR];
 					vic2.palette_dirty=0;
 				}
 				new_raws=200;
-				if (VIC3_BITPLANES) {
+				if (VIC3_BITPLANES != 0) {
 	                new_columns=VIC3_BITPLANES_WIDTH;
 					if (new_columns<320) new_columns=320; /*sprites resolution about 320x200 */
 					new_raws=VIC3_LINES;
-				} else if (VIC3_80COLUMNS) {
+				} else if (VIC3_80COLUMNS != 0) {
 					new_columns=640;
 				} else {
 					new_columns=320;
@@ -2163,7 +2163,7 @@ public class vic6567
 			for (i = 0; i < 8; i++)
 				vic2.sprites[i].repeat = vic2.sprites[i].line = 0;
 			vic2.lastline = 0;
-			if (LIGHTPEN_BUTTON)
+			if (LIGHTPEN_BUTTON != 0)
 			{
 				double tme = 0.0;
 	
@@ -2179,17 +2179,17 @@ public class vic6567
 			vic2_set_interrupt (1);
 		}
 		return 0;
-	}
+	} };
 	
-	WRITE_HANDLER( vic3_palette_w )
+	public static WriteHandlerPtr vic3_palette_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		if (offset<0x100) vic2.palette[offset].red=data;
 		else if (offset<0x200) vic2.palette[offset&0xff].green=data;
 		else vic2.palette[offset&0xff].blue=data;
 		vic2.palette_dirty=1;
-	}
+	} };
 	
-	void vic2_vh_screenrefresh (struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr vic2_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
-	}
+	} };
 }

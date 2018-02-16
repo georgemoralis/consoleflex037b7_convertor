@@ -43,29 +43,29 @@ public class snes
 	
 	
 	int snesFirstChannel;
-	unsigned char *SPCRamPtr;
+	UBytePtr SPCRamPtr;
 	
 	static int snesStartSamples(const struct MachineSound *msound)
 	{
 		int a,vol[MIXER_MAX_CHANNELS];
 		struct GameSamples *samples;
 	
-		if ((Machine->samples = malloc(sizeof(struct GameSamples)*8)) == NULL)
+		if ((Machine.samples = malloc(sizeof(struct GameSamples)*8)) == NULL)
 			return 1;														// Unable to allocate sample structures
 	
-		samples=Machine->samples;
+		samples=Machine.samples;
 	
 		// We will need 8 * 64k for sample space (actually could be nearly 32k * 4 - but there would be no space for program code in spc)
 		for (a=0;a<8;a++)
 		{
-			if ((samples->sample[a] = malloc(sizeof(struct GameSample) + (0x10000)*sizeof(short))) == NULL)
+			if ((samples.sample[a] = malloc(sizeof(struct GameSample) + (0x10000)*sizeof(short))) == NULL)
 				return 1;
 	
-			samples->sample[a]->length = 0x10000*2;
-			samples->sample[a]->smpfreq = 8000;
-			samples->sample[a]->resolution = 16;
+			samples.sample[a].length = 0x10000*2;
+			samples.sample[a].smpfreq = 8000;
+			samples.sample[a].resolution = 16;
 		}
-		samples->total = 8;
+		samples.total = 8;
 	
 		for (a=0;a<8;a++)
 			vol[a]=100;
@@ -85,12 +85,12 @@ public class snes
 		return 0;
 	}
 	
-	struct CustomSound_interface snesSoundInterface =
-	{
+	static CustomSound_interface snesSoundInterface = new CustomSound_interface
+	(
 		snesStartSamples,						// Used to allocate memory for samples and channels
-		0,										// No need to de-allocate memory for samples and channels ?????
-		0,										// No need for an update samples (at this point in time!!)
-	};
+		null,										// No need to de-allocate memory for samples and channels ?????
+		null,										// No need for an update samples (at this point in time!!)
+	);
 	
 	int spc700Interrupt(void)
 	{
@@ -115,7 +115,7 @@ public class snes
 			}
 		}
 		spc700TimerExtra++;
-		if (spc700TimerExtra&0x08)		// If set time to increment T0 & T1
+		if ((spc700TimerExtra & 0x08) != 0)		// If set time to increment T0 & T1
 		{
 			spcPort[16]++;
 			if (spcPort[0x0A]==spcPort[16])
@@ -190,17 +190,17 @@ public class snes
 	
 	void snesUnpackSample(int sample,int *length,int *looping)
 	{
-		signed short *data=(signed short *)Machine->samples->sample[sample]->data;
+		signed short *data=(signed short *)Machine.samples.sample[sample].data;
 		int tableAddress=SNES_DSP.DIR + SNES_DSP.SRCN[sample];
-		unsigned char *startAddress=SPCRamPtr + ((SPCRamPtr[tableAddress+1]<<8)|SPCRamPtr[tableAddress]);
-		unsigned char *loopAddress=SPCRamPtr + ((SPCRamPtr[tableAddress+3]<<8)|SPCRamPtr[tableAddress+2]);
+		UBytePtr startAddress=SPCRamPtr + ((SPCRamPtr[tableAddress+1]<<8)|SPCRamPtr[tableAddress]);
+		UBytePtr loopAddress=SPCRamPtr + ((SPCRamPtr[tableAddress+3]<<8)|SPCRamPtr[tableAddress+2]);
 		int lastBlock=0,RF,granularity,filter,a;
 		unsigned short temp;
 	
 		*length=0;
 		*looping=0;
 	
-		logerror("CPU -> %04X\n",cpu_get_pc());
+		logerror("CPU . %04X\n",cpu_get_pc());
 		logerror("Table Address = %04X\n",(int)(tableAddress));
 		logerror("Start Address = %04X\n",(int)(startAddress-SPCRamPtr));
 		logerror("Loop Address = %04X\n",(int)(loopAddress-SPCRamPtr));
@@ -269,12 +269,12 @@ public class snes
 	
 		while (bMask)
 		{
-			if (data & bMask)
+			if ((data & bMask) != 0)
 			{
 				// Play this key
 	
 				snesUnpackSample(VoiceOffs,&length,&loop);
-	//			mixer_play_sample_16(VoiceOffs,(signed short *)Machine->samples->sample[VoiceOffs]->data,length,8000,loop);
+	//			mixer_play_sample_16(VoiceOffs,(signed short *)Machine.samples.sample[VoiceOffs].data,length,8000,loop);
 			}
 	
 			bMask<<=1;
@@ -289,7 +289,7 @@ public class snes
 	
 		while (bMask)
 		{
-			if (data & bMask)
+			if ((data & bMask) != 0)
 			{
 				mixer_stop_sample(VoiceOffs);
 			}
@@ -369,12 +369,12 @@ public class snes
 		switch (offset)				// Offset is from 0 not from 0x00F0
 		{
 			case 0x0001:			//	Control	:   %00ab0xyz - a clear port 2&3, b clear port 0&1, zyx stop / start timer
-				if (data&0x20)
+				if ((data & 0x20) != 0)
 				{
 					SPCIN[2]=SPCOUT[2]=0;			// Clear requested ports
 					SPCIN[3]=SPCOUT[3]=0;
 				}
-				if (data&0x10)
+				if ((data & 0x10) != 0)
 				{
 					SPCIN[0]=SPCOUT[0]=0;
 					SPCIN[1]=SPCOUT[1]=0;
@@ -404,22 +404,22 @@ public class snes
 		logerror("SPC Write To Unhandled Address : %04X\n",offset+0x00F0);
 	}
 	
-	struct MemoryReadAddress spc_readmem[] = {
-		{ 0x0000,0x00EF,MRA_RAM},							// lower 32k ram
-		{ 0x00F0,0x00FF,spc_io_r},							// i/o
-		{ 0x0100,0x7FFF,MRA_RAM},							// lower 32k ram
-		{ 0x8000,0xFFBF,MRA_NOP},							// upper 32k unmapped on snes (except for switchable rom)
-		{ 0xFFC0,0xFFFF,MRA_ROM},							// will need switching to BANK
-		{ -1 }  /* end of table */
+	static MemoryReadAddress spc_readmem[] ={
+		new MemoryReadAddress( 0x0000,0x00EF,MRA_RAM),							// lower 32k ram
+		new MemoryReadAddress( 0x00F0,0x00FF,spc_io_r),							// i/o
+		new MemoryReadAddress( 0x0100,0x7FFF,MRA_RAM),							// lower 32k ram
+		new MemoryReadAddress( 0x8000,0xFFBF,MRA_NOP),							// upper 32k unmapped on snes (except for switchable rom)
+		new MemoryReadAddress( 0xFFC0,0xFFFF,MRA_ROM),							// will need switching to BANK
+		new MemoryReadAddress( -1 )  /* end of table */
 	};
 	
-	struct MemoryWriteAddress spc_writemem[] = {
-		{ 0x0000,0x00EF,MWA_RAM},							// lower 32k ram
-		{ 0x00F0,0x00FF,spc_io_w},							// i/o
-		{ 0x0100,0x7FFF,MWA_RAM},							// lower 32k ram
-		{ 0x8000,0xFFBF,MWA_NOP},							// upper 32k unmapped on snes (except for switchable rom)
-		{ 0xFFC0,0xFFFF,MWA_ROM},
-		{ -1 }  /* end of table */
+	static MemoryWriteAddress spc_writemem[] ={
+		new MemoryWriteAddress( 0x0000,0x00EF,MWA_RAM),							// lower 32k ram
+		new MemoryWriteAddress( 0x00F0,0x00FF,spc_io_w),							// i/o
+		new MemoryWriteAddress( 0x0100,0x7FFF,MWA_RAM),							// lower 32k ram
+		new MemoryWriteAddress( 0x8000,0xFFBF,MWA_NOP),							// upper 32k unmapped on snes (except for switchable rom)
+		new MemoryWriteAddress( 0xFFC0,0xFFFF,MWA_ROM),
+		new MemoryWriteAddress( -1 )  /* end of table */
 	};
 	
 	#endif

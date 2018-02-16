@@ -21,21 +21,21 @@ public class coleco
 	  Start the video hardware emulation.
 	
 	***************************************************************************/
-	int coleco_vh_start(void)
+	public static VhStartPtr coleco_vh_start = new VhStartPtr() { public int handler() 
 	{
 		return TMS9928A_start(TMS99x8A, 0x4000);
-	}
+	} };
 	
 	/***************************************************************************
 	
 	  Stop the video hardware emulation.
 	
 	***************************************************************************/
-	void coleco_vh_stop(void)
+	public static VhStopPtr coleco_vh_stop = new VhStopPtr() { public void handler() 
 	{
 		TMS9928A_stop();
 		return;
-	}
+	} };
 	
 	
 	/***************************************************************************
@@ -45,9 +45,9 @@ public class coleco
 	***************************************************************************/
 	
 	/* This routine is called at the start of vblank to refresh the screen */
-	void coleco_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr coleco_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 		TMS9928A_refresh(bitmap, full_refresh);
 		return;
-	}
+	} };
 }

@@ -38,7 +38,7 @@ public class tapectrl
 		t1 = device_seek(IO_CASSETTE,id,0,SEEK_END);
 		device_seek(IO_CASSETTE,id,t0,SEEK_SET);
 	
-		if( t1 )
+		if (t1 != 0)
 			sprintf(timepos, "%3d%%", t0*100/t1);
 		else
 			sprintf(timepos, "%3d%%", 0);

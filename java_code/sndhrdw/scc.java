@@ -99,14 +99,14 @@ public class scc
 			case SCC_MEGAROM:
 			    if (r >= 0xe0) {
 				SCC[n].Regs[SCC_DEFORM] = v ;
-				if (v) logerror("SCC: %02xh written to unemulated register\n", v);
+				if (v != 0) logerror("SCC: %02xh written to unemulated register\n", v);
 	
 			    }
 			    break ;
 			case SCC_PLUSCOMP:
 			    if ( (r < 0xe0) && (r >= 0xc0) ) {
 				SCC[n].Regs[SCC_DEFORM] = v ;
-				if (v) logerror("SCC: %02xh written to unemulated register\n", v);
+				if (v != 0) logerror("SCC: %02xh written to unemulated register\n", v);
 			    }
 			    break ;
 			}
@@ -118,7 +118,7 @@ public class scc
 			SCC[n].Regs[r & 15] = (v & Mask[r & 15]) ;
 		    } else if (r < 0xe0) {
 			SCC[n].Regs[SCC_DEFORM] = v ;
-			if (v) logerror("SCC: %02xh written to unemulated register\n", v);
+			if (v != 0) logerror("SCC: %02xh written to unemulated register\n", v);
 		    }
 		    break ;
 	    }
@@ -166,15 +166,15 @@ public class scc
 	    return 0;
 	}
 	
-	int SCC_sh_start (const struct MachineSound *msound) {
+	public static ShStartPtr SCC_sh_start = new ShStartPtr() { public int handler(MachineSound msound)  {
 	    int chip;
-	    //const struct CustomSound_interface *intf = msound->sound_interface;
+	    //const struct CustomSound_interface *intf = msound.sound_interface;
 	
 	    for (chip=0;chip<1;chip++) {
-		//if (SCCInit (msound,chip,3579545, 20, Machine->sample_rate, Machine->sample_bits) )
-		if (SCCInit (msound,chip,3579545, 20, Machine->sample_rate, 16) )
+		//if (SCCInit (msound,chip,3579545, 20, Machine.sample_rate, Machine.sample_bits) )
+		if (SCCInit (msound,chip,3579545, 20, Machine.sample_rate, 16) )
 			return 1;
 		}
 	    return 0;
-	}
+	} };
 }

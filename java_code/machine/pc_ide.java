@@ -30,7 +30,7 @@ public class pc_ide
 	
 	void pc_ide_data_w(int data)
 	{
-		if (data_cnt) {
+		if (data_cnt != 0) {
 			*ptr++ = data;
 			if (--data_cnt == 0) {
 			}
@@ -41,7 +41,7 @@ public class pc_ide
 	{
 		int data = 0xff;
 	
-		if (data_cnt) {
+		if (data_cnt != 0) {
 			data = *ptr++;
 			if (--data_cnt == 0) {
 			}

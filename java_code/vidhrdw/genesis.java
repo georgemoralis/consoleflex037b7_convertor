@@ -75,7 +75,7 @@ public class genesis
 	char *	vdp_pattern_scroll_a=	0;
 	char *	vdp_pattern_window	=	0;
 	char *	vdp_pattern_scroll_b=	0;
-	unsigned char *	vdp_pattern_sprite	=	0;
+	UBytePtr 	vdp_pattern_sprite	=	0;
 	int	vdp_background_colour 	=	0;
 	int	vdp_background_palette	=	0;
 	int	vdp_h_interrupt_reg		=	0;
@@ -120,9 +120,9 @@ public class genesis
 	                        		0,161,162,163,163,165,166,167,168,169,170,171,172,173,174,175,
 	                        		0,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,
 	              			  };
-	unsigned char * current_dma_src = 0;
-	unsigned char * current_dma_dest = 0;
-	unsigned char * current_dma_end = 0;
+	UBytePtr  current_dma_src = 0;
+	UBytePtr  current_dma_dest = 0;
+	UBytePtr  current_dma_end = 0;
 	int current_dma_vram_dest = 0;
 	int current_dma_increment = 0;
 	int current_dma_id = 0;
@@ -173,13 +173,13 @@ public class genesis
 	
 	
 	
-	void genesis_vh_convert_color_prom (unsigned char *palette, unsigned char *colortable,const unsigned char *color_prom)
+	void genesis_vh_convert_color_prom (UBytePtr palette, UBytePtr colortable,const UBytePtr color_prom)
 	{
 		int i;
 	
 		/* the palette will be initialized by the game. We just set it to some */
 		/* pre-cooked values so the startup copyright notice can be displayed. */
-		for (i = 0;i < Machine->drv->total_colors;i++)
+		for (i = 0;i < Machine.drv.total_colors;i++)
 		{
 			*(palette++) = ((i & 1) >> 0) * 0xff;
 			*(palette++) = ((i & 2) >> 1) * 0xff;
@@ -194,7 +194,7 @@ public class genesis
 		offset = data;
 	}
 	
-	int genesis_vh_start (void)
+	public static VhStartPtr genesis_vh_start = new VhStartPtr() { public int handler() 
 	{
 		if (generic_vh_start() != 0)
 			return 1;
@@ -294,8 +294,8 @@ public class genesis
 	
 		/* some standard startup values */
 	
-	  //	scroll_a->width = scroll_b->width = 512;
-	  //	scroll_a->height = scroll_b->height =	512;
+	  //	scroll_a.width = scroll_b.width = 512;
+	  //	scroll_a.height = scroll_b.height =	512;
 	
 	
 		vdp_ctrl_status			=	2;
@@ -338,10 +338,10 @@ public class genesis
 	
 	
 		return 0;
-	}
+	} };
 	
 	
-	void genesis_vh_stop (void)
+	public static VhStopPtr genesis_vh_stop = new VhStopPtr() { public void handler() 
 	{
 		/* Free everything */
 	 //	osd_free_bitmap(scroll_a);
@@ -353,9 +353,9 @@ public class genesis
 		free(tile_changed_2);
 	
 		generic_vh_stop ();
-	}
+	} };
 	
-	unsigned char *get_dma_dest_address(int id)
+	UBytePtr get_dma_dest_address(int id)
 	{
 		switch (id)
 		{
@@ -367,12 +367,12 @@ public class genesis
 			case MODE_CRAM_READ:
 			case MODE_CRAM_WRITE:
 			case MODE_CRAM_WRITE_DMA:
-				return (unsigned char *)&vdp_cram[0];
+				return (UBytePtr )&vdp_cram[0];
 				break;
 			case MODE_VSRAM_READ:
 			case MODE_VSRAM_WRITE:
 			case MODE_VSRAM_WRITE_DMA:
-				return (unsigned char *)&vdp_vsram[0];
+				return (UBytePtr )&vdp_vsram[0];
 				break;
 			default:
 				logerror("Unknown get_dma_dest_address id %x!!\n", id);
@@ -458,14 +458,14 @@ public class genesis
 						if ( ((tempsource & 1) == 0)  )
 						{
 	
-						      	//bitmap_vram->line[sy][sx]     = (vdp_vram_fill >> 12) & 0x0f;
-							//bitmap_vram->line[sy][sx + 1] = (vdp_vram_fill >>  8) & 0x0f;
+						      	//bitmap_vram.line[sy][sx]     = (vdp_vram_fill >> 12) & 0x0f;
+							//bitmap_vram.line[sy][sx + 1] = (vdp_vram_fill >>  8) & 0x0f;
 						  	tile_changed_1[sy >> BLOCK_SHIFT] = tile_changed_2[sy >> BLOCK_SHIFT] = 1;
 						}
 						else
 						{
-							//bitmap_vram->line[sy][sx]     = (vdp_vram_fill >> 4) & 0x0f;
-							//bitmap_vram->line[sy][sx + 1] = (vdp_vram_fill     ) & 0x0f;
+							//bitmap_vram.line[sy][sx]     = (vdp_vram_fill >> 4) & 0x0f;
+							//bitmap_vram.line[sy][sx + 1] = (vdp_vram_fill     ) & 0x0f;
 						  	tile_changed_1[sy >> BLOCK_SHIFT] = tile_changed_2[sy >> BLOCK_SHIFT] = 1;
 	
 	
@@ -494,10 +494,10 @@ public class genesis
 				sx = ((vdp_address+(offset & 1))<<1) & 7;
 			  	COMBINE_WORD_MEM(vdp_address+(int)vdp_vram, data);
 	
-		 		//bitmap_vram->line[sy][sx]     = (data >> 12) & 0x0f;
-		 		//bitmap_vram->line[sy][sx + 1] = (data >>  8) & 0x0f;
-				//bitmap_vram->line[sy][sx + 2] = (data >>  4) & 0x0f;
-		 		//bitmap_vram->line[sy][sx + 3] = (data      ) & 0x0f;
+		 		//bitmap_vram.line[sy][sx]     = (data >> 12) & 0x0f;
+		 		//bitmap_vram.line[sy][sx + 1] = (data >>  8) & 0x0f;
+				//bitmap_vram.line[sy][sx + 2] = (data >>  4) & 0x0f;
+		 		//bitmap_vram.line[sy][sx + 3] = (data      ) & 0x0f;
 				tile_changed_1[sy >> BLOCK_SHIFT] = tile_changed_2[sy >> BLOCK_SHIFT] = 1;
 	
 				}
@@ -593,7 +593,7 @@ public class genesis
 	//						logerror("scrollb = %x\n", vdp_pattern_scroll_b-(int)&vdp_vram[0]);
 							break;
 						case 5:	/* pattern name table address, sprite */
-							vdp_pattern_sprite	= (unsigned char *)(&vdp_vram[0]+(vdp_data <<9));
+							vdp_pattern_sprite	= (UBytePtr )(&vdp_vram[0]+(vdp_data <<9));
 	//						logerror("sprite = %x\n", vdp_pattern_sprite-(int)&vdp_vram[0]);
 							break;
 						case 6: /* nothing */
@@ -649,8 +649,8 @@ public class genesis
 							vdp_scroll_height = vdp_v_scrollsize << 3;
 							logerror("scrollsizes are %d, %d\n", vdp_h_scrollsize, vdp_v_scrollsize);
 	
-						  //	scroll_a->width = scroll_b->width = vdp_h_scrollsize << 3;
-						  //	scroll_a->height = scroll_b->height = vdp_scroll_height;
+						  //	scroll_a.width = scroll_b.width = vdp_h_scrollsize << 3;
+						  //	scroll_a.height = scroll_b.height = vdp_scroll_height;
 	
 							break;
 						case 17: /* window H position */
@@ -683,7 +683,7 @@ public class genesis
 				}
 				else
 				{
-					if (first_read)
+					if (first_read != 0)
 					{
 						/* logerror("vdp data on first read is %x\n", vdp_data); */
 						vdp_address = (vdp_data & 0x3fff);
@@ -708,14 +708,14 @@ public class genesis
 							{
 	/*#if 0*/
 								case DMA_ROM_VRAM:
-	//								logerror("DMA ROM->VRAM, src %x dest %x, length %x, real dest %x, id %x, inc %x\n",  vdp_dma_source, vdp_address, vdp_dma_length, get_dma_dest_address(vdp_id)+vdp_address, vdp_id, vdp_auto_increment);
+	//								logerror("DMA ROM.VRAM, src %x dest %x, length %x, real dest %x, id %x, inc %x\n",  vdp_dma_source, vdp_address, vdp_dma_length, get_dma_dest_address(vdp_id)+vdp_address, vdp_id, vdp_auto_increment);
 	
 								  	genesis_initialise_dma(&memory_region(REGION_CPU1)[vdp_dma_source & 0x3fffff], vdp_address,	vdp_dma_length * 2, vdp_id, vdp_auto_increment);
 	
 	/*#endif*/
 									break;
 								case DMA_RAM_VRAM:
-	//								logerror("DMA RAM->VRAM, src %x dest %x, length %x, real dest %x, id %x, inc %x\n",  vdp_dma_source, vdp_address, vdp_dma_length, get_dma_dest_address(vdp_id)+vdp_address, vdp_id, vdp_auto_increment);
+	//								logerror("DMA RAM.VRAM, src %x dest %x, length %x, real dest %x, id %x, inc %x\n",  vdp_dma_source, vdp_address, vdp_dma_length, get_dma_dest_address(vdp_id)+vdp_address, vdp_id, vdp_auto_increment);
 	
 									/*	if (vdp_address+(vdp_dma_length*vdp_auto_increment) > 0xffff) printf("error! sdil: %x %x %x %x\n", vdp_dma_source, vdp_address, vdp_auto_increment, vdp_dma_length);*/
 	
@@ -759,7 +759,7 @@ public class genesis
 		int indx = 0, counter = 0;
 	//	char *old_current_dma_dest = current_dma_dest;
 	
-		if (vdp_dma_busy)
+		if (vdp_dma_busy != 0)
 		{
 		//cpu_yield();
 			logerror("poll: src %p, end %p, id %x, vram dest %x, inc %x\n", current_dma_src, current_dma_end, current_dma_id, current_dma_vram_dest, current_dma_increment);
@@ -809,25 +809,25 @@ public class genesis
 	
 					#ifdef LSB_FIRST
 	
-					//bitmap_vram->line[sy][sx + 2] = ((*old_current_dma_dest) >> 4) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 3] = (*old_current_dma_dest++) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 0] = ((*old_current_dma_dest) >> 4) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 1] = (*old_current_dma_dest++) & 0x0f;
-					//bitmap_vram->line[sy][sx + 6] = ((*old_current_dma_dest) >> 4) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 7] = (*old_current_dma_dest++) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 4] = ((*old_current_dma_dest) >> 4) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 5] = (*old_current_dma_dest++) & 0x0f;
+					//bitmap_vram.line[sy][sx + 2] = ((*old_current_dma_dest) >> 4) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 3] = (*old_current_dma_dest++) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 0] = ((*old_current_dma_dest) >> 4) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 1] = (*old_current_dma_dest++) & 0x0f;
+					//bitmap_vram.line[sy][sx + 6] = ((*old_current_dma_dest) >> 4) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 7] = (*old_current_dma_dest++) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 4] = ((*old_current_dma_dest) >> 4) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 5] = (*old_current_dma_dest++) & 0x0f;
 	
 					#else
 	
-					//bitmap_vram->line[sy][sx + 0] = ((*old_current_dma_dest) >> 4) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 1] = (*old_current_dma_dest++) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 2] = ((*old_current_dma_dest) >> 4) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 3] = (*old_current_dma_dest++) & 0x0f;
-					//bitmap_vram->line[sy][sx + 4] = ((*old_current_dma_dest) >> 4) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 5] = (*old_current_dma_dest++) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 6] = ((*old_current_dma_dest) >> 4) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 7] = (*old_current_dma_dest++) & 0x0f;
+					//bitmap_vram.line[sy][sx + 0] = ((*old_current_dma_dest) >> 4) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 1] = (*old_current_dma_dest++) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 2] = ((*old_current_dma_dest) >> 4) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 3] = (*old_current_dma_dest++) & 0x0f;
+					//bitmap_vram.line[sy][sx + 4] = ((*old_current_dma_dest) >> 4) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 5] = (*old_current_dma_dest++) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 6] = ((*old_current_dma_dest) >> 4) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 7] = (*old_current_dma_dest++) & 0x0f;
 	
 					#endif
 	
@@ -853,7 +853,7 @@ public class genesis
 	}
 	
 	
-	void genesis_initialise_dma (unsigned char *src, int dest, int length, int id, int increment)
+	void genesis_initialise_dma (UBytePtr src, int dest, int length, int id, int increment)
 	{
 		current_dma_src = src;
 		current_dma_dest = get_dma_dest_address (vdp_id)+dest;
@@ -896,18 +896,18 @@ public class genesis
 		//unsigned char block_a_y, block_b_y;
 	
 		short *h_scroll = (short *)vdp_h_scroll_addr;
-	//	int transparent = Machine->pens[0] * 0x01010101;
+	//	int transparent = Machine.pens[0] * 0x01010101;
 		int v_mask = (vdp_v_scrollsize << 3)-1;
 		int h_mask = (vdp_h_scrollsize << 3)-1;
 		unsigned int priority = 0;
 		unsigned char a_shift, b_shift;
-		unsigned char *shift;
+		UBytePtr shift;
 		int indx, increment;
-		unsigned char *sprite_ptr, *output_ptr;
+		UBytePtr sprite_ptr, *output_ptr;
 		unsigned short *scroll_a_attribute_linebase;
 		unsigned short *scroll_b_attribute_linebase;
-	//	unsigned char *scroll_a_pixel_addr = 0, *scroll_b_pixel_addr = 0;
-		unsigned char *scroll_pixel_addr = 0;
+	//	UBytePtr scroll_a_pixel_addr = 0, *scroll_b_pixel_addr = 0;
+		UBytePtr scroll_pixel_addr = 0;
 		unsigned char sprite_pixel = 0;
 		int scroll_a_attribute=0, scroll_b_attribute=0;
 		int scroll_a_x = 0, scroll_a_y = 0, scroll_b_x = 0, scroll_b_y = 0;
@@ -989,8 +989,8 @@ public class genesis
 				  for layers A & B, for the given set of pixels on the screen we're about to render */
 			  	  /* the sprite layer position is about to be set too */
 	
-	   			sprite_ptr = &spritelayer->line[y+128][x+128];
-				output_ptr = &dest->line[y][x];
+	   			sprite_ptr = &spritelayer.line[y+128][x+128];
+				output_ptr = &dest.line[y][x];
 				/* base + (y/8) * (number of width attributes * size of attributes, which is 2 bytes) */
 			   	scroll_a_attribute_linebase= (unsigned short *)(vdp_pattern_scroll_a+((scroll_a_y>>3)*(vdp_h_scrollsize<<1)));
 			   	scroll_b_attribute_linebase= (unsigned short *)(vdp_pattern_scroll_b+((scroll_b_y>>3)*(vdp_h_scrollsize<<1)));
@@ -1125,7 +1125,7 @@ public class genesis
 				   if (!priority)
 				   		output = vdp_background_colour;
 	
-					*(output_ptr++)=Machine->pens[output];
+					*(output_ptr++)=Machine.pens[output];
 	
 					//if (*output_ptr != output) *output_ptr = output;
 	
@@ -1153,8 +1153,8 @@ public class genesis
 	
 		unsigned char code = ((attribute >> 9) & 0x30) | ((attribute & 0x8000) >> 8);
 		int line;
-		unsigned char *bm;
-		unsigned char *c;
+		UBytePtr bm;
+		UBytePtr c;
 		int flips = (attribute & 0x1800);
 		#ifdef LSB_FIRST
 		#define OF0 1
@@ -1173,8 +1173,8 @@ public class genesis
 			c=&vdp_vram[tilenum<<5];
 			for (line = 0; line < 8; line++)
 			{
-				bm = &dest->line[sy+line][sx];
-			//	c  = &bitmap_vram->line[(tilenum<<3)+line][0];
+				bm = &dest.line[sy+line][sx];
+			//	c  = &bitmap_vram.line[(tilenum<<3)+line][0];
 			  		if (!bm[0]) bm[0]=colours2[(c[OF0]>>4) | code];
 					if (!bm[1]) bm[1]=colours2[(c[OF0]&0xf) | code];
 					if (!bm[2]) bm[2]=colours2[(c[OF1]>>4) | code];
@@ -1201,8 +1201,8 @@ public class genesis
 			c=&vdp_vram[tilenum<<5];
 			for (line = 0; line < 8; line++)
 			{
-				bm = &dest->line[sy+line][sx];
-			//	c  = &bitmap_vram->line[(tilenum<<3)+line][0];
+				bm = &dest.line[sy+line][sx];
+			//	c  = &bitmap_vram.line[(tilenum<<3)+line][0];
 	
 			   		if (!bm[1]) bm[1]=colours2[(c[OF3]>>4) | code];
 					if (!bm[0]) bm[0]=colours2[(c[OF3]&0xf) | code];
@@ -1230,8 +1230,8 @@ public class genesis
 			c=&vdp_vram[tilenum<<5]+28;
 			for (line = 0; line < 8; line++)
 			{
-				bm = &dest->line[sy+line][sx];
-			//	c  = &bitmap_vram->line[(tilenum<<3)+(7-line)][0];
+				bm = &dest.line[sy+line][sx];
+			//	c  = &bitmap_vram.line[(tilenum<<3)+(7-line)][0];
 	
 					if (!bm[0]) bm[0]=colours2[(c[OF0]>>4) | code];
 					if (!bm[1]) bm[1]=colours2[(c[OF0]&0xf) | code];
@@ -1260,8 +1260,8 @@ public class genesis
 			c=&vdp_vram[tilenum<<5]+28;
 			for (line = 0; line < 8; line++)
 			{
-				bm = &dest->line[sy+line][sx];
-			//	c  = &bitmap_vram->line[(tilenum<<3)+(7-line)][0];
+				bm = &dest.line[sy+line][sx];
+			//	c  = &bitmap_vram.line[(tilenum<<3)+(7-line)][0];
 	
 			   		if (!bm[1]) bm[1]=colours2[(c[OF3]>>4) | code];
 					if (!bm[0]) bm[0]=colours2[(c[OF3]&0xf) | code];
@@ -1298,7 +1298,7 @@ public class genesis
 		#define NEXT 3
 		#endif
 	
-		unsigned char *current_sprite;
+		UBytePtr current_sprite;
 	
 		current_sprite = vdp_pattern_sprite;
 		while(1)
@@ -1318,8 +1318,8 @@ public class genesis
 				size = *(current_sprite+SIZE);
 				blocks_x = ((size >> 2) & 3)+1;
 				blocks_y = (size & 3)+1;
-				//bitmap_sprite->width  =	blocks_x << 3;
-				//bitmap_sprite->height = blocks_y << 3;
+				//bitmap_sprite.width  =	blocks_x << 3;
+				//bitmap_sprite.height = blocks_y << 3;
 	
 	
 				y = (*(short *) current_sprite   )&0x3ff;/*-0x80*/;
@@ -1392,13 +1392,13 @@ public class genesis
 	  the main emulation engine.
 	
 	***************************************************************************/
-	void genesis_vh_screenrefresh (struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr genesis_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 	
 	genesis_modify_display(0);
 	palette_recalc();
 	copybitmap(bitmap, bitmap2, 0, 0, 0, 0, 0, 0, 0);
-	}
+	} };
 	
 	void genesis_modify_display(int inter)
 	{
@@ -1432,7 +1432,7 @@ public class genesis
 	   //cpu_halt(1,0);
 	   if (!vdp_v_interrupt || !vdp_display_enable) return;
 	
-	 //  if (z80running)
+	 //  if (z80running != 0)
 	 //  {
 	 //  		cpu_cause_interrupt(1,Z80_NMI_INT);
 	 //		logerror("Allowing Z80 interrupt\n");
@@ -1442,8 +1442,8 @@ public class genesis
 		//scroll_element.gfxdata = bitmap_vram;
 		visiblearea.max_x = (vdp_h_scrollsize<<3)-1;
 		visiblearea.max_y = vdp_scroll_height-1;
-		spritelayer->width = visiblearea.max_x + 256;
-		spritelayer->height = visiblearea.max_y + 256;
+		spritelayer.width = visiblearea.max_x + 256;
+		spritelayer.height = visiblearea.max_y + 256;
 		//scroll_element.colortable = &colours[0];
 	
 	      /*	genesis_dma_poll(200); */
@@ -1465,11 +1465,11 @@ public class genesis
 			if (dirty_colour[pom])
 			{
 				int colour = vdp_cram[pom];
-		   		osd_modify_pen(Machine->pens[pom],
+		   		osd_modify_pen(Machine.pens[pom],
 				((colour<<4) & 0xe0) DIM,
 		   		((colour   ) & 0xe0) DIM,
 		   		((colour>>4) & 0xe0) DIM);
-		   		colours[pom] = (pom & 0x0f) ? Machine->pens[pom] : Machine->pens[0];
+		   		colours[pom] = (pom & 0x0f) ? Machine.pens[pom] : Machine.pens[0];
 				dirty_colour[pom] = 0;
 			}
 		}
@@ -1477,11 +1477,11 @@ public class genesis
 		if (dirty_colour[0])
 		{
 			int colour = vdp_cram[vdp_background_colour];
-		  	osd_modify_pen(Machine->pens[0],
+		  	osd_modify_pen(Machine.pens[0],
 			((colour<<4) & 0xe0) DIM,
 		   	((colour   ) & 0xe0) DIM,
 		   	((colour>>4) & 0xe0) DIM);  /* quick background colour set */
-		   	colours[0] = Machine->pens[0];
+		   	colours[0] = Machine.pens[0];
 			dirty_colour[0] = 0;
 		}
 	
@@ -1677,9 +1677,9 @@ public class genesis
 	                        		0,161,162,163,163,165,166,167,168,169,170,171,172,173,174,175,
 	                        		0,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,
 	              			  };
-	unsigned char * current_dma_src = 0;
-	unsigned char * current_dma_dest = 0;
-	unsigned char * current_dma_end = 0;
+	UBytePtr  current_dma_src = 0;
+	UBytePtr  current_dma_dest = 0;
+	UBytePtr  current_dma_end = 0;
 	int current_dma_vram_dest = 0;
 	int current_dma_increment = 0;
 	int current_dma_id = 0;
@@ -1727,13 +1727,13 @@ public class genesis
 	
 	
 	#ifdef USE_PALETTE_HERE
-	void genesis_vh_convert_color_prom (unsigned char *palette, unsigned char *colortable,const unsigned char *color_prom)
+	void genesis_vh_convert_color_prom (UBytePtr palette, UBytePtr colortable,const UBytePtr color_prom)
 	{
 		int i;
 	
 		/* the palette will be initialized by the game. We just set it to some */
 		/* pre-cooked values so the startup copyright notice can be displayed. */
-		for (i = 0;i < Machine->drv->total_colors;i++)
+		for (i = 0;i < Machine.drv.total_colors;i++)
 		{
 			*(palette++) = ((i & 1) >> 0) * 0xff;
 			*(palette++) = ((i & 2) >> 1) * 0xff;
@@ -1748,7 +1748,7 @@ public class genesis
 		offset = data;
 	}
 	
-	int genesis_vh_start (void)
+	public static VhStartPtr genesis_vh_start = new VhStartPtr() { public int handler() 
 	{
 		if (generic_vh_start() != 0)
 			return 1;
@@ -1848,8 +1848,8 @@ public class genesis
 	
 		/* some standard startup values */
 	
-	  //	scroll_a->width = scroll_b->width = 512;
-	  //	scroll_a->height = scroll_b->height =	512;
+	  //	scroll_a.width = scroll_b.width = 512;
+	  //	scroll_a.height = scroll_b.height =	512;
 	
 	
 		vdp_ctrl_status			=	2;
@@ -1892,10 +1892,10 @@ public class genesis
 	
 	
 		return 0;
-	}
+	} };
 	
 	
-	void genesis_vh_stop (void)
+	public static VhStopPtr genesis_vh_stop = new VhStopPtr() { public void handler() 
 	{
 		/* Free everything */
 	 //	osd_free_bitmap(scroll_a);
@@ -1907,9 +1907,9 @@ public class genesis
 		free(tile_changed_2);
 	
 		generic_vh_stop ();
-	}
+	} };
 	
-	unsigned char *get_dma_dest_address(int id)
+	UBytePtr get_dma_dest_address(int id)
 	{
 		switch (id)
 		{
@@ -1921,12 +1921,12 @@ public class genesis
 			case MODE_CRAM_READ:
 			case MODE_CRAM_WRITE:
 			case MODE_CRAM_WRITE_DMA:
-				return (unsigned char *)&vdp_cram[0];
+				return (UBytePtr )&vdp_cram[0];
 				break;
 			case MODE_VSRAM_READ:
 			case MODE_VSRAM_WRITE:
 			case MODE_VSRAM_WRITE_DMA:
-				return (unsigned char *)&vdp_vsram[0];
+				return (UBytePtr )&vdp_vsram[0];
 				break;
 			default:
 				logerror("Unknown get_dma_dest_address id %x!!\n", id);
@@ -2012,14 +2012,14 @@ public class genesis
 						if ( ((tempsource & 1) == 0)  )
 						{
 	
-						      	//bitmap_vram->line[sy][sx]     = (vdp_vram_fill >> 12) & 0x0f;
-							//bitmap_vram->line[sy][sx + 1] = (vdp_vram_fill >>  8) & 0x0f;
+						      	//bitmap_vram.line[sy][sx]     = (vdp_vram_fill >> 12) & 0x0f;
+							//bitmap_vram.line[sy][sx + 1] = (vdp_vram_fill >>  8) & 0x0f;
 						  	tile_changed_1[sy >> BLOCK_SHIFT] = tile_changed_2[sy >> BLOCK_SHIFT] = 1;
 						}
 						else
 						{
-							//bitmap_vram->line[sy][sx]     = (vdp_vram_fill >> 4) & 0x0f;
-							//bitmap_vram->line[sy][sx + 1] = (vdp_vram_fill     ) & 0x0f;
+							//bitmap_vram.line[sy][sx]     = (vdp_vram_fill >> 4) & 0x0f;
+							//bitmap_vram.line[sy][sx + 1] = (vdp_vram_fill     ) & 0x0f;
 						  	tile_changed_1[sy >> BLOCK_SHIFT] = tile_changed_2[sy >> BLOCK_SHIFT] = 1;
 	
 	
@@ -2048,10 +2048,10 @@ public class genesis
 				sx = ((vdp_address+(offset & 1))<<1) & 7;
 			  	COMBINE_WORD_MEM(vdp_address+(int)vdp_vram, data);
 	
-		 		//bitmap_vram->line[sy][sx]     = (data >> 12) & 0x0f;
-		 		//bitmap_vram->line[sy][sx + 1] = (data >>  8) & 0x0f;
-				//bitmap_vram->line[sy][sx + 2] = (data >>  4) & 0x0f;
-		 		//bitmap_vram->line[sy][sx + 3] = (data      ) & 0x0f;
+		 		//bitmap_vram.line[sy][sx]     = (data >> 12) & 0x0f;
+		 		//bitmap_vram.line[sy][sx + 1] = (data >>  8) & 0x0f;
+				//bitmap_vram.line[sy][sx + 2] = (data >>  4) & 0x0f;
+		 		//bitmap_vram.line[sy][sx + 3] = (data      ) & 0x0f;
 				tile_changed_1[sy >> BLOCK_SHIFT] = tile_changed_2[sy >> BLOCK_SHIFT] = 1;
 	
 				}
@@ -2203,8 +2203,8 @@ public class genesis
 							vdp_scroll_height = vdp_v_scrollsize << 3;
 							logerror("scrollsizes are %d, %d\n", vdp_h_scrollsize, vdp_v_scrollsize);
 	
-						  //	scroll_a->width = scroll_b->width = vdp_h_scrollsize << 3;
-						  //	scroll_a->height = scroll_b->height = vdp_scroll_height;
+						  //	scroll_a.width = scroll_b.width = vdp_h_scrollsize << 3;
+						  //	scroll_a.height = scroll_b.height = vdp_scroll_height;
 	
 							break;
 						case 17: /* window H position */
@@ -2237,7 +2237,7 @@ public class genesis
 				}
 				else
 				{
-					if (first_read)
+					if (first_read != 0)
 					{
 						/* logerror("vdp data on first read is %x\n", vdp_data); */
 						vdp_address = (vdp_data & 0x3fff);
@@ -2262,14 +2262,14 @@ public class genesis
 							{
 	/*#if 0*/
 								case DMA_ROM_VRAM:
-	//								logerror("DMA ROM->VRAM, src %x dest %x, length %x, real dest %x, id %x, inc %x\n",  vdp_dma_source, vdp_address, vdp_dma_length, get_dma_dest_address(vdp_id)+vdp_address, vdp_id, vdp_auto_increment);
+	//								logerror("DMA ROM.VRAM, src %x dest %x, length %x, real dest %x, id %x, inc %x\n",  vdp_dma_source, vdp_address, vdp_dma_length, get_dma_dest_address(vdp_id)+vdp_address, vdp_id, vdp_auto_increment);
 	
 								  	genesis_initialise_dma(&memory_region(REGION_CPU1)[vdp_dma_source & 0x3fffff], vdp_address,	vdp_dma_length * 2, vdp_id, vdp_auto_increment);
 	
 	/*#endif*/
 									break;
 								case DMA_RAM_VRAM:
-	//								logerror("DMA RAM->VRAM, src %x dest %x, length %x, real dest %x, id %x, inc %x\n",  vdp_dma_source, vdp_address, vdp_dma_length, get_dma_dest_address(vdp_id)+vdp_address, vdp_id, vdp_auto_increment);
+	//								logerror("DMA RAM.VRAM, src %x dest %x, length %x, real dest %x, id %x, inc %x\n",  vdp_dma_source, vdp_address, vdp_dma_length, get_dma_dest_address(vdp_id)+vdp_address, vdp_id, vdp_auto_increment);
 	
 									/*	if (vdp_address+(vdp_dma_length*vdp_auto_increment) > 0xffff) printf("error! sdil: %x %x %x %x\n", vdp_dma_source, vdp_address, vdp_auto_increment, vdp_dma_length);*/
 	
@@ -2313,7 +2313,7 @@ public class genesis
 		int indx = 0, counter = 0;
 	//	char *old_current_dma_dest = current_dma_dest;
 	
-		if (vdp_dma_busy)
+		if (vdp_dma_busy != 0)
 		{
 		//cpu_yield();
 			logerror("poll: src %p, end %p, id %x, vram dest %x, inc %x\n", current_dma_src, current_dma_end, current_dma_id, current_dma_vram_dest, current_dma_increment);
@@ -2363,25 +2363,25 @@ public class genesis
 	
 					#ifdef LSB_FIRST
 	
-					//bitmap_vram->line[sy][sx + 2] = ((*old_current_dma_dest) >> 4) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 3] = (*old_current_dma_dest++) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 0] = ((*old_current_dma_dest) >> 4) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 1] = (*old_current_dma_dest++) & 0x0f;
-					//bitmap_vram->line[sy][sx + 6] = ((*old_current_dma_dest) >> 4) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 7] = (*old_current_dma_dest++) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 4] = ((*old_current_dma_dest) >> 4) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 5] = (*old_current_dma_dest++) & 0x0f;
+					//bitmap_vram.line[sy][sx + 2] = ((*old_current_dma_dest) >> 4) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 3] = (*old_current_dma_dest++) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 0] = ((*old_current_dma_dest) >> 4) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 1] = (*old_current_dma_dest++) & 0x0f;
+					//bitmap_vram.line[sy][sx + 6] = ((*old_current_dma_dest) >> 4) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 7] = (*old_current_dma_dest++) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 4] = ((*old_current_dma_dest) >> 4) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 5] = (*old_current_dma_dest++) & 0x0f;
 	
 					#else
 	
-					//bitmap_vram->line[sy][sx + 0] = ((*old_current_dma_dest) >> 4) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 1] = (*old_current_dma_dest++) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 2] = ((*old_current_dma_dest) >> 4) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 3] = (*old_current_dma_dest++) & 0x0f;
-					//bitmap_vram->line[sy][sx + 4] = ((*old_current_dma_dest) >> 4) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 5] = (*old_current_dma_dest++) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 6] = ((*old_current_dma_dest) >> 4) & 0x0f;
-		 	  		//bitmap_vram->line[sy][sx + 7] = (*old_current_dma_dest++) & 0x0f;
+					//bitmap_vram.line[sy][sx + 0] = ((*old_current_dma_dest) >> 4) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 1] = (*old_current_dma_dest++) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 2] = ((*old_current_dma_dest) >> 4) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 3] = (*old_current_dma_dest++) & 0x0f;
+					//bitmap_vram.line[sy][sx + 4] = ((*old_current_dma_dest) >> 4) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 5] = (*old_current_dma_dest++) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 6] = ((*old_current_dma_dest) >> 4) & 0x0f;
+		 	  		//bitmap_vram.line[sy][sx + 7] = (*old_current_dma_dest++) & 0x0f;
 	
 					#endif
 	
@@ -2406,7 +2406,7 @@ public class genesis
 	}
 	
 	
-	void genesis_initialise_dma (unsigned char *src, int dest, int length, int id, int increment)
+	void genesis_initialise_dma (UBytePtr src, int dest, int length, int id, int increment)
 	{
 		current_dma_src = src;
 		current_dma_dest = get_dma_dest_address (vdp_id)+dest;
@@ -2449,18 +2449,18 @@ public class genesis
 		//unsigned char block_a_y, block_b_y;
 	
 		short *h_scroll = (short *)vdp_h_scroll_addr;
-	//	int transparent = Machine->pens[0] * 0x01010101;
+	//	int transparent = Machine.pens[0] * 0x01010101;
 		int v_mask = (vdp_v_scrollsize << 3)-1;
 		int h_mask = (vdp_h_scrollsize << 3)-1;
 		unsigned int priority = 0;
 		unsigned char a_shift, b_shift;
-		unsigned char *shift;
+		UBytePtr shift;
 		int indx, increment;
-		unsigned char *sprite_ptr, *output_ptr;
+		UBytePtr sprite_ptr, *output_ptr;
 		unsigned short *scroll_a_attribute_linebase;
 		unsigned short *scroll_b_attribute_linebase;
-	   //	unsigned char *scroll_a_pixel_addr = 0, *scroll_b_pixel_addr = 0;
-		unsigned char *scroll_pixel_addr = 0;
+	   //	UBytePtr scroll_a_pixel_addr = 0, *scroll_b_pixel_addr = 0;
+		UBytePtr scroll_pixel_addr = 0;
 		unsigned char sprite_pixel = 0;
 		int scroll_a_attribute=0, scroll_b_attribute=0;
 		int scroll_a_x = 0, scroll_a_y = 0, scroll_b_x = 0, scroll_b_y = 0;
@@ -2542,8 +2542,8 @@ public class genesis
 				  for layers A & B, for the given set of pixels on the screen we're about to render */
 			  	  /* the sprite layer position is about to be set too */
 	
-	   			sprite_ptr = &spritelayer->line[y+128][x+128];
-				output_ptr = &dest->line[y][x];
+	   			sprite_ptr = &spritelayer.line[y+128][x+128];
+				output_ptr = &dest.line[y][x];
 				/* base + (y/8) * (number of width attributes * size of attributes, which is 2 bytes) */
 			   	scroll_a_attribute_linebase= (unsigned short *)(vdp_pattern_scroll_a+((scroll_a_y>>3)*(vdp_h_scrollsize<<1)));
 			   	scroll_b_attribute_linebase= (unsigned short *)(vdp_pattern_scroll_b+((scroll_b_y>>3)*(vdp_h_scrollsize<<1)));
@@ -2679,7 +2679,7 @@ public class genesis
 				   if (!priority)
 				   		output = vdp_background_colour;
 	
-					*(output_ptr++)=Machine->pens[output];
+					*(output_ptr++)=Machine.pens[output];
 	
 					//if (*output_ptr != output) *output_ptr = output;
 	
@@ -2849,8 +2849,8 @@ public class genesis
 	
 		unsigned char code = ((attribute >> 9) & 0x30);
 		int line;
-		unsigned char *bm;
-		unsigned char *c;
+		UBytePtr bm;
+		UBytePtr c;
 		int flips = (attribute & 0x1800);
 		int h_mask = (vdp_h_scrollsize << 3)-1;
 		#ifdef LSB_FIRST
@@ -2877,7 +2877,7 @@ public class genesis
 			{
 				if (((sx+distort[line]) & h_mask)> 320) {c+=4;continue;}
 	
-				bm = &dest->line[sy+line][(sx+distort[line]) & h_mask];
+				bm = &dest.line[sy+line][(sx+distort[line]) & h_mask];
 			  		if (bm[0]==colours[0]) bm[0]=colours[(c[OF0]>>4) | code];
 					if (bm[1]==colours[0]) bm[1]=colours[(c[OF0]&0xf) | code];
 					if (bm[2]==colours[0]) bm[2]=colours[(c[OF1]>>4) | code];
@@ -2897,7 +2897,7 @@ public class genesis
 			{
 				if (((sx+distort[line]) & h_mask)> 320) {c+=4;continue;}
 	
-				bm = &dest->line[sy+line][(sx+distort[line]) & h_mask];
+				bm = &dest.line[sy+line][(sx+distort[line]) & h_mask];
 			   		if (bm[1]==colours[0]) bm[1]=colours[(c[OF3]>>4) | code];
 					if (bm[0]==colours[0]) bm[0]=colours[(c[OF3]&0xf) | code];
 					if (bm[3]==colours[0]) bm[3]=colours[(c[OF2]>>4) | code];
@@ -2916,7 +2916,7 @@ public class genesis
 			for (line = 0; line < 8; line++)
 			{
 			if (((sx+distort[line]) & h_mask)> 320) {c-=4;continue;}
-				bm = &dest->line[sy+line][(sx+distort[line]) & h_mask];
+				bm = &dest.line[sy+line][(sx+distort[line]) & h_mask];
 					if (bm[0]==colours[0]) bm[0]=colours[(c[OF0]>>4) | code];
 					if (bm[1]==colours[0]) bm[1]=colours[(c[OF0]&0xf) | code];
 					if (bm[2]==colours[0]) bm[2]=colours[(c[OF1]>>4) | code];
@@ -2936,7 +2936,7 @@ public class genesis
 			{
 				if (((sx+distort[line]) & h_mask)> 320) {c-=4;continue;}
 	
-				bm = &dest->line[sy+line][(sx+distort[line]) & h_mask];
+				bm = &dest.line[sy+line][(sx+distort[line]) & h_mask];
 			   		if (bm[1]==colours[0]) bm[1]=colours[(c[OF3]>>4) | code];
 					if (bm[0]==colours[0]) bm[0]=colours[(c[OF3]&0xf) | code];
 					if (bm[3]==colours[0]) bm[3]=colours[(c[OF2]>>4) | code];
@@ -2964,8 +2964,8 @@ public class genesis
 	
 		unsigned char code = ((attribute >> 9) & 0x30) /*| ((attribute & 0x8000) >> 8)*/;
 		int line;
-		unsigned char *bm;
-		unsigned char *c;
+		UBytePtr bm;
+		UBytePtr c;
 		int flips = (attribute & 0x1800);
 		#ifdef LSB_FIRST
 		#define OF0 1
@@ -2984,8 +2984,8 @@ public class genesis
 			c=&vdp_vram[tilenum<<5];
 			for (line = 0; line < 8; line++)
 			{
-				bm = &dest->line[sy+line][sx];
-			//	c  = &bitmap_vram->line[(tilenum<<3)+line][0];
+				bm = &dest.line[sy+line][sx];
+			//	c  = &bitmap_vram.line[(tilenum<<3)+line][0];
 			  		if (bm[0]==colours[0]) bm[0]=colours[(c[OF0]>>4) | code];
 					if (bm[1]==colours[0]) bm[1]=colours[(c[OF0]&0xf) | code];
 					if (bm[2]==colours[0]) bm[2]=colours[(c[OF1]>>4) | code];
@@ -3012,8 +3012,8 @@ public class genesis
 			c=&vdp_vram[tilenum<<5];
 			for (line = 0; line < 8; line++)
 			{
-				bm = &dest->line[sy+line][sx];
-			//	c  = &bitmap_vram->line[(tilenum<<3)+line][0];
+				bm = &dest.line[sy+line][sx];
+			//	c  = &bitmap_vram.line[(tilenum<<3)+line][0];
 	
 			   		if (bm[1]==colours[0]) bm[1]=colours[(c[OF3]>>4) | code];
 					if (bm[0]==colours[0]) bm[0]=colours[(c[OF3]&0xf) | code];
@@ -3041,8 +3041,8 @@ public class genesis
 			c=&vdp_vram[tilenum<<5]+28;
 			for (line = 0; line < 8; line++)
 			{
-				bm = &dest->line[sy+line][sx];
-			//	c  = &bitmap_vram->line[(tilenum<<3)+(7-line)][0];
+				bm = &dest.line[sy+line][sx];
+			//	c  = &bitmap_vram.line[(tilenum<<3)+(7-line)][0];
 	
 					if (bm[0]==colours[0]) bm[0]=colours[(c[OF0]>>4) | code];
 					if (bm[1]==colours[0]) bm[1]=colours[(c[OF0]&0xf) | code];
@@ -3071,8 +3071,8 @@ public class genesis
 			c=&vdp_vram[tilenum<<5]+28;
 			for (line = 0; line < 8; line++)
 			{
-				bm = &dest->line[sy+line][sx];
-			//	c  = &bitmap_vram->line[(tilenum<<3)+(7-line)][0];
+				bm = &dest.line[sy+line][sx];
+			//	c  = &bitmap_vram.line[(tilenum<<3)+(7-line)][0];
 	
 			   		if (bm[1]==colours[0]) bm[1]=colours[(c[OF3]>>4) | code];
 					if (bm[0]==colours[0]) bm[0]=colours[(c[OF3]&0xf) | code];
@@ -3109,7 +3109,7 @@ public class genesis
 		#define NEXT 3
 		#endif
 	
-		unsigned char *current_sprite;
+		UBytePtr current_sprite;
 	
 		current_sprite = vdp_pattern_sprite;
 		while(1)
@@ -3129,8 +3129,8 @@ public class genesis
 				size = *(current_sprite+SIZE);
 				blocks_x = ((size >> 2) & 3)+1;
 				blocks_y = (size & 3)+1;
-				//bitmap_sprite->width  =	blocks_x << 3;
-				//bitmap_sprite->height = blocks_y << 3;
+				//bitmap_sprite.width  =	blocks_x << 3;
+				//bitmap_sprite.height = blocks_y << 3;
 	
 	
 				y = (*(short *) current_sprite   )&0x3ff;/*-0x80*/;
@@ -3203,14 +3203,14 @@ public class genesis
 	  the main emulation engine.
 	
 	***************************************************************************/
-	void genesis_vh_screenrefresh (struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr genesis_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 	
 	genesis_modify_display(0);
 	//copybitmap(bitmap, bitmap2, 0, 0, 0, 0, 0, 0, 0);
 	copybitmap(bitmap, bitmap2, 0, 0, 0, 0, 0, 0, 0);
 	
-	}
+	} };
 	
 	void genesis_modify_display(int inter)
 	{
@@ -3244,7 +3244,7 @@ public class genesis
 	   //cpu_halt(1,0);
 	   if (!vdp_v_interrupt || !vdp_display_enable) return;
 	
-	 //  if (z80running)
+	 //  if (z80running != 0)
 	 //  {
 	 //  		cpu_cause_interrupt(1,Z80_NMI_INT);
 	 //		logerror("Allowing Z80 interrupt\n");
@@ -3254,8 +3254,8 @@ public class genesis
 		//scroll_element.gfxdata = bitmap_vram;
 		visiblearea.max_x = (vdp_h_scrollsize<<3)-1;
 		visiblearea.max_y = vdp_scroll_height-1;
-		spritelayer->width = visiblearea.max_x + 256;
-		spritelayer->height = visiblearea.max_y + 256;
+		spritelayer.width = visiblearea.max_x + 256;
+		spritelayer.height = visiblearea.max_y + 256;
 		//scroll_element.colortable = &colours[0];
 	
 	      /*	genesis_dma_poll(200); */
@@ -3277,11 +3277,11 @@ public class genesis
 			if (dirty_colour[pom])
 			{
 				int colour = vdp_cram[pom];
-		   		osd_modify_pen(Machine->pens[pom],
+		   		osd_modify_pen(Machine.pens[pom],
 				((colour<<4) & 0xe0) DIM,
 		   		((colour   ) & 0xe0) DIM,
 		   		((colour>>4) & 0xe0) DIM);
-		   		colours[pom] = (pom & 0x0f) ? Machine->pens[pom] : Machine->pens[0];
+		   		colours[pom] = (pom & 0x0f) ? Machine.pens[pom] : Machine.pens[0];
 				dirty_colour[pom] = 0;
 			}
 		}
@@ -3289,11 +3289,11 @@ public class genesis
 		if (dirty_colour[0])
 		{
 			int colour = vdp_cram[vdp_background_colour];
-		  	osd_modify_pen(Machine->pens[0],
+		  	osd_modify_pen(Machine.pens[0],
 			((colour<<4) & 0xe0) DIM,
 		   	((colour   ) & 0xe0) DIM,
 		   	((colour>>4) & 0xe0) DIM);  /* quick background colour set */
-		   	colours[0] = Machine->pens[0];
+		   	colours[0] = Machine.pens[0];
 			dirty_colour[0] = 0;
 		}
 	

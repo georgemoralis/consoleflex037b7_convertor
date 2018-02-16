@@ -15,7 +15,7 @@ public class stubs
 	{
 		va_list arg;
 		va_start(arg,text);
-		if (errorlog)
+		if (errorlog != 0)
 			vfprintf(errorlog,text,arg);
 		va_end(arg);
 	}

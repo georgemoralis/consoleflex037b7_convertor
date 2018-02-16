@@ -19,15 +19,15 @@ public class z88
 	  Start the video hardware emulation.
 	***************************************************************************/
 	
-	int z88_vh_start(void)
+	public static VhStartPtr z88_vh_start = new VhStartPtr() { public int handler() 
 	{
 	
 		return 0;
-	}
+	} };
 	
-	void    z88_vh_stop(void)
+	public static VhStopPtr z88_vh_stop = new VhStopPtr() { public void handler() 
 	{
-	}
+	} };
 	
 	/* two colours */
 	static unsigned short z88_colour_table[Z88_NUM_COLOURS] =
@@ -44,24 +44,24 @@ public class z88
 	
 	
 	/* Initialise the palette */
-	void z88_init_palette(unsigned char *sys_palette, unsigned short *sys_colortable, const unsigned char *color_prom)
+	void z88_init_palette(UBytePtr sys_palette, unsigned short *sys_colortable, const UBytePtr color_prom)
 	{
 	        memcpy(sys_palette, z88_palette, sizeof (z88_palette));
 	        memcpy(sys_colortable, z88_colour_table, sizeof (z88_colour_table));
 	}
 	
-	extern unsigned char *z88_memory;
+	extern UBytePtr z88_memory;
 	extern struct blink_hw blink;
 	
 	/* temp - change to gfxelement structure */
 	
-	static void z88_render_8x8(struct osd_bitmap *bitmap, int x, int y, unsigned char *pData)
+	static void z88_render_8x8(struct osd_bitmap *bitmap, int x, int y, UBytePtr pData)
 	{
 	        int h,b;
 	        int pen0, pen1;
 	
-	        pen0 = Machine->pens[0];
-	        pen1 = Machine->pens[1];
+	        pen0 = Machine.pens[0];
+	        pen1 = Machine.pens[1];
 	
 	        for (h=0; h<8; h++)
 	        {
@@ -72,7 +72,7 @@ public class z88
 	            {
 	                int pen;
 	
-	                if (data & 0x080)
+	                if ((data & 0x080) != 0)
 	                {
 	                  pen = pen1;
 	                }
@@ -88,13 +88,13 @@ public class z88
 	        }
 	}
 	
-	static void z88_render_6x8(struct osd_bitmap *bitmap, int x, int y, unsigned char *pData)
+	static void z88_render_6x8(struct osd_bitmap *bitmap, int x, int y, UBytePtr pData)
 	{
 	        int h,b;
 	        int pen0, pen1;
 	
-	        pen0 = Machine->pens[0];
-	        pen1 = Machine->pens[1];
+	        pen0 = Machine.pens[0];
+	        pen1 = Machine.pens[1];
 	
 	        for (h=0; h<8; h++)
 	        {
@@ -104,7 +104,7 @@ public class z88
 	            for (b=0; b<6; b++)
 	            {
 	                int pen;
-	                if (data & 0x080)
+	                if ((data & 0x080) != 0)
 	                {
 	                  pen = pen1;
 	                }
@@ -127,10 +127,10 @@ public class z88
 	  Do NOT call osd_update_display() from this fuz88tion,
 	  it will be called by the main emulation engine.
 	***************************************************************************/
-	void z88_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr z88_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 	        int x,y;
-	        unsigned char *ptr = z88_memory + blink.sbf;
+	        UBytePtr ptr = z88_memory + blink.sbf;
 	
 	        for (y=0; y<(Z88_SCREEN_HEIGHT>>3); y++)
 	        {
@@ -151,5 +151,5 @@ public class z88
 	
 	                ptr+=256;
 	        }
-	}
+	} };
 }

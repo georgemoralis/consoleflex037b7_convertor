@@ -16,12 +16,12 @@ package machine;
 public class p2000t
 {
 	
-	void p2000t_init_machine(void)
+	public static InitMachinePtr p2000t_init_machine = new InitMachinePtr() { public void handler() 
 	{
 	
 		logerror("p2000t_init\r\n");
 	
-	}
+	} };
 	
 	void p2000t_stop_machine(void)
 	{

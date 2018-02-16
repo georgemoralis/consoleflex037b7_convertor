@@ -1,12 +1,6 @@
 /* from machine/zx80.c */
 
-extern void init_zx(void);
-extern void zx80_init_machine(void);
-extern void zx81_init_machine(void);
-extern void pc8300_init_machine(void);
-extern void pow3000_init_machine(void);
-extern void zx_shutdown_machine(void);
-
+extern extern extern extern extern extern 
 extern int zx_cassette_init(int id);
 extern void zx_cassette_exit(int id);
 
@@ -17,9 +11,7 @@ extern READ_HANDLER ( pow3000_io_r );
 extern WRITE_HANDLER ( pow3000_io_w );
 
 /* from vidhrdw/zx80.c */
-extern int zx_ula_scanline(void);
-extern void zx_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh);
-
+extern extern 
 
 
 extern char zx_frame_message[128];

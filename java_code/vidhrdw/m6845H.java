@@ -84,7 +84,6 @@ void crtc6845_register_w(int offset, int data);
 
 
 /* clock the 6845 */
-void crtc6845_clock(void);
 
 
 /* functions to read the 6845 outputs */
@@ -102,7 +101,5 @@ void crtc6845_get_state(int offset, crtc6845_state *state);
 
 void	crtc6845_reset(int which);
 
-void	crtc6845_start(void);
-void	crtc6845_stop(void);
 
 

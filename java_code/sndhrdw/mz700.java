@@ -24,7 +24,7 @@ public class mz700
 	
 	#if VERBOSE
 	#define LOG(N,M,A)	\
-		if(VERBOSE>=N){ if( M )logerror("%11.6f: %-24s",timer_get_time(),(char*)M ); logerror A; }
+		if(VERBOSE>=N){ if (M != 0)logerror("%11.6f: %-24s",timer_get_time(),(char*)M ); logerror A; }
 	#else
 	#define LOG(N,M,A)
 	#endif
@@ -36,7 +36,7 @@ public class mz700
 	{
 		static INT16 signal = 0x7fff;
 	    static int incr = 0;
-		int rate = Machine->sample_rate / 2;
+		int rate = Machine.sample_rate / 2;
 	
 		while( length-- > 0 )
 		{
@@ -53,18 +53,18 @@ public class mz700
 	int mz700_sh_start(const struct MachineSound* driver)
 	{
 		logerror("pc_sh_start\n");
-		channel = stream_init("PC speaker", 50, Machine->sample_rate, 0, mz700_sound_output);
+		channel = stream_init("PC speaker", 50, Machine.sample_rate, 0, mz700_sound_output);
 	    return 0;
 	}
 	
-	void mz700_sh_stop(void)
+	public static ShStopPtr mz700_sh_stop = new ShStopPtr() { public void handler() 
 	{
-	}
+	} };
 	
-	void mz700_sh_update(void)
+	public static ShUpdatePtr mz700_sh_update = new ShUpdatePtr() { public void handler() 
 	{
 		stream_update(channel, 0);
-	}
+	} };
 	
 	void mz700_sh_set_clock(int clock)
 	{

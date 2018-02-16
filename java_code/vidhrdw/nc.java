@@ -19,15 +19,15 @@ public class nc
 	  Start the video hardware emulation.
 	***************************************************************************/
 	
-	int nc_vh_start(void)
+	public static VhStartPtr nc_vh_start = new VhStartPtr() { public int handler() 
 	{
 	
 		return 0;
-	}
+	} };
 	
-	void    nc_vh_stop(void)
+	public static VhStopPtr nc_vh_stop = new VhStopPtr() { public void handler() 
 	{
-	}
+	} };
 	
 	/* two colours */
 	static unsigned short nc_colour_table[NC_NUM_COLOURS] =
@@ -44,7 +44,7 @@ public class nc
 	
 	
 	/* Initialise the palette */
-	void nc_init_palette(unsigned char *sys_palette, unsigned short *sys_colortable, const unsigned char *color_prom)
+	void nc_init_palette(UBytePtr sys_palette, unsigned short *sys_colortable, const UBytePtr color_prom)
 	{
 	        memcpy(sys_palette, nc_palette, sizeof (nc_palette));
 	        memcpy(sys_colortable, nc_colour_table, sizeof (nc_colour_table));
@@ -58,15 +58,15 @@ public class nc
 	  Do NOT call osd_update_display() from this function,
 	  it will be called by the main emulation engine.
 	***************************************************************************/
-	void nc_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr nc_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 	        int y;
 	        int b;
 	        int x;
 	        int pen0, pen1;
 	
-	        pen0 = Machine->pens[0];
-	        pen1 = Machine->pens[1];
+	        pen0 = Machine.pens[0];
+	        pen1 = Machine.pens[1];
 	
 	        for (y=0; y<NC_SCREEN_HEIGHT; y++)
 	        {
@@ -83,7 +83,7 @@ public class nc
 	        
 	                        for (b=0; b<8; b++)
 	                        {
-	                                if (byte & 0x080)
+	                                if ((byte & 0x080) != 0)
 	                                {
 	                                        plot_pixel(bitmap,x+b, y, pen1);
 	                                }
@@ -100,5 +100,5 @@ public class nc
 	                        line_ptr = line_ptr+1;
 	                }
 	         }
-	}
+	} };
 }

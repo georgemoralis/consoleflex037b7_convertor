@@ -535,16 +535,16 @@ public class vga
 		}
 	}
 	
-	READ_HANDLER( vga_port_03b0_r )
+	public static ReadHandlerPtr vga_port_03b0_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		int data=0xff;
 		if (CRTC_PORT_ADDR==0x3b0)
 			data=vga_crtc_r(offset);
 		/*DBG_LOG(1,"vga 0x3b0 read",("%.2x %.2x\n", offset, data)); */
 		return data;
-	}
+	} };
 	
-	READ_HANDLER( ega_port_03c0_r)
+	public static ReadHandlerPtr ega_port_03c0_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		int data=0xff;
 		switch (offset) {
@@ -552,9 +552,9 @@ public class vga
 		}
 		DBG_LOG(1,"ega 0x3c0 read",("%.2x %.2x\n", offset, data));
 		return data;
-	}
+	} };
 	
-	READ_HANDLER( vga_port_03c0_r )
+	public static ReadHandlerPtr vga_port_03c0_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		int data=0xff;
 		switch (offset) {
@@ -654,7 +654,7 @@ public class vga
 			DBG_LOG(1,"03c0 read",("%.2x %.2x\n",offset,data));
 		}
 		return data;
-	}
+	} };
 	
 	READ_HANDLER(vga_port_03d0_r)
 	{
@@ -665,12 +665,12 @@ public class vga
 		return data;
 	}
 	
-	WRITE_HANDLER( vga_port_03b0_w )
+	public static WriteHandlerPtr vga_port_03b0_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		/*DBG_LOG(1,"vga 0x3b0 write",("%.2x %.2x\n", offset, data)); */
 		if (CRTC_PORT_ADDR!=0x3b0) return;
 		vga_crtc_w(offset, data);
-	}
+	} };
 	
 	WRITE_HANDLER(vga_port_03c0_w)
 	{
@@ -779,7 +779,7 @@ public class vga
 			vga_crtc_w(offset,data);
 	}
 	
-	READ_HANDLER( paradise_ega_03c0_r )
+	public static ReadHandlerPtr paradise_ega_03c0_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		int data=vga_port_03c0_r(offset);
 		if (offset==2) {
@@ -790,7 +790,7 @@ public class vga
 			}
 		}
 		return data;
-	}
+	} };
 	
 	void vga_reset(void)
 	{
@@ -838,7 +838,7 @@ public class vga
 		vga.monitor.retrace=1;
 	}
 	
-	int ega_vh_start(void)
+	public static VhStartPtr ega_vh_start = new VhStartPtr() { public int handler() 
 	{
 		vga.monitor.get_clock=ega_get_clock;
 		vga.monitor.get_lines=ega_get_crtc_lines;
@@ -847,9 +847,9 @@ public class vga
 		vga.monitor.get_sync_columns=vga_get_crtc_sync_columns;
 		timer_pulse(1.0/60,0,vga_timer);
 		return 0;
-	}
+	} };
 	
-	int vga_vh_start(void)
+	public static VhStartPtr vga_vh_start = new VhStartPtr() { public int handler() 
 	{
 		vga.monitor.get_clock=vga_get_clock;
 		vga.monitor.get_lines=vga_get_crtc_lines;
@@ -858,19 +858,19 @@ public class vga
 		vga.monitor.get_sync_columns=vga_get_crtc_sync_columns;
 		timer_pulse(1.0/60,0,vga_timer);
 		return 0;
-	}
+	} };
 	
-	void vga_vh_stop(void)
+	public static VhStopPtr vga_vh_stop = new VhStopPtr() { public void handler() 
 	{
 	
-	}
+	} };
 	
 	void vga_vh_text(struct osd_bitmap *bitmap, int full_refresh)
 	{
 		int width=CHAR_WIDTH, height=CHAR_HEIGHT;
 		int pos, line, column, mask, w, h, addr;
 	
-		if (CURSOR_ON) {
+		if (CURSOR_ON != 0) {
 			if (++vga.cursor.time>=0x10) {
 				vga.cursor.visible^=1;
 				vga.cursor.time=0;
@@ -886,17 +886,17 @@ public class vga
 				for (h=0; (h<height)&&(line+h<TEXT_LINES); h++) {
 					UINT8 bits=font[h<<2];
 					for (mask=0x80, w=0; (w<width)&&(w<8); w++, mask>>=1) {
-						if (bits&mask) {
-							Machine->scrbitmap->line[line+h][column*width+w]=vga.pens[attr&0xf];
+						if ((bits & mask) != 0) {
+							Machine.scrbitmap.line[line+h][column*width+w]=vga.pens[attr&0xf];
 						} else {
-							Machine->scrbitmap->line[line+h][column*width+w]=vga.pens[attr>>4];
+							Machine.scrbitmap.line[line+h][column*width+w]=vga.pens[attr>>4];
 						}
 					}
 					if (w<width) { /* 9 column */
 						if (TEXT_COPY_9COLUMN(ch)&&(bits&1)) {
-							Machine->scrbitmap->line[line+h][column*width+w]=vga.pens[attr&0xf];
+							Machine.scrbitmap.line[line+h][column*width+w]=vga.pens[attr&0xf];
 						} else {
-							Machine->scrbitmap->line[line+h][column*width+w]=vga.pens[attr>>4];
+							Machine.scrbitmap.line[line+h][column*width+w]=vga.pens[attr>>4];
 						}
 					}
 				}
@@ -905,7 +905,7 @@ public class vga
 						 (h<=CURSOR_ENDLINE)&&(h<height)&&(line+h<TEXT_LINES);
 						 h++) {
 						for (w=0; w<width; w++)
-							Machine->scrbitmap->line[line+h][column*width+w]=
+							Machine.scrbitmap.line[line+h][column*width+w]=
 								vga.pens[attr&0xf];
 					}
 				}
@@ -921,21 +921,21 @@ public class vga
 			 line++, addr+=EGA_LINE_LENGTH) {
 			for (pos=addr, c=0, column=0; column<EGA_COLUMNS; column++, c+=8, pos+=4) {
 	#if 0
-				Machine->scrbitmap->line[line][c]=
+				Machine.scrbitmap.line[line][c]=
 				    vga.pens[ega_bitplane_to_packed(vga.memory+pos,0)];
-				Machine->scrbitmap->line[line][c+1]=
+				Machine.scrbitmap.line[line][c+1]=
 					vga.pens[ega_bitplane_to_packed(vga.memory+pos,1)];
-				Machine->scrbitmap->line[line][c+2]=
+				Machine.scrbitmap.line[line][c+2]=
 				    vga.pens[ega_bitplane_to_packed(vga.memory+pos,2)];
-				Machine->scrbitmap->line[line][c+3]=
+				Machine.scrbitmap.line[line][c+3]=
 					vga.pens[ega_bitplane_to_packed(vga.memory+pos,3)];
-				Machine->scrbitmap->line[line][c+4]=
+				Machine.scrbitmap.line[line][c+4]=
 					vga.pens[ega_bitplane_to_packed(vga.memory+pos,4)];
-				Machine->scrbitmap->line[line][c+5]=
+				Machine.scrbitmap.line[line][c+5]=
 					vga.pens[ega_bitplane_to_packed(vga.memory+pos,5)];
-				Machine->scrbitmap->line[line][c+6]=
+				Machine.scrbitmap.line[line][c+6]=
 					vga.pens[ega_bitplane_to_packed(vga.memory+pos,6)];
-				Machine->scrbitmap->line[line][c+7]=
+				Machine.scrbitmap.line[line][c+7]=
 					vga.pens[ega_bitplane_to_packed(vga.memory+pos,7)];
 	#else
 				/* recognizable speed improvement compared to above */
@@ -950,10 +950,10 @@ public class vga
 	#if 0
 					/* plotpixel is 16 bit aware, */
 					/* but recognizable speed loss compared to following */
-					plot_pixel(Machine->scrbitmap, c+i, line,
+					plot_pixel(Machine.scrbitmap, c+i, line,
 							   vga.pens[(data[0]&1)|(data[1]&2)|(data[2]&4)|(data[3]&8)]);
 	#else
-					Machine->scrbitmap->line[line][c+i]=
+					Machine.scrbitmap.line[line][c+i]=
 						vga.pens[(data[0]&1)|(data[1]&2)|(data[2]&4)|(data[3]&8)];
 	#endif
 					data[0]>>=1;
@@ -972,35 +972,35 @@ public class vga
 	
 		for (addr=VGA_START_ADDRESS, line=0; line<LINES; line++, addr+=VGA_LINE_LENGTH) {
 			for (pos=addr, c=0, column=0; column<VGA_COLUMNS; column++, c+=8, pos+=0x20) {
-				Machine->scrbitmap->line[line][c]=
-					Machine->pens[vga.memory[pos]];
-				Machine->scrbitmap->line[line][c+1]=
-					Machine->pens[vga.memory[pos+1]];
-				Machine->scrbitmap->line[line][c+2]=
-					Machine->pens[vga.memory[pos+2]];
-				Machine->scrbitmap->line[line][c+3]=
-					Machine->pens[vga.memory[pos+3]];
-				Machine->scrbitmap->line[line][c+4]=
-					Machine->pens[vga.memory[pos+0x10]];
-				Machine->scrbitmap->line[line][c+5]=
-					Machine->pens[vga.memory[pos+0x11]];
-				Machine->scrbitmap->line[line][c+6]=
-					Machine->pens[vga.memory[pos+0x12]];
-				Machine->scrbitmap->line[line][c+7]=
-					Machine->pens[vga.memory[pos+0x13]];
+				Machine.scrbitmap.line[line][c]=
+					Machine.pens[vga.memory[pos]];
+				Machine.scrbitmap.line[line][c+1]=
+					Machine.pens[vga.memory[pos+1]];
+				Machine.scrbitmap.line[line][c+2]=
+					Machine.pens[vga.memory[pos+2]];
+				Machine.scrbitmap.line[line][c+3]=
+					Machine.pens[vga.memory[pos+3]];
+				Machine.scrbitmap.line[line][c+4]=
+					Machine.pens[vga.memory[pos+0x10]];
+				Machine.scrbitmap.line[line][c+5]=
+					Machine.pens[vga.memory[pos+0x11]];
+				Machine.scrbitmap.line[line][c+6]=
+					Machine.pens[vga.memory[pos+0x12]];
+				Machine.scrbitmap.line[line][c+7]=
+					Machine.pens[vga.memory[pos+0x13]];
 			}
 		}
 	}
 	
-	void ega_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr ega_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 		static int columns=720, raws=480;
 		int new_columns, new_raws;
 	
-		if (CRTC_ON) {
+		if (CRTC_ON != 0) {
 			int i;
 			for (i=0; i<16;i++) {
-				vga.pens[i]=Machine->pens[i/*vga.attribute.data[i]&0x3f*/];
+				vga.pens[i]=Machine.pens[i/*vga.attribute.data[i]&0x3f*/];
 			}
 			if (!GRAPHIC_MODE) {
 				vga_vh_text(bitmap, full_refresh);
@@ -1019,14 +1019,14 @@ public class vga
 				else logerror("video %d %d\n",columns, raws);
 			}
 		}
-	}
+	} };
 	
-	void vga_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr vga_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 		static int columns=720, raws=480;
 		int new_columns, new_raws;
 		int i;
-		if (CRTC_ON) {
+		if (CRTC_ON != 0) {
 			if (vga.dac.dirty) {
 				for (i=0; i<256;i++) {
 					palette_change_color(i,(vga.dac.color[i].red&0x3f)<<2,
@@ -1038,12 +1038,12 @@ public class vga
 			palette_recalc();
 			if (vga.attribute.data[0x10]&0x80) {
 				for (i=0; i<16;i++) {
-					vga.pens[i]=Machine->pens[(vga.attribute.data[i]&0x0f)
+					vga.pens[i]=Machine.pens[(vga.attribute.data[i]&0x0f)
 											 |((vga.attribute.data[0x14]&0xf)<<4)];
 				}
 			} else {
 				for (i=0; i<16;i++) {
-					vga.pens[i]=Machine->pens[(vga.attribute.data[i]&0x3f)
+					vga.pens[i]=Machine.pens[(vga.attribute.data[i]&0x3f)
 											 |((vga.attribute.data[0x14]&0xc)<<4)];
 				}
 			}
@@ -1080,5 +1080,5 @@ public class vga
 				else logerror("video %d %d\n",columns, raws);
 			}
 		}
-	}
+	} };
 }

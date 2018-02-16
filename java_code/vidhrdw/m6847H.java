@@ -16,10 +16,6 @@ public class m6847H
 	
 	typedef void (*m6847_vblank_proc)(void);
 	
-	void m6847_vh_init_palette(unsigned char *palette, unsigned short *colortable,const unsigned char *color_prom);
-	int m6847_vh_start(void);
-	void m6847_vh_stop(void);
-	void m6847_vh_update(struct osd_bitmap *bitmap,int full_refresh);
 	#define m6847_vh_stop			generic_vh_stop
 	#define m6847_vh_eof_callback	0
 	
@@ -61,19 +57,15 @@ public class m6847H
 	 */
 	
 	void m6847_set_gmode(int mode);	/* mode is between 0 and 31 */
-	int m6847_get_gmode(void);
 	void m6847_set_vmode(int mode);	/* mode is between 0 and 31 */
-	int m6847_get_vmode(void);
 	
 	#define m6847_set_mode(mode)	{ m6847_set_gmode(mode); m6847_set_vmode(mode); }
 	#define m6847_get_mode()		m6847_get_gmode()
 	
 	void m6847_set_video_offset(int offset);
-	int m6847_get_video_offset(void);
 	void m6847_touch_vram(int offset);
 	
 	/* This call returns the size of video ram given the current settings */
-	int m6847_get_vram_size(void);
 	
 	enum {
 		M6847_BORDERCOLOR_BLACK,
@@ -82,7 +74,6 @@ public class m6847H
 		M6847_BORDERCOLOR_ORANGE
 	};
 	
-	int m6847_get_bordercolor(void);
 	void m6847_get_bordercolor_rgb(int *red, int *green, int *blue);
 	
 	#endif /* _M6847_H */

@@ -32,9 +32,8 @@ public class kim1
 	
 	static M6530 m6530[2];
 	
-	static void m6530_timer_cb(int chip);
 	
-	void init_kim1(void)
+	public static InitDriverPtr init_kim1 = new InitDriverPtr() { public void handler() 
 	{
 		UINT8 *dst;
 		int x, y, i;
@@ -535,31 +534,31 @@ public class kim1
 					switch (seg7[y * 18 + x])
 					{
 					case 'a':
-						if (i & 1)
+						if ((i & 1) != 0)
 							*dst |= 0x80 >> (x & 7);
 						break;
 					case 'b':
-						if (i & 2)
+						if ((i & 2) != 0)
 							*dst |= 0x80 >> (x & 7);
 						break;
 					case 'c':
-						if (i & 4)
+						if ((i & 4) != 0)
 							*dst |= 0x80 >> (x & 7);
 						break;
 					case 'd':
-						if (i & 8)
+						if ((i & 8) != 0)
 							*dst |= 0x80 >> (x & 7);
 						break;
 					case 'e':
-						if (i & 16)
+						if ((i & 16) != 0)
 							*dst |= 0x80 >> (x & 7);
 						break;
 					case 'f':
-						if (i & 32)
+						if ((i & 32) != 0)
 							*dst |= 0x80 >> (x & 7);
 						break;
 					case 'g':
-						if (i & 64)
+						if ((i & 64) != 0)
 							*dst |= 0x80 >> (x & 7);
 						break;
 					}
@@ -595,9 +594,9 @@ public class kim1
 				}
 			}
 		}
-	}
+	} };
 	
-	void kim1_init_machine(void)
+	public static InitMachinePtr kim1_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		UINT8 *RAM = memory_region(REGION_CPU1);
 	
@@ -626,7 +625,7 @@ public class kim1
 		m6530[1].drib = 0xff;
 		m6530[1].clock = (double) 1000000 / 1;
 		m6530[1].timer = timer_pulse(TIME_IN_HZ(256 * m6530[1].clock / 256 / 256), 1, m6530_timer_cb);
-	}
+	} };
 	
 	int kim1_cassette_init(int id)
 	{
@@ -635,7 +634,7 @@ public class kim1
 		void *file;
 	
 		file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, 0);
-		if (file)
+		if (file != 0)
 		{
 			UINT16 addr, size;
 			UINT8 ident, *RAM = memory_region(REGION_CPU1);
@@ -669,7 +668,7 @@ public class kim1
 		void *file;
 	
 		file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, 0);
-		if (file)
+		if (file != 0)
 		{
 			osd_fread(file, buff, sizeof (buff));
 			if (memcmp(buff, magic, sizeof (buff)) == 0)
@@ -689,18 +688,18 @@ public class kim1
 			cpu_set_irq_line(0, 0, HOLD_LINE);
 	}
 	
-	int kim1_interrupt(void)
+	public static InterruptPtr kim1_interrupt = new InterruptPtr() { public int handler() 
 	{
 		int i;
 	
 		/* decrease the brightness of the six 7segment LEDs */
 		for (i = 0; i < 6; i++)
 		{
-			if (videoram[i * 2 + 1] > 0)
-				videoram[i * 2 + 1] -= 1;
+			if (videoram.read(i * 2 + 1)> 0)
+				videoram.read(i * 2 + 1)-= 1;
 		}
 		return ignore_interrupt();
-	}
+	} };
 	
 	INLINE int m6530_r(int chip, int offset)
 	{
@@ -850,7 +849,7 @@ public class kim1
 				case 7:
 				case 8:
 				case 9:
-					if (data & 0x80)
+					if ((data & 0x80) != 0)
 					{
 						logerror("write 7seg(%d): %c%c%c%c%c%c%c\n",
 							 which + 1 - 4,
@@ -861,8 +860,8 @@ public class kim1
 							 (data & 0x10) ? 'e' : '.',
 							 (data & 0x20) ? 'f' : '.',
 							 (data & 0x40) ? 'g' : '.');
-						videoram[(which - 4) * 2 + 0] = data & 0x7f;
-						videoram[(which - 4) * 2 + 1] = 15;
+						videoram.write((which - 4) * 2 + 0,data & 0x7f);
+						videoram.write((which - 4) * 2 + 1,15);
 					}
 				}
 			}

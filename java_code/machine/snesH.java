@@ -32,12 +32,7 @@
 int snes_load_rom (int id);
 int snes_id_rom (int id);
 void snes_exit_rom (int id);
-void snes_init_machine(void);
-void snes_shutdown_machine(void);
 
-int snes_vh_start(void);
-void snes_vh_stop(void);
-void snes_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh);
 
 void RenderSNESScreenLine(struct osd_bitmap *,int);
 
@@ -59,11 +54,11 @@ void spcTimerTick(int);
 
 extern unsigned char OAMADDRESS_L,OAMADDRESS_H;
 
-extern unsigned char *SNES_VRAM;				// Video memory
-extern unsigned char *SNES_CRAM;				// Colour memory
-extern unsigned char *SNES_ORAM;				// Object memory (sprites)
-extern unsigned char *SNES_WRAM;				// Work memory
-extern unsigned char *SNES_SRAM;				// Save Ram / Extra Ram
+extern UBytePtr SNES_VRAM;				// Video memory
+extern UBytePtr SNES_CRAM;				// Colour memory
+extern UBytePtr SNES_ORAM;				// Object memory (sprites)
+extern UBytePtr SNES_WRAM;				// Work memory
+extern UBytePtr SNES_SRAM;				// Save Ram / Extra Ram
 
 
 

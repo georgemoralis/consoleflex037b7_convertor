@@ -18,11 +18,9 @@ public class iwm_lisaH
 	int iwm_lisa_floppy_init(int id, int allowablesizes);
 	void iwm_lisa_floppy_exit(int id);
 	
-	void iwm_lisa_init(void);
 	int iwm_lisa_r(int offset);
 	void iwm_lisa_w(int offset, int data);
 	void iwm_lisa_set_head_line(int head);
-	/*int iwm_lisa_get_sel_line(void);*/
-	
+	/*
 	#endif /* IWM_H */
 }

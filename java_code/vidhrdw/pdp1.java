@@ -39,16 +39,16 @@ public class pdp1
 	static int old_index;
 	#define MAX_POINTS (VIDEO_BITMAP_WIDTH*VIDEO_BITMAP_HEIGHT)
 	
-	int pdp1_vh_start(void)
+	public static VhStartPtr pdp1_vh_start = new VhStartPtr() { public int handler() 
 	{
-		videoram_size=(VIDEO_BITMAP_WIDTH*VIDEO_BITMAP_HEIGHT);
+		videoram_size[0]=(VIDEO_BITMAP_WIDTH*VIDEO_BITMAP_HEIGHT);
 		old_list = malloc (MAX_POINTS * sizeof (point));
 		new_list = malloc (MAX_POINTS * sizeof (point));
 		if (!(old_list && new_list))
 		{
-			if (old_list)
+			if (old_list != 0)
 				free(old_list);
-			if (new_list)
+			if (new_list != 0)
 				free(new_list);
 			old_list=NULL;
 			new_list=NULL;
@@ -57,13 +57,13 @@ public class pdp1
 		new_index = 0;
 		old_index = 0;
 		return generic_vh_start();
-	}
+	} };
 	
-	void pdp1_vh_stop(void)
+	public static VhStopPtr pdp1_vh_stop = new VhStopPtr() { public void handler() 
 	{
-		if (old_list)
+		if (old_list != 0)
 			free(old_list);
-		if (new_list)
+		if (new_list != 0)
 			free(new_list);
 		generic_vh_stop();
 		old_list=NULL;
@@ -71,7 +71,7 @@ public class pdp1
 		bitmap_width=0;
 		bitmap_height=0;
 		return;
-	}
+	} };
 	
 	void pdp1_plot(int x, int y)
 	{
@@ -86,8 +86,8 @@ public class pdp1
 			return;
 		y*=-1;
 		y+=(bitmap_height-1);
-		new->x = x;
-		new->y = y;
+		new.x = x;
+		new.y = y;
 		new_index++;
 		if (new_index >= MAX_POINTS)
 		{
@@ -109,15 +109,15 @@ public class pdp1
 	
 	static void clear_points(struct osd_bitmap *bitmap)
 	{
-		unsigned char bg=Machine->pens[0];
+		unsigned char bg=Machine.pens[0];
 		int i;
 	
 		for (i=old_index-1; i>=0; i--)
 		{
-			int x=(&old_list[i])->x;
-			int y=(&old_list[i])->y;
+			int x=(&old_list[i]).x;
+			int y=(&old_list[i]).y;
 	
-			bitmap->line[y][x]=bg;
+			bitmap.line[y][x]=bg;
 			osd_mark_dirty(x,y,x,y,1);
 		}
 		old_index=0;
@@ -125,15 +125,15 @@ public class pdp1
 	
 	static void set_points(struct osd_bitmap *bitmap)
 	{
-		unsigned char fg=Machine->pens[1];
+		unsigned char fg=Machine.pens[1];
 		int i;
 	
 		for (i=new_index-1; i>=0; i--)
 		{
-			int x=(&new_list[i])->x;
-			int y=(&new_list[i])->y;
+			int x=(&new_list[i]).x;
+			int y=(&new_list[i]).y;
 	
-			bitmap->line[y][x]=fg;
+			bitmap.line[y][x]=fg;
 			osd_mark_dirty(x,y,x,y,1);
 		}
 	}
@@ -217,7 +217,7 @@ public class pdp1
 		concise=0;
 		if (osd_is_key_pressed(KEYCODE_LSHIFT))
 		{
-			if (case_state)
+			if (case_state != 0)
 			{
 				fio_dec=072;
 				concise=0272;
@@ -262,8 +262,8 @@ public class pdp1
 	
 		if (bitmap_width==0)
 		{
-			bitmap_width=bitmap->width;
-			bitmap_height=bitmap->height;
+			bitmap_width=bitmap.width;
+			bitmap_height=bitmap.height;
 		}
 		clear_points(bitmap);
 		set_points(bitmap);

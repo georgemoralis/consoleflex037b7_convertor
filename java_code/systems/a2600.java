@@ -107,11 +107,7 @@ public class a2600
 {
 	
 	/* vidhrdw/a2600.c */
-	extern int a2600_vh_start(void);
-	extern void a2600_vh_stop(void);
-	extern int a2600_scanline_interrupt(void);
-	extern void a2600_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh);
-	
+	extern extern extern extern 
 	
 	/* machine/a2600.c */
 	extern READ_HANDLER  ( a2600_TIA_r );
@@ -120,98 +116,96 @@ public class a2600
 	extern WRITE_HANDLER ( a2600_riot_w );
 	extern READ_HANDLER  ( a2600_bs_r );
 	
-	extern void a2600_init_machine(void);
-	extern void a2600_stop_machine(void);
-	extern int	a2600_id_rom (int id);
+	extern extern extern int	a2600_id_rom (int id);
 	extern int	a2600_load_rom(int id);
 	extern READ_HANDLER ( a2600_ROM_r );
 	
 	
 	/* horrid memory mirroring ahead */
-	static struct MemoryReadAddress readmem[] =
+	static MemoryReadAddress readmem[] =
 	{
 	
-		{ 0x0000, 0x003F, a2600_TIA_r },
-		{ 0x0040, 0x007F, a2600_TIA_r },
-		{ 0x0080, 0x00FF, MRA_RAM	  },
+		new MemoryReadAddress( 0x0000, 0x003F, a2600_TIA_r ),
+		new MemoryReadAddress( 0x0040, 0x007F, a2600_TIA_r ),
+		new MemoryReadAddress( 0x0080, 0x00FF, MRA_RAM	  ),
 	
-		{ 0x0100, 0x013F, a2600_TIA_r },
-		{ 0x0140, 0x017F, a2600_TIA_r },
-		{ 0x0180, 0x01FF, MRA_RAM	  },
+		new MemoryReadAddress( 0x0100, 0x013F, a2600_TIA_r ),
+		new MemoryReadAddress( 0x0140, 0x017F, a2600_TIA_r ),
+		new MemoryReadAddress( 0x0180, 0x01FF, MRA_RAM	  ),
 	
-		{ 0x0200, 0x023F, a2600_TIA_r },
-		{ 0x0240, 0x027F, a2600_TIA_r },
+		new MemoryReadAddress( 0x0200, 0x023F, a2600_TIA_r ),
+		new MemoryReadAddress( 0x0240, 0x027F, a2600_TIA_r ),
 	
-		{ 0x0280, 0x0297, a2600_riot_r },	/* RIOT reads for a2600 */
-	
-	
-		{ 0x0300, 0x033F, a2600_TIA_r },
-		{ 0x0340, 0x037F, a2600_TIA_r },
-		{ 0x0280, 0x0297, a2600_riot_r },	/* RIOT reads for a2600 */
+		new MemoryReadAddress( 0x0280, 0x0297, a2600_riot_r ),	/* RIOT reads for a2600 */
 	
 	
-		{ 0x1000, 0x17FF, MRA_ROM	  },
-		{ 0x1800, 0x1FDF, MRA_ROM	  },
-		{ 0x1FE0, 0x1FFF, a2600_bs_r  },	/* for bankswitching */
-		{ 0xF000, 0xF7FF, MRA_ROM	  },
-		{ 0xF800, 0xFFDF, MRA_ROM	  },
-		{ 0xFFE0, 0xFFF9, a2600_bs_r  },
-		{ 0xFFFA, 0xFFFF, MRA_ROM	  },
-		{ -1 }	/* end of table */
+		new MemoryReadAddress( 0x0300, 0x033F, a2600_TIA_r ),
+		new MemoryReadAddress( 0x0340, 0x037F, a2600_TIA_r ),
+		new MemoryReadAddress( 0x0280, 0x0297, a2600_riot_r ),	/* RIOT reads for a2600 */
+	
+	
+		new MemoryReadAddress( 0x1000, 0x17FF, MRA_ROM	  ),
+		new MemoryReadAddress( 0x1800, 0x1FDF, MRA_ROM	  ),
+		new MemoryReadAddress( 0x1FE0, 0x1FFF, a2600_bs_r  ),	/* for bankswitching */
+		new MemoryReadAddress( 0xF000, 0xF7FF, MRA_ROM	  ),
+		new MemoryReadAddress( 0xF800, 0xFFDF, MRA_ROM	  ),
+		new MemoryReadAddress( 0xFFE0, 0xFFF9, a2600_bs_r  ),
+		new MemoryReadAddress( 0xFFFA, 0xFFFF, MRA_ROM	  ),
+		new MemoryReadAddress( -1 )	/* end of table */
 	};
 	
-	static struct MemoryWriteAddress writemem[] =
+	static MemoryWriteAddress writemem[] =
 	{
-		{ 0x0000, 0x003F, a2600_TIA_w },
-		{ 0x0040, 0x007F, a2600_TIA_w },
-		{ 0x0080, 0x00FF, MWA_RAM  },
+		new MemoryWriteAddress( 0x0000, 0x003F, a2600_TIA_w ),
+		new MemoryWriteAddress( 0x0040, 0x007F, a2600_TIA_w ),
+		new MemoryWriteAddress( 0x0080, 0x00FF, MWA_RAM  ),
 	
-		{ 0x0100, 0x013F, a2600_TIA_w },
-		{ 0x0140, 0x017F, a2600_TIA_w },
-		{ 0x0180, 0x01FF, MWA_RAM  },
+		new MemoryWriteAddress( 0x0100, 0x013F, a2600_TIA_w ),
+		new MemoryWriteAddress( 0x0140, 0x017F, a2600_TIA_w ),
+		new MemoryWriteAddress( 0x0180, 0x01FF, MWA_RAM  ),
 	
-		{ 0x0200, 0x023F, a2600_TIA_w },
-		{ 0x0240, 0x027F, a2600_TIA_w },
+		new MemoryWriteAddress( 0x0200, 0x023F, a2600_TIA_w ),
+		new MemoryWriteAddress( 0x0240, 0x027F, a2600_TIA_w ),
 	
-		{ 0x0280, 0x0297, a2600_riot_w },	/* RIOT writes for a2600 */
+		new MemoryWriteAddress( 0x0280, 0x0297, a2600_riot_w ),	/* RIOT writes for a2600 */
 	
 	
-		{ 0x0300, 0x033F, a2600_TIA_w },
-		{ 0x0340, 0x037F, a2600_TIA_w },
+		new MemoryWriteAddress( 0x0300, 0x033F, a2600_TIA_w ),
+		new MemoryWriteAddress( 0x0340, 0x037F, a2600_TIA_w ),
 	
-		{ 0x0280, 0x0297, a2600_riot_w },	/* RIOT writes for a2600 */
+		new MemoryWriteAddress( 0x0280, 0x0297, a2600_riot_w ),	/* RIOT writes for a2600 */
 	
-		{ 0x1000, 0x17FF, MWA_ROM  },
-		{ 0x1800, 0x1FFF, MWA_ROM  },	/* ROM mirror for 2k images */
-		{ 0xF000, 0xF7FF, MWA_ROM  },
-		{ 0xF800, 0xFFFF, MWA_ROM  },	/* ROM mirror for 2k images */
-		{ -1 }	/* end of table */
+		new MemoryWriteAddress( 0x1000, 0x17FF, MWA_ROM  ),
+		new MemoryWriteAddress( 0x1800, 0x1FFF, MWA_ROM  ),	/* ROM mirror for 2k images */
+		new MemoryWriteAddress( 0xF000, 0xF7FF, MWA_ROM  ),
+		new MemoryWriteAddress( 0xF800, 0xFFFF, MWA_ROM  ),	/* ROM mirror for 2k images */
+		new MemoryWriteAddress( -1 )	/* end of table */
 	};
 	
 	
-	INPUT_PORTS_START( a2600 )
+	static InputPortPtr input_ports_a2600 = new InputPortPtr(){ public void handler() { 
 	
 	
-		PORT_START /* SWCHA 0x280 RIOT */
-		PORT_BIT ( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP | IPF_PLAYER2 )
-		PORT_BIT ( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN | IPF_PLAYER2 )
-		PORT_BIT ( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT | IPF_PLAYER2 )
-		PORT_BIT ( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT | IPF_PLAYER2 )
-		PORT_BIT ( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_UP)
-		PORT_BIT ( 0x20, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN)
-		PORT_BIT ( 0x40, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT)
-		PORT_BIT ( 0x80, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT)
+		PORT_START();  /* SWCHA 0x280 RIOT */
+		PORT_BIT ( 0x01, IP_ACTIVE_LOW, IPT_JOYSTICK_UP | IPF_PLAYER2 );
+		PORT_BIT ( 0x02, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN | IPF_PLAYER2 );
+		PORT_BIT ( 0x04, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT | IPF_PLAYER2 );
+		PORT_BIT ( 0x08, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT | IPF_PLAYER2 );
+		PORT_BIT ( 0x10, IP_ACTIVE_LOW, IPT_JOYSTICK_UP);
+		PORT_BIT ( 0x20, IP_ACTIVE_LOW, IPT_JOYSTICK_DOWN);
+		PORT_BIT ( 0x40, IP_ACTIVE_LOW, IPT_JOYSTICK_LEFT);
+		PORT_BIT ( 0x80, IP_ACTIVE_LOW, IPT_JOYSTICK_RIGHT);
 	
-		PORT_START /* SWACNT 0x281 RIOT */
-		PORT_BIT ( 0x00, IP_ACTIVE_HIGH, IPT_UNKNOWN)
+		PORT_START();  /* SWACNT 0x281 RIOT */
+		PORT_BIT ( 0x00, IP_ACTIVE_HIGH, IPT_UNKNOWN);
 	
-		PORT_START /* SWCHB 0x282 RIOT */
-		PORT_BITX( 0x01, IP_ACTIVE_LOW, IPT_UNKNOWN, "Reset", KEYCODE_R, IP_JOY_DEFAULT)
-		PORT_BITX( 0x02, IP_ACTIVE_LOW, IPT_UNKNOWN, "Start", KEYCODE_S, IP_JOY_DEFAULT)
-		PORT_BIT ( 0x04, IP_ACTIVE_LOW, IPT_UNUSED)
-		PORT_BITX( 0x08, IP_ACTIVE_LOW, IPT_UNKNOWN, "Color/BW", KEYCODE_C, IP_JOY_DEFAULT)
+		PORT_START();  /* SWCHB 0x282 RIOT */
+		PORT_BITX( 0x01, IP_ACTIVE_LOW, IPT_UNKNOWN, "Reset", KEYCODE_R, IP_JOY_DEFAULT);
+		PORT_BITX( 0x02, IP_ACTIVE_LOW, IPT_UNKNOWN, "Start", KEYCODE_S, IP_JOY_DEFAULT);
+		PORT_BIT ( 0x04, IP_ACTIVE_LOW, IPT_UNUSED);
+		PORT_BITX( 0x08, IP_ACTIVE_LOW, IPT_UNKNOWN, "Color/BW", KEYCODE_C, IP_JOY_DEFAULT);
 	
-	INPUT_PORTS_END
+	INPUT_PORTS_END(); }}; 
 	
 	
 	
@@ -784,78 +778,78 @@ public class a2600
 	};
 	
 	/* Initialise the palette */
-	static void a2600_init_palette(unsigned char *sys_palette, unsigned short *sys_colortable, const unsigned char *color_prom)
+	static void a2600_init_palette(UBytePtr sys_palette, unsigned short *sys_colortable, const UBytePtr color_prom)
 	{
 		memcpy(sys_palette, palette, sizeof (palette));
 		memcpy(sys_colortable, colortable, sizeof (colortable));
 	}
 	
-	static struct GfxDecodeInfo gfxdecodeinfo[] =
+	static GfxDecodeInfo gfxdecodeinfo[] =
 	{
-		{-1}								/* end of array */
+		new GfxDecodeInfo(-1)								/* end of array */
 	};
 	
 	
 	#ifdef GFX_DECODE
-	static struct GfxLayout pixel4_width_1 =
-	{
+	static GfxLayout pixel4_width_1 = new GfxLayout
+	(
 		4, 1,								/* 4 x 1 pixels (PF0) */
 		16, 								/* 16 codes */
 		1,									/* 1 bits per pixel */
-		{0},								/* no bitplanes; 1 bit per pixel */
+		new int[] {0},								/* no bitplanes; 1 bit per pixel */
 		/* x offsets */
-		{0, 1, 2, 3},
+		new int[] {0, 1, 2, 3},
 		/* y offsets */
-		{0},
+		new int[] {0},
 		8 * 1								/* every code takes 1 byte */
-	};
+	);
 	
-	static struct GfxLayout pixel4_width_2 =
-	{
+	static GfxLayout pixel4_width_2 = new GfxLayout
+	(
 		2 * 4, 1,							/* 2*4 x 1 pixels (PF0) */
 		16, 								/* 16 codes */
 		1,									/* 1 bits per pixel */
-		{0},								/* no bitplanes; 1 bit per pixel */
+		new int[] {0},								/* no bitplanes; 1 bit per pixel */
 		/* x offsets */
-		{0, 0, 1, 1, 2, 2, 3, 3},
+		new int[] {0, 0, 1, 1, 2, 2, 3, 3},
 		/* y offsets */
-		{0},
+		new int[] {0},
 		8 * 1								/* every code takes 1 byte */
-	};
+	);
 	
-	static struct GfxLayout pixel8_width_1 =
-	{
+	static GfxLayout pixel8_width_1 = new GfxLayout
+	(
 		8, 1,								/* 8 x 1 pixels (PF0) */
 		256,								/* 256 codes */
 		1,									/* 1 bits per pixel */
-		{0},								/* no bitplanes; 1 bit per pixel */
+		new int[] {0},								/* no bitplanes; 1 bit per pixel */
 		/* x offsets */
-		{7, 6, 5, 4, 3, 2, 1, 0},
+		new int[] {7, 6, 5, 4, 3, 2, 1, 0},
 		/* y offsets */
-		{0},
+		new int[] {0},
 		8 * 1								/* every code takes 1 byte */
-	};
+	);
 	
-	static struct GfxLayout pixel8_width_2 =
-	{
+	static GfxLayout pixel8_width_2 = new GfxLayout
+	(
 		2 * 8, 1,							/* 2*8 x 1 pixels (PF0) */
 		256,								/* 256 codes */
 		1,									/* 1 bits per pixel */
-		{0},								/* no bitplanes; 1 bit per pixel */
+		new int[] {0},								/* no bitplanes; 1 bit per pixel */
 		/* x offsets */
-		{7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1, 0, 0},
+		new int[] {7, 7, 6, 6, 5, 5, 4, 4, 3, 3, 2, 2, 1, 1, 0, 0},
 		/* y offsets */
-		{0},
+		new int[] {0},
 		8 * 1								/* every code takes 1 byte */
-	};
+	);
 	
-	static struct GfxDecodeInfo gfxdecodeinfo[] =
+	static GfxDecodeInfo gfxdecodeinfo[] =
 	{
-		{REGION_GFX1, 0x0000, &pixel4_width_1, 0, 16},
-		{REGION_GFX1, 0x0000, &pixel8_width_1, 0, 16},
-		{REGION_GFX1, 0x0000, &pixel4_width_2, 0, 16},
-		{REGION_GFX1, 0x0000, &pixel8_width_2, 0, 16},
-		{-1}								/* end of array */
+		new GfxDecodeInfo(REGION_GFX1, 0x0000, pixel4_width_1, 0, 16),
+		new GfxDecodeInfo(REGION_GFX1, 0x0000, pixel8_width_1, 0, 16),
+		new GfxDecodeInfo(REGION_GFX1, 0x0000, pixel4_width_2, 0, 16),
+		new GfxDecodeInfo(REGION_GFX1, 0x0000, pixel8_width_2, 0, 16),
+		new GfxDecodeInfo(-1)								/* end of array */
 	};
 	
 	#endif
@@ -868,17 +862,17 @@ public class a2600
 	};
 	
 	
-	static struct MachineDriver machine_driver_a2600 =
-	{
+	static MachineDriver machine_driver_a2600 = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
-			{
+		new MachineCPU[] {
+			new MachineCPU(
 				CPU_M6502,
 				1190000,					/* 1.19Mhz */
-				readmem, writemem, 0, 0,
-				0, 0						/* for screen updates per scanline */
+				readmem, writemem, null, null,
+				null, null						/* for screen updates per scanline */
 	
-			}
+			)
 		},
 		60, DEFAULT_60HZ_VBLANK_DURATION,
 		20000,
@@ -887,29 +881,29 @@ public class a2600
 	
 		/* video hardware */
 		228, 300,
-		{68, 227, 40, 299},
+		new rectangle(68, 227, 40, 299),
 		gfxdecodeinfo,
-		sizeof (palette) / sizeof (palette[0]) / 3,
-		sizeof (colortable) / sizeof (colortable[0]),
+		sizeof (palette) / sizeof (palette[null]) / 3,
+		sizeof (colortable) / sizeof (colortable[null]),
 		a2600_init_palette,
 	
 		VIDEO_TYPE_RASTER | VIDEO_SUPPORTS_DIRTY,
-		0,
+		null,
 		a2600_vh_start,
 		a2600_vh_stop,
 		a2600_vh_screenrefresh,
 	
 		/* sound hardware */
 		0, 0, 0, 0,
-		{
-			{
+		new MachineSound[] {
+			new MachineSound(
 				SOUND_TIA,
-				&tia_interface
-			}
+				tia_interface
+			)
 	
 		}
 	
-	};
+	);
 	
 	
 	/***************************************************************************
@@ -918,13 +912,13 @@ public class a2600
 	
 	***************************************************************************/
 	
-	static void init_a2600(void)
+	static public static InitDriverPtr init_a2600 = new InitDriverPtr() { public void handler() 
 	{
-	}
+	} };
 	
-	ROM_START(a2600)
-		ROM_REGION(0x20000, REGION_CPU1)		/* 6502 memory */
-	ROM_END
+	static RomLoadPtr rom_a2600 = new RomLoadPtr(){ public void handler(){ 
+		ROM_REGION(0x20000, REGION_CPU1);	/* 6502 memory */
+	ROM_END(); }}; 
 	
 	static const struct IODevice io_a2600[] =
 	{

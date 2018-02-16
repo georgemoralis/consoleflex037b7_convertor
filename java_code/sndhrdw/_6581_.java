@@ -230,166 +230,166 @@ public class _6581_
 	INLINE void waveAdvance(sidOperator* pVoice)
 	{
 	#if defined(DIRECT_FIXPOINT)
-		pVoice->waveStep.l += pVoice->waveStepAdd.l;
-		pVoice->waveStep.w[HI] &= 4095;
+		pVoice.waveStep.l += pVoice.waveStepAdd.l;
+		pVoice.waveStep.w[HI] &= 4095;
 	#else
-		pVoice->waveStepPnt += pVoice->waveStepAddPnt;
-		pVoice->waveStep += pVoice->waveStepAdd;
-		if (pVoice->waveStepPnt > 65535 ) pVoice->waveStep++;
-		pVoice->waveStepPnt &= 0xFFFF;
-		pVoice->waveStep &= 4095;
+		pVoice.waveStepPnt += pVoice.waveStepAddPnt;
+		pVoice.waveStep += pVoice.waveStepAdd;
+		if (pVoice.waveStepPnt > 65535 ) pVoice.waveStep++;
+		pVoice.waveStepPnt &= 0xFFFF;
+		pVoice.waveStep &= 4095;
 	#endif
 	}
 	
 	INLINE void noiseAdvance(sidOperator* pVoice)
 	{
-		pVoice->noiseStep += pVoice->noiseStepAdd;
-		if (pVoice->noiseStep >= (1L<<20))
+		pVoice.noiseStep += pVoice.noiseStepAdd;
+		if (pVoice.noiseStep >= (1L<<20))
 		{
-			pVoice->noiseStep -= (1L<<20);
+			pVoice.noiseStep -= (1L<<20);
 	#if defined(DIRECT_FIXPOINT)
-			pVoice->noiseReg.l = (pVoice->noiseReg.l << 1) |
-				(((pVoice->noiseReg.l >> 22) ^ (pVoice->noiseReg.l >> 17)) & 1);
+			pVoice.noiseReg.l = (pVoice.noiseReg.l << 1) |
+				(((pVoice.noiseReg.l >> 22) ^ (pVoice.noiseReg.l >> 17)) & 1);
 	#else
-			pVoice->noiseReg = (pVoice->noiseReg << 1) |
-				(((pVoice->noiseReg >> 22) ^ (pVoice->noiseReg >> 17)) & 1);
+			pVoice.noiseReg = (pVoice.noiseReg << 1) |
+				(((pVoice.noiseReg >> 22) ^ (pVoice.noiseReg >> 17)) & 1);
 	#endif
 	#if defined(DIRECT_FIXPOINT) && defined(LARGE_NOISE_TABLE)
-			pVoice->noiseOutput = (noiseTableLSB[pVoice->noiseReg.w[LO]]
-								   |noiseTableMSB[pVoice->noiseReg.w[HI]&0xff]);
+			pVoice.noiseOutput = (noiseTableLSB[pVoice.noiseReg.w[LO]]
+								   |noiseTableMSB[pVoice.noiseReg.w[HI]&0xff]);
 	#elif defined(DIRECT_FIXPOINT)
-			pVoice->noiseOutput = (noiseTableLSB[pVoice->noiseReg.b[LOLO]]
-								   |noiseTableMID[pVoice->noiseReg.b[LOHI]]
-								   |noiseTableMSB[pVoice->noiseReg.b[HILO]]);
+			pVoice.noiseOutput = (noiseTableLSB[pVoice.noiseReg.b[LOLO]]
+								   |noiseTableMID[pVoice.noiseReg.b[LOHI]]
+								   |noiseTableMSB[pVoice.noiseReg.b[HILO]]);
 	#else
-			pVoice->noiseOutput = (noiseTableLSB[pVoice->noiseReg&0xff]
-								   |noiseTableMID[pVoice->noiseReg>>8&0xff]
-								   |noiseTableMSB[pVoice->noiseReg>>16&0xff]);
+			pVoice.noiseOutput = (noiseTableLSB[pVoice.noiseReg&0xff]
+								   |noiseTableMID[pVoice.noiseReg>>8&0xff]
+								   |noiseTableMSB[pVoice.noiseReg>>16&0xff]);
 	#endif
 		}
 	}
 	
 	INLINE void noiseAdvanceHp(sidOperator* pVoice)
 	{
-		udword tmp = pVoice->noiseStepAdd;
+		udword tmp = pVoice.noiseStepAdd;
 		while (tmp >= (1L<<20))
 		{
 			tmp -= (1L<<20);
 	#if defined(DIRECT_FIXPOINT)
-			pVoice->noiseReg.l = (pVoice->noiseReg.l << 1) |
-				(((pVoice->noiseReg.l >> 22) ^ (pVoice->noiseReg.l >> 17)) & 1);
+			pVoice.noiseReg.l = (pVoice.noiseReg.l << 1) |
+				(((pVoice.noiseReg.l >> 22) ^ (pVoice.noiseReg.l >> 17)) & 1);
 	#else
-			pVoice->noiseReg = (pVoice->noiseReg << 1) |
-				(((pVoice->noiseReg >> 22) ^ (pVoice->noiseReg >> 17)) & 1);
+			pVoice.noiseReg = (pVoice.noiseReg << 1) |
+				(((pVoice.noiseReg >> 22) ^ (pVoice.noiseReg >> 17)) & 1);
 	#endif
 		}
-		pVoice->noiseStep += tmp;
-		if (pVoice->noiseStep >= (1L<<20))
+		pVoice.noiseStep += tmp;
+		if (pVoice.noiseStep >= (1L<<20))
 		{
-			pVoice->noiseStep -= (1L<<20);
+			pVoice.noiseStep -= (1L<<20);
 	#if defined(DIRECT_FIXPOINT)
-			pVoice->noiseReg.l = (pVoice->noiseReg.l << 1) |
-				(((pVoice->noiseReg.l >> 22) ^ (pVoice->noiseReg.l >> 17)) & 1);
+			pVoice.noiseReg.l = (pVoice.noiseReg.l << 1) |
+				(((pVoice.noiseReg.l >> 22) ^ (pVoice.noiseReg.l >> 17)) & 1);
 	#else
-			pVoice->noiseReg = (pVoice->noiseReg << 1) |
-				(((pVoice->noiseReg >> 22) ^ (pVoice->noiseReg >> 17)) & 1);
+			pVoice.noiseReg = (pVoice.noiseReg << 1) |
+				(((pVoice.noiseReg >> 22) ^ (pVoice.noiseReg >> 17)) & 1);
 	#endif
 		}
 	#if defined(DIRECT_FIXPOINT) && defined(LARGE_NOISE_TABLE)
-		pVoice->noiseOutput = (noiseTableLSB[pVoice->noiseReg.w[LO]]
-							   |noiseTableMSB[pVoice->noiseReg.w[HI]&0xff]);
+		pVoice.noiseOutput = (noiseTableLSB[pVoice.noiseReg.w[LO]]
+							   |noiseTableMSB[pVoice.noiseReg.w[HI]&0xff]);
 	#elif defined(DIRECT_FIXPOINT)
-		pVoice->noiseOutput = (noiseTableLSB[pVoice->noiseReg.b[LOLO]]
-							   |noiseTableMID[pVoice->noiseReg.b[LOHI]]
-							   |noiseTableMSB[pVoice->noiseReg.b[HILO]]);
+		pVoice.noiseOutput = (noiseTableLSB[pVoice.noiseReg.b[LOLO]]
+							   |noiseTableMID[pVoice.noiseReg.b[LOHI]]
+							   |noiseTableMSB[pVoice.noiseReg.b[HILO]]);
 	#else
-		pVoice->noiseOutput = (noiseTableLSB[pVoice->noiseReg&0xff]
-							   |noiseTableMID[pVoice->noiseReg>>8&0xff]
-							   |noiseTableMSB[pVoice->noiseReg>>16&0xff]);
+		pVoice.noiseOutput = (noiseTableLSB[pVoice.noiseReg&0xff]
+							   |noiseTableMID[pVoice.noiseReg>>8&0xff]
+							   |noiseTableMSB[pVoice.noiseReg>>16&0xff]);
 	#endif
 	}
 	
 	
 	#if defined(DIRECT_FIXPOINT)
-	  #define triangle triangleTable[pVoice->waveStep.w[HI]]
-	  #define sawtooth sawtoothTable[pVoice->waveStep.w[HI]]
-	  #define square squareTable[pVoice->waveStep.w[HI] + pVoice->pulseIndex]
-	  #define triSaw waveform30[pVoice->waveStep.w[HI]]
-	  #define triSquare waveform50[pVoice->waveStep.w[HI] + pVoice->SIDpulseWidth]
-	  #define sawSquare waveform60[pVoice->waveStep.w[HI] + pVoice->SIDpulseWidth]
-	  #define triSawSquare waveform70[pVoice->waveStep.w[HI] + pVoice->SIDpulseWidth]
+	  #define triangle triangleTable[pVoice.waveStep.w[HI]]
+	  #define sawtooth sawtoothTable[pVoice.waveStep.w[HI]]
+	  #define square squareTable[pVoice.waveStep.w[HI] + pVoice.pulseIndex]
+	  #define triSaw waveform30[pVoice.waveStep.w[HI]]
+	  #define triSquare waveform50[pVoice.waveStep.w[HI] + pVoice.SIDpulseWidth]
+	  #define sawSquare waveform60[pVoice.waveStep.w[HI] + pVoice.SIDpulseWidth]
+	  #define triSawSquare waveform70[pVoice.waveStep.w[HI] + pVoice.SIDpulseWidth]
 	#else
-	  #define triangle triangleTable[pVoice->waveStep]
-	  #define sawtooth sawtoothTable[pVoice->waveStep]
-	  #define square squareTable[pVoice->waveStep + pVoice->pulseIndex]
-	  #define triSaw waveform30[pVoice->waveStep]
-	  #define triSquare waveform50[pVoice->waveStep + pVoice->SIDpulseWidth]
-	  #define sawSquare waveform60[pVoice->waveStep + pVoice->SIDpulseWidth]
-	  #define triSawSquare waveform70[pVoice->waveStep + pVoice->SIDpulseWidth]
+	  #define triangle triangleTable[pVoice.waveStep]
+	  #define sawtooth sawtoothTable[pVoice.waveStep]
+	  #define square squareTable[pVoice.waveStep + pVoice.pulseIndex]
+	  #define triSaw waveform30[pVoice.waveStep]
+	  #define triSquare waveform50[pVoice.waveStep + pVoice.SIDpulseWidth]
+	  #define sawSquare waveform60[pVoice.waveStep + pVoice.SIDpulseWidth]
+	  #define triSawSquare waveform70[pVoice.waveStep + pVoice.SIDpulseWidth]
 	#endif
 	
 	
 	static void sidMode00(sidOperator* pVoice)  {
-		pVoice->output = (pVoice->filtIO-0x80);
+		pVoice.output = (pVoice.filtIO-0x80);
 		waveAdvance(pVoice);
 	}
 	
 	static void sidModeReal00(sidOperator* pVoice)  {
-		pVoice->output = 0;
+		pVoice.output = 0;
 		waveAdvance(pVoice);
 	}
 	
 	static void sidMode10(sidOperator* pVoice)  {
-	  pVoice->output = triangle;
+	  pVoice.output = triangle;
 	  waveAdvance(pVoice);
 	}
 	
 	static void sidMode20(sidOperator* pVoice)  {
-	  pVoice->output = sawtooth;
+	  pVoice.output = sawtooth;
 	  waveAdvance(pVoice);
 	}
 	
 	static void sidMode30(sidOperator* pVoice)  {
-	  pVoice->output = triSaw;
+	  pVoice.output = triSaw;
 	  waveAdvance(pVoice);
 	}
 	
 	static void sidMode40(sidOperator* pVoice)  {
-	  pVoice->output = square;
+	  pVoice.output = square;
 	  waveAdvance(pVoice);
 	}
 	
 	static void sidMode50(sidOperator* pVoice)  {
-	  pVoice->output = triSquare;
+	  pVoice.output = triSquare;
 	  waveAdvance(pVoice);
 	}
 	
 	static void sidMode60(sidOperator* pVoice)  {
-	  pVoice->output = sawSquare;
+	  pVoice.output = sawSquare;
 	  waveAdvance(pVoice);
 	}
 	
 	static void sidMode70(sidOperator* pVoice)  {
-	  pVoice->output = triSawSquare;
+	  pVoice.output = triSawSquare;
 	  waveAdvance(pVoice);
 	}
 	
 	static void sidMode80(sidOperator* pVoice)  {
-	  pVoice->output = pVoice->noiseOutput;
+	  pVoice.output = pVoice.noiseOutput;
 	  waveAdvance(pVoice);
 	  noiseAdvance(pVoice);
 	}
 	
 	static void sidMode80hp(sidOperator* pVoice)  {
-	  pVoice->output = pVoice->noiseOutput;
+	  pVoice.output = pVoice.noiseOutput;
 	  waveAdvance(pVoice);
 	  noiseAdvanceHp(pVoice);
 	}
 	
 	static void sidModeLock(sidOperator* pVoice)
 	{
-		pVoice->noiseIsLocked = true;
-		pVoice->output = (pVoice->filtIO-0x80);
+		pVoice.noiseIsLocked = true;
+		pVoice.output = (pVoice.filtIO-0x80);
 		waveAdvance(pVoice);
 	}
 	
@@ -400,49 +400,49 @@ public class _6581_
 	static void sidMode14(sidOperator* pVoice)
 	{
 	#if defined(DIRECT_FIXPOINT)
-	  if ( pVoice->modulator->waveStep.w[HI] < 2048 )
+	  if ( pVoice.modulator.waveStep.w[HI] < 2048 )
 	#else
-	  if ( pVoice->modulator->waveStep < 2048 )
+	  if ( pVoice.modulator.waveStep < 2048 )
 	#endif
-		pVoice->output = triangle;
+		pVoice.output = triangle;
 	  else
-		pVoice->output = 0xFF ^ triangle;
+		pVoice.output = 0xFF ^ triangle;
 	  waveAdvance(pVoice);
 	}
 	
 	static void sidMode34(sidOperator* pVoice)  {
 	#if defined(DIRECT_FIXPOINT)
-	  if ( pVoice->modulator->waveStep.w[HI] < 2048 )
+	  if ( pVoice.modulator.waveStep.w[HI] < 2048 )
 	#else
-	  if ( pVoice->modulator->waveStep < 2048 )
+	  if ( pVoice.modulator.waveStep < 2048 )
 	#endif
-		pVoice->output = triSaw;
+		pVoice.output = triSaw;
 	  else
-		pVoice->output = 0xFF ^ triSaw;
+		pVoice.output = 0xFF ^ triSaw;
 	  waveAdvance(pVoice);
 	}
 	
 	static void sidMode54(sidOperator* pVoice)  {
 	#if defined(DIRECT_FIXPOINT)
-	  if ( pVoice->modulator->waveStep.w[HI] < 2048 )
+	  if ( pVoice.modulator.waveStep.w[HI] < 2048 )
 	#else
-	  if ( pVoice->modulator->waveStep < 2048 )
+	  if ( pVoice.modulator.waveStep < 2048 )
 	#endif
-		pVoice->output = triSquare;
+		pVoice.output = triSquare;
 	  else
-	    pVoice->output = 0xFF ^ triSquare;
+	    pVoice.output = 0xFF ^ triSquare;
 	  waveAdvance(pVoice);
 	}
 	
 	static void sidMode74(sidOperator* pVoice)  {
 	#if defined(DIRECT_FIXPOINT)
-	  if ( pVoice->modulator->waveStep.w[HI] < 2048 )
+	  if ( pVoice.modulator.waveStep.w[HI] < 2048 )
 	#else
-	  if ( pVoice->modulator->waveStep < 2048 )
+	  if ( pVoice.modulator.waveStep < 2048 )
 	#endif
-		pVoice->output = triSawSquare;
+		pVoice.output = triSawSquare;
 	  else
-	    pVoice->output = 0xFF ^ triSawSquare;
+	    pVoice.output = 0xFF ^ triSawSquare;
 	  waveAdvance(pVoice);
 	}
 	
@@ -453,50 +453,50 @@ public class _6581_
 	INLINE void waveCalcCycleLen(sidOperator* pVoice)
 	{
 	#if defined(DIRECT_FIXPOINT)
-		pVoice->cycleAddLen.w[HI] = 0;
-		pVoice->cycleAddLen.l += pVoice->cycleLen.l;
-		pVoice->cycleLenCount = pVoice->cycleAddLen.w[HI];
+		pVoice.cycleAddLen.w[HI] = 0;
+		pVoice.cycleAddLen.l += pVoice.cycleLen.l;
+		pVoice.cycleLenCount = pVoice.cycleAddLen.w[HI];
 	#else
-		pVoice->cycleAddLenPnt += pVoice->cycleLenPnt;
-		pVoice->cycleLenCount = pVoice->cycleLen;
-		if ( pVoice->cycleAddLenPnt > 65535 ) pVoice->cycleLenCount++;
-		pVoice->cycleAddLenPnt &= 0xFFFF;
+		pVoice.cycleAddLenPnt += pVoice.cycleLenPnt;
+		pVoice.cycleLenCount = pVoice.cycleLen;
+		if ( pVoice.cycleAddLenPnt > 65535 ) pVoice.cycleLenCount++;
+		pVoice.cycleAddLenPnt &= 0xFFFF;
 	#endif
 		/* If we keep the value cycleLen between 1 <= x <= 65535, */
 		/* the following check is not required. */
-	/*	if ( pVoice->cycleLenCount == 0 ) */
+	/*	if ( pVoice.cycleLenCount == 0 ) */
 	/*	{ */
 	/*#if defined(DIRECT_FIXPOINT) */
-	/*		pVoice->waveStep.l = 0; */
+	/*		pVoice.waveStep.l = 0; */
 	/*#else */
-	/*		pVoice->waveStep = (pVoice->waveStepPnt = 0); */
+	/*		pVoice.waveStep = (pVoice.waveStepPnt = 0); */
 	/*#endif */
-	/*		pVoice->cycleLenCount = 0; */
+	/*		pVoice.cycleLenCount = 0; */
 	/*	} */
 	/*	else */
 		{
 	#if defined(DIRECT_FIXPOINT)
-			register uword diff = pVoice->cycleLenCount - pVoice->cycleLen.w[HI];
+			register uword diff = pVoice.cycleLenCount - pVoice.cycleLen.w[HI];
 	#else
-			register uword diff = pVoice->cycleLenCount - pVoice->cycleLen;
+			register uword diff = pVoice.cycleLenCount - pVoice.cycleLen;
 	#endif
-			if ( pVoice->wavePre[diff].len != pVoice->cycleLenCount )
+			if ( pVoice.wavePre[diff].len != pVoice.cycleLenCount )
 			{
-				pVoice->wavePre[diff].len = pVoice->cycleLenCount;
+				pVoice.wavePre[diff].len = pVoice.cycleLenCount;
 	#if defined(DIRECT_FIXPOINT)
-				pVoice->wavePre[diff].stp = (pVoice->waveStepAdd.l = (4096UL*65536UL) / pVoice->cycleLenCount);
+				pVoice.wavePre[diff].stp = (pVoice.waveStepAdd.l = (4096UL*65536UL) / pVoice.cycleLenCount);
 	#else
-				pVoice->wavePre[diff].stp = (pVoice->waveStepAdd = 4096UL / pVoice->cycleLenCount);
-				pVoice->wavePre[diff].pnt = (pVoice->waveStepAddPnt = ((4096UL % pVoice->cycleLenCount) * 65536UL) / pVoice->cycleLenCount);
+				pVoice.wavePre[diff].stp = (pVoice.waveStepAdd = 4096UL / pVoice.cycleLenCount);
+				pVoice.wavePre[diff].pnt = (pVoice.waveStepAddPnt = ((4096UL % pVoice.cycleLenCount) * 65536UL) / pVoice.cycleLenCount);
 	#endif
 			}
 			else
 			{
 	#if defined(DIRECT_FIXPOINT)
-				pVoice->waveStepAdd.l = pVoice->wavePre[diff].stp;
+				pVoice.waveStepAdd.l = pVoice.wavePre[diff].stp;
 	#else
-				pVoice->waveStepAdd = pVoice->wavePre[diff].stp;
-				pVoice->waveStepAddPnt = pVoice->wavePre[diff].pnt;
+				pVoice.waveStepAdd = pVoice.wavePre[diff].stp;
+				pVoice.waveStepAddPnt = pVoice.wavePre[diff].pnt;
 	#endif
 			}
 		}  /* see above (opening bracket) */
@@ -504,69 +504,69 @@ public class _6581_
 	
 	INLINE void waveCalcFilter(sidOperator* pVoice)
 	{
-		if ( pVoice->filtEnabled )
+		if ( pVoice.filtEnabled )
 		{
 			if ( filterType != 0 )
 			{
 				if ( filterType == 0x20 )
 				{
 					filterfloat tmp;
-					pVoice->filtLow += ( pVoice->filtRef * filterDy );
-					tmp = (filterfloat)pVoice->filtIO - pVoice->filtLow;
-					tmp -= pVoice->filtRef * filterResDy;
-					pVoice->filtRef += ( tmp * (filterDy) );
-					pVoice->filtIO = (sbyte)(pVoice->filtRef-pVoice->filtLow/4);
+					pVoice.filtLow += ( pVoice.filtRef * filterDy );
+					tmp = (filterfloat)pVoice.filtIO - pVoice.filtLow;
+					tmp -= pVoice.filtRef * filterResDy;
+					pVoice.filtRef += ( tmp * (filterDy) );
+					pVoice.filtIO = (sbyte)(pVoice.filtRef-pVoice.filtLow/4);
 				}
 				else if (filterType == 0x40)
 				{
 					filterfloat tmp, tmp2;
-					pVoice->filtLow += ( pVoice->filtRef * filterDy * 0.1 );
-					tmp = (filterfloat)pVoice->filtIO - pVoice->filtLow;
-					tmp -= pVoice->filtRef * filterResDy;
-					pVoice->filtRef += ( tmp * (filterDy) );
-					tmp2 = pVoice->filtRef - pVoice->filtIO/8;
+					pVoice.filtLow += ( pVoice.filtRef * filterDy * 0.1 );
+					tmp = (filterfloat)pVoice.filtIO - pVoice.filtLow;
+					tmp -= pVoice.filtRef * filterResDy;
+					pVoice.filtRef += ( tmp * (filterDy) );
+					tmp2 = pVoice.filtRef - pVoice.filtIO/8;
 					if (tmp2 < -128)
 						tmp2 = -128;
 					if (tmp2 > 127)
 						tmp2 = 127;
-					pVoice->filtIO = (sbyte)tmp2;
+					pVoice.filtIO = (sbyte)tmp2;
 				}
 				else
 				{
 					filterfloat sample, sample2;
 					int tmp;
-					pVoice->filtLow += ( pVoice->filtRef * filterDy );
-					sample = pVoice->filtIO;
-					sample2 = sample - pVoice->filtLow;
+					pVoice.filtLow += ( pVoice.filtRef * filterDy );
+					sample = pVoice.filtIO;
+					sample2 = sample - pVoice.filtLow;
 					tmp = (int)sample2;
-					sample2 -= pVoice->filtRef * filterResDy;
-					pVoice->filtRef += ( sample2 * filterDy );
+					sample2 -= pVoice.filtRef * filterResDy;
+					pVoice.filtRef += ( sample2 * filterDy );
 	
 					if ( filterType == 0x10 )
 					{
-						pVoice->filtIO = (sbyte)pVoice->filtLow;
+						pVoice.filtIO = (sbyte)pVoice.filtLow;
 					}
 					else if ( filterType == 0x30 )
 					{
-						pVoice->filtIO = (sbyte)pVoice->filtLow;
+						pVoice.filtIO = (sbyte)pVoice.filtLow;
 					}
 					else if ( filterType == 0x50 )
 					{
-						pVoice->filtIO = (sbyte)(sample - (tmp >> 1));
+						pVoice.filtIO = (sbyte)(sample - (tmp >> 1));
 					}
 					else if ( filterType == 0x60 )
 					{
-						pVoice->filtIO = (sbyte)tmp;
+						pVoice.filtIO = (sbyte)tmp;
 					}
 					else if ( filterType == 0x70 )
 					{
-						pVoice->filtIO = (sbyte)(sample - (tmp >> 1));
+						pVoice.filtIO = (sbyte)(sample - (tmp >> 1));
 					}
 				}
 			}
 			else /* filterType == 0x00 */
 			{
-				pVoice->filtIO = 0;
+				pVoice.filtIO = 0;
 			}
 		}
 	}
@@ -574,59 +574,59 @@ public class _6581_
 	
 	sbyte waveCalcMute(sidOperator* pVoice)
 	{
-		(*pVoice->ADSRproc)(pVoice);  /* just process envelope */
-		return pVoice->filtIO&pVoice->outputMask;
+		(*pVoice.ADSRproc)(pVoice);  /* just process envelope */
+		return pVoice.filtIO&pVoice.outputMask;
 	}
 	
 	
 	sbyte waveCalcNormal(sidOperator* pVoice)
 	{
-		if ( pVoice->cycleLenCount <= 0 )
+		if ( pVoice.cycleLenCount <= 0 )
 		{
 			waveCalcCycleLen(pVoice);
-			if (( pVoice->SIDctrl & 0x40 ) == 0x40 )
+			if (( pVoice.SIDctrl & 0x40 ) == 0x40 )
 			{
-				pVoice->pulseIndex = pVoice->newPulseIndex;
-				if ( pVoice->pulseIndex > 2048 )
+				pVoice.pulseIndex = pVoice.newPulseIndex;
+				if ( pVoice.pulseIndex > 2048 )
 				{
 	#if defined(DIRECT_FIXPOINT)
-					pVoice->waveStep.w[HI] = 0;
+					pVoice.waveStep.w[HI] = 0;
 	#else
-					pVoice->waveStep = 0;
+					pVoice.waveStep = 0;
 	#endif
 				}
 			}
 		}
-		(*pVoice->waveProc)(pVoice);
-		pVoice->filtIO = ampMod1x8[(*pVoice->ADSRproc)(pVoice)|pVoice->output];
+		(*pVoice.waveProc)(pVoice);
+		pVoice.filtIO = ampMod1x8[(*pVoice.ADSRproc)(pVoice)|pVoice.output];
 		waveCalcFilter(pVoice);
-		return pVoice->filtIO&pVoice->outputMask;
+		return pVoice.filtIO&pVoice.outputMask;
 	}
 	
 	sbyte waveCalcRangeCheck(sidOperator* pVoice)
 	{
 	#if defined(DIRECT_FIXPOINT)
-		pVoice->waveStepOld = pVoice->waveStep.w[HI];
-		(*pVoice->waveProc)(pVoice);
-		if (pVoice->waveStep.w[HI] < pVoice->waveStepOld)
+		pVoice.waveStepOld = pVoice.waveStep.w[HI];
+		(*pVoice.waveProc)(pVoice);
+		if (pVoice.waveStep.w[HI] < pVoice.waveStepOld)
 	#else
-		pVoice->waveStepOld = pVoice->waveStep;
-		(*pVoice->waveProc)(pVoice);
-		if (pVoice->waveStep < pVoice->waveStepOld)
+		pVoice.waveStepOld = pVoice.waveStep;
+		(*pVoice.waveProc)(pVoice);
+		if (pVoice.waveStep < pVoice.waveStepOld)
 	#endif
 		{
 			/* Next step switch back to normal calculation. */
-			pVoice->cycleLenCount = 0;
-			pVoice->outProc = &waveCalcNormal;
+			pVoice.cycleLenCount = 0;
+			pVoice.outProc = &waveCalcNormal;
 	#if defined(DIRECT_FIXPOINT)
-					pVoice->waveStep.w[HI] = 4095;
+					pVoice.waveStep.w[HI] = 4095;
 	#else
-					pVoice->waveStep = 4095;
+					pVoice.waveStep = 4095;
 	#endif
 		}
-		pVoice->filtIO = ampMod1x8[(*pVoice->ADSRproc)(pVoice)|pVoice->output];
+		pVoice.filtIO = ampMod1x8[(*pVoice.ADSRproc)(pVoice)|pVoice.output];
 		waveCalcFilter(pVoice);
-		return pVoice->filtIO&pVoice->outputMask;
+		return pVoice.filtIO&pVoice.outputMask;
 	}
 	
 	/* -------------------------------------------------- Operator frame set-up 1 */
@@ -638,149 +638,149 @@ public class _6581_
 		ubyte SRtemp;
 		ubyte tmpSusVol;
 	
-		pVoice->SIDfreq = sid6581_read_word(sid6581, sidIndex);
+		pVoice.SIDfreq = sid6581_read_word(sid6581, sidIndex);
 	
-		pVoice->SIDpulseWidth = (sid6581_read_word(sid6581, sidIndex+2) & 0x0FFF);
-		pVoice->newPulseIndex = 4096 - pVoice->SIDpulseWidth;
+		pVoice.SIDpulseWidth = (sid6581_read_word(sid6581, sidIndex+2) & 0x0FFF);
+		pVoice.newPulseIndex = 4096 - pVoice.SIDpulseWidth;
 	#if defined(DIRECT_FIXPOINT)
-		if ( ((pVoice->waveStep.w[HI] + pVoice->pulseIndex) >= 0x1000)
-			&& ((pVoice->waveStep.w[HI] + pVoice->newPulseIndex) >= 0x1000) )
+		if ( ((pVoice.waveStep.w[HI] + pVoice.pulseIndex) >= 0x1000)
+			&& ((pVoice.waveStep.w[HI] + pVoice.newPulseIndex) >= 0x1000) )
 		{
-			pVoice->pulseIndex = pVoice->newPulseIndex;
+			pVoice.pulseIndex = pVoice.newPulseIndex;
 		}
-		else if ( ((pVoice->waveStep.w[HI] + pVoice->pulseIndex) < 0x1000)
-			&& ((pVoice->waveStep.w[HI] + pVoice->newPulseIndex) < 0x1000) )
+		else if ( ((pVoice.waveStep.w[HI] + pVoice.pulseIndex) < 0x1000)
+			&& ((pVoice.waveStep.w[HI] + pVoice.newPulseIndex) < 0x1000) )
 		{
-			pVoice->pulseIndex = pVoice->newPulseIndex;
+			pVoice.pulseIndex = pVoice.newPulseIndex;
 		}
 	#else
-		if ( ((pVoice->waveStep + pVoice->pulseIndex) >= 0x1000)
-			&& ((pVoice->waveStep + pVoice->newPulseIndex) >= 0x1000) )
+		if ( ((pVoice.waveStep + pVoice.pulseIndex) >= 0x1000)
+			&& ((pVoice.waveStep + pVoice.newPulseIndex) >= 0x1000) )
 		{
-			pVoice->pulseIndex = pVoice->newPulseIndex;
+			pVoice.pulseIndex = pVoice.newPulseIndex;
 		}
-		else if ( ((pVoice->waveStep + pVoice->pulseIndex) < 0x1000)
-			&& ((pVoice->waveStep + pVoice->newPulseIndex) < 0x1000) )
+		else if ( ((pVoice.waveStep + pVoice.pulseIndex) < 0x1000)
+			&& ((pVoice.waveStep + pVoice.newPulseIndex) < 0x1000) )
 		{
-			pVoice->pulseIndex = pVoice->newPulseIndex;
+			pVoice.pulseIndex = pVoice.newPulseIndex;
 		}
 	#endif
 	
 	
-		oldWave = pVoice->SIDctrl;
-		enveTemp = pVoice->ADSRctrl;
-		pVoice->SIDctrl = (newWave = sid6581_read_word(sid6581, sidIndex +4));
+		oldWave = pVoice.SIDctrl;
+		enveTemp = pVoice.ADSRctrl;
+		pVoice.SIDctrl = (newWave = sid6581_read_word(sid6581, sidIndex +4));
 	
 		if (( newWave & 1 ) ==0 )
 		{
 			if (( oldWave & 1 ) !=0 )
 				enveTemp = ENVE_STARTRELEASE;
-	/*		else if ( pVoice->gateOnCtrl ) */
+	/*		else if ( pVoice.gateOnCtrl ) */
 	/*		{ */
 	/*			enveTemp = ENVE_STARTSHORTATTACK; */
 	/*		} */
 		}
-		else if ( pVoice->gateOffCtrl || ((oldWave&1)==0) )
+		else if ( pVoice.gateOffCtrl || ((oldWave&1)==0) )
 		{
 			enveTemp = ENVE_STARTATTACK;
 			if (doAutoPanning && updateAutoPanning)
 			{
 				/* Swap source/destination position. */
-				uword tmp = pVoice->gainSource;
-				pVoice->gainSource = pVoice->gainDest;
-				pVoice->gainDest = tmp;
-				if ((pVoice->gainDest^pVoice->gainSource) == 0)
+				uword tmp = pVoice.gainSource;
+				pVoice.gainSource = pVoice.gainDest;
+				pVoice.gainDest = tmp;
+				if ((pVoice.gainDest^pVoice.gainSource) == 0)
 				{
 					/* Mute voice. */
-					pVoice->gainLeft = (pVoice->gainRight = 0x0000+0x80);
+					pVoice.gainLeft = (pVoice.gainRight = 0x0000+0x80);
 				}
 				else
 				{
 					/* Start from middle position. */
-					pVoice->gainLeft = pVoice->gainLeftCentered;
-					pVoice->gainRight = pVoice->gainRightCentered;
+					pVoice.gainLeft = pVoice.gainLeftCentered;
+					pVoice.gainRight = pVoice.gainRightCentered;
 				}
 				/* Determine direction. */
 				/* true  = L > R : L down, R up */
 				/* false = L < R : L up, R down */
-				pVoice->gainDirec = (pVoice->gainLeft > pVoice->gainDest);
+				pVoice.gainDirec = (pVoice.gainLeft > pVoice.gainDest);
 			}
 		}
 	
 		if (doAutoPanning && updateAutoPanning && (enveTemp!=ENVE_STARTATTACK))
 		{
-			if (pVoice->gainDirec)
+			if (pVoice.gainDirec)
 			{
-				if (pVoice->gainLeft > pVoice->gainDest)
+				if (pVoice.gainLeft > pVoice.gainDest)
 				{
-					pVoice->gainLeft -= 0x0100;
-					pVoice->gainRight += 0x0100;
+					pVoice.gainLeft -= 0x0100;
+					pVoice.gainRight += 0x0100;
 				}
 				else
 				{
 					/* Swap source/destination position. */
-					uword tmp = pVoice->gainSource;
-					pVoice->gainSource = pVoice->gainDest;
-					pVoice->gainDest = tmp;
+					uword tmp = pVoice.gainSource;
+					pVoice.gainSource = pVoice.gainDest;
+					pVoice.gainDest = tmp;
 					/* Inverse direction. */
-					pVoice->gainDirec = false;
+					pVoice.gainDirec = false;
 				}
 			}
 			else
 			{
-				if (pVoice->gainRight > pVoice->gainSource)
+				if (pVoice.gainRight > pVoice.gainSource)
 				{
-					pVoice->gainLeft += 0x0100;
-					pVoice->gainRight -= 0x0100;
+					pVoice.gainLeft += 0x0100;
+					pVoice.gainRight -= 0x0100;
 				}
 				else
 				{
 					uword tmp;
-					pVoice->gainDirec = true;
+					pVoice.gainDirec = true;
 					/* Swap source/destination position. */
-					tmp = pVoice->gainSource;
-					pVoice->gainSource = pVoice->gainDest;
+					tmp = pVoice.gainSource;
+					pVoice.gainSource = pVoice.gainDest;
 					/* Inverse direction. */
-					pVoice->gainDest = tmp;
+					pVoice.gainDest = tmp;
 				}
 			}
 		}
 	
 		if ((( oldWave ^ newWave ) & 0xF0 ) != 0 )
 		{
-			pVoice->cycleLenCount = 0;
+			pVoice.cycleLenCount = 0;
 		}
 	
-	    ADtemp = sid6581->reg[sidIndex +5];
-		SRtemp = sid6581->reg[sidIndex +6];
-		if ( pVoice->SIDAD != ADtemp )
+	    ADtemp = sid6581.reg[sidIndex +5];
+		SRtemp = sid6581.reg[sidIndex +6];
+		if ( pVoice.SIDAD != ADtemp )
 		{
 			enveTemp |= ENVE_ALTER;
 		}
-		else if ( pVoice->SIDSR != SRtemp )
+		else if ( pVoice.SIDSR != SRtemp )
 		{
 			enveTemp |= ENVE_ALTER;
 		}
-		pVoice->SIDAD = ADtemp;
-		pVoice->SIDSR = SRtemp;
+		pVoice.SIDAD = ADtemp;
+		pVoice.SIDSR = SRtemp;
 		tmpSusVol = masterVolumeLevels[SRtemp >> 4];
-		if (pVoice->ADSRctrl != ENVE_SUSTAIN)  /* !!! */
+		if (pVoice.ADSRctrl != ENVE_SUSTAIN)  /* !!! */
 		{
-			pVoice->enveSusVol = tmpSusVol;
+			pVoice.enveSusVol = tmpSusVol;
 		}
 		else
 		{
-			if ( pVoice->enveSusVol > pVoice->enveVol )
-				pVoice->enveSusVol = 0;
+			if ( pVoice.enveSusVol > pVoice.enveVol )
+				pVoice.enveSusVol = 0;
 			else
-				pVoice->enveSusVol = tmpSusVol;
+				pVoice.enveSusVol = tmpSusVol;
 		}
 	
-		pVoice->ADSRproc = enveModeTable[enveTemp>>1];  /* shifting out the KEY-bit */
-		pVoice->ADSRctrl = enveTemp & (255-ENVE_ALTER-1);
+		pVoice.ADSRproc = enveModeTable[enveTemp>>1];  /* shifting out the KEY-bit */
+		pVoice.ADSRctrl = enveTemp & (255-ENVE_ALTER-1);
 	
-	    pVoice->filtEnabled = filterEnabled &&
-	        ((sid6581->reg[0x17]&pVoice->filtVoiceMask)!=0);
+	    pVoice.filtEnabled = filterEnabled &&
+	        ((sid6581.reg[0x17]&pVoice.filtVoiceMask)!=0);
 	}
 	
 	/* -------------------------------------------------- Operator frame set-up 2 */
@@ -802,97 +802,97 @@ public class _6581_
 	
 	INLINE void sidEmuSet2(sidOperator* pVoice)
 	{
-		pVoice->outProc = &waveCalcNormal;
-		pVoice->sync = false;
+		pVoice.outProc = &waveCalcNormal;
+		pVoice.sync = false;
 	
-		if ( (pVoice->SIDfreq < 16)
-			|| ((pVoice->SIDctrl & 8) != 0) )
+		if ( (pVoice.SIDfreq < 16)
+			|| ((pVoice.SIDctrl & 8) != 0) )
 		{
-			pVoice->outProc = waveCalcMute;
-			if (pVoice->SIDfreq == 0)
+			pVoice.outProc = waveCalcMute;
+			if (pVoice.SIDfreq == 0)
 			{
 	#if defined(DIRECT_FIXPOINT)
-				pVoice->cycleLen.l = (pVoice->cycleAddLen.l = 0);
-				pVoice->waveStep.l = 0;
+				pVoice.cycleLen.l = (pVoice.cycleAddLen.l = 0);
+				pVoice.waveStep.l = 0;
 	#else
-				pVoice->cycleLen = (pVoice->cycleLenPnt = 0);
-				pVoice->cycleAddLenPnt = 0;
-				pVoice->waveStep = 0;
-				pVoice->waveStepPnt = 0;
+				pVoice.cycleLen = (pVoice.cycleLenPnt = 0);
+				pVoice.cycleAddLenPnt = 0;
+				pVoice.waveStep = 0;
+				pVoice.waveStepPnt = 0;
 	#endif
-				pVoice->curSIDfreq = (pVoice->curNoiseFreq = 0);
-				pVoice->noiseStepAdd = 0;
-				pVoice->cycleLenCount = 0;
+				pVoice.curSIDfreq = (pVoice.curNoiseFreq = 0);
+				pVoice.noiseStepAdd = 0;
+				pVoice.cycleLenCount = 0;
 			}
-			if ((pVoice->SIDctrl & 8) != 0)
+			if ((pVoice.SIDctrl & 8) != 0)
 			{
-				if (pVoice->noiseIsLocked)
+				if (pVoice.noiseIsLocked)
 				{
-					pVoice->noiseIsLocked = false;
+					pVoice.noiseIsLocked = false;
 	#if defined(DIRECT_FIXPOINT)
-					pVoice->noiseReg.l = noiseSeed;
+					pVoice.noiseReg.l = noiseSeed;
 	#else
-					pVoice->noiseReg = noiseSeed;
+					pVoice.noiseReg = noiseSeed;
 	#endif
 				}
 			}
 		}
 		else
 		{
-			if ( pVoice->curSIDfreq != pVoice->SIDfreq )
+			if ( pVoice.curSIDfreq != pVoice.SIDfreq )
 			{
-				pVoice->curSIDfreq = pVoice->SIDfreq;
+				pVoice.curSIDfreq = pVoice.SIDfreq;
 				/* We keep the value cycleLen between 1 <= x <= 65535. */
 				/* This makes a range-check in waveCalcCycleLen() unrequired. */
 	#if defined(DIRECT_FIXPOINT)
-				pVoice->cycleLen.l = ((PCMsid << 12) / pVoice->SIDfreq) << 4;
-				if (pVoice->cycleLenCount > 0)
+				pVoice.cycleLen.l = ((PCMsid << 12) / pVoice.SIDfreq) << 4;
+				if (pVoice.cycleLenCount > 0)
 				{
 					waveCalcCycleLen(pVoice);
-					pVoice->outProc = &waveCalcRangeCheck;
+					pVoice.outProc = &waveCalcRangeCheck;
 				}
 	#else
-				pVoice->cycleLen = PCMsid / pVoice->SIDfreq;
-				pVoice->cycleLenPnt = (( PCMsid % pVoice->SIDfreq ) * 65536UL ) / pVoice->SIDfreq;
-				if (pVoice->cycleLenCount > 0)
+				pVoice.cycleLen = PCMsid / pVoice.SIDfreq;
+				pVoice.cycleLenPnt = (( PCMsid % pVoice.SIDfreq ) * 65536UL ) / pVoice.SIDfreq;
+				if (pVoice.cycleLenCount > 0)
 				{
 					waveCalcCycleLen(pVoice);
-					pVoice->outProc = &waveCalcRangeCheck;
+					pVoice.outProc = &waveCalcRangeCheck;
 				}
 	#endif
 			}
 	
-			if ((( pVoice->SIDctrl & 0x80 ) == 0x80 ) && ( pVoice->curNoiseFreq != pVoice->SIDfreq ))
+			if ((( pVoice.SIDctrl & 0x80 ) == 0x80 ) && ( pVoice.curNoiseFreq != pVoice.SIDfreq ))
 			{
-				pVoice->curNoiseFreq = pVoice->SIDfreq;
-				pVoice->noiseStepAdd = (PCMsidNoise * pVoice->SIDfreq) >> 8;
-				if (pVoice->noiseStepAdd >= (1L<<21))
+				pVoice.curNoiseFreq = pVoice.SIDfreq;
+				pVoice.noiseStepAdd = (PCMsidNoise * pVoice.SIDfreq) >> 8;
+				if (pVoice.noiseStepAdd >= (1L<<21))
 					sidModeNormalTable[8] = sidMode80hp;
 				else
 					sidModeNormalTable[8] = sidMode80;
 			}
 	
-			if (( pVoice->SIDctrl & 2 ) != 0 )
+			if (( pVoice.SIDctrl & 2 ) != 0 )
 			{
-				if ( ( pVoice->modulator->SIDfreq == 0 ) || (( pVoice->modulator->SIDctrl & 8 ) != 0 ) )
+				if ( ( pVoice.modulator.SIDfreq == 0 ) || (( pVoice.modulator.SIDctrl & 8 ) != 0 ) )
 				{
 					;
 				}
-				else if ( (( pVoice->carrier->SIDctrl & 2 ) != 0 ) &&
-						 ( pVoice->modulator->SIDfreq >= ( pVoice->SIDfreq << 1 )) )
+				else if ( (( pVoice.carrier.SIDctrl & 2 ) != 0 ) &&
+						 ( pVoice.modulator.SIDfreq >= ( pVoice.SIDfreq << 1 )) )
 				{
 					;
 				}
 				else
 				{
-					pVoice->sync = true;
+					pVoice.sync = true;
 				}
 			}
 	
-			if ((( pVoice->SIDctrl & 0x14 ) == 0x14 ) && ( pVoice->modulator->SIDfreq != 0 ))
-				pVoice->waveProc = sidModeRingTable[pVoice->SIDctrl >> 4];
+			if ((( pVoice.SIDctrl & 0x14 ) == 0x14 ) && ( pVoice.modulator.SIDfreq != 0 ))
+				pVoice.waveProc = sidModeRingTable[pVoice.SIDctrl >> 4];
 			else
-				pVoice->waveProc = sidModeNormalTable[pVoice->SIDctrl >> 4];
+				pVoice.waveProc = sidModeNormalTable[pVoice.SIDctrl >> 4];
 		}
 	}
 	
@@ -916,7 +916,7 @@ public class _6581_
 						   void* buffer, udword bufferLen )
 	{
 		/* Ensure a sane status of the whole emulator. */
-		if ( thisEmu->isReady && thisTune->getStatus() )
+		if ( thisEmu.isReady && thisTune.getStatus() )
 		{
 			/* Both, 16-bit and stereo samples take more memory. */
 			/* Hence fewer samples fit into the buffer. */
@@ -924,7 +924,7 @@ public class _6581_
 	
 			/* Split sample buffer into pieces for # voices: */
 			/* splitBufferLen * bytesPerSample * voices = bufferLen */
-			if ( thisEmu->config.volumeControl == SIDEMU_HWMIXING )
+			if ( thisEmu.config.volumeControl == SIDEMU_HWMIXING )
 			{
 				bufferLen >>= 2; /* or /4 */
 				extern udword splitBufferLen;
@@ -937,12 +937,12 @@ public class _6581_
 				prevBufferLen = bufferLen;
 				scaledBufferLen = (bufferLen<<7) / fastForwardFactor;
 			}
-			thisEmu->bytesCount += scaledBufferLen;
-			while (thisEmu->bytesCount >= thisEmu->config.frequency)
+			thisEmu.bytesCount += scaledBufferLen;
+			while (thisEmu.bytesCount >= thisEmu.config.frequency)
 			{
-				thisEmu->bytesCount -= thisEmu->config.frequency;
-				thisEmu->secondsThisSong++;
-				thisEmu->secondsTotal++;
+				thisEmu.bytesCount -= thisEmu.config.frequency;
+				thisEmu.secondsThisSong++;
+				thisEmu.secondsTotal++;
 			}
 	#endif
 	
@@ -985,31 +985,31 @@ public class _6581_
 					/*bool retcode = */
 					interpreter(replayPC, playRamRom, 0, 0, 0);
 	
-					if (thisTune->getSongSpeed() == SIDTUNE_SPEED_CIA_1A)
+					if (thisTune.getSongSpeed() == SIDTUNE_SPEED_CIA_1A)
 					{
 						sidEmuUpdateReplayingSpeed();
 					}
 	
-					masterVolume = ( sid6581->reg[0x18] & 15 );
+					masterVolume = ( sid6581.reg[0x18] & 15 );
 					masterVolumeAmplIndex = masterVolume << 8;
 	
-					optr1.gateOnCtrl = sid6581->sidKeysOn[4];
-					optr1.gateOffCtrl = sid6581->sidKeysOff[4];
+					optr1.gateOnCtrl = sid6581.sidKeysOn[4];
+					optr1.gateOffCtrl = sid6581.sidKeysOff[4];
 					sidEmuSet( &optr1, 0x00 );
-					optr2.gateOnCtrl = sid6581->sidKeysOn[4+7];
-					optr2.gateOffCtrl = sid6581->sidKeysOff[4+7];
+					optr2.gateOnCtrl = sid6581.sidKeysOn[4+7];
+					optr2.gateOffCtrl = sid6581.sidKeysOff[4+7];
 					sidEmuSet( &optr2, 0x07 );
-					optr3.gateOnCtrl = sid6581->sidKeysOn[4+14];
-					optr3.gateOffCtrl = sid6581->sidKeysOff[4+14];
+					optr3.gateOnCtrl = sid6581.sidKeysOn[4+14];
+					optr3.gateOffCtrl = sid6581.sidKeysOff[4+14];
 					sidEmuSet( &optr3, 0x0e );
 	
-					if ((sid6581->reg[0x18]&0x80) &&
-	                    ((sid6581->reg[0x17]&optr3.filtVoiceMask)==0))
+					if ((sid6581.reg[0x18]&0x80) &&
+	                    ((sid6581.reg[0x17]&optr3.filtVoiceMask)==0))
 						optr3.outputMask = 0;     /* off */
 					else
 						optr3.outputMask = 0xff;  /* on */
 	
-					filterType = sid6581->reg[0x18] & 0x70;
+					filterType = sid6581.reg[0x18] & 0x70;
 					if (filterType != filterCurType)
 					{
 						filterCurType = filterType;
@@ -1017,14 +1017,14 @@ public class _6581_
 						optr2.filtLow = (optr2.filtRef = 0);
 						optr3.filtLow = (optr3.filtRef = 0);
 					}
-					if ( filterEnabled )
+					if (filterEnabled != 0)
 					{
-						filterValue = 0x7ff & ( (sid6581->reg[0x15]&7) | ( (uword)sid6581->reg[0x16] << 3 ));
+						filterValue = 0x7ff & ( (sid6581.reg[0x15]&7) | ( (uword)sid6581.reg[0x16] << 3 ));
 						if (filterType == 0x20)
 							filterDy = bandPassParam[filterValue];
 						else
 							filterDy = lowPassParam[filterValue];
-						filterResDy = filterResTable[sid6581->reg[0x17] >> 4] - filterDy;
+						filterResDy = filterResTable[sid6581.reg[0x17] >> 4] - filterDy;
 						if ( filterResDy < 1.0 )
 							filterResDy = 1.0;
 					}
@@ -1094,8 +1094,8 @@ public class _6581_
 	
 				if ( toFill == 0 )
 				{
-					sid6581->reg[0x1b] = optr3.output;
-					sid6581->reg[0x1c] = optr3.enveVol;
+					sid6581.reg[0x1b] = optr3.output;
+					sid6581.reg[0x1c] = optr3.enveVol;
 	
 	#if 0
 					uword replayPC = thisTune.getPlayAddr();
@@ -1115,32 +1115,32 @@ public class _6581_
 					/*bool retcode = */
 					interpreter(replayPC, playRamRom, 0, 0, 0);
 	
-					if (thisTune->getSongSpeed() == SIDTUNE_SPEED_CIA_1A)
+					if (thisTune.getSongSpeed() == SIDTUNE_SPEED_CIA_1A)
 					{
 						sidEmuUpdateReplayingSpeed();
 					}
 	#endif
 	
-					masterVolume = ( sid6581->reg[0x18] & 15 );
+					masterVolume = ( sid6581.reg[0x18] & 15 );
 					masterVolumeAmplIndex = masterVolume << 8;
 	
-					optr1.gateOnCtrl = sid6581->sidKeysOn[4];
-					optr1.gateOffCtrl = sid6581->sidKeysOff[4];
+					optr1.gateOnCtrl = sid6581.sidKeysOn[4];
+					optr1.gateOffCtrl = sid6581.sidKeysOff[4];
 					sidEmuSet( &optr1, 0x00 );
-					optr2.gateOnCtrl = sid6581->sidKeysOn[4+7];
-					optr2.gateOffCtrl = sid6581->sidKeysOff[4+7];
+					optr2.gateOnCtrl = sid6581.sidKeysOn[4+7];
+					optr2.gateOffCtrl = sid6581.sidKeysOff[4+7];
 					sidEmuSet( &optr2, 0x07 );
-					optr3.gateOnCtrl = sid6581->sidKeysOn[4+14];
-					optr3.gateOffCtrl = sid6581->sidKeysOff[4+14];
+					optr3.gateOnCtrl = sid6581.sidKeysOn[4+14];
+					optr3.gateOffCtrl = sid6581.sidKeysOff[4+14];
 					sidEmuSet( &optr3, 0x0e );
 	
-					if ((sid6581->reg[0x18]&0x80) &&
-	                    ((sid6581->reg[0x17]&optr3.filtVoiceMask)==0))
+					if ((sid6581.reg[0x18]&0x80) &&
+	                    ((sid6581.reg[0x17]&optr3.filtVoiceMask)==0))
 						optr3.outputMask = 0;     /* off */
 					else
 						optr3.outputMask = 0xff;  /* on */
 	
-					filterType = sid6581->reg[0x18] & 0x70;
+					filterType = sid6581.reg[0x18] & 0x70;
 					if (filterType != filterCurType)
 					{
 						filterCurType = filterType;
@@ -1148,14 +1148,14 @@ public class _6581_
 						optr2.filtLow = (optr2.filtRef = 0);
 						optr3.filtLow = (optr3.filtRef = 0);
 					}
-					if ( filterEnabled )
+					if (filterEnabled != 0)
 					{
-						filterValue = 0x7ff & ( (sid6581->reg[0x15]&7) | ( (uword)sid6581->reg[0x16] << 3 ));
+						filterValue = 0x7ff & ( (sid6581.reg[0x15]&7) | ( (uword)sid6581.reg[0x16] << 3 ));
 						if (filterType == 0x20)
 							filterDy = bandPassParam[filterValue];
 						else
 							filterDy = lowPassParam[filterValue];
-						filterResDy = filterResTable[sid6581->reg[0x17] >> 4] - filterDy;
+						filterResDy = filterResTable[sid6581.reg[0x17] >> 4] - filterDy;
 						if ( filterResDy < 1.0 )
 							filterResDy = 1.0;
 					}
@@ -1255,7 +1255,7 @@ public class _6581_
 		for ( i = 0; i < 4096; i++ )
 			squareTable[k++] = 255;
 	
-		if ( isNewSID )
+		if (isNewSID != 0)
 		{
 	        waveform30 = waveform30_8580;
 	        waveform50 = waveform50_8580;
@@ -1277,7 +1277,7 @@ public class _6581_
 			waveform70[i] = 0;
 		}
 	
-		if ( isNewSID )
+		if (isNewSID != 0)
 		{
 			sidModeNormalTable[3] = sidMode30;
 			sidModeNormalTable[6] = sidMode60;
@@ -1385,10 +1385,10 @@ public class _6581_
 	
 		/* Used for detecting changes of the GATE-bit (aka KEY-bit). */
 		/* 6510-interpreter clears these before each call. */
-		sid6581->sidKeysOff[4] = (sid6581->sidKeysOff[4+7] =
-								  (sid6581->sidKeysOff[4+14] = false));
-		sid6581->sidKeysOn[4] = (sid6581->sidKeysOn[4+7] =
-								 (sid6581->sidKeysOn[4+14] = false));
+		sid6581.sidKeysOff[4] = (sid6581.sidKeysOff[4+7] =
+								  (sid6581.sidKeysOff[4+14] = false));
+		sid6581.sidKeysOn[4] = (sid6581.sidKeysOn[4+7] =
+								 (sid6581.sidKeysOn[4+14] = false));
 	
 		sampleEmuReset();
 	
@@ -1407,54 +1407,54 @@ public class _6581_
 	
 	void clearSidOperator( sidOperator* pVoice )
 	{
-		pVoice->SIDfreq = 0;
-		pVoice->SIDctrl = 0;
-		pVoice->SIDAD = 0;
-		pVoice->SIDSR = 0;
+		pVoice.SIDfreq = 0;
+		pVoice.SIDctrl = 0;
+		pVoice.SIDAD = 0;
+		pVoice.SIDSR = 0;
 	
-		pVoice->sync = false;
+		pVoice.sync = false;
 	
-		pVoice->pulseIndex = (pVoice->newPulseIndex = (pVoice->SIDpulseWidth = 0));
-		pVoice->curSIDfreq = (pVoice->curNoiseFreq = 0);
+		pVoice.pulseIndex = (pVoice.newPulseIndex = (pVoice.SIDpulseWidth = 0));
+		pVoice.curSIDfreq = (pVoice.curNoiseFreq = 0);
 	
-		pVoice->output = (pVoice->noiseOutput = 0);
-		pVoice->outputMask = 0xff;  /* on */
-		pVoice->filtIO = 0;
+		pVoice.output = (pVoice.noiseOutput = 0);
+		pVoice.outputMask = 0xff;  /* on */
+		pVoice.filtIO = 0;
 	
-		pVoice->filtEnabled = false;
-		pVoice->filtLow = (pVoice->filtRef = 0);
+		pVoice.filtEnabled = false;
+		pVoice.filtLow = (pVoice.filtRef = 0);
 	
-		pVoice->cycleLenCount = 0;
+		pVoice.cycleLenCount = 0;
 	#if defined(DIRECT_FIXPOINT)
-		pVoice->cycleLen.l = (pVoice->cycleAddLen.l = 0);
+		pVoice.cycleLen.l = (pVoice.cycleAddLen.l = 0);
 	#else
-		pVoice->cycleLen = (pVoice->cycleLenPnt = 0);
-		pVoice->cycleAddLenPnt = 0;
+		pVoice.cycleLen = (pVoice.cycleLenPnt = 0);
+		pVoice.cycleAddLenPnt = 0;
 	#endif
 	
-		pVoice->outProc = waveCalcMute;
+		pVoice.outProc = waveCalcMute;
 	
 	#if defined(DIRECT_FIXPOINT)
-		pVoice->waveStepAdd.l = (pVoice->waveStep.l = 0);
-		pVoice->wavePre[0].len = (pVoice->wavePre[0].stp = 0);
-		pVoice->wavePre[1].len = (pVoice->wavePre[1].stp = 0);
+		pVoice.waveStepAdd.l = (pVoice.waveStep.l = 0);
+		pVoice.wavePre[0].len = (pVoice.wavePre[0].stp = 0);
+		pVoice.wavePre[1].len = (pVoice.wavePre[1].stp = 0);
 	#else
-		pVoice->waveStepAdd = (pVoice->waveStepAddPnt = 0);
-		pVoice->waveStep = (pVoice->waveStepPnt = 0);
-		pVoice->wavePre[0].len = 0;
-		pVoice->wavePre[0].stp = (pVoice->wavePre[0].pnt = 0);
-		pVoice->wavePre[1].len = 0;
-		pVoice->wavePre[1].stp = (pVoice->wavePre[1].pnt = 0);
+		pVoice.waveStepAdd = (pVoice.waveStepAddPnt = 0);
+		pVoice.waveStep = (pVoice.waveStepPnt = 0);
+		pVoice.wavePre[0].len = 0;
+		pVoice.wavePre[0].stp = (pVoice.wavePre[0].pnt = 0);
+		pVoice.wavePre[1].len = 0;
+		pVoice.wavePre[1].stp = (pVoice.wavePre[1].pnt = 0);
 	#endif
-		pVoice->waveStepOld = 0;
+		pVoice.waveStepOld = 0;
 	
 	#if defined(DIRECT_FIXPOINT)
-		pVoice->noiseReg.l = noiseSeed;
+		pVoice.noiseReg.l = noiseSeed;
 	#else
-		pVoice->noiseReg = noiseSeed;
+		pVoice.noiseReg = noiseSeed;
 	#endif
-		pVoice->noiseStepAdd = (pVoice->noiseStep = 0);
-		pVoice->noiseIsLocked = false;
+		pVoice.noiseStepAdd = (pVoice.noiseStep = 0);
+		pVoice.noiseIsLocked = false;
 	}
 	
 	
@@ -1464,7 +1464,7 @@ public class _6581_
 		updateAutoPanning = false;
 		apCount = 0;
 		/* Auto-panning see sidEmuSet(). Reset volume levels to default. */
-		if (doAutoPanning)
+		if (doAutoPanning != 0)
 		{
 			optr1.gainLeft = (optr1.gainSource = 0xa080);
 			optr1.gainRight = (optr1.gainDest = 0x2080);

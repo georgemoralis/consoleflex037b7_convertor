@@ -32,7 +32,7 @@ public class nascom1
 	#define NASCOM1_KEY_INCR	0x01
 	#define NASCOM1_CAS_ENABLE	0x10
 	
-	void nascom1_init_machine(void)
+	public static InitMachinePtr nascom1_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		logerror("nascom1_init\r\n");
 		if (readinputport(9) != nascom1_ramsize)
@@ -74,7 +74,7 @@ public class nascom1
 					break;
 			}
 		}
-	}
+	} };
 	
 	void nascom1_stop_machine(void)
 	{
@@ -128,7 +128,7 @@ public class nascom1
 		void	*file;
 	
 		file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-		if (file)
+		if (file != 0)
 		{
 			nascom1_tape_size = osd_fsize(file);
 			nascom1_tape_image = (UINT8 *)malloc(nascom1_tape_size);
@@ -149,7 +149,7 @@ public class nascom1
 	
 	void nascom1_exit_cassette(int id)
 	{
-		if (nascom1_tape_image)
+		if (nascom1_tape_image != 0)
 		{
 			free(nascom1_tape_image);
 			nascom1_tape_image = NULL;
@@ -184,7 +184,7 @@ public class nascom1
 		return (1);
 	
 		file = image_fopen(IO_CARTSLOT, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-		if (file)
+		if (file != 0)
 		{
 			done = 0;
 			fileaddr[4] = 0;

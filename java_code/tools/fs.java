@@ -77,8 +77,8 @@ public class fs
 		if (!image) return IMGTOOLERR_OUTOFMEMORY;
 	
 		memset(image, 0, sizeof(fs_image));
-		image->base.module = &imgmod_fs;
-		image->name=name;
+		image.base.module = &imgmod_fs;
+		image.name=name;
 	
 		return 0;
 	}
@@ -92,7 +92,7 @@ public class fs
 	static void fs_image_info(IMAGE *img, char *string, const int len)
 	{
 		fs_image *image=(fs_image*)img;
-		sprintf(string,"%s", image->name);
+		sprintf(string,"%s", image.name);
 	}
 	
 	static int fs_image_beginenum(IMAGE *img, IMAGEENUM **outenum)
@@ -103,11 +103,11 @@ public class fs
 		iter=*(fs_iterator**)outenum = (fs_iterator *) malloc(sizeof(fs_iterator));
 		if (!iter) return IMGTOOLERR_OUTOFMEMORY;
 	
-		iter->base.module = &imgmod_fs;
+		iter.base.module = &imgmod_fs;
 	
-		iter->image=image;
-		iter->dir=osd_dir_open(image->name,"*");
-		if (!iter->dir){
+		iter.image=image;
+		iter.dir=osd_dir_open(image.name,"*");
+		if (!iter.dir){
 			free(iter);
 			return IMGTOOLERR_CORRUPTIMAGE;
 		}
@@ -119,23 +119,23 @@ public class fs
 		fs_iterator *iter=(fs_iterator*)enumeration;
 		int is_dir=1;
 	
-		ent->corrupt=0;
+		ent.corrupt=0;
 		
 		for (;;) {
-			ent->eof=!osd_dir_get_entry(iter->dir, ent->fname, 
-										ent->fname_len,&is_dir);
-			if (ent->eof) break;
-			if (is_dir) continue;
+			ent.eof=!osd_dir_get_entry(iter.dir, ent.fname, 
+										ent.fname_len,&is_dir);
+			if (ent.eof) break;
+			if (is_dir != 0) continue;
 	
 	#if 0
-			if (ent->attr)
-				sprintf(ent->attr,"start:%.4x end:%.4x type:%d file:%d",
-						GET_UWORD( ENTRY(iter->image,iter->index)->start_address),
-						GET_UWORD( ENTRY(iter->image,iter->index)->end_address),
-						ENTRY(iter->image,iter->index)->type,
-						ENTRY(iter->image,iter->index)->file_type );
-			ent->filesize=GET_UWORD( ENTRY(iter->image, iter->index)->end_address )
-				-GET_UWORD( ENTRY(iter->image, iter->index)->start_address );
+			if (ent.attr)
+				sprintf(ent.attr,"start:%.4x end:%.4x type:%d file:%d",
+						GET_UWORD( ENTRY(iter.image,iter.index).start_address),
+						GET_UWORD( ENTRY(iter.image,iter.index).end_address),
+						ENTRY(iter.image,iter.index).type,
+						ENTRY(iter.image,iter.index).file_type );
+			ent.filesize=GET_UWORD( ENTRY(iter.image, iter.index).end_address )
+				-GET_UWORD( ENTRY(iter.image, iter.index).start_address );
 	#endif
 			break;
 		}
@@ -145,7 +145,7 @@ public class fs
 	static void fs_image_closeenum(IMAGEENUM *enumeration)
 	{
 		fs_iterator *iter=(fs_iterator*)enumeration;
-		osd_dir_close(iter->dir);
+		osd_dir_close(iter.dir);
 		free(enumeration);
 	}
 	
@@ -157,7 +157,7 @@ public class fs
 		size_t s = 0;
 	
 		for (i = 0; i < GRANULE_COUNT; i++)
-			if (rsimg->granulemap[i] == 0xff)
+			if (rsimg.granulemap[i] == 0xff)
 				s += (9 * 256);
 		return s;
 	}
@@ -211,7 +211,7 @@ public class fs
 		fsize=stream_size(sourcef);
 		if ((ind=t64_image_findfile(image, fname))==-1 ) {
 			/* appending */
-			for (ind=0; ind<GET_UWORD(HEADER(image)->max_entries)&&(ENTRY(image,ind)->type!=0); ind++) ;
+			for (ind=0; ind<GET_UWORD(HEADER(image).max_entries)&&(ENTRY(image,ind).type!=0); ind++) ;
 	
 		return 0;
 	}
@@ -225,7 +225,7 @@ public class fs
 		if ((ind=t64_image_findfile(image, fname))==-1 ) {
 			return IMGTOOLERR_MODULENOTFOUND;
 		}
-		pos=GET_ULONG(ENTRY(image,ind)->offset);
+		pos=GET_ULONG(ENTRY(image,ind).offset);
 		/* find the size of the data in this area */
 		return 0;
 	}

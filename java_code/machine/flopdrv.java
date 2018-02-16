@@ -38,7 +38,7 @@ public class flopdrv
 	{
 		drives[drive].flags &= ~flag;
 	
-		if (state)
+		if (state != 0)
 		{
 			drives[drive].flags |= flag;
 		}
@@ -58,7 +58,7 @@ public class flopdrv
 	
 	void	floppy_drive_set_ready_state(int drive, int state, int flag)
 	{
-		if (flag)
+		if (flag != 0)
 		{
 			/* set ready only if drive is present, disk is in the drive,
 			and disk motor is on - for Amstrad, Spectrum and PCW*/
@@ -164,9 +164,9 @@ public class flopdrv
 		{
 			floppy_drive *pDrive = get_floppy_drive_ptr(i);
 	
-			pDrive->id_index = 0;
-			pDrive->current_track = 0;
-			pDrive->flags = FLOPPY_DRIVE_HEAD_AT_TRACK_0;
+			pDrive.id_index = 0;
+			pDrive.current_track = 0;
+			pDrive.flags = FLOPPY_DRIVE_HEAD_AT_TRACK_0;
 	
 			/* 	When Drive is accessed but not fitted,
 			Drive Ready and Write Protected status signals are false. */
@@ -212,31 +212,31 @@ public class flopdrv
 		floppy_drive *pDrive = &drives[drive];
 	
 		/* update position */
-		pDrive->current_track+=signed_tracks;
+		pDrive.current_track+=signed_tracks;
 	
-		if (pDrive->current_track<0)
+		if (pDrive.current_track<0)
 		{
-			pDrive->current_track = 0;
+			pDrive.current_track = 0;
 		}
 		else
-		if (pDrive->current_track>=pDrive->max_track)
+		if (pDrive.current_track>=pDrive.max_track)
 		{
-			pDrive->current_track = pDrive->max_track-1;
+			pDrive.current_track = pDrive.max_track-1;
 		}
 	
 		/* set track 0 flag */
-		pDrive->flags &= ~FLOPPY_DRIVE_HEAD_AT_TRACK_0;
+		pDrive.flags &= ~FLOPPY_DRIVE_HEAD_AT_TRACK_0;
 	
-		if (pDrive->current_track==0)
+		if (pDrive.current_track==0)
 		{
-			pDrive->flags |= FLOPPY_DRIVE_HEAD_AT_TRACK_0;
+			pDrive.flags |= FLOPPY_DRIVE_HEAD_AT_TRACK_0;
 		}
 	
 		if (floppy_drive_get_flag_state(drive, FLOPPY_DRIVE_PRESENT))
 		{
 			if (drives[drive].interface.seek_callback)
 	
-				drives[drive].interface.seek_callback(drive, pDrive->current_track);
+				drives[drive].interface.seek_callback(drive, pDrive.current_track);
 		}
 	}
 	
@@ -266,7 +266,7 @@ public class flopdrv
 			drives[drive].interface.get_id_callback(drive, id, drives[drive].id_index, side);
 		}
 	
-		id->data_id = drives[drive].id_index;
+		id.data_id = drives[drive].id_index;
 	
 		drives[drive].id_index++;
 		if (spt!=0)

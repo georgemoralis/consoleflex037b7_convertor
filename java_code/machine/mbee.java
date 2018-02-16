@@ -21,7 +21,6 @@ public class mbee
 	static UINT8 fdc_head = 0;
 	static UINT8 fdc_den = 0;
 	static UINT8 fdc_status = 0;
-	static void pio_interrupt(int state);
 	
 	static z80pio_interface pio_intf =
 	{
@@ -36,11 +35,11 @@ public class mbee
 		cpu_cause_interrupt(0, Z80_VECTOR(0, state));
 	}
 	
-	void mbee_init_machine(void)
+	public static InitMachinePtr mbee_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		z80pio_init(&pio_intf);
 		wd179x_init(1);
-	}
+	} };
 	
 	void mbee_shutdown_machine(void)
 	{
@@ -86,7 +85,7 @@ public class mbee
 		}
 	}
 	
-	static void mbee_fdc_callback(int param)
+	public static timer_callback mbee_fdc_callback = new timer_callback() { public void handler(int param) 
 	{
 		switch( param )
 		{
@@ -105,7 +104,7 @@ public class mbee
 			fdc_status |= 0x80;
 	        break;
 	    }
-	}
+	} };
 	
 	READ_HANDLER ( mbee_fdc_status_r )
 	{
@@ -128,15 +127,15 @@ public class mbee
 		fdc_file[fdc_drv] = wd179x_select_drive(fdc_drv, fdc_head, mbee_fdc_callback, device_filename(IO_FLOPPY,fdc_drv));
 	}
 	
-	int mbee_interrupt(void)
+	public static InterruptPtr mbee_interrupt = new InterruptPtr() { public int handler() 
 	{
 		int tape = readinputport(9);
 	
-		if( tape & 1 )
+		if ((tape & 1) != 0)
 			device_status(IO_CASSETTE,0,1);
-		if( tape & 2 )
+		if ((tape & 2) != 0)
 			device_status(IO_CASSETTE,0,0);
-		if( tape & 4 )
+		if ((tape & 4) != 0)
 			device_seek(IO_CASSETTE,0,0,SEEK_SET);
 	
 	    /* once per frame, pulse the PIO B bit 7 */
@@ -144,14 +143,14 @@ public class mbee
 		z80pio_p_w(0, 1, 0x80);
 	    z80pio_p_w(0, 1, 0x00);
 	    return ignore_interrupt();
-	}
+	} };
 	
 	int mbee_cassette_init(int id)
 	{
 		void *file;
 	
 		file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-		if( file )
+		if (file != 0)
 		{
 			struct wave_args wa = {0,};
 			wa.file = file;
@@ -161,7 +160,7 @@ public class mbee
 	        return INIT_OK;
 		}
 		file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_RW_CREATE);
-		if( file )
+		if (file != 0)
 	    {
 			struct wave_args wa = {0,};
 			wa.file = file;
@@ -190,11 +189,11 @@ public class mbee
 	    void *file;
 	
 		file = image_fopen(IO_CARTSLOT, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-		if( file )
+		if (file != 0)
 		{
 			int size = osd_fsize(file);
 			UINT8 *mem = malloc(size);
-			if( mem )
+			if (mem != 0)
 			{
 				if( osd_fread(file, mem, size) == size )
 				{
@@ -212,7 +211,7 @@ public class mbee
 	    void *file;
 	
 		file = image_fopen(IO_CARTSLOT, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-	    if( file )
+	    if (file != 0)
 	    {
 			osd_fclose(file);
 	    }

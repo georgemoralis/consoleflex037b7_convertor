@@ -26,7 +26,7 @@ public class mekd2
 	#define LOG(x)						   /* x */
 	#endif
 	
-	void init_mekd2(void)
+	public static InitDriverPtr init_mekd2 = new InitDriverPtr() { public void handler() 
 	{
 		UINT8 *dst;
 		int x, y, i;
@@ -508,31 +508,31 @@ public class mekd2
 					switch (seg7[y * 18 + x])
 					{
 					case 'a':
-						if (i & 1)
+						if ((i & 1) != 0)
 							*dst |= 0x80 >> (x & 7);
 						break;
 					case 'b':
-						if (i & 2)
+						if ((i & 2) != 0)
 							*dst |= 0x80 >> (x & 7);
 						break;
 					case 'c':
-						if (i & 4)
+						if ((i & 4) != 0)
 							*dst |= 0x80 >> (x & 7);
 						break;
 					case 'd':
-						if (i & 8)
+						if ((i & 8) != 0)
 							*dst |= 0x80 >> (x & 7);
 						break;
 					case 'e':
-						if (i & 16)
+						if ((i & 16) != 0)
 							*dst |= 0x80 >> (x & 7);
 						break;
 					case 'f':
-						if (i & 32)
+						if ((i & 32) != 0)
 							*dst |= 0x80 >> (x & 7);
 						break;
 					case 'g':
-						if (i & 64)
+						if ((i & 64) != 0)
 							*dst |= 0x80 >> (x & 7);
 						break;
 					}
@@ -568,11 +568,11 @@ public class mekd2
 				}
 			}
 		}
-	}
+	} };
 	
-	void mekd2_init_machine(void)
+	public static InitMachinePtr mekd2_init_machine = new InitMachinePtr() { public void handler() 
 	{
-	}
+	} };
 	
 	int mekd2_rom_load(int id)
 	{
@@ -583,7 +583,7 @@ public class mekd2
 		//if (name && name[0])
 		//{
 			file = image_fopen(IO_CARTSLOT, id, OSD_FILETYPE_IMAGE_RW, 0);
-			if (file)
+			if (file != 0)
 			{
 				UINT16 addr, size;
 				UINT8 ident, *RAM = memory_region(REGION_CPU1);
@@ -614,7 +614,7 @@ public class mekd2
 		void *file;
 	
 		file = image_fopen(IO_CARTSLOT, id, OSD_FILETYPE_IMAGE_RW, 0);
-		if (file)
+		if (file != 0)
 		{
 			osd_fread(file, buff, sizeof (buff));
 			if (memcmp(buff, magic, sizeof (buff)) == 0)
@@ -626,9 +626,9 @@ public class mekd2
 		return 0;
 	}
 	
-	int mekd2_interrupt(void)
+	public static InterruptPtr mekd2_interrupt = new InterruptPtr() { public int handler() 
 	{
 		return ignore_interrupt();
-	}
+	} };
 	
 }

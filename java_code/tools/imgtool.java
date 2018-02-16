@@ -87,7 +87,7 @@ public class imgtool
 	{
 		size_t i;
 		for (i = 0; i < (sizeof(images) / sizeof(images[0])); i++)
-			if (!stricmp(name, images[i]->name))
+			if (!stricmp(name, images[i].name))
 				return images[i];
 		return NULL;
 	}
@@ -153,12 +153,12 @@ public class imgtool
 	
 		*outimg = NULL;
 	
-		if (!module->init && !module->init_by_name)
+		if (!module.init && !module.init_by_name)
 			return IMGTOOLERR_UNIMPLEMENTED | IMGTOOLERR_SRC_FUNCTIONALITY;
 	
-		if (module->init_by_name) {
-			err = module->init_by_name(fname, outimg);
-			if (err) {
+		if (module.init_by_name) {
+			err = module.init_by_name(fname, outimg);
+			if (err != 0) {
 				return markerrorsource(err);
 			}
 		} else {
@@ -166,8 +166,8 @@ public class imgtool
 			if (!f)
 				return IMGTOOLERR_FILENOTFOUND | IMGTOOLERR_SRC_IMAGEFILE;
 			
-			err = module->init(f, outimg);
-			if (err) {
+			err = module.init(f, outimg);
+			if (err != 0) {
 				stream_close(f);
 				return markerrorsource(err);
 			}
@@ -188,19 +188,19 @@ public class imgtool
 	
 	void img_close(IMAGE *img)
 	{
-		if (img->module->exit)
-			img->module->exit(img);
+		if (img.module.exit)
+			img.module.exit(img);
 	}
 	
 	int img_beginenum(IMAGE *img, IMAGEENUM **outenum)
 	{
 		int err;
 	
-		if (!img->module->beginenum)
+		if (!img.module.beginenum)
 			return IMGTOOLERR_UNIMPLEMENTED | IMGTOOLERR_SRC_FUNCTIONALITY;
 	
-		err = img->module->beginenum(img, outenum);
-		if (err)
+		err = img.module.beginenum(img, outenum);
+		if (err != 0)
 			return markerrorsource(err);
 	
 		return 0;
@@ -213,11 +213,11 @@ public class imgtool
 		/* This makes it so that drivers don't have to take care of clearing
 		 * the attributes if they don't apply
 		 */
-		if (ent->attr_len)
-			ent->attr[0] = '\0';
+		if (ent.attr_len)
+			ent.attr[0] = '\0';
 	
-		err = enumeration->module->nextenum(enumeration, ent);
-		if (err)
+		err = enumeration.module.nextenum(enumeration, ent);
+		if (err != 0)
 			return markerrorsource(err);
 	
 		return 0;
@@ -225,16 +225,16 @@ public class imgtool
 	
 	void img_closeenum(IMAGEENUM *enumeration)
 	{
-		if (enumeration->module->closeenum)
-			enumeration->module->closeenum(enumeration);
+		if (enumeration.module.closeenum)
+			enumeration.module.closeenum(enumeration);
 	}
 	
 	int img_freespace(IMAGE *img, int *sz)
 	{
-		if (!img->module->freespace)
+		if (!img.module.freespace)
 			return IMGTOOLERR_UNIMPLEMENTED | IMGTOOLERR_SRC_FUNCTIONALITY;
 	
-		*sz = img->module->freespace(img);
+		*sz = img.module.freespace(img);
 		return 0;
 	}
 	
@@ -242,11 +242,11 @@ public class imgtool
 	{
 		int err;
 	
-		if (!img->module->readfile)
+		if (!img.module.readfile)
 			return IMGTOOLERR_UNIMPLEMENTED | IMGTOOLERR_SRC_FUNCTIONALITY;
 	
-		err = img->module->readfile(img, fname, destf);
-		if (err)
+		err = img.module.readfile(img, fname, destf);
+		if (err != 0)
 			return markerrorsource(err);
 	
 		return 0;
@@ -256,11 +256,11 @@ public class imgtool
 	{
 		int err;
 	
-		if (!img->module->writefile)
+		if (!img.module.writefile)
 			return IMGTOOLERR_UNIMPLEMENTED | IMGTOOLERR_SRC_FUNCTIONALITY;
 	
-		err = img->module->writefile(img, fname, sourcef, options);
-		if (err)
+		err = img.module.writefile(img, fname, sourcef, options);
+		if (err != 0)
 			return markerrorsource(err);
 	
 		return 0;
@@ -288,14 +288,14 @@ public class imgtool
 		int err;
 		STREAM *f;
 	
-		if (!img->module->extract)
+		if (!img.module.extract)
 			return IMGTOOLERR_UNIMPLEMENTED | IMGTOOLERR_SRC_FUNCTIONALITY;
 	
 		f = stream_open(fname, OSD_FOPEN_READ);
 		if (!f)
 			return IMGTOOLERR_FILENOTFOUND | IMGTOOLERR_SRC_NATIVEFILE;
 	
-		err = img->module->extract(img, f);
+		err = img.module.extract(img, f);
 		stream_close(f);
 		return err;
 	}
@@ -321,11 +321,11 @@ public class imgtool
 	{
 		int err;
 	
-		if (!img->module->deletefile)
+		if (!img.module.deletefile)
 			return IMGTOOLERR_UNIMPLEMENTED | IMGTOOLERR_SRC_FUNCTIONALITY;
 	
-		err = img->module->deletefile(img, fname);
-		if (err)
+		err = img.module.deletefile(img, fname);
+		if (err != 0)
 			return markerrorsource(err);
 	
 		return 0;
@@ -339,32 +339,32 @@ public class imgtool
 		static const geometry_options emptyopts = { 0, 0 };
 		static const geometry_ranges emptyrange = { {0,0}, {0,0} };
 	
-		if (!module->create)
+		if (!module.create)
 			return IMGTOOLERR_UNIMPLEMENTED | IMGTOOLERR_SRC_FUNCTIONALITY;
 	
 		if (!options)
 			options = &emptyopts;
-		ranges = module->ranges ? module->ranges : &emptyrange;
+		ranges = module.ranges ? module.ranges : &emptyrange;
 	
-		if (module->flags & IMAGE_USES_CYLINDERS) {
-			if (!options->cylinders)
+		if (module.flags & IMAGE_USES_CYLINDERS) {
+			if (!options.cylinders)
 				return IMGTOOLERR_PARAMNEEDED | IMGTOOLERR_SRC_PARAM_CYLINDERS;
-			if (options->cylinders < ranges->minimum.cylinders)
+			if (options.cylinders < ranges.minimum.cylinders)
 				return IMGTOOLERR_PARAMTOOSMALL | IMGTOOLERR_SRC_PARAM_CYLINDERS;
-			if (options->cylinders > ranges->maximum.cylinders)
+			if (options.cylinders > ranges.maximum.cylinders)
 				return IMGTOOLERR_PARAMTOOLARGE | IMGTOOLERR_SRC_PARAM_CYLINDERS;
 		}
 		else {
-			if (options->cylinders)
+			if (options.cylinders)
 				return IMGTOOLERR_PARAMNOTNEEDED | IMGTOOLERR_SRC_PARAM_CYLINDERS;
 		}
 	
-		if (module->flags & IMAGE_USES_HEADS) {
-			if (!options->heads)
+		if (module.flags & IMAGE_USES_HEADS) {
+			if (!options.heads)
 				return IMGTOOLERR_PARAMNEEDED | IMGTOOLERR_SRC_PARAM_HEADS;
-			if (options->heads < ranges->minimum.heads)
+			if (options.heads < ranges.minimum.heads)
 				return IMGTOOLERR_PARAMTOOSMALL | IMGTOOLERR_SRC_PARAM_HEADS;
-			if (options->heads > ranges->maximum.heads)
+			if (options.heads > ranges.maximum.heads)
 				return IMGTOOLERR_PARAMTOOLARGE | IMGTOOLERR_SRC_PARAM_HEADS;
 		}
 	
@@ -372,9 +372,9 @@ public class imgtool
 		if (!f)
 			return IMGTOOLERR_FILENOTFOUND | IMGTOOLERR_SRC_NATIVEFILE;
 	
-		err = module->create(f, options);
+		err = module.create(f, options);
 		stream_close(f);
-		if (err)
+		if (err != 0)
 			return markerrorsource(err);
 	
 		return 0;
@@ -434,7 +434,7 @@ public class imgtool
 				p++;
 			}
 			*s = p;
-			if (beginspace)
+			if (beginspace != 0)
 				*beginspace = '\0';
 		}
 		else {
@@ -451,34 +451,34 @@ public class imgtool
 		char *s;
 		char fnamebuf[32];
 	
-		info->longname = NULL;
-		info->manufacturer = NULL;
-		info->year = 0;
-		info->playable = NULL;
-		info->extrainfo = NULL;
+		info.longname = NULL;
+		info.manufacturer = NULL;
+		info.year = 0;
+		info.playable = NULL;
+		info.extrainfo = NULL;
 	
-		err = file_crc(fname, &info->crc);
-		if (err)
+		err = file_crc(fname, &info.crc);
+		if (err != 0)
 			return markerrorsource(err);
 	
-		if (!module || !module->crcfile)
+		if (!module || !module.crcfile)
 			return 0;
 	
-		sprintf(fnamebuf, "crc/%s", module->crcfile);
+		sprintf(fnamebuf, "crc/%s", module.crcfile);
 		config = config_open(fnamebuf);
 		if (!config)
 			return 0;
 	
-		sprintf(fnamebuf, "%08x", (int)info->crc);
-		config_load_string(config, module->crcsysname, 0, fnamebuf, info->buffer, sizeof(info->buffer));
-		if (info->buffer[0]) {
-			s = info->buffer;
-			info->longname = nextentry(&s);
-			info->manufacturer = nextentry(&s);
+		sprintf(fnamebuf, "%08x", (int)info.crc);
+		config_load_string(config, module.crcsysname, 0, fnamebuf, info.buffer, sizeof(info.buffer));
+		if (info.buffer[0]) {
+			s = info.buffer;
+			info.longname = nextentry(&s);
+			info.manufacturer = nextentry(&s);
 			year = nextentry(&s);
-			info->year = year ? atoi(year) : 0;
-			info->playable = nextentry(&s);
-			info->extrainfo = nextentry(&s);
+			info.year = year ? atoi(year) : 0;
+			info.playable = nextentry(&s);
+			info.extrainfo = nextentry(&s);
 		}
 		config_close(config);
 	
@@ -489,7 +489,7 @@ public class imgtool
 	{
 		const struct ImageModule *module;
 	
-		if (modulename) {
+		if (modulename != 0) {
 			module = findimagemodule(modulename);
 			if (!module)
 				return IMGTOOLERR_MODULENOTFOUND | IMGTOOLERR_SRC_MODULE;
@@ -511,7 +511,7 @@ public class imgtool
 		imageinfo info;
 	
 		err = img_getinfo(module, fname, &info);
-		if (err)
+		if (err != 0)
 			goto error;
 	
 		if (!info.longname) {
@@ -519,14 +519,14 @@ public class imgtool
 			return 0;
 		}
 	
-		ext = module->fileextension;
+		ext = module.fileextension;
 		s = malloc((base ? strlen(base)+1 : 0) + strlen(info.longname) + (ext ? strlen(ext)+1 : 0) + 1);
 		if (!s) {
 			err = IMGTOOLERR_OUTOFMEMORY;
 			goto error;
 		}
 	
-		if (base) {
+		if (base != 0) {
 			strcpy(s, base);
 			dest = s + strlen(s);
 		}
@@ -542,7 +542,7 @@ public class imgtool
 			source++;
 		}
 	
-		if (ext) {
+		if (ext != 0) {
 			*(dest++) = '.';
 			strcpy(dest, ext);
 			dest += strlen(dest);

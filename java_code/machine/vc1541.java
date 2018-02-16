@@ -256,7 +256,7 @@ public class vc1541
 		if (gcr_helper.count==4) {
 			gcr_double_2_gcr(gcr_helper.data[0], gcr_helper.data[1],
 							 gcr_helper.data[2], gcr_helper.data[3],
-							 vc1541->head.data+*pos);
+							 vc1541.head.data+*pos);
 			*pos=*pos+5;
 			gcr_helper.count=0;
 		}
@@ -271,135 +271,135 @@ public class vc1541
 	{
 		int i=0, j, offset, chksum=0;
 	
-		if (vc1541->d64.data==NULL) return;
-		vc1541->head.data[i++]=0xff;
-		vc1541->head.data[i++]=0xff;
-		vc1541->head.data[i++]=0xff;
-		vc1541->head.data[i++]=0xff;
-		vc1541->head.data[i++]=0xff;
+		if (vc1541.d64.data==NULL) return;
+		vc1541.head.data[i++]=0xff;
+		vc1541.head.data[i++]=0xff;
+		vc1541.head.data[i++]=0xff;
+		vc1541.head.data[i++]=0xff;
+		vc1541.head.data[i++]=0xff;
 		vc1541_sector_start();
 	
 		vc1541_sector_data(8, &i);
 		chksum= sector^track
-			^vc1541->d64.data[D64_TRACK_ID1]^vc1541->d64.data[D64_TRACK_ID2];
+			^vc1541.d64.data[D64_TRACK_ID1]^vc1541.d64.data[D64_TRACK_ID2];
 		vc1541_sector_data(chksum, &i);
 		vc1541_sector_data(sector, &i);
 		vc1541_sector_data(track, &i);
-		vc1541_sector_data(vc1541->d64.data[D64_TRACK_ID1], &i);
-		vc1541_sector_data(vc1541->d64.data[D64_TRACK_ID2], &i);
+		vc1541_sector_data(vc1541.d64.data[D64_TRACK_ID1], &i);
+		vc1541_sector_data(vc1541.d64.data[D64_TRACK_ID2], &i);
 		vc1541_sector_data(0xf, &i);
 		vc1541_sector_data(0xf, &i);
 		vc1541_sector_end(&i);
 	
 		/* 5 - 10 gcr bytes cap */
-		gcr_double_2_gcr(0, 0, 0, 0, vc1541->head.data+i);i+=5;
-		gcr_double_2_gcr(0, 0, 0, 0, vc1541->head.data+i);i+=5;
-		vc1541->head.data[i++]=0xff;
-		vc1541->head.data[i++]=0xff;
-		vc1541->head.data[i++]=0xff;
-		vc1541->head.data[i++]=0xff;
-		vc1541->head.data[i++]=0xff;
+		gcr_double_2_gcr(0, 0, 0, 0, vc1541.head.data+i);i+=5;
+		gcr_double_2_gcr(0, 0, 0, 0, vc1541.head.data+i);i+=5;
+		vc1541.head.data[i++]=0xff;
+		vc1541.head.data[i++]=0xff;
+		vc1541.head.data[i++]=0xff;
+		vc1541.head.data[i++]=0xff;
+		vc1541.head.data[i++]=0xff;
 		vc1541_sector_data(0x7, &i);
 	
 		chksum=0;
 		for (offset=d64_tracksector2offset(track,sector), j=0; j<256; j++) {
-			chksum^=vc1541->d64.data[offset];
-			vc1541_sector_data(vc1541->d64.data[offset++], &i);
+			chksum^=vc1541.d64.data[offset];
+			vc1541_sector_data(vc1541.d64.data[offset++], &i);
 		}
 		vc1541_sector_data(chksum, &i);
 		vc1541_sector_data(0, &i); /* padding up */
 		vc1541_sector_data(0, &i);
 		vc1541_sector_end(&i);
-		gcr_double_2_gcr(0, 0, 0, 0, vc1541->head.data+i);i+=5;
-		gcr_double_2_gcr(0, 0, 0, 0, vc1541->head.data+i);i+=5;
+		gcr_double_2_gcr(0, 0, 0, 0, vc1541.head.data+i);i+=5;
+		gcr_double_2_gcr(0, 0, 0, 0, vc1541.head.data+i);i+=5;
 	}
 	
-	struct MemoryReadAddress vc1541_readmem[] =
+	static MemoryReadAddress vc1541_readmem[] =
 	{
-		{0x0000, 0x07ff, MRA_RAM},
-		{0x1800, 0x180f, via_2_r},		   /* 0 and 1 used in vc20 */
-		{0x1810, 0x189f, MRA_NOP}, /* for debugger */
-		{0x1c00, 0x1c0f, via_3_r},
-		{0x1c10, 0x1c9f, MRA_NOP}, /* for debugger */
-		{0xc000, 0xffff, MRA_ROM},
+		new MemoryReadAddress(0x0000, 0x07ff, MRA_RAM),
+		new MemoryReadAddress(0x1800, 0x180f, via_2_r),		   /* 0 and 1 used in vc20 */
+		new MemoryReadAddress(0x1810, 0x189f, MRA_NOP), /* for debugger */
+		new MemoryReadAddress(0x1c00, 0x1c0f, via_3_r),
+		new MemoryReadAddress(0x1c10, 0x1c9f, MRA_NOP), /* for debugger */
+		new MemoryReadAddress(0xc000, 0xffff, MRA_ROM),
 		MEMORY_TABLE_END
 	};
 	
-	struct MemoryWriteAddress vc1541_writemem[] =
+	static MemoryWriteAddress vc1541_writemem[] =
 	{
-		{0x0000, 0x07ff, MWA_RAM},
-		{0x1800, 0x180f, via_2_w},
-		{0x1c00, 0x1c0f, via_3_w},
-		{0xc000, 0xffff, MWA_ROM},
+		new MemoryWriteAddress(0x0000, 0x07ff, MWA_RAM),
+		new MemoryWriteAddress(0x1800, 0x180f, via_2_w),
+		new MemoryWriteAddress(0x1c00, 0x1c0f, via_3_w),
+		new MemoryWriteAddress(0xc000, 0xffff, MWA_ROM),
 		MEMORY_TABLE_END
 	};
 	
-	struct MemoryReadAddress dolphin_readmem[] =
+	static MemoryReadAddress dolphin_readmem[] =
 	{
-		{0x0000, 0x07ff, MRA_RAM},
-		{0x1800, 0x180f, via_2_r},		   /* 0 and 1 used in vc20 */
-		{0x1c00, 0x1c0f, via_3_r},
-		{0x8000, 0x9fff, MRA_RAM},
-		{0xa000, 0xffff, MRA_ROM},
+		new MemoryReadAddress(0x0000, 0x07ff, MRA_RAM),
+		new MemoryReadAddress(0x1800, 0x180f, via_2_r),		   /* 0 and 1 used in vc20 */
+		new MemoryReadAddress(0x1c00, 0x1c0f, via_3_r),
+		new MemoryReadAddress(0x8000, 0x9fff, MRA_RAM),
+		new MemoryReadAddress(0xa000, 0xffff, MRA_ROM),
 		MEMORY_TABLE_END
 	};
 	
-	struct MemoryWriteAddress dolphin_writemem[] =
+	static MemoryWriteAddress dolphin_writemem[] =
 	{
-		{0x0000, 0x07ff, MWA_RAM},
-		{0x1800, 0x180f, via_2_w},
-		{0x1c00, 0x1c0f, via_3_w},
-		{0x8000, 0x9fff, MWA_RAM},
-		{0xa000, 0xffff, MWA_ROM},
+		new MemoryWriteAddress(0x0000, 0x07ff, MWA_RAM),
+		new MemoryWriteAddress(0x1800, 0x180f, via_2_w),
+		new MemoryWriteAddress(0x1c00, 0x1c0f, via_3_w),
+		new MemoryWriteAddress(0x8000, 0x9fff, MWA_RAM),
+		new MemoryWriteAddress(0xa000, 0xffff, MWA_ROM),
 		MEMORY_TABLE_END
 	};
 	
 	#if 0
 	INPUT_PORTS_START (vc1541)
-	PORT_START
-	PORT_DIPNAME (0x60, 0x00, "Device #", IP_KEY_NONE)
-	PORT_DIPSETTING (0x00, "8")
-	PORT_DIPSETTING (0x20, "9")
-	PORT_DIPSETTING (0x40, "10")
-	PORT_DIPSETTING (0x60, "11")
-	INPUT_PORTS_END
+	PORT_START(); 
+	PORT_DIPNAME (0x60, 0x00, "Device #", IP_KEY_NONE);
+	PORT_DIPSETTING (0x00, "8");
+	PORT_DIPSETTING (0x20, "9");
+	PORT_DIPSETTING (0x40, "10");
+	PORT_DIPSETTING (0x60, "11");
+	INPUT_PORTS_END(); }}; 
 	#endif
 	
 	static void vc1541_timer(int param)
 	{
-		if (vc1541->clock==0) {
-			vc1541->clock=1;
-			vc1541->head.ready=0;
-			vc1541->head.sync=0;
-			if (vc1541->type==TypeVC1541) {
-				cpu_set_irq_line(vc1541->cpunumber, M6502_SET_OVERFLOW, 1);
+		if (vc1541.clock==0) {
+			vc1541.clock=1;
+			vc1541.head.ready=0;
+			vc1541.head.sync=0;
+			if (vc1541.type==TypeVC1541) {
+				cpu_set_irq_line(vc1541.cpunumber, M6502_SET_OVERFLOW, 1);
 				via_3_ca1_w(0,1);
 			}
 			return;
 		}
-		if (++(vc1541->d64.pos)>=sizeof(vc1541->head.data)) {
-			if (++(vc1541->d64.sector)>=
-				d64_sectors_per_track[(int)vc1541->track-1]) {
-				vc1541->d64.sector=0;
+		if (++(vc1541.d64.pos)>=sizeof(vc1541.head.data)) {
+			if (++(vc1541.d64.sector)>=
+				d64_sectors_per_track[(int)vc1541.track-1]) {
+				vc1541.d64.sector=0;
 			}
-			vc1541_sector_to_gcr((int)vc1541->track,vc1541->d64.sector);
-			vc1541->d64.pos=0;
+			vc1541_sector_to_gcr((int)vc1541.track,vc1541.d64.sector);
+			vc1541.d64.pos=0;
 		}
-		vc1541->head.ready=1;
-		if (vc1541->head.data[vc1541->d64.pos]==0xff) {
-			vc1541->head.ffcount++;
-			if (vc1541->head.ffcount==5) {
-				vc1541->head.sync=1;
+		vc1541.head.ready=1;
+		if (vc1541.head.data[vc1541.d64.pos]==0xff) {
+			vc1541.head.ffcount++;
+			if (vc1541.head.ffcount==5) {
+				vc1541.head.sync=1;
 			}
 		} else {
-			vc1541->head.ffcount=0;
-			vc1541->head.sync=0;
+			vc1541.head.ffcount=0;
+			vc1541.head.sync=0;
 		}
-		if (vc1541->type==TypeVC1541) {
-			cpu_set_irq_line(vc1541->cpunumber, M6502_SET_OVERFLOW, 0);
+		if (vc1541.type==TypeVC1541) {
+			cpu_set_irq_line(vc1541.cpunumber, M6502_SET_OVERFLOW, 0);
 			via_3_ca1_w(0,0);
 		}
-		vc1541->clock=0;
+		vc1541.clock=0;
 	}
 	
 	/*
@@ -419,10 +419,10 @@ public class vc1541
 	 */
 	static void vc1541_via0_irq (int level)
 	{
-		vc1541->via0irq = level;
-		DBG_LOG(2, "vc1541 via0 irq",("level %d %d\n",vc1541->via0irq,vc1541->via1irq));
-		cpu_set_irq_line (vc1541->cpunumber,
-						  M6502_INT_IRQ, vc1541->via1irq || vc1541->via0irq);
+		vc1541.via0irq = level;
+		DBG_LOG(2, "vc1541 via0 irq",("level %d %d\n",vc1541.via0irq,vc1541.via1irq));
+		cpu_set_irq_line (vc1541.cpunumber,
+						  M6502_INT_IRQ, vc1541.via1irq || vc1541.via0irq);
 	}
 	
 	static int vc1541_via0_read_portb (int offset)
@@ -430,13 +430,13 @@ public class vc1541
 		static int old=-1;
 		int value = 0x7a;
 	
-		if (!vc1541->drive.serial.serial_data || !serial.data[0])
+		if (!vc1541.drive.serial.serial_data || !serial.data[0])
 			value |= 1;
-		if (!vc1541->drive.serial.serial_clock || !serial.clock[0])
+		if (!vc1541.drive.serial.serial_clock || !serial.clock[0])
 			value |= 4;
 		if (!serial.atn[0]) value |= 0x80;
 	
-		switch (vc1541->drive.serial.deviceid)
+		switch (vc1541.drive.serial.deviceid)
 		{
 		case 8:
 			value &= ~0x60;
@@ -469,13 +469,13 @@ public class vc1541
 	
 	static void vc1541_acka(void)
 	{
-		int value=vc1541->drive.serial.data;
-		if (vc1541->drive.serial.acka!=serial.atn[0]) {
+		int value=vc1541.drive.serial.data;
+		if (vc1541.drive.serial.acka!=serial.atn[0]) {
 			value=0;
 		}
-		if (value!= vc1541->drive.serial.serial_data)
+		if (value!= vc1541.drive.serial.serial_data)
 		{
-			vc1541_serial_data_write (1, vc1541->drive.serial.serial_data = value );
+			vc1541_serial_data_write (1, vc1541.drive.serial.serial_data = value );
 		}
 	}
 	
@@ -486,21 +486,21 @@ public class vc1541
 										 data&8?"CLOCK":"clock",
 										 data&2?"DATA":"data"));
 	
-		vc1541->drive.serial.data=data&2?0:1;
-		vc1541->drive.serial.acka=(data&0x10)?1:0;
+		vc1541.drive.serial.data=data&2?0:1;
+		vc1541.drive.serial.acka=(data&0x10)?1:0;
 	#if 0
 		vc1541_acka();
 	#else
-		if ((!(data & 2)) != vc1541->drive.serial.serial_data)
+		if ((!(data & 2)) != vc1541.drive.serial.serial_data)
 		{
-			vc1541_serial_data_write (1, vc1541->drive.serial.serial_data = !(data & 2));
+			vc1541_serial_data_write (1, vc1541.drive.serial.serial_data = !(data & 2));
 		}
 	#endif
-		if ((!(data & 8)) != vc1541->drive.serial.serial_clock)
+		if ((!(data & 8)) != vc1541.drive.serial.serial_clock)
 		{
-			vc1541_serial_clock_write (1, vc1541->drive.serial.serial_clock = !(data & 8));
+			vc1541_serial_clock_write (1, vc1541.drive.serial.serial_clock = !(data & 8));
 		}
-		vc1541_serial_atn_write (1, vc1541->drive.serial.serial_atn = 1);
+		vc1541_serial_atn_write (1, vc1541.drive.serial.serial_atn = 1);
 	}
 	
 	/*
@@ -511,7 +511,7 @@ public class vc1541
 	 * port b
 	 * 0 output steppermotor
 	 * 1 output steppermotor
-	     10: 00->01->10->11->00 move head to higher tracks
+	     10: 00.01.10.11.00 move head to higher tracks
 	 * 2 output motor (rotation) (300 revolutions per minute)
 	 * 3 output led
 	 * 4 input disk not write protected
@@ -532,15 +532,15 @@ public class vc1541
 	 */
 	static void vc1541_via1_irq (int level)
 	{
-		vc1541->via1irq = level;
-		DBG_LOG(2, "vc1541 via1 irq",("level %d %d\n",vc1541->via0irq,vc1541->via1irq));
-		cpu_set_irq_line (vc1541->cpunumber,
-						  M6502_INT_IRQ, vc1541->via1irq || vc1541->via0irq);
+		vc1541.via1irq = level;
+		DBG_LOG(2, "vc1541 via1 irq",("level %d %d\n",vc1541.via0irq,vc1541.via1irq));
+		cpu_set_irq_line (vc1541.cpunumber,
+						  M6502_INT_IRQ, vc1541.via1irq || vc1541.via0irq);
 	}
 	
 	static int vc1541_via1_read_porta (int offset)
 	{
-		int data=vc1541->head.data[vc1541->d64.pos];
+		int data=vc1541.head.data[vc1541.d64.pos];
 		DBG_LOG(2, "vc1541 drive",("port a read %.2x\n", data));
 		return data;
 	}
@@ -555,10 +555,10 @@ public class vc1541
 		int value = 0xff;
 	
 	#if 0
-		if (WRITEPROTECTED)
+		if (WRITEPROTECTED != 0)
 			value &= ~0x10;
 	#endif
-		if (vc1541->head.sync) {
+		if (vc1541.head.sync) {
 			value&=~0x80;
 		}
 	
@@ -573,45 +573,45 @@ public class vc1541
 			if ((old&3)!=(data&3)) {
 				switch (old&3) {
 				case 0:
-					if ((data&3)==1) vc1541->track+=0.5;
-					else if ((data&3)==3) vc1541->track-=0.5;
+					if ((data&3)==1) vc1541.track+=0.5;
+					else if ((data&3)==3) vc1541.track-=0.5;
 					break;
 				case 1:
-					if ((data&3)==2) vc1541->track+=0.5;
-					else if ((data&3)==0) vc1541->track-=0.5;
+					if ((data&3)==2) vc1541.track+=0.5;
+					else if ((data&3)==0) vc1541.track-=0.5;
 					break;
 				case 2:
-					if ((data&3)==3) vc1541->track+=0.5;
-					else if ((data&3)==1) vc1541->track-=0.5;
+					if ((data&3)==3) vc1541.track+=0.5;
+					else if ((data&3)==1) vc1541.track-=0.5;
 					break;
 				case 3:
-					if ((data&3)==0) vc1541->track+=0.5;
-					else if ((data&3)==2) vc1541->track-=0.5;
+					if ((data&3)==0) vc1541.track+=0.5;
+					else if ((data&3)==2) vc1541.track-=0.5;
 					break;
 				}
-				if (vc1541->track<1) vc1541->track=1.0;
-				if (vc1541->track>35) vc1541->track=35;
+				if (vc1541.track<1) vc1541.track=1.0;
+				if (vc1541.track>35) vc1541.track=35;
 			}
-			if ( (vc1541->motor!=(data&4))||(vc1541->frequency!=(data&0x60)) ) {
+			if ( (vc1541.motor!=(data&4))||(vc1541.frequency!=(data&0x60)) ) {
 				double tme;
-				vc1541->motor = data & 4;
-				vc1541->frequency = data & 0x60;
-				tme=vc1541_times[vc1541->frequency>>5]*8*2;
-				if (vc1541->motor) {
-					if (vc1541->timer!=NULL) {
-						timer_reset(vc1541->timer, tme);
+				vc1541.motor = data & 4;
+				vc1541.frequency = data & 0x60;
+				tme=vc1541_times[vc1541.frequency>>5]*8*2;
+				if (vc1541.motor) {
+					if (vc1541.timer!=NULL) {
+						timer_reset(vc1541.timer, tme);
 					} else {
-						vc1541->timer=timer_pulse(tme, 0, vc1541_timer);
+						vc1541.timer=timer_pulse(tme, 0, vc1541_timer);
 					}
 				} else {
-					if (vc1541->timer!=NULL)
-						timer_remove(vc1541->timer);
-					vc1541->timer=NULL;
+					if (vc1541.timer!=NULL)
+						timer_remove(vc1541.timer);
+					vc1541.timer=NULL;
 				}
 			}
 			old=data;
 		}
-		vc1541->led = data & 8;
+		vc1541.led = data & 8;
 	}
 	
 	static struct via6522_interface via2 =
@@ -647,20 +647,20 @@ public class vc1541
 		FILE *in;
 		int size;
 	
-		/*memset (&(drive->d64), 0, sizeof (drive->d64)); */
+		/*memset (&(drive.d64), 0, sizeof (drive.d64)); */
 		in = (FILE*)image_fopen (IO_FLOPPY, id, OSD_FILETYPE_IMAGE_R, 0);
 		if (!in)
 			return INIT_FAILED;
 	
 		size = osd_fsize (in);
-		if (!(vc1541->d64.data = (UINT8*)malloc (size)))
+		if (!(vc1541.d64.data = (UINT8*)malloc (size)))
 		{
 			osd_fclose (in);
 			return INIT_FAILED;
 		}
-		if (size != osd_fread (in, vc1541->d64.data, size))
+		if (size != osd_fread (in, vc1541.d64.data, size))
 		{
-			free (vc1541->d64.data);
+			free (vc1541.d64.data);
 			osd_fclose (in);
 			return INIT_FAILED;
 		}
@@ -668,25 +668,25 @@ public class vc1541
 	
 		logerror("floppy image %s loaded\n", device_filename(IO_FLOPPY, id));
 	
-		/*vc1541->drive = ; */
-		vc1541->d64.image_type = IO_FLOPPY;
-		vc1541->d64.image_id = id;
+		/*vc1541.drive = ; */
+		vc1541.d64.image_type = IO_FLOPPY;
+		vc1541.d64.image_id = id;
 		return INIT_OK;
 	}
 	
 	void vc1541_exit(int id)
 	{
 		/* writeback of image data */
-		free(vc1541->d64.data);vc1541->d64.data=NULL;
+		free(vc1541.d64.data);vc1541.d64.data=NULL;
 	}
 	
 	int vc1541_config (int id, int mode, VC1541_CONFIG *config)
 	{
 		via_config (2, &via2);
 		via_config (3, &via3);
-		vc1541->type=TypeVC1541;
-		vc1541->cpunumber = config->cpunr;
-		vc1541->drive.serial.deviceid = config->devicenr;
+		vc1541.type=TypeVC1541;
+		vc1541.cpunumber = config.cpunr;
+		vc1541.drive.serial.deviceid = config.devicenr;
 		return 0;
 	}
 	
@@ -694,17 +694,17 @@ public class vc1541
 	{
 		int i;
 	
-		if (vc1541->type==TypeVC1541) {
+		if (vc1541.type==TypeVC1541) {
 			for (i = 0; i < sizeof (serial.atn) / sizeof (serial.atn[0]); i++)
 			{
 				serial.atn[i] = serial.data[i] = serial.clock[i] = 1;
 			}
 		}
-		vc1541->track=1.0;
-		if ((vc1541->type==TypeVC1541)||(vc1541->type==Type2031)) {
+		vc1541.track=1.0;
+		if ((vc1541.type==TypeVC1541)||(vc1541.type==Type2031)) {
 			via_reset ();
 		}
-		if ((vc1541->type==TypeC1551)) {
+		if ((vc1541.type==TypeC1551)) {
 			tpi6525_0_reset();
 		}
 	}
@@ -713,21 +713,21 @@ public class vc1541
 	extern void vc1541_drive_status (char *text, int size)
 	{
 	#if 1||VERBOSE_DBG
-		if (vc1541->type==TypeVC1541) {
+		if (vc1541.type==TypeVC1541) {
 			snprintf (text, size, "%s %4.1f %s %.2x %s %s %s",
-					  vc1541->led ? "LED" : "led",
-					  vc1541->track,
-					  vc1541->motor ? "MOTOR" : "motor",
-					  vc1541->frequency,
+					  vc1541.led ? "LED" : "led",
+					  vc1541.track,
+					  vc1541.motor ? "MOTOR" : "motor",
+					  vc1541.frequency,
 					  serial.atn[0]?"ATN":"atn",
 					  serial.clock[0]?"CLOCK":"clock",
 					  serial.data[0]?"DATA":"data");
-		} else if (vc1541->type==TypeC1551) {
+		} else if (vc1541.type==TypeC1551) {
 			snprintf (text, size, "%s %4.1f %s %.2x",
-					  vc1541->led ? "LED" : "led",
-					  vc1541->track,
-					  vc1541->motor ? "MOTOR" : "motor",
-					  vc1541->frequency);
+					  vc1541.led ? "LED" : "led",
+					  vc1541.track,
+					  vc1541.motor ? "MOTOR" : "motor",
+					  vc1541.frequency);
 		}
 	#else
 		text[0] = 0;
@@ -769,8 +769,8 @@ public class vc1541
 										 serial.atn[0]?"ATN":"atn"));
 					via_set_input_ca1 (2, !level);
 	#if 0
-					value=vc1541->drive.serial.data;
-					if (vc1541->drive.serial.acka!=!level) value=0;
+					value=vc1541.drive.serial.data;
+					if (vc1541.drive.serial.acka!=!level) value=0;
 					if (value!=serial.data[2]) {
 						serial.data[2]=value;
 						if (serial.data[0]!=value) {
@@ -858,7 +858,7 @@ public class vc1541
 	 */
 	static void c1551_timer(int param)
 	{
-		cpu_set_irq_line(vc1541->cpunumber, M6502_INT_IRQ, PULSE_LINE);
+		cpu_set_irq_line(vc1541.cpunumber, M6502_INT_IRQ, PULSE_LINE);
 	}
 	
 	/*
@@ -873,56 +873,56 @@ public class vc1541
 	static WRITE_HANDLER ( c1551_port_w )
 	{
 		static int old=0;
-		if (offset) {
+		if (offset != 0) {
 			DBG_LOG(1, "c1551 port",("write %.2x\n",data));
-			vc1541->drive.c1551.cpu_port=data;
+			vc1541.drive.c1551.cpu_port=data;
 	
 			if (data!=old) {
 				DBG_LOG(1, "vc1541 drive",("%.2x\n", data));
 				if ((old&3)!=(data&3)) {
 					switch (old&3) {
 					case 0:
-						if ((data&3)==1) vc1541->track+=0.5;
-						else if ((data&3)==3) vc1541->track-=0.5;
+						if ((data&3)==1) vc1541.track+=0.5;
+						else if ((data&3)==3) vc1541.track-=0.5;
 						break;
 					case 1:
-						if ((data&3)==2) vc1541->track+=0.5;
-						else if ((data&3)==0) vc1541->track-=0.5;
+						if ((data&3)==2) vc1541.track+=0.5;
+						else if ((data&3)==0) vc1541.track-=0.5;
 						break;
 					case 2:
-						if ((data&3)==3) vc1541->track+=0.5;
-						else if ((data&3)==1) vc1541->track-=0.5;
+						if ((data&3)==3) vc1541.track+=0.5;
+						else if ((data&3)==1) vc1541.track-=0.5;
 						break;
 					case 3:
-						if ((data&3)==0) vc1541->track+=0.5;
-						else if ((data&3)==2) vc1541->track-=0.5;
+						if ((data&3)==0) vc1541.track+=0.5;
+						else if ((data&3)==2) vc1541.track-=0.5;
 						break;
 					}
-					if (vc1541->track<1) vc1541->track=1.0;
-					if (vc1541->track>35) vc1541->track=35;
+					if (vc1541.track<1) vc1541.track=1.0;
+					if (vc1541.track>35) vc1541.track=35;
 				}
-				if ( (vc1541->motor!=(data&4))||(vc1541->frequency!=(data&0x60)) ) {
+				if ( (vc1541.motor!=(data&4))||(vc1541.frequency!=(data&0x60)) ) {
 					double tme;
-					vc1541->motor = data & 4;
-					vc1541->frequency = data & 0x60;
-					tme=vc1541_times[vc1541->frequency>>5]*8*2;
-					if (vc1541->motor) {
-						if (vc1541->timer!=NULL) {
-							timer_reset(vc1541->timer, tme);
+					vc1541.motor = data & 4;
+					vc1541.frequency = data & 0x60;
+					tme=vc1541_times[vc1541.frequency>>5]*8*2;
+					if (vc1541.motor) {
+						if (vc1541.timer!=NULL) {
+							timer_reset(vc1541.timer, tme);
 						} else {
-							vc1541->timer=timer_pulse(tme, 0, vc1541_timer);
+							vc1541.timer=timer_pulse(tme, 0, vc1541_timer);
 						}
 					} else {
-						if (vc1541->timer!=NULL)
-							timer_remove(vc1541->timer);
-						vc1541->timer=NULL;
+						if (vc1541.timer!=NULL)
+							timer_remove(vc1541.timer);
+						vc1541.timer=NULL;
 					}
 				}
 				old=data;
 			}
-			vc1541->led = data & 8;
+			vc1541.led = data & 8;
 		} else {
-			vc1541->drive.c1551.cpu_ddr=data;
+			vc1541.drive.c1551.cpu_ddr=data;
 			DBG_LOG(1, "c1551 ddr",("write %.2x\n",data));
 		}
 	}
@@ -931,21 +931,21 @@ public class vc1541
 	{
 		int data;
 	
-		if (offset) {
+		if (offset != 0) {
 			data=0x7f;
 	#if 0
-			if (WRITEPROTECTED)
+			if (WRITEPROTECTED != 0)
 				data &= ~0x10;
 	#endif
-			if (vc1541->head.ready) {
+			if (vc1541.head.ready) {
 				data|=0x80;
-				vc1541->head.ready=0;
+				vc1541.head.ready=0;
 			}
-			data&=~vc1541->drive.c1551.cpu_ddr;
-			data|=vc1541->drive.c1551.cpu_ddr&vc1541->drive.c1551.cpu_port;
+			data&=~vc1541.drive.c1551.cpu_ddr;
+			data|=vc1541.drive.c1551.cpu_ddr&vc1541.drive.c1551.cpu_port;
 			DBG_LOG(3, "c1551 port",("read %.2x\n", data));
 		} else {
-			data=vc1541->drive.c1551.cpu_ddr;
+			data=vc1541.drive.c1551.cpu_ddr;
 			DBG_LOG(3, "c1551 ddr",("read %.2x\n", data));
 		}
 		return data;
@@ -971,46 +971,46 @@ public class vc1541
 	{
 		int data=0xff;
 		data&=~0x20;
-		if (vc1541->head.sync) data&=~0x40;
+		if (vc1541.head.sync) data&=~0x40;
 		return data;
 	}
 	
 	static int c1551_port_b_r (void)
 	{
-		int data=vc1541->head.data[vc1541->d64.pos];
+		int data=vc1541.head.data[vc1541.d64.pos];
 		DBG_LOG(2, "c1551 drive",("port a read %.2x\n", data));
 		return data;
 	}
 	
 	int c1551_config (int id, int mode, C1551_CONFIG *config)
 	{
-		vc1541->cpunumber = config->cpunr;
-		vc1541->type=TypeC1551;
+		vc1541.cpunumber = config.cpunr;
+		vc1541.type=TypeC1551;
 		tpi6525[0].c.read=c1551_port_c_r;
 		tpi6525[0].b.read=c1551_port_b_r;
-		if (vc1541->drive.c1551.timer==NULL) {
+		if (vc1541.drive.c1551.timer==NULL) {
 			/* time should be small enough to allow quitting of the irq
 			   line before the next interrupt is triggered */
-			vc1541->drive.c1551.timer=timer_pulse(1.0/60, 0, c1551_timer);
+			vc1541.drive.c1551.timer=timer_pulse(1.0/60, 0, c1551_timer);
 		}
 		return 0;
 	}
 	
-	struct MemoryReadAddress c1551_readmem[] =
+	static MemoryReadAddress c1551_readmem[] =
 	{
-	    {0x0000, 0x0001, c1551_port_r},
-		{0x0002, 0x07ff, MRA_RAM},
-	    {0x4000, 0x4007, tpi6525_0_port_r},
-		{0xc000, 0xffff, MRA_ROM},
+	    new MemoryReadAddress(0x0000, 0x0001, c1551_port_r),
+		new MemoryReadAddress(0x0002, 0x07ff, MRA_RAM),
+	    new MemoryReadAddress(0x4000, 0x4007, tpi6525_0_port_r),
+		new MemoryReadAddress(0xc000, 0xffff, MRA_ROM),
 		MEMORY_TABLE_END
 	};
 	
-	struct MemoryWriteAddress c1551_writemem[] =
+	static MemoryWriteAddress c1551_writemem[] =
 	{
-	    {0x0000, 0x0001, c1551_port_w},
-		{0x0002, 0x07ff, MWA_RAM},
-	    {0x4000, 0x4007, tpi6525_0_port_w},
-		{0xc000, 0xffff, MWA_ROM},
+	    new MemoryWriteAddress(0x0000, 0x0001, c1551_port_w),
+		new MemoryWriteAddress(0x0002, 0x07ff, MWA_RAM),
+	    new MemoryWriteAddress(0x4000, 0x4007, tpi6525_0_port_w),
+		new MemoryWriteAddress(0xc000, 0xffff, MWA_ROM),
 		MEMORY_TABLE_END
 	};
 	

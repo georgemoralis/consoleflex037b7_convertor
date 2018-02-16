@@ -9,16 +9,16 @@ public class tandy1t
 	
 	
 	
-	extern void init_t1000hx(void)
+	extern public static InitDriverPtr init_t1000hx = new InitDriverPtr() { public void handler() 
 	{
 		init_pc();
 		tandy1000_init();
-	}
+	} };
 	
-	void pc_t1t_init_machine(void)
+	public static InitMachinePtr pc_t1t_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		pc_keyboard_init();
-	}
+	} };
 	
 	/* tandy 1000 eeprom
 	  hx and later
@@ -42,8 +42,8 @@ public class tandy1t
 	{
 		FILE *file;
 	
-		if ( (file=osd_fopen(Machine->gamedrv->name,
-							 Machine->gamedrv->name, OSD_FILETYPE_NVRAM, 0))==NULL)
+		if ( (file=osd_fopen(Machine.gamedrv.name,
+							 Machine.gamedrv.name, OSD_FILETYPE_NVRAM, 0))==NULL)
 			return;
 		osd_fread(file, eeprom.ee, sizeof(eeprom.ee));
 	
@@ -53,8 +53,8 @@ public class tandy1t
 	void tandy1000_close(void)
 	{
 		FILE *file;
-		if ( (file=osd_fopen(Machine->gamedrv->name,
-							 Machine->gamedrv->name, OSD_FILETYPE_NVRAM, 1))==NULL)
+		if ( (file=osd_fopen(Machine.gamedrv.name,
+							 Machine.gamedrv.name, OSD_FILETYPE_NVRAM, 1))==NULL)
 			return;
 		osd_fwrite(file, eeprom.ee, sizeof(eeprom.ee));
 		osd_fclose(file);
@@ -229,8 +229,8 @@ public class tandy1t
 		case 2:
 	//		PIO_LOG(1,"PIO_C_w",("$%02x\n", data));
 			pc_port[0x62] = data;
-	//		if (tandy1000hx) {
-				if (data&8) timer_set_overclock(0, 1);
+	//		if (tandy1000hx != 0) {
+				if ((data & 8) != 0) timer_set_overclock(0, 1);
 				else timer_set_overclock(0, 4.77/8);
 	//		}
 			break;
@@ -248,7 +248,7 @@ public class tandy1t
 			data=pc_port[0x61];
 			break;
 		case 2:
-	//		if (tandy1000hx) {
+	//		if (tandy1000hx != 0) {
 	//		data=pc_port[0x62]; // causes problems (setuphx)
 			if (!tandy1000_read_eeprom()) data&=~0x10;
 	//	}
@@ -258,7 +258,7 @@ public class tandy1t
 	}
 	
 	
-	int tandy1000_frame_interrupt (void)
+	public static InterruptPtr tandy1000_frame_interrupt = new InterruptPtr() { public int handler() 
 	{
 		static int turboswitch=-1;
 	
@@ -276,5 +276,5 @@ public class tandy1t
 			pc_keyboard();
 	
 	    return ignore_interrupt ();
-	}
+	} };
 }

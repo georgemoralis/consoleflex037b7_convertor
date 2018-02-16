@@ -134,9 +134,9 @@ public class pc_hdc
 		int read = 0, first = 1;
 		int no_dma = pc_DMA_mask & (0x10 << HDC_DMA);
 	
-		if (f)
+		if (f != 0)
 		{
-			if (no_dma)
+			if (no_dma != 0)
 			{
 				HDC_LOG(1,"hdc_PIO_read",("C:%02d H:%d S:%02d N:%d $%08x, $%04x\n", cylinder[idx], head[idx], sector[idx], sector_cnt[idx], offset[idx], size));
 				do
@@ -175,7 +175,7 @@ public class pc_hdc
 			}
 			else
 			{
-				HDC_LOG(1,"hdc_DMA_read",("C:%02d H:%d S:%02d N:%d $%08x -> $%06x, $%04x\n", cylinder[idx], head[idx], sector[idx], sector_cnt[idx], offset[idx], pc_DMA_page[HDC_DMA] + pc_DMA_address[HDC_DMA], pc_DMA_count[HDC_DMA]+1));
+				HDC_LOG(1,"hdc_DMA_read",("C:%02d H:%d S:%02d N:%d $%08x . $%06x, $%04x\n", cylinder[idx], head[idx], sector[idx], sector_cnt[idx], offset[idx], pc_DMA_page[HDC_DMA] + pc_DMA_address[HDC_DMA], pc_DMA_count[HDC_DMA]+1));
 				do
 				{
 					if (read == 0)
@@ -183,7 +183,7 @@ public class pc_hdc
 						osd_fseek(f, offset[idx], SEEK_SET);
 						if (!first)
 						{
-							HDC_LOG(2,"hdc_DMA_read next",("C:%02d H:%d S:%02d N:%d $%08x -> $%06x, $%04x\n",
+							HDC_LOG(2,"hdc_DMA_read next",("C:%02d H:%d S:%02d N:%d $%08x . $%06x, $%04x\n",
 								cylinder[idx], head[idx], sector[idx], sector_cnt[idx], offset[idx],
 								pc_DMA_page[HDC_DMA] + pc_DMA_address[HDC_DMA], pc_DMA_count[HDC_DMA]+1));
 						}
@@ -230,9 +230,9 @@ public class pc_hdc
 		int write = 512, first = 1;
 		int no_dma = pc_DMA_mask & (0x10 << HDC_DMA);
 	
-		if (f)
+		if (f != 0)
 		{
-			if (no_dma)
+			if (no_dma != 0)
 			{
 				HDC_LOG(1,"hdc_PIO_write",("C:%02d H:%d S:%02d N:%d $%08x, $%04x\n", cylinder[idx], head[idx], sector[idx], sector_cnt[idx], offset[idx], size));
 				do
@@ -262,7 +262,7 @@ public class pc_hdc
 			}
 			else
 			{
-				HDC_LOG(1,"hdc_DMA_write",("C:%02d H:%d S:%02d N:%d $%08x -> $%06x, $%04x\n", cylinder[idx], head[idx], sector[idx], sector_cnt[idx], offset[idx], pc_DMA_page[HDC_DMA] + pc_DMA_address[HDC_DMA], pc_DMA_count[HDC_DMA]+1));
+				HDC_LOG(1,"hdc_DMA_write",("C:%02d H:%d S:%02d N:%d $%08x . $%06x, $%04x\n", cylinder[idx], head[idx], sector[idx], sector_cnt[idx], offset[idx], pc_DMA_page[HDC_DMA] + pc_DMA_address[HDC_DMA], pc_DMA_count[HDC_DMA]+1));
 				do
 				{
 					if( pc_DMA_operation[HDC_DMA] == 2 )
@@ -289,7 +289,7 @@ public class pc_hdc
 	                    }
 						if( !first )
 						{
-							HDC_LOG(2,"hdc_DMA_write next",("C:%02d H:%d S:%02d N:%d $%08x -> $%06x, $%04x\n",
+							HDC_LOG(2,"hdc_DMA_write next",("C:%02d H:%d S:%02d N:%d $%08x . $%06x, $%04x\n",
 								cylinder[idx], head[idx], sector[idx], sector_cnt[idx], offset[idx],
 								pc_DMA_page[HDC_DMA] + pc_DMA_address[HDC_DMA], pc_DMA_count[HDC_DMA]+1));
 	                    }
@@ -590,11 +590,11 @@ public class pc_hdc
 					csb[n] |= CSB_ERROR | 0x20; /* unknown command */
 					pc_hdc_result(n);
 			}
-			if( data_cnt )
+			if (data_cnt != 0)
 				status[n] |= STA_REQUEST;
 		}
 	
-		if (data_cnt)
+		if (data_cnt != 0)
 		{
 			HDC_LOG(3,"hdc_data_w",("BOARD #%d $%02x\n", n, data));
 	        *ptr++ = data;
@@ -651,7 +651,7 @@ public class pc_hdc
 	int  pc_hdc_data_r(int n)
 	{
 		int data = 0xff;
-		if( data_cnt )
+		if (data_cnt != 0)
 		{
 			data = *ptr++;
 			status[n] &= ~STA_INTERRUPT;

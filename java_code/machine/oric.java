@@ -36,11 +36,11 @@ public class oric
 	
 	*/
 	
-	unsigned char *oric_ram;
+	UBytePtr oric_ram;
 	int oric_load_rom (int id);
 	
-	unsigned char *oric_IO;
-	unsigned char *oric_tape_data;
+	UBytePtr oric_IO;
+	UBytePtr oric_tape_data;
 	
 	int oric_countdown_1;
 	int oric_countdown_2;
@@ -80,12 +80,12 @@ public class oric
 	
 	static const char *rom_name = NULL;
 	
-	void oric_init_machine (void)
+	public static InitMachinePtr oric_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		int i;
 	
 		//int found,f2;
-		unsigned char *RAM;
+		UBytePtr RAM;
 	
 		oric_IO = malloc (0x10);
 		if (!oric_IO) return;
@@ -211,7 +211,7 @@ public class oric
 		 * }
 		 * }
 		 */
-	}
+	} };
 	
 	void oric_shutdown_machine (void)
 	{
@@ -268,7 +268,7 @@ public class oric
 	//	int keypressed;
 	//	int kbrow, kbcol;
 		int porta_write;
-		unsigned char *RAM;
+		UBytePtr RAM;
 	
 		RAM = memory_region(REGION_CPU1);
 		oric_IO[offset & 0x0f] = data;
@@ -388,7 +388,7 @@ public class oric
 	
 	}
 	
-	int oric_interrupt (void)
+	public static InterruptPtr oric_interrupt = new InterruptPtr() { public int handler() 
 	{
 	
 		// Not Emulated .. Variable IRQ Rates,  100hz
@@ -409,7 +409,7 @@ public class oric
 		 *
 		 */
 	
-		unsigned char *RAM;
+		UBytePtr RAM;
 		int x, y;
 		int exec_irq;
 		int exec_slow_irq;
@@ -524,7 +524,7 @@ public class oric
 		//x &= 0xbf;
 		oric_IO_w (0x030d, x);
 		return interrupt ();
-	}
+	} };
 	
 	int oric_extract_file_from_tape (int filenum)
 	{
@@ -539,7 +539,7 @@ public class oric
 		int endadd;
 		unsigned char msblad, lsblad;
 		unsigned char msblend, lsblend;
-		unsigned char *RAM;
+		UBytePtr RAM;
 	
 		RAM = memory_region(REGION_CPU1);
 	
@@ -616,12 +616,12 @@ public class oric
 		{
 			file = image_fopen (IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, 0);
 		}
-		//file = osd_fopen(Machine->gamedrv->name, "ultra.tap", OSD_FILETYPE_IMAGE_RW, 0);
-		//file = osd_fopen(Machine->gamedrv->name, "blitz.tap", OSD_FILETYPE_IMAGE_RW, 0);
-		//file = osd_fopen(Machine->gamedrv->name, "hopper.tap", OSD_FILETYPE_IMAGE_RW, 0);
-		//file = osd_fopen(Machine->gamedrv->name, "ratsplat.tap", OSD_FILETYPE_IMAGE_RW, 0);
+		//file = osd_fopen(Machine.gamedrv.name, "ultra.tap", OSD_FILETYPE_IMAGE_RW, 0);
+		//file = osd_fopen(Machine.gamedrv.name, "blitz.tap", OSD_FILETYPE_IMAGE_RW, 0);
+		//file = osd_fopen(Machine.gamedrv.name, "hopper.tap", OSD_FILETYPE_IMAGE_RW, 0);
+		//file = osd_fopen(Machine.gamedrv.name, "ratsplat.tap", OSD_FILETYPE_IMAGE_RW, 0);
 	
-		if (file)
+		if (file != 0)
 		{
 			oric_tape_datasize = osd_fsize (file);
 	

@@ -233,9 +233,9 @@ public class _28f008sa
 	
 		if (flash[index1].base!=NULL)
 		{
-			file = osd_fopen(Machine->gamedrv->name, flash_name, OSD_FILETYPE_MEMCARD,OSD_FOPEN_WRITE);
+			file = osd_fopen(Machine.gamedrv.name, flash_name, OSD_FILETYPE_MEMCARD,OSD_FOPEN_WRITE);
 	
-			if (file)
+			if (file != 0)
 			{
 				osd_fwrite(file, flash[index1].base, (1024*1024));
 		
@@ -252,9 +252,9 @@ public class _28f008sa
 	
 		if (flash[index1].base!=NULL)
 		{
-			file = osd_fopen(Machine->gamedrv->name, flash_name, OSD_FILETYPE_MEMCARD,OSD_FOPEN_READ);
+			file = osd_fopen(Machine.gamedrv.name, flash_name, OSD_FILETYPE_MEMCARD,OSD_FOPEN_READ);
 	
-			if (file)
+			if (file != 0)
 			{
 				osd_fread(file, flash[index1].base, (1024*1024));
 		

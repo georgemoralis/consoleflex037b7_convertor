@@ -32,6 +32,4 @@ public class _6581_H
 	void sidEmuFillBuffer( void* buffer, udword bufferLen );
 	#endif
 	
-	void initMixerEngine(void);
-	void filterTableInit(void);
-}
+	}

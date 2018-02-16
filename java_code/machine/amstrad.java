@@ -28,14 +28,12 @@ public class amstrad
 	//
 	void AmstradCPC_GA_Write(int);
 	void AmstradCPC_SetUpperRom(int);
-	void Amstrad_RethinkMemory(void);
-	void Amstrad_Init(void);
-	void amstrad_handle_snapshot(unsigned char *);
+	void amstrad_handle_snapshot(UBytePtr );
 	
 	
-	static unsigned char *snapshot = NULL;
+	static UBytePtr snapshot = NULL;
 	
-	extern unsigned char *Amstrad_Memory;
+	extern UBytePtr Amstrad_Memory;
 	static int snapshot_loaded;
 	
 	/* used to setup computer if a snapshot was specified */
@@ -44,7 +42,7 @@ public class amstrad
 		/* clear op base override */
 		cpu_setOPbaseoverride(0,0);
 	
-		if (snapshot_loaded)
+		if (snapshot_loaded != 0)
 		{
 			/* its a snapshot file - setup hardware state */
 			amstrad_handle_snapshot(snapshot);
@@ -67,7 +65,7 @@ public class amstrad
 		Amstrad_Memory = malloc(128*1024);
 		if(!Amstrad_Memory) return;
 	
-		if (snapshot_loaded)
+		if (snapshot_loaded != 0)
 		{
 			/* setup for snapshot */
 			cpu_setOPbaseoverride(0,amstrad_opbaseoverride);
@@ -87,7 +85,7 @@ public class amstrad
 		void *file;
 	
 		file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-		if (file)
+		if (file != 0)
 		{
 			struct wave_args wa = {0,};
 			wa.file = file;
@@ -101,7 +99,7 @@ public class amstrad
 	
 		/* HJB 02/18: no file, create a new file instead */
 		file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_WRITE);
-		if (file)
+		if (file != 0)
 		{
 			struct wave_args wa = {0,};
 			wa.file = file;
@@ -123,7 +121,7 @@ public class amstrad
 	
 	
 	/* load CPCEMU style snapshots */
-	void amstrad_handle_snapshot(unsigned char *pSnapshot)
+	void amstrad_handle_snapshot(UBytePtr pSnapshot)
 	{
 		int RegData;
 		int i;
@@ -263,16 +261,16 @@ public class amstrad
 	}
 	
 	/* load image */
-	int amstrad_load(int type, int id, unsigned char **ptr)
+	int amstrad_load(int type, int id, UBytePtr *ptr)
 	{
 		void *file;
 	
 		file = image_fopen(type, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
 	
-		if (file)
+		if (file != 0)
 		{
 			int datasize;
-			unsigned char *data;
+			UBytePtr data;
 	
 			/* get file size */
 			datasize = osd_fsize(file);
@@ -323,7 +321,7 @@ public class amstrad
 	int amstrad_snapshot_id(int id)
 	{
 		int valid;
-		unsigned char *snapshot_data;
+		UBytePtr snapshot_data;
 	
 		valid = ID_FAILED;
 	

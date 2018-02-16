@@ -60,6 +60,5 @@ public class pc_fdc_hH
 	
 	void	pc_fdc_init(pc_fdc_hw_interface *iface);
 	void	pc_fdc_set_tc_state(int state);
-	int		pc_fdc_dack_r(void);
 	void	pc_fdc_dack_w(int);
 }

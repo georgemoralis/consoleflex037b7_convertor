@@ -38,18 +38,18 @@ public class zx
 	static int tape_name_offs = 0;
 	static int tape_name_size = 0;
 	
-	void init_zx(void)
+	public static InitDriverPtr init_zx = new InitDriverPtr() { public void handler() 
 	{
 		UINT8 *gfx = memory_region(REGION_GFX1);
 		int i;
 	
 		for (i = 0; i < 256; i++)
 			gfx[i] = i;
-	}
+	} };
 	
 	static OPBASE_HANDLER(zx_setopbase)
 	{
-		if (address & 0x8000)
+		if ((address & 0x8000) != 0)
 			return zx_ula_r(address, REGION_CPU1);
 		else
 		if (address == 0x0066 && tape_size > 0)
@@ -68,7 +68,7 @@ public class zx
 	
 	static OPBASE_HANDLER( pc8300_setopbase )
 	{
-		if (address & 0x8000)
+		if ((address & 0x8000) != 0)
 			return zx_ula_r(address, REGION_GFX2);
 		else if (address == 0x0066 && tape_size > 0)
 		{
@@ -86,17 +86,17 @@ public class zx
 	
 	static OPBASE_HANDLER(pow3000_setopbase)
 	{
-		if (address & 0x8000)
+		if ((address & 0x8000) != 0)
 			return zx_ula_r(address, REGION_GFX2);
 		return address;
 	}
 	
-	static void common_init_machine(void)
+	static public static InitMachinePtr common_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		cpu_setOPbaseoverride(0, zx_setopbase);
-	}
+	} };
 	
-	void zx80_init_machine(void)
+	public static InitMachinePtr zx80_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		if (readinputport(0) & 0x80)
 		{
@@ -109,9 +109,9 @@ public class zx
 			install_mem_write_handler(0, 0x4400, 0x7fff, MWA_NOP);
 		}
 		common_init_machine();
-	}
+	} };
 	
-	void zx81_init_machine(void)
+	public static InitMachinePtr zx81_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		if (readinputport(0) & 0x80)
 		{
@@ -124,17 +124,17 @@ public class zx
 			install_mem_write_handler(0, 0x4400, 0x7fff, MWA_NOP);
 		}
 		common_init_machine();
-	}
+	} };
 	
-	void pc8300_init_machine(void)
+	public static InitMachinePtr pc8300_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		cpu_setOPbaseoverride(0, pc8300_setopbase);
-	}
+	} };
 	
-	void pow3000_init_machine(void)
+	public static InitMachinePtr pow3000_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		cpu_setOPbaseoverride(0, pow3000_setopbase);
-	}
+	} };
 	
 	void zx_shutdown_machine(void)
 	{
@@ -145,11 +145,11 @@ public class zx
 		void *file;
 	
 		file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-		if (file)
+		if (file != 0)
 		{
 			tape_size = osd_fsize(file);
 			tape_image = malloc(tape_size);
-			if (tape_image)
+			if (tape_image != 0)
 			{
 				if (osd_fread(file, tape_image, tape_size) != tape_size)
 				{
@@ -168,7 +168,7 @@ public class zx
 	
 	void zx_cassette_exit(int id)
 	{
-		if (tape_image)
+		if (tape_image != 0)
 		{
 			free(tape_image);
 			tape_image = 0;
@@ -200,7 +200,7 @@ public class zx
 			return;
 		}
 	
-		if (tape_wave)
+		if (tape_wave != 0)
 		{
 			tape_mask ^= 0x80;
 			zx_ula_bkgnd(tape_mask ? 1 : 0);
@@ -242,7 +242,7 @@ public class zx
 				zx_frame_time = 15;
 				sprintf(zx_frame_message, "Tape data %04X:%02X", tape_data_offs, tape_data);
 			}
-			else if (tape_file)
+			else if (tape_file != 0)
 			{
 				osd_fclose(tape_file);
 				tape_file = NULL;
@@ -252,7 +252,7 @@ public class zx
 			}
 		}
 	
-		if (tape_bits)
+		if (tape_bits != 0)
 		{
 			tape_bits--;
 			if ((tape_data >> tape_bits) & 1)
@@ -300,7 +300,7 @@ public class zx
 				a = name[i];
 				tape_dump[i] = a;
 				tape_name[i] = zx2pc[a & 0x3f];
-				if (a & 0x80)
+				if ((a & 0x80) != 0)
 					break;
 			}
 			tape_name_size = i + 1;
@@ -340,23 +340,23 @@ public class zx
 						char *ext = tape_name + strlen(tape_name);
 	
 						strcpy(ext, ".P");
-						tape_file = osd_fopen(Machine->gamedrv->name, tape_name, OSD_FILETYPE_ROM, 0);
+						tape_file = osd_fopen(Machine.gamedrv.name, tape_name, OSD_FILETYPE_ROM, 0);
 						if (!tape_file)
 						{
 							strcpy(ext, ".81");
-							tape_file = osd_fopen(Machine->gamedrv->name, tape_name, OSD_FILETYPE_ROM, 0);
+							tape_file = osd_fopen(Machine.gamedrv.name, tape_name, OSD_FILETYPE_ROM, 0);
 						}
-						if (!tape_file && Machine->gamedrv->clone_of)
+						if (!tape_file && Machine.gamedrv.clone_of)
 						{
 							strcpy(ext, ".P");
-							tape_file = osd_fopen(Machine->gamedrv->clone_of->name, tape_name, OSD_FILETYPE_ROM, 0);
+							tape_file = osd_fopen(Machine.gamedrv.clone_of.name, tape_name, OSD_FILETYPE_ROM, 0);
 						}
-						if (!tape_file && Machine->gamedrv->clone_of)
+						if (!tape_file && Machine.gamedrv.clone_of)
 						{
 							strcpy(ext, ".81");
-							tape_file = osd_fopen(Machine->gamedrv->clone_of->name, tape_name, OSD_FILETYPE_ROM, 0);
+							tape_file = osd_fopen(Machine.gamedrv.clone_of.name, tape_name, OSD_FILETYPE_ROM, 0);
 						}
-						if (tape_file)
+						if (tape_file != 0)
 						{
 							tape_bit_timer = timer_set(TIME_IN_USEC(TAPE_PULSE), 0, tape_bit_shift);
 							tape_header = 1024 * 8;
@@ -383,7 +383,7 @@ public class zx
 		if ((offset & 2) == 0)
 		{
 			logerror(" ULA NMIs off\n");
-			if (ula_nmi)
+			if (ula_nmi != 0)
 				timer_remove(ula_nmi);
 			ula_nmi = NULL;
 		}
@@ -392,7 +392,7 @@ public class zx
 			logerror(" ULA NMIs on\n");
 			ula_nmi = timer_pulse(TIME_IN_CYCLES(207, 0), 0, zx_ula_nmi);
 			/* remove the IRQ */
-			if (ula_irq)
+			if (ula_irq != 0)
 			{
 				timer_remove(ula_irq);
 				ula_irq = NULL;
@@ -404,8 +404,8 @@ public class zx
 			zx_ula_bkgnd(1);
 			if (ula_frame_vsync == 2)
 			{
-				cpu_spinuntil_time(cpu_getscanlinetime(Machine->drv->screen_height - 1));
-				ula_scanline_count = Machine->drv->screen_height - 1;
+				cpu_spinuntil_time(cpu_getscanlinetime(Machine.drv.screen_height - 1));
+				ula_scanline_count = Machine.drv.screen_height - 1;
 			}
 		}
 	}
@@ -441,10 +441,10 @@ public class zx
 				data &= readinputport(7);
 			if ((offset & 0x8000) == 0)
 				data &= readinputport(8);
-			if (Machine->drv->frames_per_second > 55)
+			if (Machine.drv.frames_per_second > 55)
 				data &= ~0x40;
 	
-			if (ula_irq)
+			if (ula_irq != 0)
 			{
 				logerror("IOR %3d $%04X data $%02X (ULA IRQs off)\n", cpu_getscanline(), offset, data);
 				zx_ula_bkgnd(0);
@@ -500,10 +500,10 @@ public class zx
 				data &= readinputport(7);
 			if ((offset & 0x8000) == 0)
 				data &= readinputport(8);
-			if (Machine->drv->frames_per_second > 55)
+			if (Machine.drv.frames_per_second > 55)
 				data &= ~0x40;
 	
-			if (ula_irq)
+			if (ula_irq != 0)
 			{
 				logerror("IOR %3d $%04X data $%02X (ULA IRQs off)\n", cpu_getscanline(), offset, data);
 				zx_ula_bkgnd(0);

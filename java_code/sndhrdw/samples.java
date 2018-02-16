@@ -19,15 +19,12 @@ public class samples
 	extern uword PCMfreq;
 	extern udword C64_clockSpeed;
 	
-	static void sampleEmuTryStopAll(void);
-	static sbyte sampleEmuSilence(void);
+	static static sbyte sampleEmuSilence(void);
 	static sbyte sampleEmu(void);
 	static sbyte sampleEmuTwo(void);
 	
-	static void GalwayInit(void);
-	static sbyte GalwayReturnSample(void);
-	INLINE void GetNextFour(void);
-	
+	static static sbyte GalwayReturnSample(void);
+	INLINE 
 	sbyte (*sampleEmuRout)(void) = &sampleEmuSilence;
 	
 	/* --- */
@@ -106,87 +103,87 @@ public class samples
 	
 	static void channelReset(sampleChannel* ch)
 	{
-		ch->Active = false;
-		ch->Mode = FM_NONE;
-		ch->Period = 0;
+		ch.Active = false;
+		ch.Mode = FM_NONE;
+		ch.Period = 0;
 	#if defined(DIRECT_FIXPOINT)
-		ch->Pos_stp.l = 0;
+		ch.Pos_stp.l = 0;
 	#elif defined(PORTABLE_FIXPOINT)
-		ch->Pos_stp = (ch->Pos_pnt = 0);
+		ch.Pos_stp = (ch.Pos_pnt = 0);
 	#else
-		ch->Pos_stp = 0;
+		ch.Pos_stp = 0;
 	#endif
-		ch->GalLastPos = 0;
+		ch.GalLastPos = 0;
 	}
 	
 	INLINE void channelFree(sampleChannel* ch, const uword regBase)
 	{
-		ch->Active = false;
-		ch->Mode = FM_NONE;
+		ch.Active = false;
+		ch.Mode = FM_NONE;
 		/*c64mem2[regBase+0x1d] = 0x00; */
 	}
 	
 	INLINE void channelTryInit(sampleChannel* ch, const uword regBase)
 	{
 		/*uword tempPeriod; */
-		if ( ch->Active && ( ch->Mode == FM_GALWAYON ))
+		if ( ch.Active && ( ch.Mode == FM_GALWAYON ))
 			return;
 	
 	#if 0
-		ch->VolShift = ( 0 - (sbyte)c64mem2[regBase+0x1d] ) >> 1;
+		ch.VolShift = ( 0 - (sbyte)c64mem2[regBase+0x1d] ) >> 1;
 		c64mem2[regBase+0x1d] = 0x00;
-		ch->Address = readLEword(c64mem2+regBase+0x1e);
-		ch->EndAddr = readLEword(c64mem2+regBase+0x3d);
-		if (ch->EndAddr <= ch->Address)
+		ch.Address = readLEword(c64mem2+regBase+0x1e);
+		ch.EndAddr = readLEword(c64mem2+regBase+0x3d);
+		if (ch.EndAddr <= ch.Address)
 		{
 			return;
 		}
-		ch->Repeat = c64mem2[regBase+0x3f];
-		ch->RepAddr = readLEword(c64mem2+regBase+0x7e);
-		ch->SampleOrder = c64mem2[regBase+0x7d];
+		ch.Repeat = c64mem2[regBase+0x3f];
+		ch.RepAddr = readLEword(c64mem2+regBase+0x7e);
+		ch.SampleOrder = c64mem2[regBase+0x7d];
 		tempPeriod = readLEword(c64mem2+regBase+0x5d);
-		if ( (ch->Scale=c64mem2[regBase+0x5f]) != 0 )
+		if ( (ch.Scale=c64mem2[regBase+0x5f]) != 0 )
 		{
-			tempPeriod >>= ch->Scale;
+			tempPeriod >>= ch.Scale;
 		}
 		if ( tempPeriod == 0 )
 		{
-			ch->Period = 0;
+			ch.Period = 0;
 	#if defined(DIRECT_FIXPOINT)
-			ch->Pos_stp.l = (ch->PosAdd_stp.l = 0);
+			ch.Pos_stp.l = (ch.PosAdd_stp.l = 0);
 	#elif defined(PORTABLE_FIXPOINT)
-			ch->Pos_stp = (ch->Pos_pnt = 0);
-			ch->PosAdd_stp = (ch->PosAdd_pnt = 0);
+			ch.Pos_stp = (ch.Pos_pnt = 0);
+			ch.PosAdd_stp = (ch.PosAdd_pnt = 0);
 	#else
-			ch->Pos_stp = (ch->PosAdd_stp = 0);
+			ch.Pos_stp = (ch.PosAdd_stp = 0);
 	#endif
-			ch->Active = false;
-			ch->Mode = FM_NONE;
+			ch.Active = false;
+			ch.Mode = FM_NONE;
 		}
 		else
 		{
-			if ( tempPeriod != ch->Period )
+			if ( tempPeriod != ch.Period )
 			{
-				ch->Period = tempPeriod;
+				ch.Period = tempPeriod;
 	#if defined(DIRECT_FIXPOINT)
-				ch->Pos_stp.l = sampleClock / ch->Period;
+				ch.Pos_stp.l = sampleClock / ch.Period;
 	#elif defined(PORTABLE_FIXPOINT)
-				udword tempDiv = sampleClock / ch->Period;
-				ch->Pos_stp = tempDiv >> 16;
-				ch->Pos_pnt = tempDiv & 0xFFFF;
+				udword tempDiv = sampleClock / ch.Period;
+				ch.Pos_stp = tempDiv >> 16;
+				ch.Pos_pnt = tempDiv & 0xFFFF;
 	#else
-				ch->Pos_stp = sampleClock / ch->Period;
+				ch.Pos_stp = sampleClock / ch.Period;
 	#endif
 			}
 	#if defined(DIRECT_FIXPOINT)
-			ch->PosAdd_stp.l = 0;
+			ch.PosAdd_stp.l = 0;
 	#elif defined(PORTABLE_FIXPOINT)
-			ch->PosAdd_stp = (ch->PosAdd_pnt = 0);
+			ch.PosAdd_stp = (ch.PosAdd_pnt = 0);
 	#else
-			ch->PosAdd_stp = 0;
+			ch.PosAdd_stp = 0;
 	#endif
-			ch->Active = true;
-			ch->Mode = FM_HUELSON;
+			ch.Active = true;
+			ch.Mode = FM_HUELSON;
 		}
 	#endif
 	}
@@ -195,33 +192,33 @@ public class samples
 	{
 		ubyte tempSample;
 	#if defined(DIRECT_FIXPOINT)
-		uword sampleIndex = ch->PosAdd_stp.w[HI] + ch.Address;
+		uword sampleIndex = ch.PosAdd_stp.w[HI] + ch.Address;
 	#elif defined(PORTABLE_FIXPOINT)
-		uword sampleIndex = ch->PosAdd_stp + ch.Address;
+		uword sampleIndex = ch.PosAdd_stp + ch.Address;
 	#else
-		uword sampleIndex = (ch->PosAdd_stp >> 16) + ch->Address;
+		uword sampleIndex = (ch.PosAdd_stp >> 16) + ch.Address;
 	#endif
-	    if ( sampleIndex >= ch->EndAddr )
+	    if ( sampleIndex >= ch.EndAddr )
 		{
-			if ( ch->Repeat != 0xFF )
+			if ( ch.Repeat != 0xFF )
 			{
-				if ( ch->Repeat != 0 )
-					ch->Repeat--;
+				if ( ch.Repeat != 0 )
+					ch.Repeat--;
 				else
 				{
 					channelFree(ch,regBase);
 					return 8;
 				}
 			}
-			sampleIndex = ( ch->Address = ch->RepAddr );
+			sampleIndex = ( ch.Address = ch.RepAddr );
 	#if defined(DIRECT_FIXPOINT)
-			ch->PosAdd_stp.l = 0;
+			ch.PosAdd_stp.l = 0;
 	#elif defined(PORTABLE_FIXPOINT)
-			ch->PosAdd_stp = (ch->PosAdd_pnt = 0);
+			ch.PosAdd_stp = (ch.PosAdd_pnt = 0);
 	#else
-			ch->PosAdd_stp = 0;
+			ch.PosAdd_stp = 0;
 	#endif
-			if ( sampleIndex >= ch->EndAddr )
+			if ( sampleIndex >= ch.EndAddr )
 			{
 				channelFree(ch,regBase);
 				return 8;
@@ -229,16 +226,16 @@ public class samples
 		}
 	
 		tempSample = 0;/*c64mem1[sampleIndex]; */
-		if (ch->SampleOrder == SO_LOWHIGH)
+		if (ch.SampleOrder == SO_LOWHIGH)
 		{
-			if (ch->Scale == 0)
+			if (ch.Scale == 0)
 			{
 	#if defined(DIRECT_FIXPOINT)
-				if (ch->PosAdd_stp.w[LO] >= 0x8000)
+				if (ch.PosAdd_stp.w[LO] >= 0x8000)
 	#elif defined(PORTABLE_FIXPOINT)
-				if ( ch->PosAdd_pnt >= 0x8000 )
+				if ( ch.PosAdd_pnt >= 0x8000 )
 	#else
-			    if ( (ch->PosAdd_stp & 0x8000) != 0 )
+			    if ( (ch.PosAdd_stp & 0x8000) != 0 )
 	#endif
 				{
 				    tempSample >>= 4;
@@ -246,16 +243,16 @@ public class samples
 			}
 			/* AND 15 further below. */
 		}
-		else  /* if (ch->SampleOrder == SO_HIGHLOW) */
+		else  /* if (ch.SampleOrder == SO_HIGHLOW) */
 		{
-			if (ch->Scale == 0)
+			if (ch.Scale == 0)
 			{
 	#if defined(DIRECT_FIXPOINT)
-				if ( ch->PosAdd_stp.w[LO] < 0x8000 )
+				if ( ch.PosAdd_stp.w[LO] < 0x8000 )
 	#elif defined(PORTABLE_FIXPOINT)
-			    if ( ch->PosAdd_pnt < 0x8000 )
+			    if ( ch.PosAdd_pnt < 0x8000 )
 	#else
-			    if ( (ch->PosAdd_stp & 0x8000) == 0 )
+			    if ( (ch.PosAdd_stp & 0x8000) == 0 )
 	#endif
 				{
 				    tempSample >>= 4;
@@ -269,13 +266,13 @@ public class samples
 		}
 	
 	#if defined(DIRECT_FIXPOINT)
-		ch->PosAdd_stp.l += ch->Pos_stp.l;
+		ch.PosAdd_stp.l += ch.Pos_stp.l;
 	#elif defined(PORTABLE_FIXPOINT)
-		udword temp = (udword)ch->PosAdd_pnt + (udword)ch->Pos_pnt;
-		ch->PosAdd_pnt = temp & 0xffff;
-		ch->PosAdd_stp += ( ch->Pos_stp + ( temp > 65535 ));
+		udword temp = (udword)ch.PosAdd_pnt + (udword)ch.Pos_pnt;
+		ch.PosAdd_pnt = temp & 0xffff;
+		ch.PosAdd_stp += ( ch.Pos_stp + ( temp > 65535 ));
 	#else
-		ch->PosAdd_stp += ch->Pos_stp;
+		ch.PosAdd_stp += ch.Pos_stp;
 	#endif
 	
 		return (tempSample&0x0F);
@@ -326,7 +323,7 @@ public class samples
 	void sampleEmuCheckForInit(void)
 	{
 		/* Try first sample channel. */
-		switch ( sid6581->reg[0x1d] )
+		switch ( sid6581.reg[0x1d] )
 		{
 		 case 0xFF:
 		 case 0xFE:
@@ -436,8 +433,8 @@ public class samples
 	#if 0
 		sampleEmuRout = &sampleEmuSilence;
 	
-		ch4.Counter = sid6581->reg[0x1d];
-		sid6581->reg[0x1d] = 0;
+		ch4.Counter = sid6581.reg[0x1d];
+		sid6581.reg[0x1d] = 0;
 	
 		if ((ch4.Address=sid6581_read_word(0x1e)) == 0)
 			return;

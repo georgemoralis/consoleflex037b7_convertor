@@ -55,7 +55,7 @@ typedef struct
 	char Q6;
 	char Q7;
 	
-	unsigned char *data;
+	UBytePtr data;
 	
 	int track;
 	int sector; /* not needed? */
@@ -88,15 +88,13 @@ extern UINT8 *apple2_slot7;
 extern APPLE2_STRUCT a2;
 
 
-extern void apple2e_init_machine(void);
-
+extern 
 extern int  apple2_id_rom(const char *name, const char * gamename);
 
 extern int	apple2e_load_rom(int id);
 extern int	apple2ee_load_rom(int id);
 
-extern int  apple2_interrupt(void);
-extern void apple2_slotrom_disable(int offset, int data);
+extern extern void apple2_slotrom_disable(int offset, int data);
 
 extern READ_HANDLER ( apple2_c00x_r );
 extern WRITE_HANDLER ( apple2_c00x_w );
@@ -144,9 +142,7 @@ extern READ_HANDLER ( apple2_slot7_r );
 
 
 /* machine/ap_disk2.c */
-extern void apple2_slot6_init(void);
-extern void apple2_slot6_stop(void);
-extern int	apple2_floppy_init(int id);
+extern extern extern int	apple2_floppy_init(int id);
 
 extern READ_HANDLER ( apple2_c0xx_slot6_r );
 extern WRITE_HANDLER ( apple2_c0xx_slot6_w );
@@ -160,10 +156,7 @@ extern UINT8 *apple2_hires1_ram;
 extern UINT8 *apple2_hires2_ram;
 
 
-extern int	apple2_vh_start(void);
-extern void apple2_vh_stop(void);
-extern void apple2_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh);
-
+extern extern extern 
 
 extern void apple2_lores_text1_w(int offset, int data);
 extern void apple2_lores_text2_w(int offset, int data);

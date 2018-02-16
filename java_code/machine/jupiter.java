@@ -88,7 +88,7 @@ public class jupiter
 	
 	static	int	jupiter_ramsize = 2;
 	
-	void jupiter_init_machine(void)
+	public static InitMachinePtr jupiter_init_machine = new InitMachinePtr() { public void handler() 
 	{
 	
 		logerror("jupiter_init\r\n");
@@ -121,18 +121,18 @@ public class jupiter
 			}
 	
 		}
-		if (jupiter_data)
+		if (jupiter_data != 0)
 		{
 			logerror("data: %08X. type: %d.\n", jupiter_data,
 												jupiter_data_type);
 			cpu_setOPbaseoverride(0, jupiter_opbaseoverride);
 		}
-	}
+	} };
 	
 	void jupiter_stop_machine(void)
 	{
 		logerror("jupiter_stop_machine\n");
-		if (jupiter_data)
+		if (jupiter_data != 0)
 		{
 			free(jupiter_data);
 			jupiter_data = NULL;
@@ -154,7 +154,7 @@ public class jupiter
 	{
 		logerror("jupiter_exit_ace\n");
 		/*
-		if (jupiter_data)
+		if (jupiter_data != 0)
 		{
 			free(jupiter_data);
 			jupiter_data = NULL;
@@ -177,7 +177,7 @@ public class jupiter
 		done = 0;
 		jupiter_index = 0;
 		file = image_fopen(IO_CARTSLOT, id, OSD_FILETYPE_IMAGE_RW, 0);
-		if (file)
+		if (file != 0)
 		{
 			if ((jupiter_data = malloc(0x6000)))
 			{
@@ -231,7 +231,7 @@ public class jupiter
 	void	jupiter_exit_tap(int id)
 	{
 		logerror("jupiter_exit_tap\n");
-		if (jupiter_data)
+		if (jupiter_data != 0)
 		{
 			free(jupiter_data);
 			jupiter_data = NULL;
@@ -251,7 +251,7 @@ public class jupiter
 			return (0);
 		jupiter_exit_tap(id);
 		file = image_fopen(IO_CASSETTE, id, OSD_FILETYPE_IMAGE_RW, 0);
-		if (file)
+		if (file != 0)
 		{
 			logerror("Loading file %s.\r\n", device_filename(IO_CASSETTE,id));
 	

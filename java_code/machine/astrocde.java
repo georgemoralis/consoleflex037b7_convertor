@@ -34,7 +34,7 @@ public class astrocde
 	
 	    /* load a cartidge  */
 		file = image_fopen(IO_CARTSLOT, id, OSD_FILETYPE_IMAGE_R, 0);
-		if (file)
+		if (file != 0)
 		{
 			size = osd_fread(file, memory_region(REGION_CPU1) + 0x2000, 0x8000);
 			osd_fclose(file);
@@ -72,14 +72,14 @@ public class astrocde
 	    NextScanInt = data;
 	}
 	
-	int astrocade_interrupt(void)
+	public static InterruptPtr astrocade_interrupt = new InterruptPtr() { public int handler() 
 	{
 		int res=ignore_interrupt();
 	//    int Direction;
 	
 	    CurrentScan++;
 	
-	    if (CurrentScan == Machine->drv->cpu[0].vblank_interrupts_per_frame)
+	    if (CurrentScan == Machine.drv.cpu[0].vblank_interrupts_per_frame)
 		{
 			CurrentScan = 0;
 	    }
@@ -93,5 +93,5 @@ public class astrocde
 			res = interrupt();
 	
 	    return res;
-	}
+	} };
 }

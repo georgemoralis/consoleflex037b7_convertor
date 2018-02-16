@@ -15,33 +15,33 @@ package machine;
 public class a7800
 {
 	
-	unsigned char *a7800_cart_f000;
-	unsigned char *a7800_bios_f000;
+	UBytePtr a7800_cart_f000;
+	UBytePtr a7800_bios_f000;
 	int a7800_ctrl_lock;
 	int a7800_ctrl_reg;
 	int maria_flag;
 	
 	/* local */
-	unsigned char *a7800_ram;
-	unsigned char *a7800_cartridge_rom;
+	UBytePtr a7800_ram;
+	UBytePtr a7800_cartridge_rom;
 	unsigned char a7800_cart_type;
 	unsigned char a7800_stick_type;
 	static UINT8 *ROM;
 	
-	void a7800_init_machine(void) {
+	public static InitMachinePtr a7800_init_machine = new InitMachinePtr() { public void handler()  {
 	    a7800_ctrl_lock = 0;
 	    a7800_ctrl_reg = 0;
 	    maria_flag=0;
-	    if (a7800_cart_type & 0x01){
+	    if ((a7800_cart_type & 0x01) != 0){
 	        install_mem_write_handler(0,0x4000,0x7FFF,pokey1_w);
 	    }
-	}
+	} };
 	
 	void a7800_stop_machine(void) {
-		if (a7800_bios_f000)
+		if (a7800_bios_f000 != 0)
 			free(a7800_bios_f000);
 		a7800_bios_f000 = NULL;
-		if (a7800_cart_f000)
+		if (a7800_cart_f000 != 0)
 			free(a7800_cart_f000);
 		a7800_cart_f000 = NULL;
 	}
@@ -75,9 +75,9 @@ public class a7800
 	               Changed 53 bit 2, added bit 3
 	
 	*/
-	// extern unsigned int crc32 (unsigned int crc, const unsigned char *buf, unsigned int len);
+	// extern unsigned int crc32 (unsigned int crc, const UBytePtr buf, unsigned int len);
 	
-	UINT32 a7800_partialcrc(const unsigned char *buf,unsigned int size)
+	UINT32 a7800_partialcrc(const UBytePtr buf,unsigned int size)
 	{
 	UINT32 crc;
 	if (size < 129) return 0;
@@ -117,10 +117,10 @@ public class a7800
 	
 	void a7800_exit_rom (int id)
 	{
-		if (a7800_bios_f000)
+		if (a7800_bios_f000 != 0)
 			free(a7800_bios_f000);
 		a7800_bios_f000 = NULL;
-		if (a7800_cart_f000)
+		if (a7800_cart_f000 != 0)
 			free(a7800_cart_f000);
 	    a7800_cart_f000 = NULL;
 	}
@@ -187,7 +187,7 @@ public class a7800
 	    /* Super Cart */
 	    else {
 	        /* Extra ROM at $4000 */
-	        if (a7800_cart_type & 0x08) {
+	        if ((a7800_cart_type & 0x08) != 0) {
 	            osd_fread(cartfile,&(ROM[0x4000]),0x4000);
 	        }
 	        a7800_cartridge_rom = &(ROM[0x10000]);
@@ -239,13 +239,13 @@ public class a7800
 	void a7800_TIA_w(int offset, int data) {
 	    switch(offset) {
 	        case 0x01:
-	            if (data & 0x01) {
+	            if ((data & 0x01) != 0) {
 	                maria_flag=1;
 	            }
 	            if (!a7800_ctrl_lock) {
 	                a7800_ctrl_lock = data & 0x01;
 	                a7800_ctrl_reg = data;
-	                if (data & 0x04)
+	                if ((data & 0x04) != 0)
 	                    memcpy(&(ROM[0xF000]),a7800_cart_f000,0x1000);
 	                else
 	                    memcpy(&(ROM[0xF000]),a7800_bios_f000,0x1000);
@@ -309,10 +309,10 @@ public class a7800
 	void a7800_cart_w(int offset, int data) {
 	
 	    if (offset < 0x4000) {
-	        if (a7800_cart_type & 0x04) {
+	        if ((a7800_cart_type & 0x04) != 0) {
 	            ROM[0x8000 + offset] = data;
 	        }
-	        else if (a7800_cart_type & 0x01) {
+	        else if ((a7800_cart_type & 0x01) != 0) {
 	            pokey1_w(offset,data);
 	        }
 	        else {
@@ -320,7 +320,7 @@ public class a7800
 	        }
 	    }
 	    if (offset > 0x3FFF) {
-	        if (a7800_cart_type & 0x02) {
+	        if ((a7800_cart_type & 0x02) != 0) {
 	            data &= 0x07;
 	            cpu_setbank(1,memory_region(REGION_CPU1) + 0x10000 + (data << 14));
 	//            logerror("BANK SEL: %d\n",data);

@@ -26,7 +26,6 @@ public class nes
 	#define SPRITERAM_SIZE	0x100
 	#define VRAM_SIZE	0x3c0
 	
-	static void render_sprites (int scanline);
 	
 	int nes_vram[8]; /* Keep track of 8 .5k vram pages to speed things up */
 	int nes_vram_sprite[8]; /* Used only by mmc5 for now */
@@ -37,9 +36,9 @@ public class nes
 	unsigned char nes_palette[3*64];
 	
 	#ifdef DIRTY_BUFFERS
-	unsigned char *dirtybuffer2;
-	unsigned char *dirtybuffer3;
-	unsigned char *dirtybuffer4;
+	UBytePtr dirtybuffer2;
+	UBytePtr dirtybuffer3;
+	UBytePtr dirtybuffer4;
 	#endif
 	unsigned char line_priority[0x100];
 	
@@ -75,7 +74,7 @@ public class nes
 	FILE *colorlog;
 	#endif
 	
-	void nes_init_palette(unsigned char *palette, unsigned short *colortable,const unsigned char *color_prom)
+	public static VhConvertColorPromPtr nes_init_palette = new VhConvertColorPromPtr() { public void handler(char []palette, char []colortable, UBytePtr color_prom) 
 	{
 	#ifndef M_PI
 	#define M_PI 			(3.14159265358979323846L)
@@ -202,14 +201,14 @@ public class nes
 	#endif
 	
 		memcpy(colortable,nes_colortable,sizeof(nes_colortable));
-	}
+	} };
 	
 	/***************************************************************************
 	
 	  Start the video hardware emulation.
 	
 	***************************************************************************/
-	int nes_vh_start(void)
+	public static VhStartPtr nes_vh_start = new VhStartPtr() { public int handler() 
 	{
 		int i;
 	
@@ -218,7 +217,7 @@ public class nes
 			return 1;
 	
 		/* We use an offscreen bitmap that's 4 times as large as the visible one */
-		if ((tmpbitmap = osd_alloc_bitmap(2 * 32*8, 2 * 30*8,Machine->scrbitmap->depth)) == 0)
+		if ((tmpbitmap = osd_alloc_bitmap(2 * 32*8, 2 * 30*8,Machine.scrbitmap.depth)) == 0)
 		{
 			free (videoram);
 			osd_free_bitmap (tmpbitmap);
@@ -244,10 +243,10 @@ public class nes
 			free (videoram);
 			osd_free_bitmap (tmpbitmap);
 			free (spriteram);
-			if (dirtybuffer)  free (dirtybuffer);
-			if (dirtybuffer2) free (dirtybuffer2);
-			if (dirtybuffer3) free (dirtybuffer3);
-			if (dirtybuffer4) free (dirtybuffer4);
+			if (dirtybuffer != 0)  free (dirtybuffer);
+			if (dirtybuffer2 != 0) free (dirtybuffer2);
+			if (dirtybuffer3 != 0) free (dirtybuffer3);
+			if (dirtybuffer4 != 0) free (dirtybuffer4);
 			return 1;
 		}
 	
@@ -272,7 +271,7 @@ public class nes
 	#endif
 	
 		return 0;
-	}
+	} };
 	
 	
 	
@@ -281,7 +280,7 @@ public class nes
 	  Stop the video hardware emulation.
 	
 	***************************************************************************/
-	void nes_vh_stop(void)
+	public static VhStopPtr nes_vh_stop = new VhStopPtr() { public void handler() 
 	{
 		free (videoram);
 		free (spriteram);
@@ -294,12 +293,12 @@ public class nes
 		osd_free_bitmap (tmpbitmap);
 	
 	#ifdef LOG_VIDEO
-		if (videolog) fclose (videolog);
+		if (videolog != 0) fclose (videolog);
 	#endif
 	#ifdef LOG_COLOR
-		if (colorlog) fclose (colorlog);
+		if (colorlog != 0) fclose (colorlog);
 	#endif
-	}
+	} };
 	
 	/***************************************************************************
 	
@@ -319,7 +318,7 @@ public class nes
 		UINT8 color_mask;
 		int total_elements;
 		const unsigned short *paldata_1;
-	//	const unsigned char *sd_1;
+	//	const UBytePtr sd_1;
 	
 	#ifdef BIG_SCREEN
 		return;
@@ -330,14 +329,14 @@ public class nes
 		if (osd_skip_this_frame ())
 			goto draw_nothing;
 	
-		if (PPU_Control1 & 0x01)
+		if ((PPU_Control1 & 0x01) != 0)
 			color_mask = 0xf0;
 		else
 			color_mask = 0xff;
 	
 	#ifndef COLOR_INTENSITY
 		/* Set the background color */
-		memset (Machine->scrbitmap->line[scanline], Machine->pens[PPU_background_color & color_mask], 0x100);
+		memset (Machine.scrbitmap.line[scanline], Machine.pens[PPU_background_color & color_mask], 0x100);
 	#endif
 	
 		for (i = 0; i < 0x100; i ++)
@@ -346,9 +345,9 @@ public class nes
 			line_priority[i] = 0;
 	
 			/* Set the background color */
-	//		plot_pixel (Machine->scrbitmap, i, scanline, Machine->pens[PPU_background_color]);
+	//		plot_pixel (Machine.scrbitmap, i, scanline, Machine.pens[PPU_background_color]);
 	#ifdef COLOR_INTENSITY
-			((UINT16 *) Machine->scrbitmap->line[scanline])[i] = Machine->pens[PPU_background_color & color_mask];
+			((UINT16 *) Machine.scrbitmap.line[scanline])[i] = Machine.pens[PPU_background_color & color_mask];
 	#endif
 		}
 	
@@ -375,20 +374,20 @@ public class nes
 	
 	#ifdef LOG_VIDEO
 	if ((scanline == 0) && (videolog)) fprintf (videolog, "\n");
-	if (videolog) fprintf (videolog, "%03d: ", scanline);
+	if (videolog != 0) fprintf (videolog, "%03d: ", scanline);
 	#endif
 	#ifdef LOG_COLOR
 	if ((scanline == 0) && (colorlog)) fprintf (colorlog, "\n");
-	if (colorlog) fprintf (colorlog, "%03d: ", scanline);
+	if (colorlog != 0) fprintf (colorlog, "%03d: ", scanline);
 	#endif
 	
-		total_elements = Machine->gfx[gfx_bank]->total_elements;
+		total_elements = Machine.gfx[gfx_bank].total_elements;
 	
-	//	sd_1 = Machine->gfx[gfx_bank]->gfxdata;
-		if (PPU_Control1 & 0x01)
+	//	sd_1 = Machine.gfx[gfx_bank].gfxdata;
+		if ((PPU_Control1 & 0x01) != 0)
 			paldata_1 = colortable_mono;
 		else
-			paldata_1 = Machine->gfx[0]->colortable;
+			paldata_1 = Machine.gfx[0].colortable;
 	
 		/* Draw the 32 or 33 tiles that make up a line */
 		while (start_x < 256)
@@ -423,37 +422,37 @@ public class nes
 	
 	#ifdef MMC5_VRAM
 			/* Use the extended bits if necessary */
-			if (MMC5_vram_control & 0x01)
+			if ((MMC5_vram_control & 0x01) != 0)
 			{
 				index2 |= (MMC5_vram[address] & 0x3f) << 8;
 			}
 	#endif
 	
 	#ifdef LOG_VIDEO
-	if (videolog) fprintf (videolog, "%02x ", ppu_page[page][address]);
+	if (videolog != 0) fprintf (videolog, "%02x ", ppu_page[page][address]);
 	#endif
 	#ifdef LOG_COLOR
-	//if (colorlog) fprintf (colorlog, "%02x ", (color_byte >> color_bits) & 0x03);
-	//if (colorlog) fprintf (colorlog, "%02x ", sd[i]);
+	//if (colorlog != 0) fprintf (colorlog, "%02x ", (color_byte >> color_bits) & 0x03);
+	//if (colorlog != 0) fprintf (colorlog, "%02x ", sd[i]);
 	#endif
 	
 			{
 				const unsigned short *paldata;
-				const unsigned char *sd;
-				unsigned char *bm;
+				const UBytePtr sd;
+				UBytePtr bm;
 				int start;
 	
-	//			paldata = &Machine->gfx[gfx_bank]->colortable[4 * (((color_byte >> color_bits) & 0x03)/* % 8*/)];
+	//			paldata = &Machine.gfx[gfx_bank].colortable[4 * (((color_byte >> color_bits) & 0x03)/* % 8*/)];
 				paldata = &paldata_1[4 * (((color_byte >> color_bits) & 0x03))];
-				bm = Machine->scrbitmap->line[scanline] + start_x;
-	//			sd = &Machine->gfx[gfx_bank]->gfxdata[start * Machine->gfx[gfx_bank]->width];
+				bm = Machine.scrbitmap.line[scanline] + start_x;
+	//			sd = &Machine.gfx[gfx_bank].gfxdata[start * Machine.gfx[gfx_bank].width];
 				start = (index2 % total_elements) * 8 + scroll_y_fine;
-				sd = &Machine->gfx[gfx_bank]->gfxdata[start * 8];
+				sd = &Machine.gfx[gfx_bank].gfxdata[start * 8];
 	//			sd = &sd_1[start * 8];
 	
 	#ifdef LOG_COLOR
-	//if (colorlog) fprintf (colorlog, "%02x ", (color_byte >> color_bits) & 0x03);
-	if (colorlog) fprintf (colorlog, "%02x ", sd[i]);
+	//if (colorlog != 0) fprintf (colorlog, "%02x ", (color_byte >> color_bits) & 0x03);
+	if (colorlog != 0) fprintf (colorlog, "%02x ", sd[i]);
 	#endif
 	
 				for (i = 0; i < 8; i ++)
@@ -462,7 +461,7 @@ public class nes
 					{
 						if (sd[i])
 						{
-							plot_pixel (Machine->scrbitmap, start_x+i, scanline, paldata[sd[i]]);
+							plot_pixel (Machine.scrbitmap, start_x+i, scanline, paldata[sd[i]]);
 							line_priority[start_x + i] |= 0x02;
 						}
 					}
@@ -487,17 +486,17 @@ public class nes
 		}
 	
 	#ifdef LOG_VIDEO
-	if (videolog) fprintf (videolog, "\n");
+	if (videolog != 0) fprintf (videolog, "\n");
 	#endif
 	#ifdef LOG_COLOR
-	if (colorlog) fprintf (colorlog, "\n");
+	if (colorlog != 0) fprintf (colorlog, "\n");
 	#endif
 	
 		/* If the left 8 pixels for the background are off, blank 'em */
 		/* TODO: handle this properly, along with sprite clipping */
 		if (!(PPU_Control1 & PPU_c1_background_L8))
 		{
-			memset (Machine->scrbitmap->line[scanline], Machine->pens[PPU_background_color & color_mask], 0x08);
+			memset (Machine.scrbitmap.line[scanline], Machine.pens[PPU_background_color & color_mask], 0x08);
 		}
 	
 	draw_sprites:
@@ -509,7 +508,7 @@ public class nes
 		}
 	
 		/* If sprites are on, draw them */
-		if (PPU_Control1 & PPU_c1_sprites)
+		if ((PPU_Control1 & PPU_c1_sprites) != 0)
 		{
 			render_sprites (scanline);
 		}
@@ -520,9 +519,9 @@ public class nes
 			/* Clear this line if we're not drawing it */
 	#ifdef COLOR_INTENSITY
 			for (i = 0; i < 0x100; i ++)
-				((UINT16 *) Machine->scrbitmap->line[scanline])[i] = Machine->pens[0x3f & color_mask];
+				((UINT16 *) Machine.scrbitmap.line[scanline])[i] = Machine.pens[0x3f & color_mask];
 	#else
-			memset (Machine->scrbitmap->line[scanline], Machine->pens[0x3f & color_mask], 0x100);
+			memset (Machine.scrbitmap.line[scanline], Machine.pens[0x3f & color_mask], 0x100);
 	#endif
 		}
 	
@@ -531,7 +530,7 @@ public class nes
 		PPU_refresh_data += 0x1000;
 	
 		/* If it's rolled, increment the coarse y-scroll */
-		if (PPU_refresh_data & 0x8000)
+		if ((PPU_refresh_data & 0x8000) != 0)
 		{
 			UINT16 tmp;
 			tmp = (PPU_refresh_data & 0x03e0) + 0x20;
@@ -568,22 +567,22 @@ public class nes
 		for (i = 0; i < 0x100; i += 4)
 	//	for (i = 0xfc; i >= 0; i -= 4)
 		{
-			y = spriteram[i] + 1;
+			y = spriteram.read(i)+ 1;
 	
 			/* If the sprite isn't visible, skip it */
 			if ((y + size <= scanline) || (y > scanline)) continue;
 	
-			x    = spriteram[i+3];
-			tile = spriteram[i+1];
-			color = (spriteram[i+2] & 0x03) + 4;
-			pri = spriteram[i+2] & 0x20;
-			flipx = spriteram[i+2] & 0x40;
-			flipy = spriteram[i+2] & 0x80;
+			x    = spriteram.read(i+3);
+			tile = spriteram.read(i+1);
+			color = (spriteram.read(i+2)& 0x03) + 4;
+			pri = spriteram.read(i+2)& 0x20;
+			flipx = spriteram.read(i+2)& 0x40;
+			flipy = spriteram.read(i+2)& 0x80;
 	
 			if (size == 16)
 			{
 				/* If it's 8x16 and odd-numbered, draw the other half instead */
-				if (tile & 0x01)
+				if ((tile & 0x01) != 0)
 				{
 					tile &= ~0x01;
 					tile |= 0x100;
@@ -612,33 +611,33 @@ public class nes
 				int sprite_line;
 				int drawn = 0;
 				const unsigned short *paldata;
-				const unsigned char *sd;
-				unsigned char *bm;
+				const UBytePtr sd;
+				UBytePtr bm;
 				int start;
 	
 				sprite_line = scanline - y;
-				if (flipy) sprite_line = (size-1)-sprite_line;
+				if (flipy != 0) sprite_line = (size-1)-sprite_line;
 	
-	if ((i == 0) /*&& (spriteram[i+2] & 0x20)*/)
+	if ((i == 0) /*&& (spriteram.read(i+2)& 0x20)*/)
 	{
 	//	if (y2 == 0)
-	//		logerror ("sprite 0 (%02x/%02x) tile: %04x, bank: %d, color: %02x, flags: %02x\n", x, y, index1, bank, color, spriteram[i+2]);
+	//		logerror ("sprite 0 (%02x/%02x) tile: %04x, bank: %d, color: %02x, flags: %02x\n", x, y, index1, bank, color, spriteram.read(i+2));
 	//	color = rand() & 0xff;
 	//	if (y == 0xc0)
 	//		Debugger ();
 	}
 	
-				paldata = &Machine->gfx[gfx_bank]->colortable[4 * color];
-				start = (index1 % Machine->gfx[gfx_bank]->total_elements) * 8 + sprite_line;
-				bm = Machine->scrbitmap->line[scanline] + x;
-				sd = &Machine->gfx[gfx_bank]->gfxdata[start * Machine->gfx[gfx_bank]->width];
+				paldata = &Machine.gfx[gfx_bank].colortable[4 * color];
+				start = (index1 % Machine.gfx[gfx_bank].total_elements) * 8 + sprite_line;
+				bm = Machine.scrbitmap.line[scanline] + x;
+				sd = &Machine.gfx[gfx_bank].gfxdata[start * Machine.gfx[gfx_bank].width];
 	
-				if (pri)
+				if (pri != 0)
 				{
 					/* Draw the low-priority sprites */
 					int j;
 	
-					if (flipx)
+					if (flipx != 0)
 					{
 						for (j = 0; j < 8; j ++)
 						{
@@ -649,7 +648,7 @@ public class nes
 								if (!line_priority [x+j])
 								{
 									/* No, draw */
-									plot_pixel (Machine->scrbitmap, x+j, scanline, paldata[sd[7-j]]);
+									plot_pixel (Machine.scrbitmap, x+j, scanline, paldata[sd[7-j]]);
 									drawn = 1;
 								}
 								/* Indicate that a sprite was drawn at this location, even if it's not seen */
@@ -670,7 +669,7 @@ public class nes
 								/* Has the background (or another sprite) already been drawn here? */
 								if (!line_priority [x+j])
 								{
-									plot_pixel (Machine->scrbitmap, x+j, scanline, paldata[sd[j]]);
+									plot_pixel (Machine.scrbitmap, x+j, scanline, paldata[sd[j]]);
 									drawn = 1;
 								}
 								/* Indicate that a sprite was drawn at this location, even if it's not seen */
@@ -687,7 +686,7 @@ public class nes
 					/* Draw the high-priority sprites */
 					int j;
 	
-					if (flipx)
+					if (flipx != 0)
 					{
 						for (j = 0; j < 8; j ++)
 						{
@@ -698,7 +697,7 @@ public class nes
 								if (!(line_priority[x+j] & 0x01))
 								{
 									/* No, draw */
-									plot_pixel (Machine->scrbitmap, x+j, scanline, paldata[sd[7-j]]);
+									plot_pixel (Machine.scrbitmap, x+j, scanline, paldata[sd[7-j]]);
 									line_priority [x+j] |= 0x01;
 									drawn = 1;
 								}
@@ -720,7 +719,7 @@ public class nes
 								if (!(line_priority[x+j] & 0x01))
 								{
 									/* No, draw */
-									plot_pixel (Machine->scrbitmap, x+j, scanline, paldata[sd[j]]);
+									plot_pixel (Machine.scrbitmap, x+j, scanline, paldata[sd[j]]);
 									line_priority [x+j] |= 0x01;
 									drawn = 1;
 								}
@@ -733,7 +732,7 @@ public class nes
 					}
 				}
 	
-				if (drawn)
+				if (drawn != 0)
 				{
 					/* If there are more than 8 sprites on this line, set the flag */
 					spriteCount ++;
@@ -753,7 +752,7 @@ public class nes
 	
 	void nes_vh_sprite_dma_w (int offset, int data)
 	{
-		unsigned char *RAM = memory_region(REGION_CPU1);
+		UBytePtr RAM = memory_region(REGION_CPU1);
 	
 		memcpy (spriteram, &RAM[data * 0x100], 0x100);
 	#ifdef MAME_DEBUG
@@ -769,9 +768,9 @@ public class nes
 		UINT16 color;
 	
 		if (playerNum == 2)
-			color = Machine->pens[0]; /* grey */
+			color = Machine.pens[0]; /* grey */
 		else
-			color = Machine->pens[0x30]; /* white */
+			color = Machine.pens[0x30]; /* white */
 	
 	    if (x_center<2)   x_center=2;
 	    if (x_center>253) x_center=253;
@@ -781,15 +780,15 @@ public class nes
 	
 		for(y = y_center-5; y < y_center+6; y++)
 			if((y >= 0) && (y < 256))
-				plot_pixel (Machine->scrbitmap, x_center, y, color);
+				plot_pixel (Machine.scrbitmap, x_center, y, color);
 	
 		for(x = x_center-5; x < x_center+6; x++)
 			if((x >= 0) && (x < 256))
-				plot_pixel (Machine->scrbitmap, x, y_center, color);
+				plot_pixel (Machine.scrbitmap, x, y_center, color);
 	}
 	
 	/* This routine is called at the start of vblank to refresh the screen */
-	void nes_vh_screenrefresh(struct osd_bitmap *bitmap, int full_refresh)
+	public static VhUpdatePtr nes_vh_screenrefresh = new VhUpdatePtr() { public void handler(osd_bitmap bitmap,int full_refresh) 
 	{
 	#ifdef BIG_SCREEN
 		int page;
@@ -884,7 +883,7 @@ public class nes
 				else
 					bank = 0;
 	
-				drawgfx(tmpbitmap, Machine->gfx[bank],
+				drawgfx(tmpbitmap, Machine.gfx[bank],
 					index3,
 					(color >> index1) & 0x03,
 					0,0,
@@ -930,7 +929,7 @@ public class nes
 				else
 					bank = 0;
 	
-				drawgfx(tmpbitmap, Machine->gfx[bank],
+				drawgfx(tmpbitmap, Machine.gfx[bank],
 					index3,
 					(color >> index1) & 0x03,
 					0,0,
@@ -976,7 +975,7 @@ public class nes
 				else
 					bank = 0;
 	
-				drawgfx(tmpbitmap, Machine->gfx[bank],
+				drawgfx(tmpbitmap, Machine.gfx[bank],
 					index3,
 					(color >> index1) & 0x03,
 					0,0,
@@ -1022,7 +1021,7 @@ public class nes
 				else
 					bank = 0;
 	
-				drawgfx(tmpbitmap, Machine->gfx[bank],
+				drawgfx(tmpbitmap, Machine.gfx[bank],
 					index3,
 					(color >> index1) & 0x03,
 					0,0,
@@ -1034,25 +1033,25 @@ public class nes
 		/* TODO: take into account the currently selected page or one-page mode, plus scrolling */
 	#if 0
 		/* 1 */
-		scrollx = (Machine->drv->screen_width - PPU_Scroll_X) & 0xff;
-		if (PPU_Scroll_Y)
-			scrolly = (Machine->drv->screen_height - PPU_Scroll_Y) & 0xff;
+		scrollx = (Machine.drv.screen_width - PPU_Scroll_X) & 0xff;
+		if (PPU_Scroll_Y != 0)
+			scrolly = (Machine.drv.screen_height - PPU_Scroll_Y) & 0xff;
 		else scrolly = 0;
-		copyscrollbitmap (bitmap,tmpbitmap,1,&scrollx,1,&scrolly,&Machine->visible_area,TRANSPARENCY_NONE,0);
+		copyscrollbitmap (bitmap,tmpbitmap,1,&scrollx,1,&scrolly,&Machine.visible_area,TRANSPARENCY_NONE,0);
 		/* 2 */
-		scrollx += Machine->drv->screen_width;
-		copyscrollbitmap (bitmap,tmpbitmap,1,&scrollx,1,&scrolly,&Machine->visible_area,TRANSPARENCY_NONE,0);
+		scrollx += Machine.drv.screen_width;
+		copyscrollbitmap (bitmap,tmpbitmap,1,&scrollx,1,&scrolly,&Machine.visible_area,TRANSPARENCY_NONE,0);
 		/* 4 */
-		scrolly += Machine->drv->screen_height;
-		copyscrollbitmap (bitmap,tmpbitmap,1,&scrollx,1,&scrolly,&Machine->visible_area,TRANSPARENCY_NONE,0);
+		scrolly += Machine.drv.screen_height;
+		copyscrollbitmap (bitmap,tmpbitmap,1,&scrollx,1,&scrolly,&Machine.visible_area,TRANSPARENCY_NONE,0);
 		/* 3 */
-		scrollx = (Machine->drv->screen_width - PPU_Scroll_X);
-		copyscrollbitmap (bitmap,tmpbitmap,1,&scrollx,1,&scrolly,&Machine->visible_area,TRANSPARENCY_NONE,0);
+		scrollx = (Machine.drv.screen_width - PPU_Scroll_X);
+		copyscrollbitmap (bitmap,tmpbitmap,1,&scrollx,1,&scrolly,&Machine.visible_area,TRANSPARENCY_NONE,0);
 	#endif
 	
 	#ifdef BIG_SCREEN
 		/* copy the character mapped graphics */
-		copybitmap(bitmap,tmpbitmap,0,0,0,0,&Machine->visible_area,TRANSPARENCY_NONE,0);
+		copybitmap(bitmap,tmpbitmap,0,0,0,0,&Machine.visible_area,TRANSPARENCY_NONE,0);
 	#endif
 	
 		/* Now draw the sprites */
@@ -1065,17 +1064,17 @@ public class nes
 			int y, tile, index1;
 	
 	
-			y = spriteram[i] + 1; /* TODO: is the +1 hack needed? see if PPU_Scroll_Y of 255 has any effect */
+			y = spriteram.read(i)+ 1; /* TODO: is the +1 hack needed? see if PPU_Scroll_Y of 255 has any effect */
 	
 			/* If the sprite isn't visible, skip it */
 			if (y > BOTTOM_VISIBLE_SCANLINE) continue;
 	
-			tile = spriteram[i+1];
+			tile = spriteram.read(i+1);
 	
 			if (Size == 16)
 			{
 				/* If it's 8x16 and odd-numbered, draw the other half instead */
-				if (tile & 0x01)
+				if ((tile & 0x01) != 0)
 				{
 					tile &= 0xfe;
 					tile |= 0x100;
@@ -1094,23 +1093,23 @@ public class nes
 					bank = 1;
 				else bank = 0;
 	
-				if (spriteram[i+2] & 0x20)
+				if (spriteram.read(i+2)& 0x20)
 					/* Draw sprites with the priority bit set behind the background */
-					drawgfx (bitmap, Machine->gfx[bank],
+					drawgfx (bitmap, Machine.gfx[bank],
 						index1,
-						(spriteram[i+2] & 0x03) + 4,
-						spriteram[i+2] & 0x40,spriteram[i+2] & 0x80,
-						spriteram[i+3],y,
-						&Machine->visible_area,TRANSPARENCY_THROUGH, PPU_background_color);
+						(spriteram.read(i+2)& 0x03) + 4,
+						spriteram.read(i+2)& 0x40,spriteram.read(i+2)& 0x80,
+						spriteram.read(i+3),y,
+						&Machine.visible_area,TRANSPARENCY_THROUGH, PPU_background_color);
 				else
-					drawgfx (bitmap, Machine->gfx[bank],
+					drawgfx (bitmap, Machine.gfx[bank],
 						index1,
-						(spriteram[i+2] & 0x03) + 4,
-						spriteram[i+2] & 0x40,spriteram[i+2] & 0x80,
-						spriteram[i+3],y,
-						&Machine->visible_area,TRANSPARENCY_PEN, 0);
+						(spriteram.read(i+2)& 0x03) + 4,
+						spriteram.read(i+2)& 0x40,spriteram.read(i+2)& 0x80,
+						spriteram.read(i+3),y,
+						&Machine.visible_area,TRANSPARENCY_PEN, 0);
 			}
 		}
 	#endif
-	}
+	} };
 }

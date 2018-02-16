@@ -23,9 +23,7 @@ typedef struct {         // CRTC 6845
 
 extern	int 	cgenie_font_offset[4];
 
-extern	int 	cgenie_vh_start(void);
-extern	void	cgenie_vh_stop(void);
-
+extern	extern	
 extern	READ_HANDLER ( cgenie_index_r );
 extern	READ_HANDLER ( cgenie_register_r );
 

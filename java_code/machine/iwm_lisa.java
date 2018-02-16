@@ -175,11 +175,11 @@ public class iwm_lisa
 		c3 = 0;
 		while(1) {
 			c1 = (c1 & 0xFF) << 1;
-			if (c1 & 0x0100) c1++;
+			if ((c1 & 0x0100) != 0) c1++;
 	
 			val = in[i++];
 			c3 += val;
-			if (c1 & 0x0100) {
+			if ((c1 & 0x0100) != 0) {
 				c3++;
 				c1 &= 0xFF;
 			}
@@ -221,7 +221,7 @@ public class iwm_lisa
 			nib_ptr[j++] = w1;
 			nib_ptr[j++] = w2;
 	
-			if (i) nib_ptr[j++] = w3;
+			if (i != 0) nib_ptr[j++] = w3;
 			i--;
 		}
 	
@@ -233,8 +233,8 @@ public class iwm_lisa
 	
 	static void iwm_filltrack(floppy *f, UINT8 data)
 	{
-		f->loadedtrack_data[f->loadedtrack_pos++] = data;
-		f->loadedtrack_pos %= f->loadedtrack_len;
+		f.loadedtrack_data[f.loadedtrack_pos++] = data;
+		f.loadedtrack_pos %= f.loadedtrack_len;
 	}
 	
 	static int iwm_readdata(void)
@@ -323,19 +323,19 @@ public class iwm_lisa
 		f = &iwm_floppy[iwm_floppy_select];
 	
 		/* Bad track? Unloaded? */
-		if ((!f->fd) || (f->track < 0) || (f->track >= 80)) {
+		if ((!f.fd) || (f.track < 0) || (f.track >= 80)) {
 		error:
 			result = 0xFF;
 		}
 		else {
 			/* Do we need to load the track? */
-			if (!f->loadedtrack_valid || (f->loadedtrack_num != f->track) || (f->loadedtrack_head != iwm_head_line)) {
-				len = iwm_tracklen_800kb[f->track];
-				imgpos = iwm_indextrack_800kb(f->track);
+			if (!f.loadedtrack_valid || (f.loadedtrack_num != f.track) || (f.loadedtrack_head != iwm_head_line)) {
+				len = iwm_tracklen_800kb[f.track];
+				imgpos = iwm_indextrack_800kb(f.track);
 	
-				if (f->sides) {
+				if (f.sides) {
 					imgpos *= 2;
-					if (iwm_head_line)
+					if (iwm_head_line != 0)
 						imgpos += len;
 				}
 	
@@ -343,17 +343,17 @@ public class iwm_lisa
 	
 				#if LOG_IWM
 					logerror("iwm_readdata(): Loading track %d (%d sectors, imgpos=0x%08x)\n",
-						(int) f->track, (int) len, (int) imgpos);
+						(int) f.track, (int) len, (int) imgpos);
 				#endif
 	
-				if (osd_fseek(f->fd, (f->image_format == apple_diskcopy) ? imgpos + 84 : imgpos, SEEK_SET)) {
+				if (osd_fseek(f.fd, (f.image_format == apple_diskcopy) ? imgpos + 84 : imgpos, SEEK_SET)) {
 					#if LOG_IWM
 						logerror("iwm_readdata(): osd_fseek() failed!\n");
 					#endif
 					goto error;
 				}
 	
-				if (osd_fread(f->fd, buf, len * 512) != (len * 512)) {
+				if (osd_fread(f.fd, buf, len * 512) != (len * 512)) {
 					#if LOG_IWM
 						logerror("iwm_readdata(): osd_fread() failed!\n");
 					#endif
@@ -361,37 +361,37 @@ public class iwm_lisa
 				}
 	
 				/* Unload current data, if any */
-				if (f->loadedtrack_data) {
-					free(f->loadedtrack_data);
-					f->loadedtrack_data = NULL;
+				if (f.loadedtrack_data) {
+					free(f.loadedtrack_data);
+					f.loadedtrack_data = NULL;
 				}
 				/* Set up the track data memory */
-				f->loadedtrack_len = len * 800;
-				f->loadedtrack_data = malloc(f->loadedtrack_len);
-				if (!f->loadedtrack_data) {
-					f->loadedtrack_valid = 0;
+				f.loadedtrack_len = len * 800;
+				f.loadedtrack_data = malloc(f.loadedtrack_len);
+				if (!f.loadedtrack_data) {
+					f.loadedtrack_valid = 0;
 					#if LOG_IWM
 						logerror("iwm_readdata(): malloc() failed!\n");
 					#endif
 					goto error;
 				}
-				f->loadedtrack_valid = 1;
-				memset(f->loadedtrack_data, 0xff, f->loadedtrack_len);
+				f.loadedtrack_valid = 1;
+				memset(f.loadedtrack_data, 0xff, f.loadedtrack_len);
 	
-				oldpos = f->loadedtrack_pos;
-				f->loadedtrack_pos = 0;
+				oldpos = f.loadedtrack_pos;
+				f.loadedtrack_pos = 0;
 	
-				side = (f->sides && iwm_head_line) ? 0x20 : 0x00;
-				if (f->track & 0x40)
+				side = (f.sides && iwm_head_line) ? 0x20 : 0x00;
+				if (f.track & 0x40)
 					side |= 0x01;
 	
 				for (sector = 0; sector < len; sector++) {
-					sum = (f->track ^ sector ^ side ^ 0x22) & 0x3F;
+					sum = (f.track ^ sector ^ side ^ 0x22) & 0x3F;
 	
 					for (i = 0; i < (sizeof(blk1) / sizeof(blk1[0])); i++)
 						iwm_filltrack(f, blk1[i]);
 	
-					iwm_filltrack(f, diskbytes[f->track & 0x3f]);
+					iwm_filltrack(f, diskbytes[f.track & 0x3f]);
 					iwm_filltrack(f, diskbytes[sector]);
 					iwm_filltrack(f, diskbytes[side]);
 					iwm_filltrack(f, diskbytes[0x22]);
@@ -418,7 +418,7 @@ public class iwm_lisa
 					#endif
 				}
 	
-				f->loadedtrack_pos = oldpos % f->loadedtrack_len;
+				f.loadedtrack_pos = oldpos % f.loadedtrack_len;
 			}
 	
 			/*
@@ -432,10 +432,10 @@ public class iwm_lisa
 			#endif
 	
 			/* Now actually read the data */
-			result = f->loadedtrack_data[f->loadedtrack_pos++];
-			f->loadedtrack_pos %= f->loadedtrack_len;
-			f->loadedtrack_num = f->track;
-			f->loadedtrack_head = iwm_head_line;
+			result = f.loadedtrack_data[f.loadedtrack_pos++];
+			f.loadedtrack_pos %= f.loadedtrack_len;
+			f.loadedtrack_num = f.track;
+			f.loadedtrack_head = iwm_head_line;
 		}
 	
 		#if LOG_IWM_EXTRA
@@ -477,22 +477,22 @@ public class iwm_lisa
 				action, (int) cpu_get_pc(), (iwm_lines & IWM_MOTOR) ? "" : " (MOTOR OFF)");
 		#endif
 	
-		//if (iwm_lines & IWM_MOTOR)
+		//if ((iwm_lines & IWM_MOTOR) != 0)
 		{
 			f = &iwm_floppy[iwm_floppy_select];
 	
 			switch(action) {
 			case 0x00:	/* write protect */
-				result = f->wp ? 0 : 1;
+				result = f.wp ? 0 : 1;
 				break;
 			case 0x01:	/* optical recalibration (At track -1 ????) */
-				result = f->track != 0/*0*/;	/* 0=track zero 1=not track zero */
+				result = f.track != 0/*0*/;	/* 0=track zero 1=not track zero */
 				break;
 			case 0x02:	/* eject button */
 				result = 0;
 				break;
 			case 0x03:	/* Disk in place */
-				result = !f->fd;	/* 0=disk 1=nodisk */
+				result = !f.fd;	/* 0=disk 1=nodisk */
 				break;
 			default:
 				#if LOG_IWM
@@ -518,44 +518,44 @@ public class iwm_lisa
 				action, (int) cpu_get_pc(), (iwm_lines & IWM_MOTOR) ? "" : " (MOTOR OFF)");
 		#endif
 	
-		if (iwm_lines & IWM_MOTOR) {
+		if ((iwm_lines & IWM_MOTOR) != 0) {
 			f = &iwm_floppy[iwm_floppy_select];
 	
 			switch(action) {
 			case 0x00:	/* Set step inward (higher tracks) */
-				f->step = 0;
+				f.step = 0;
 				break;
 			case 0x01:	/* Set step outward (lower tracks) */
-				f->step = 1;
+				f.step = 1;
 				break;
 			case 0x03:	/* Reset diskswitched */
-				f->disk_switched = 0;
+				f.disk_switched = 0;
 				break;
 			case 0x04:	/* Step disk */
-				if (f->step) {
-					if (f->track > 0)
-						f->track--;
+				if (f.step) {
+					if (f.track > 0)
+						f.track--;
 				}
 				else {
-					if (f->track < 79)
-						f->track++;
+					if (f.track < 79)
+						f.track++;
 				}
 				#if LOG_IWM
-					logerror("iwm_doaction(): stepping to track %i\n", (int) f->step);
+					logerror("iwm_doaction(): stepping to track %i\n", (int) f.step);
 				#endif
 				break;
 			case 0x08:	/* Turn motor on */
-				f->motor = 1;
+				f.motor = 1;
 				break;
 			case 0x09:	/* Turn motor off */
-				f->motor = 0;
+				f.motor = 0;
 				break;
 			case 0x0d:	/* Eject disk */
 				#if LOG_IWM
 					logerror("iwm_doaction(): ejecting disk pc=0x%08x\n", (int) cpu_get_pc());
 				#endif
-				if (f->fd) {
-					osd_fclose(f->fd);
+				if (f.fd) {
+					osd_fclose(f.fd);
 					memset(f, 0, sizeof(*f));
 				}
 				break;
@@ -599,7 +599,7 @@ public class iwm_lisa
 	
 		int old_iwm_lines = iwm_lines;
 	
-		if (offset & 1)
+		if ((offset & 1) != 0)
 			iwm_lines |= (1 << (offset >> 1));
 		else
 			iwm_lines &= ~(1 << (offset >> 1));
@@ -613,23 +613,23 @@ public class iwm_lisa
 	
 			/* trick */
 			if (((iwm_lines >> ((bit + 1) & 3)) & 1) ^ set)
-				f->track_times_8++;
+				f.track_times_8++;
 			else
-				f->track_times_8--;
+				f.track_times_8--;
 	
-			/* round to get f->track */
-			f->track = (f->track_times_8 + 4) / 8;
+			/* round to get f.track */
+			f.track = (f.track_times_8 + 4) / 8;
 		}
 	
 		switch(offset) {
 		/*case 0x07:
-			if (iwm_lines & IWM_MOTOR)
+			if ((iwm_lines & IWM_MOTOR) != 0)
 				iwm_doaction();
 			break;*/
 	
 		case 0x08:
 			/* Turn off motor */
-			if (iwm_mode & IWM_MODE_MOTOROFFDELAY) {
+			if ((iwm_mode & IWM_MODE_MOTOROFFDELAY) != 0) {
 				/* Immediately */
 				iwm_lines &= ~IWM_MOTOR;
 	
@@ -744,7 +744,7 @@ public class iwm_lisa
 	#endif
 	
 		iwm_access(offset);
-		if ( offset & 1 )
+		if ((offset & 1) != 0)
 			iwm_write_reg(data);
 	}
 	
@@ -774,12 +774,12 @@ public class iwm_lisa
 		if (!device_filename(IO_FLOPPY,id))
 			return INIT_OK;
 	
-		f->fd = image_fopen(IO_FLOPPY, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_RW);
-		if (!f->fd) {
-			f->fd = image_fopen(IO_FLOPPY, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
-			if (!f->fd)
+		f.fd = image_fopen(IO_FLOPPY, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_RW);
+		if (!f.fd) {
+			f.fd = image_fopen(IO_FLOPPY, id, OSD_FILETYPE_IMAGE_RW, OSD_FOPEN_READ);
+			if (!f.fd)
 				goto error;
-			f->wp = 1;
+			f.wp = 1;
 		}
 	
 		/* R. Nabet : added support for the diskcopy format to allow exchanges with real-world macs */
@@ -798,10 +798,10 @@ public class iwm_lisa
 				UINT16 private;		/* always $0100 (otherwise, the file may be in a different format. */
 			} header;
 	
-			f->image_format = bare;	/* default */
+			f.image_format = bare;	/* default */
 	
 			/* read image header */
-			if (osd_fread(f->fd, & header, sizeof(header)) == sizeof(header))
+			if (osd_fread(f.fd, & header, sizeof(header)) == sizeof(header))
 			{
 	
 	#ifdef LSB_FIRST
@@ -825,19 +825,19 @@ public class iwm_lisa
 									| ((header.private >> 8) & 0x00ff);
 	#endif
 				/* various checks : */
-				logerror("ninou : %d\n", osd_fsize(f->fd));
-				if ((header.diskName[0] <= 63) && (osd_fsize(f->fd) == (header.dataSize + header.tagSize + 84))
+				logerror("ninou : %d\n", osd_fsize(f.fd));
+				if ((header.diskName[0] <= 63) && (osd_fsize(f.fd) == (header.dataSize + header.tagSize + 84))
 						&& (header.private == 0x0100))
 				{
-					f->image_format = apple_diskcopy;
+					f.image_format = apple_diskcopy;
 					image_len = header.dataSize;
 				}
 			}
 		}
 	
-		if (f->image_format == bare)
+		if (f.image_format == bare)
 		{
-			image_len = osd_fsize(f->fd);
+			image_len = osd_fsize(f.fd);
 		}
 	
 	
@@ -846,13 +846,13 @@ public class iwm_lisa
 			/* Single sided (400k) */
 			if ((allowablesizes & IWM_FLOPPY_ALLOW400K) == 0)
 				goto error;
-			f->sides = 0;
+			f.sides = 0;
 			break;
 		case 80*10*512*2:
 			/* Double sided (800k) */
 			if ((allowablesizes & IWM_FLOPPY_ALLOW800K) == 0)
 				goto error;
-			f->sides = 1;
+			f.sides = 1;
 			break;
 		default:
 			/* Bad floppy size */
@@ -861,20 +861,20 @@ public class iwm_lisa
 		}
 	
 		/* For now we are always write protect */
-		f->wp = 1;
+		f.wp = 1;
 	
-		f->disk_switched = 1;
+		f.disk_switched = 1;
 	
 	#if LOG_IWM
 		logerror("macplus_floppy_init(): Loaded %s-sided floppy; id=%i name='%s' wp=%i\n",
-			(f->sides ? "double" : "single"), (int) id, device_filename(IO_FLOPPY,id), (int) f->wp);
+			(f.sides ? "double" : "single"), (int) id, device_filename(IO_FLOPPY,id), (int) f.wp);
 	#endif
 	
 		return INIT_OK;
 	
 	error:
-		if (f->fd)
-			osd_fclose(f->fd);
+		if (f.fd)
+			osd_fclose(f.fd);
 		return INIT_FAILED;
 	}
 	
@@ -883,11 +883,11 @@ public class iwm_lisa
 		floppy *f;
 		f = &iwm_floppy[id];
 	
-		if (f->fd)
-			osd_fclose(f->fd);
-		if (f->loadedtrack_data) {
-			free(f->loadedtrack_data);
-			f->loadedtrack_data = NULL;
+		if (f.fd)
+			osd_fclose(f.fd);
+		if (f.loadedtrack_data) {
+			free(f.loadedtrack_data);
+			f.loadedtrack_data = NULL;
 		}
 	}
 	

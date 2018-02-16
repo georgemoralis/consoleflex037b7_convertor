@@ -44,10 +44,7 @@ typedef struct DAVE
 	int onehz;
 } DAVE;
 
-extern int	Dave_sh_start(void);
-extern void	Dave_sh_stop(void);
-extern void	Dave_sh_update(void);
-
+extern extern extern 
 extern int	Dave_getreg(int);
 extern WRITE_HANDLER ( Dave_setreg );
 
@@ -57,6 +54,5 @@ extern WRITE_HANDLER (	Dave_reg_w );
 extern void	Dave_SetInt(int);
 
 void	Dave_SetIFace(struct DAVE_INTERFACE *newInterface);
-void     Dave_Interrupt(void);
 
 #endif

@@ -40,14 +40,14 @@ public class cgenie
 	  Start the video hardware emulation.
 	
 	***************************************************************************/
-	int cgenie_vh_start(void)
+	public static VhStartPtr cgenie_vh_start = new VhStartPtr() { public int handler() 
 	{
-		videoram_size = 0x4000;
+		videoram_size[0] = 0x4000;
 	
 		if( generic_vh_start() != 0 )
 	        return 1;
 	
-	    dlybitmap = osd_alloc_bitmap(Machine->drv->screen_width,Machine->drv->screen_height,Machine->scrbitmap->depth);
+	    dlybitmap = osd_alloc_bitmap(Machine.drv.screen_width,Machine.drv.screen_height,Machine.scrbitmap.depth);
 		if( !dlybitmap )
 			return 1;
 	
@@ -63,29 +63,29 @@ public class cgenie
 		memset(colorbuffer, 0, 64 * 32 * 8);
 	
 		return 0;
-	}
+	} };
 	
 	/***************************************************************************
 	
 	  Stop the video hardware emulation.
 	
 	***************************************************************************/
-	void cgenie_vh_stop(void)
+	public static VhStopPtr cgenie_vh_stop = new VhStopPtr() { public void handler() 
 	{
 		generic_vh_stop();
 	
-		if( dlybitmap )
+		if (dlybitmap != 0)
 			free(dlybitmap);
 		dlybitmap = NULL;
 	
-		if( cleanbuffer )
+		if (cleanbuffer != 0)
 			free(cleanbuffer);
 		cleanbuffer = NULL;
 	
-		if( colorbuffer )
+		if (colorbuffer != 0)
 			free(colorbuffer);
 		colorbuffer = NULL;
-	}
+	} };
 	
 	/***************************************************************************
 	
@@ -112,7 +112,7 @@ public class cgenie
 	
 		bitmap_dirty = 1;
 	
-	// if( errorlog ) fprintf(errorlog, "cgenie offset x:%d  y:%d\n", off_x, off_y);
+	// if (errorlog != 0) fprintf(errorlog, "cgenie offset x:%d  y:%d\n", off_x, off_y);
 	}
 	
 	
@@ -313,7 +313,7 @@ public class cgenie
 		for (addr = 0; addr < size; addr++)
 		{
 			i = (base + addr) & 0x3fff;
-			if( videoram[i] >= l && videoram[i] <= h )
+			if( videoram.read(i)>= l && videoram.read(i)<= h )
 				dirtybuffer[i] = 1;
 		}
 	}
@@ -326,7 +326,7 @@ public class cgenie
 	
 		if( crt.vertical_displayed == 0 || crt.horizontal_displayed == 0 )
 		{
-			fillbitmap(bitmap, Machine->remapped_colortable[0], &Machine->visible_area);
+			fillbitmap(bitmap, Machine.remapped_colortable[0], &Machine.visible_area);
 		}
 		else
 		{
@@ -334,10 +334,10 @@ public class cgenie
 			size = crt.horizontal_displayed * crt.vertical_displayed;
 			cursor = 256 * crt.cursor_address_hi + crt.cursor_address_lo;
 	
-			if( full_refresh )
+			if (full_refresh != 0)
 			{
 				full_refresh = 0;
-				fillbitmap(bitmap, Machine->remapped_colortable[0], &Machine->visible_area);
+				fillbitmap(bitmap, Machine.remapped_colortable[0], &Machine.visible_area);
 				for( i = offset; i < offset + size; i++ )
 					dirtybuffer[i] = 1;
 			}
@@ -352,32 +352,32 @@ public class cgenie
 				x = address % crt.horizontal_displayed + off_x;
 				y = address / crt.horizontal_displayed;
 				if( dirtybuffer[i] || (update_all &&
-					(cleanbuffer[y * 64 + x] != videoram[i] ||
-					  colorbuffer[y * 64 + x] != colorram[i & 0x3ff])) )
+					(cleanbuffer[y * 64 + x] != videoram.read(i)||
+					  colorbuffer[y * 64 + x] != colorram.read(i & 0x3ff))) )
 				{
 					r.min_x = x * 8;
 					r.max_x = r.min_x + 7;
 					r.min_y = y * (crt.scan_lines + 1) + off_y;
 					r.max_y = r.min_y + crt.scan_lines;
 	
-					colorbuffer[y * 64 + x] = colorram[i & 0x3ff];
-					cleanbuffer[y * 64 + x] = videoram[i];
+					colorbuffer[y * 64 + x] = colorram.read(i & 0x3ff);
+					cleanbuffer[y * 64 + x] = videoram.read(i);
 					dirtybuffer[i] = 0;
 	
-					if( graphics )
+					if (graphics != 0)
 					{
 						/* get graphics code */
-						code = videoram[i];
-						drawgfx(bitmap, Machine->gfx[1], code, 0,
+						code = videoram.read(i);
+						drawgfx(bitmap, Machine.gfx[1], code, 0,
 							0, 0, r.min_x, r.min_y, &r, TRANSPARENCY_NONE, 0);
 					}
 					else
 					{
 						/* get character code */
-						code = videoram[i];
+						code = videoram.read(i);
 						/* translate defined character sets */
 						code += cgenie_font_offset[(code >> 6) & 3];
-						drawgfx(bitmap, Machine->gfx[0], code, colorram[i&0x3ff],
+						drawgfx(bitmap, Machine.gfx[0], code, colorram.read(i&0x3ff),
 							0, 0, r.min_x, r.min_y, &r, TRANSPARENCY_NONE, 0);
 					}
 	
@@ -404,7 +404,7 @@ public class cgenie
 						rc.max_x = r.max_x;
 						rc.min_y = r.min_y + (crt.cursor_top & 15);
 						rc.max_y = r.min_y + (crt.cursor_bottom & 15);
-						drawgfx(bitmap, Machine->gfx[0], 0x7f, colorram[i&0x3ff],
+						drawgfx(bitmap, Machine.gfx[0], 0x7f, colorram.read(i&0x3ff),
 							0, 0, rc.min_x, rc.min_y, &rc, TRANSPARENCY_NONE, 0);
 					}
 				}
@@ -421,8 +421,8 @@ public class cgenie
 	
 	    if( crt.vertical_displayed == 0 || crt.horizontal_displayed == 0 )
 		{
-			fillbitmap(tmpbitmap, Machine->remapped_colortable[0], &Machine->visible_area);
-			fillbitmap(dlybitmap, Machine->remapped_colortable[0], &Machine->visible_area);
+			fillbitmap(tmpbitmap, Machine.remapped_colortable[0], &Machine.visible_area);
+			fillbitmap(dlybitmap, Machine.remapped_colortable[0], &Machine.visible_area);
 		}
 		else
 		{
@@ -430,11 +430,11 @@ public class cgenie
 			size = crt.horizontal_displayed * crt.vertical_displayed;
 			cursor = 256 * crt.cursor_address_hi + crt.cursor_address_lo;
 	
-			if( full_refresh )
+			if (full_refresh != 0)
 			{
 				full_refresh = 0;
-				fillbitmap(tmpbitmap, Machine->remapped_colortable[0], &Machine->visible_area);
-				fillbitmap(dlybitmap, Machine->remapped_colortable[0], &Machine->visible_area);
+				fillbitmap(tmpbitmap, Machine.remapped_colortable[0], &Machine.visible_area);
+				fillbitmap(dlybitmap, Machine.remapped_colortable[0], &Machine.visible_area);
 				for (i = offset; i < offset + size; i++)
 					dirtybuffer[i] = 1;
 			}
@@ -449,36 +449,36 @@ public class cgenie
 				x = address % crt.horizontal_displayed + off_x;
 				y = address / crt.horizontal_displayed;
 				if( dirtybuffer[i] || (update_all &&
-					 (cleanbuffer[y * 64 + x] != videoram[i] ||
-					  colorbuffer[y * 64 + x] != colorram[i & 0x3ff])) )
+					 (cleanbuffer[y * 64 + x] != videoram.read(i)||
+					  colorbuffer[y * 64 + x] != colorram.read(i & 0x3ff))) )
 				{
 					r.min_x = x * 8;
 					r.max_x = r.min_x + 7;
 					r.min_y = y * (crt.scan_lines + 1) + off_y;
 					r.max_y = r.min_y + crt.scan_lines;
 	
-					colorbuffer[y * 64 + x] = colorram[i & 0x3ff];
-					cleanbuffer[y * 64 + x] = videoram[i];
+					colorbuffer[y * 64 + x] = colorram.read(i & 0x3ff);
+					cleanbuffer[y * 64 + x] = videoram.read(i);
 					dirtybuffer[i] = 0;
 	
-					if( graphics )
+					if (graphics != 0)
 					{
 						/* get graphics code */
-						code = videoram[i];
-						drawgfx(tmpbitmap, Machine->gfx[1], code, 1,
+						code = videoram.read(i);
+						drawgfx(tmpbitmap, Machine.gfx[1], code, 1,
 							0, 0, r.min_x, r.min_y, &r, TRANSPARENCY_NONE, 0);
-						drawgfx(dlybitmap, Machine->gfx[1], code, 2,
+						drawgfx(dlybitmap, Machine.gfx[1], code, 2,
 							0, 0, r.min_x, r.min_y, &r, TRANSPARENCY_NONE, 0);
 					}
 					else
 					{
 						/* get character code */
-						code = videoram[i];
+						code = videoram.read(i);
 						/* translate defined character sets */
 						code += cgenie_font_offset[(code >> 6) & 3];
-						drawgfx(tmpbitmap, Machine->gfx[0], code, colorram[i&0x3ff] + 16,
+						drawgfx(tmpbitmap, Machine.gfx[0], code, colorram.read(i&0x3ff)+ 16,
 							0, 0, r.min_x, r.min_y, &r, TRANSPARENCY_NONE, 0);
-						drawgfx(dlybitmap, Machine->gfx[0], code, colorram[i&0x3ff] + 32,
+						drawgfx(dlybitmap, Machine.gfx[0], code, colorram.read(i&0x3ff)+ 32,
 							0, 0, r.min_x, r.min_y, &r, TRANSPARENCY_NONE, 0);
 					}
 	
@@ -505,9 +505,9 @@ public class cgenie
 						rc.max_x = r.max_x;
 						rc.min_y = r.min_y + (crt.cursor_top & 15);
 						rc.max_y = r.min_y + (crt.cursor_bottom & 15);
-						drawgfx(tmpbitmap, Machine->gfx[0], 0x7f, colorram[i&0x3ff] + 16,
+						drawgfx(tmpbitmap, Machine.gfx[0], 0x7f, colorram.read(i&0x3ff)+ 16,
 							0, 0, rc.min_x, rc.min_y, &rc, TRANSPARENCY_NONE, 0);
-						drawgfx(dlybitmap, Machine->gfx[0], 0x7f, colorram[i&0x3ff] + 32,
+						drawgfx(dlybitmap, Machine.gfx[0], 0x7f, colorram.read(i&0x3ff)+ 32,
 							0, 0, rc.min_x, rc.min_y, &rc, TRANSPARENCY_NONE, 0);
 					}
 				}
@@ -515,9 +515,9 @@ public class cgenie
 		}
 		update_all = 0;
 		copybitmap(bitmap, tmpbitmap, 0, 0, 0, 0,
-			&Machine->visible_area, TRANSPARENCY_NONE, 0);
+			&Machine.visible_area, TRANSPARENCY_NONE, 0);
 		copybitmap(bitmap, dlybitmap, 0, 0, 1, 0,
-			&Machine->visible_area, TRANSPARENCY_COLOR, 0);
+			&Machine.visible_area, TRANSPARENCY_COLOR, 0);
 	}
 	
 	/***************************************************************************
@@ -530,14 +530,14 @@ public class cgenie
 		if( palette_recalc() )
 	        full_refresh = 1;
 	
-	    if( cgenie_tv_mode )
+	    if (cgenie_tv_mode != 0)
 			cgenie_refresh_tv_set(bitmap,full_refresh);
 		else
 			cgenie_refresh_monitor(bitmap,full_refresh);
 	
 	    if( cgenie_frame_time > 0 )
 		{
-			ui_text(bitmap, cgenie_frame_message, 2, Machine->visible_area.max_y - 9);
+			ui_text(bitmap, cgenie_frame_message, 2, Machine.visible_area.max_y - 9);
 			/* if the message timed out, clear it on the next frame */
 			if( --cgenie_frame_time == 0 )
 				bitmap_dirty = 1;

@@ -101,7 +101,7 @@ public class pcw16
 	//#define PCW16_DUMP_CPU_RAM
 	
 	/* ram - up to 2mb */
-	unsigned char *pcw16_ram = NULL;
+	UBytePtr pcw16_ram = NULL;
 	
 	// general timer
 	void	 *pcw16_timer;
@@ -140,9 +140,9 @@ public class pcw16
 	
 		if (pcw16_ram!=NULL)
 		{
-			file = osd_fopen(Machine->gamedrv->name, "pcwram.bin", OSD_FILETYPE_MEMCARD, OSD_FOPEN_WRITE);
+			file = osd_fopen(Machine.gamedrv.name, "pcwram.bin", OSD_FILETYPE_MEMCARD, OSD_FOPEN_WRITE);
 	
-			if (file)
+			if (file != 0)
 			{
 				for (i=0; i<2048*1024; i++)
 				{
@@ -163,9 +163,9 @@ public class pcw16
 	{
 		void *file;
 	
-		file = osd_fopen(Machine->gamedrv->name, "pcwcpuram.bin", OSD_FILETYPE_MEMCARD,OSD_FOPEN_WRITE);
+		file = osd_fopen(Machine.gamedrv.name, "pcwcpuram.bin", OSD_FILETYPE_MEMCARD,OSD_FOPEN_WRITE);
 	
-		if (file)
+		if (file != 0)
 		{
 			int i;
 			for (i=0; i<65536; i++)
@@ -214,13 +214,13 @@ public class pcw16
 		}
 	}
 	
-	static struct MemoryReadAddress readmem_pcw16[] =
+	static MemoryReadAddress readmem_pcw16[] =
 	{
-		{0x0000, 0x03fff, MRA_BANK1},
-		{0x4000, 0x07fff, MRA_BANK2},
-		{0x8000, 0x0Bfff, MRA_BANK3},
-		{0xC000, 0x0ffff, MRA_BANK4},
-		{-1}							   /* end of table */
+		new MemoryReadAddress(0x0000, 0x03fff, MRA_BANK1),
+		new MemoryReadAddress(0x4000, 0x07fff, MRA_BANK2),
+		new MemoryReadAddress(0x8000, 0x0Bfff, MRA_BANK3),
+		new MemoryReadAddress(0xC000, 0x0ffff, MRA_BANK4),
+		new MemoryReadAddress(-1)							   /* end of table */
 	};
 	
 	extern int pcw16_colour_palette[16];
@@ -472,7 +472,7 @@ public class pcw16
 	
 	static void pcw16_update_bank(int bank)
 	{
-		unsigned char *mem_ptr = pcw16_ram;
+		UBytePtr mem_ptr = pcw16_ram;
 		int bank_id = 0;
 		int bank_offs = 0;
 	
@@ -503,11 +503,11 @@ public class pcw16
 				/* nvram */
 				if ((bank_id & 0x040)==0)
 				{
-					mem_ptr = (unsigned char *)flash_get_base(0);
+					mem_ptr = (UBytePtr )flash_get_base(0);
 				}
 				else
 				{
-					mem_ptr = (unsigned char *)flash_get_base(1);
+					mem_ptr = (UBytePtr )flash_get_base(1);
 				}
 			}
 	
@@ -613,9 +613,7 @@ public class pcw16
 	
 	static int pcw16_keyboard_state = 0;
 	static int pcw16_keyboard_previous_state=0;
-	static void pcw16_keyboard_reset(void);
-	static void pcw16_keyboard_int(int);
-	
+	static 
 	static void pcw16_keyboard_init(void)
 	{
 		int i;
@@ -656,7 +654,7 @@ public class pcw16
 		pcw16_keyboard_bits_output = pcw16_keyboard_bits;
 	
 		/* force clock low? */
-		if (pcw16_keyboard_state & PCW16_KEYBOARD_FORCE_KEYBOARD_CLOCK)
+		if ((pcw16_keyboard_state & PCW16_KEYBOARD_FORCE_KEYBOARD_CLOCK) != 0)
 		{
 			pcw16_keyboard_bits_output &= ~PCW16_KEYBOARD_CLOCK;
 		}
@@ -666,7 +664,7 @@ public class pcw16
 	{
 		pcw16_keyboard_bits &= ~PCW16_KEYBOARD_CLOCK;
 	
-		if (state)
+		if (state != 0)
 		{
 			pcw16_keyboard_bits |= PCW16_KEYBOARD_CLOCK;
 		}
@@ -678,7 +676,7 @@ public class pcw16
 	{
 		pcw16_system_status &= ~(1<<1);
 	
-		if (state)
+		if (state != 0)
 		{
 			pcw16_system_status |= (1<<1);
 		}
@@ -785,7 +783,7 @@ public class pcw16
 		pcw16_keyboard_previous_state = pcw16_keyboard_state;
 	
 		/* if set, set parity */
-		if (data & 0x080)
+		if ((data & 0x080) != 0)
 		{
 			pcw16_keyboard_state |= PCW16_KEYBOARD_PARITY_MASK;
 		}
@@ -797,12 +795,12 @@ public class pcw16
 		/* set read/write bits from data */
 		pcw16_keyboard_state |= (data & 0x03);
 	
-		if (data & PCW16_KEYBOARD_RESET_INTERFACE)
+		if ((data & PCW16_KEYBOARD_RESET_INTERFACE) != 0)
 		{
 			pcw16_keyboard_reset();
 		}
 	
-		if (data & PCW16_KEYBOARD_TRANSMIT_MODE)
+		if ((data & PCW16_KEYBOARD_TRANSMIT_MODE) != 0)
 		{
 			/* force clock changed */
 			if (((pcw16_keyboard_state^pcw16_keyboard_previous_state) & PCW16_KEYBOARD_FORCE_KEYBOARD_CLOCK)!=0)
@@ -862,13 +860,13 @@ public class pcw16
 		}
 	}
 	
-	static struct MemoryWriteAddress writemem_pcw16[] =
+	static MemoryWriteAddress writemem_pcw16[] =
 	{
-		{0x00000, 0x03fff, MWA_BANK5},
-		{0x04000, 0x07fff, MWA_BANK6},
-		{0x08000, 0x0bfff, MWA_BANK7},
-		{0x0c000, 0x0ffff, MWA_BANK8},
-		{-1}							   /* end of table */
+		new MemoryWriteAddress(0x00000, 0x03fff, MWA_BANK5),
+		new MemoryWriteAddress(0x04000, 0x07fff, MWA_BANK6),
+		new MemoryWriteAddress(0x08000, 0x0bfff, MWA_BANK7),
+		new MemoryWriteAddress(0x0c000, 0x0ffff, MWA_BANK8),
+		new MemoryWriteAddress(-1)							   /* end of table */
 	};
 	
 	static unsigned char rtc_seconds;
@@ -1071,7 +1069,7 @@ public class pcw16
 			/* nmi */
 			case 0:
 			{
-				if (state)
+				if (state != 0)
 				{
 					cpu_set_nmi_line(0, ASSERT_LINE);
 				}
@@ -1257,7 +1255,7 @@ public class pcw16
 		/* bit 6 of PCW16 system status indicates floppy ints */
 		pcw16_system_status &= ~(1<<6);
 	
-		if (state)
+		if (state != 0)
 		{
 			pcw16_system_status |= (1<<6);
 		}
@@ -1276,7 +1274,7 @@ public class pcw16
 		static const int irq[2]={4,3};
 		pcw16_system_status &= ~(1<<irq[nr]);
 	
-		if (state)
+		if (state != 0)
 		{
 			pcw16_system_status |= (1<<irq[nr]);
 		}
@@ -1336,55 +1334,55 @@ public class pcw16
 	
 	
 	
-	static struct IOReadPort readport_pcw16[] =
+	static IOReadPort readport_pcw16[] =
 	{
 		/* super i/o chip */
-		{0x01c, 0x01c, pcw16_superio_fdc_main_status_register_r},
-		{0x01d, 0x01d, pcw16_superio_fdc_data_r},
-		{0x01f, 0x01f, pcw16_superio_fdc_digital_input_register_r},
-		{0x020, 0x027, uart8250_0_r},
-		{0x028, 0x02f, uart8250_1_r},
-		{0x038, 0x03a, pc_LPT1_r},
+		new IOReadPort(0x01c, 0x01c, pcw16_superio_fdc_main_status_register_r),
+		new IOReadPort(0x01d, 0x01d, pcw16_superio_fdc_data_r),
+		new IOReadPort(0x01f, 0x01f, pcw16_superio_fdc_digital_input_register_r),
+		new IOReadPort(0x020, 0x027, uart8250_0_r),
+		new IOReadPort(0x028, 0x02f, uart8250_1_r),
+		new IOReadPort(0x038, 0x03a, pc_LPT1_r),
 		/* anne asic */
-		{0x0f0, 0x0f3, pcw16_bankhw_r},
-		{0x0f4, 0x0f4, pcw16_keyboard_data_shift_r},
-		{0x0f5, 0x0f5, pcw16_keyboard_status_r},
-		{0x0f7, 0x0f7, pcw16_timer_interrupt_counter_r},
-		{0x0f8, 0x0f8, pcw16_system_status_r},
-		{0x0f9, 0x0f9, rtc_256ths_seconds_r},
-		{0x0fa, 0x0fa, rtc_seconds_r},
-		{0x0fb, 0x0fb, rtc_minutes_r},
-		{0x0fc, 0x0fc, rtc_hours_r},
-		{0x0fd, 0x0fd, rtc_days_r},
-		{0x0fe, 0x0fe, rtc_month_r},
-		{0x0ff, 0x0ff, rtc_year_invalid_r},
-		{-1}							   /* end of table */
+		new IOReadPort(0x0f0, 0x0f3, pcw16_bankhw_r),
+		new IOReadPort(0x0f4, 0x0f4, pcw16_keyboard_data_shift_r),
+		new IOReadPort(0x0f5, 0x0f5, pcw16_keyboard_status_r),
+		new IOReadPort(0x0f7, 0x0f7, pcw16_timer_interrupt_counter_r),
+		new IOReadPort(0x0f8, 0x0f8, pcw16_system_status_r),
+		new IOReadPort(0x0f9, 0x0f9, rtc_256ths_seconds_r),
+		new IOReadPort(0x0fa, 0x0fa, rtc_seconds_r),
+		new IOReadPort(0x0fb, 0x0fb, rtc_minutes_r),
+		new IOReadPort(0x0fc, 0x0fc, rtc_hours_r),
+		new IOReadPort(0x0fd, 0x0fd, rtc_days_r),
+		new IOReadPort(0x0fe, 0x0fe, rtc_month_r),
+		new IOReadPort(0x0ff, 0x0ff, rtc_year_invalid_r),
+		new IOReadPort(-1)							   /* end of table */
 	};
 	
-	static struct IOWritePort writeport_pcw16[] =
+	static IOWritePort writeport_pcw16[] =
 	{
 		/* super i/o */
-		{0x01a, 0x01a, pcw16_superio_fdc_digital_output_register_w},
-		{0x01d, 0x01d, pcw16_superio_fdc_data_w},
-		{0x01f, 0x01f, pcw16_superio_fdc_datarate_w},
-		{0x020, 0x027, uart8250_0_w},
-		{0x028, 0x02f, uart8250_1_w},
-		{0x038, 0x03a, pc_LPT1_w},
+		new IOWritePort(0x01a, 0x01a, pcw16_superio_fdc_digital_output_register_w),
+		new IOWritePort(0x01d, 0x01d, pcw16_superio_fdc_data_w),
+		new IOWritePort(0x01f, 0x01f, pcw16_superio_fdc_datarate_w),
+		new IOWritePort(0x020, 0x027, uart8250_0_w),
+		new IOWritePort(0x028, 0x02f, uart8250_1_w),
+		new IOWritePort(0x038, 0x03a, pc_LPT1_w),
 		/* anne asic */
-		{0x0e0, 0x0ef, pcw16_palette_w},
-		{0x0f0, 0x0f3, pcw16_bankhw_w},
-		{0x0f7, 0x0f7, pcw16_video_control_w},
-		{0x0f4, 0x0f4, pcw16_keyboard_data_shift_w},
-		{0x0f5, 0x0f5, pcw16_keyboard_control_w},
-		{0x0f8, 0x0f8, pcw16_system_control_w},
-		{0x0f9, 0x0f9, rtc_control_w},
-		{0x0fa, 0x0fa, rtc_seconds_w},
-		{0x0fb, 0x0fb, rtc_minutes_w},
-		{0x0fc, 0x0fc, rtc_hours_w},
-		{0x0fd, 0x0fd, rtc_days_w},
-		{0x0fe, 0x0fe, rtc_month_w},
-		{0x0ff, 0x0ff, rtc_year_w},
-		{-1}							   /* end of table */
+		new IOWritePort(0x0e0, 0x0ef, pcw16_palette_w),
+		new IOWritePort(0x0f0, 0x0f3, pcw16_bankhw_w),
+		new IOWritePort(0x0f7, 0x0f7, pcw16_video_control_w),
+		new IOWritePort(0x0f4, 0x0f4, pcw16_keyboard_data_shift_w),
+		new IOWritePort(0x0f5, 0x0f5, pcw16_keyboard_control_w),
+		new IOWritePort(0x0f8, 0x0f8, pcw16_system_control_w),
+		new IOWritePort(0x0f9, 0x0f9, rtc_control_w),
+		new IOWritePort(0x0fa, 0x0fa, rtc_seconds_w),
+		new IOWritePort(0x0fb, 0x0fb, rtc_minutes_w),
+		new IOWritePort(0x0fc, 0x0fc, rtc_hours_w),
+		new IOWritePort(0x0fd, 0x0fd, rtc_days_w),
+		new IOWritePort(0x0fe, 0x0fe, rtc_month_w),
+		new IOWritePort(0x0ff, 0x0ff, rtc_year_w),
+		new IOWritePort(-1)							   /* end of table */
 	};
 	
 	void pcw16_reset(void)
@@ -1416,7 +1414,7 @@ public class pcw16
 	}
 	
 	
-	void pcw16_init_machine(void)
+	public static InitMachinePtr pcw16_init_machine = new InitMachinePtr() { public void handler() 
 	{
 		pcw16_ram = NULL;
 	
@@ -1474,7 +1472,7 @@ public class pcw16
 	
 	        beep_set_state(0,0);
 	        beep_set_frequency(0,3750);
-	}
+	} };
 	
 	
 	void pcw16_shutdown_machine(void)
@@ -1492,19 +1490,19 @@ public class pcw16
 		flash_store(1,"pcw16f2.nv");
 		flash_finish(1);
 	
-		if (pcw16_timer)
+		if (pcw16_timer != 0)
 		{
 			timer_remove(pcw16_timer);
 			pcw16_timer = NULL;
 		}
 	
-		if (pcw16_rtc_timer)
+		if (pcw16_rtc_timer != 0)
 		{
 			timer_remove(pcw16_rtc_timer);
 			pcw16_rtc_timer = NULL;
 		}
 	
-		if (pcw16_keyboard_timer)
+		if (pcw16_keyboard_timer != 0)
 		{
 			timer_remove(pcw16_keyboard_timer);
 			pcw16_keyboard_timer = NULL;
@@ -1512,42 +1510,42 @@ public class pcw16
 	
 	}
 	
-	INPUT_PORTS_START(pcw16)
-		PORT_START
+	static InputPortPtr input_ports_pcw16 = new InputPortPtr(){ public void handler() { 
+		PORT_START(); 
 		/* vblank */
-		PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_VBLANK)
+		PORT_BIT( 0x04, IP_ACTIVE_HIGH, IPT_VBLANK);
 		/* power switch - default is on */
-		PORT_BITX(0x40, 0x40, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Power Switch/Suspend", IP_KEY_NONE, IP_JOY_NONE)
-		PORT_DIPSETTING(0x0, DEF_STR( Off) )
-		PORT_DIPSETTING(0x40, DEF_STR( On) )
+		PORT_BITX(0x40, 0x40, IPT_DIPSWITCH_NAME | IPF_TOGGLE, "Power Switch/Suspend", IP_KEY_NONE, IP_JOY_NONE);
+		PORT_DIPSETTING(0x0, DEF_STR( "Off"));
+		PORT_DIPSETTING(0x40, DEF_STR( "On"));
 		
 		INPUT_MOUSE_SYSTEMS
 	
 		AT_KEYBOARD
-	INPUT_PORTS_END
+	INPUT_PORTS_END(); }}; 
 	
 	static struct beep_interface pcw16_beep_interface =
 	{
 	        1
 	};
 	
-	static struct MachineDriver machine_driver_pcw16 =
-	{
+	static MachineDriver machine_driver_pcw16 = new MachineDriver
+	(
 		/* basic machine hardware */
-		{
+		new MachineCPU[] {
 			/* MachineCPU */
-			{
+			new MachineCPU(
 				CPU_Z80,  /* type */
 				16000000,
 				readmem_pcw16,		   /* MemoryReadAddress */
 				writemem_pcw16,		   /* MemoryWriteAddress */
 				readport_pcw16,		   /* IOReadPort */
 				writeport_pcw16,		   /* IOWritePort */
-				0,						   /*amstrad_frame_interrupt, *//* VBlank
+				null,						   /*amstrad_frame_interrupt, *//* VBlank
 											* Interrupt */
 				0 /*1 */ ,				   /* vblanks per frame */
 				0, 0,	/* every scanline */
-			},
+			),
 		},
 		50, 							   /* frames per second */
 		DEFAULT_REAL_60HZ_VBLANK_DURATION,	   /* vblank duration */
@@ -1557,28 +1555,28 @@ public class pcw16
 		/* video hardware */
 		PCW16_SCREEN_WIDTH,			   /* screen width */
 		PCW16_SCREEN_HEIGHT,			   /* screen height */
-		{0, (PCW16_SCREEN_WIDTH - 1), 0, (PCW16_SCREEN_HEIGHT - 1)},	/* rectangle: visible_area */
-		0,								   /*amstrad_gfxdecodeinfo, 			 *//* graphics
+		new rectangle(0, (PCW16_SCREEN_WIDTH - 1), 0, (PCW16_SCREEN_HEIGHT - 1)),	/* rectangle: visible_area */
+		null,								   /*amstrad_gfxdecodeinfo, 			 *//* graphics
 											* decode info */
 		PCW16_NUM_COLOURS, 							   /* total colours */
 		PCW16_NUM_COLOURS, 							   /* color table len */
 		pcw16_init_palette,			   /* init palette */
 	
 		VIDEO_TYPE_RASTER,				   /* video attributes */
-		0,								   /* MachineLayer */
+		null,								   /* MachineLayer */
 		pcw16_vh_start,
 		pcw16_vh_stop,
 		pcw16_vh_screenrefresh,
 	
 			/* sound hardware */
 		0,0,0,0,
-		{
-			{
+		new MachineSound[] {
+			new MachineSound(
 	                        SOUND_BEEP,
-	                        &pcw16_beep_interface
-			}
+	                        pcw16_beep_interface
+			)
 		},
-	};
+	);
 	
 	
 	
@@ -1590,10 +1588,10 @@ public class pcw16
 	
 	/* the lower 64k of the flash-file memory is write protected. This contains the boot
 		rom. The boot rom is also on the OS rescue disc. Handy! */
-	ROM_START(pcw16)
-		ROM_REGION((0x010000+524288), REGION_CPU1)
-		ROM_LOAD("pcw045.sys",0x10000, 524288, 0xc642f498)
-	ROM_END
+	static RomLoadPtr rom_pcw16 = new RomLoadPtr(){ public void handler(){ 
+		ROM_REGION((0x010000+524288); REGION_CPU1)
+		ROM_LOAD("pcw045.sys",0x10000, 524288, 0xc642f498);
+	ROM_END(); }}; 
 	
 	static const struct IODevice io_pcw16[] =
 	{

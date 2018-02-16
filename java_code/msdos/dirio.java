@@ -177,18 +177,18 @@ public class dirio
 		{
 			struct stat st;
 	
-			strncpy(name, d->d_name, namelength-1);
+			strncpy(name, d.d_name, namelength-1);
 			name[namelength-1]='\0';
 	
 			len = strlen(name);
 	
-			if( stat(d->d_name, &st) == 0 )
+			if( stat(d.d_name, &st) == 0 )
 				*is_dir = S_ISDIR(st.st_mode);
 	
 			if (*is_dir)
 				return len;
 			else
-			if (fnmatch(dos_filemask, d->d_name))
+			if (fnmatch(dos_filemask, d.d_name))
 				return len;
 			else
 			{
@@ -203,7 +203,7 @@ public class dirio
 	
 	void osd_dir_close(void *dir)
 	{
-		if (dir)
+		if (dir != 0)
 			closedir(dir);
 	}
 }

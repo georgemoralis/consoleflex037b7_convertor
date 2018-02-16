@@ -19,10 +19,10 @@ public class odyssey2
 	static UINT8 *ROM;
 	
 	
-	void odyssey2_init_machine(void) {
+	public static InitMachinePtr odyssey2_init_machine = new InitMachinePtr() { public void handler()  {
 	
 		return;
-	}
+	} };
 	
 	
 	int odyssey2_load_rom (int id)
@@ -31,7 +31,7 @@ public class odyssey2
 	
 		if(device_filename(IO_CARTSLOT,id) == NULL)
 		{
-			printf("%s requires Cartridge!\n", Machine->gamedrv->name);
+			printf("%s requires Cartridge!\n", Machine.gamedrv.name);
 			return INIT_FAILED;
 	    }
 	
@@ -69,10 +69,10 @@ public class odyssey2
 	    logerror("P1 READ PC=%x\n",cpu_get_pc());
 	    in = input_port_0_r(0);
 	    d = in | 0x0F;
-	    if (in & 0x02) d = d & 0xF7;    /* Button 3 */
-	    if (in & 0x08) d = d & 0xCF;    /* Button 1 */
-	    if (in & 0x04) d = d & 0xAF;    /* Button 2 */
-	    if (in & 0x01) d = d & 0x6F;    /* Button 4 */
+	    if ((in & 0x02) != 0) d = d & 0xF7;    /* Button 3 */
+	    if ((in & 0x08) != 0) d = d & 0xCF;    /* Button 1 */
+	    if ((in & 0x04) != 0) d = d & 0xAF;    /* Button 2 */
+	    if ((in & 0x01) != 0) d = d & 0x6F;    /* Button 4 */
 	
 	    d = d & 0xF8;
 	    return d;

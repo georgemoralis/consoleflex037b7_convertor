@@ -22,11 +22,7 @@ extern unsigned short colortable_mono[4*16];
 #define PAL_SCANLINES_PER_FRAME   305		/* verify - times Elite perfectly */
 
 extern UINT8 *ppu_page[4];
-extern void ppu_mirror_h (void);
-extern void ppu_mirror_v (void);
-extern void ppu_mirror_low (void);
-extern void ppu_mirror_high (void);
-extern void ppu_mirror_custom (int page, int address);
+extern extern extern extern extern void ppu_mirror_custom (int page, int address);
 extern void ppu_mirror_custom_vrom (int page, int address);
 
 extern int current_scanline;
@@ -39,7 +35,7 @@ extern int nes_vram[8];
 extern int nes_vram_sprite[8];
 extern char use_vram[512];
 
-extern unsigned char *battery_ram;
+extern UBytePtr battery_ram;
 
 extern int PPU_Control0; /* $2000 */
 extern int PPU_Control1; /* $2001 */
