@@ -513,20 +513,20 @@ public class kc
 	}
 	
 	
-	static READ_HANDLER ( kc85_4_pio_data_r )
+	public static ReadHandlerPtr kc85_4_pio_data_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 	
 	        return z80pio_d_r(0,offset);
-	}
+	} };
 	
-	static READ_HANDLER ( kc85_4_pio_control_r )
+	public static ReadHandlerPtr kc85_4_pio_control_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 	
 	        return z80pio_c_r(0,offset);
-	}
+	} };
 	
 	
-	static WRITE_HANDLER ( kc85_4_pio_data_w )
+	public static WriteHandlerPtr kc85_4_pio_data_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 	
 	   {
@@ -550,27 +550,27 @@ public class kc
 	   //{
 	        kc85_4_update_0x08000();
 	   //}
-	}
+	} };
 	
-	static WRITE_HANDLER ( kc85_4_pio_control_w )
+	public static WriteHandlerPtr kc85_4_pio_control_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 	   z80pio_c_w(0, offset, data);
-	}
+	} };
 	
 	
-	static READ_HANDLER ( kc85_4_ctc_r )
+	public static ReadHandlerPtr kc85_4_ctc_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		return z80ctc_0_r(offset);
-	}
+	} };
 	
-	static WRITE_HANDLER ( kc85_4_ctc_w )
+	public static WriteHandlerPtr kc85_4_ctc_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 	        logerror("CTC W: %02x\r\n",data);
 	
 	        z80ctc_0_w(offset,data);
-	}
+	} };
 	
-	static WRITE_HANDLER ( kc85_4_84_w )
+	public static WriteHandlerPtr kc85_4_84_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 	        logerror("0x084 W: %02x\r\n",data);
 	
@@ -594,12 +594,12 @@ public class kc
 	
 	        kc85_4_update_0x08000();
 	
-	}
+	} };
 	
-	static READ_HANDLER ( kc85_4_84_r )
+	public static ReadHandlerPtr kc85_4_84_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		return kc85_84_data;
-	}
+	} };
 	
 	/* port 0x086:
 	
@@ -701,19 +701,19 @@ public class kc
 	        }
 	}
 	
-	static WRITE_HANDLER ( kc85_4_86_w )
+	public static WriteHandlerPtr kc85_4_86_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 	        logerror("0x086 W: %02x\r\n",data);
 	
 		kc85_86_data = data;
 	
 	        kc85_4_update_0x0c000();
-	}
+	} };
 	
-	static READ_HANDLER ( kc85_4_86_r )
+	public static ReadHandlerPtr kc85_4_86_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		return kc85_86_data;
-	}
+	} };
 	
 	static void kc85_4_pio_interrupt(int state)
 	{
@@ -736,7 +736,7 @@ public class kc
 	
 	int keyboard_data = 0;
 	
-	static WRITE_HANDLER ( kc85_4_zc2_callback )
+	public static WriteHandlerPtr kc85_4_zc2_callback = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 	//z80ctc_trg_w(0, 3, 0,keyboard_data);
 	//z80ctc_trg_w(0, 3, 1,keyboard_data);
@@ -744,7 +744,7 @@ public class kc
 	//z80ctc_trg_w(0, 3, 3,keyboard_data);
 	
 	//keyboard_data^=0x0ff;
-	}
+	} };
 	
 	
 	#define KC85_4_CTC_CLOCK		4000000

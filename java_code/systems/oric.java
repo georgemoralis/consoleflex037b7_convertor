@@ -156,10 +156,10 @@ public class oric
 	}
 	
 	/* read PSG port A */
-	static READ_HANDLER ( oric_psg_porta_read )
+	public static ReadHandlerPtr oric_psg_porta_read  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		return 0;
-	}
+	} };
 	
 	
 	static AY8910interface oric_ay_interface = new AY8910interface

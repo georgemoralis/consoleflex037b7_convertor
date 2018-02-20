@@ -254,7 +254,7 @@ public class enterp
 	        return ignore_interrupt();
 	} };
 	
-	static READ_HANDLER ( enterprise_wd177x_read )
+	public static ReadHandlerPtr enterprise_wd177x_read  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		switch (offset & 0x03)
 		{
@@ -271,9 +271,9 @@ public class enterp
 		}
 	
 		return 0x0ff;
-	}
+	} };
 	
-	static WRITE_HANDLER (	enterprise_wd177x_write )
+	public static WriteHandlerPtr enterprise_wd177x_write = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		switch (offset & 0x03)
 		{
@@ -292,7 +292,7 @@ public class enterp
 		default:
 			break;
 		}
-	}
+	} };
 	
 	
 	
@@ -379,7 +379,7 @@ public class enterp
 	
 	
 	
-	static WRITE_HANDLER ( exdos_card_w )
+	public static WriteHandlerPtr exdos_card_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		/* drive side */
 		int head = (data>>4) & 0x01;
@@ -391,7 +391,7 @@ public class enterp
 			wd179x_select_drive(drive, head, wd177x_callback,device_filename(IO_FLOPPY,drive));
 			wd179x_set_geometry(drive, 80, 2,9,512, 10,3, 1);
 		}
-	}
+	} };
 	
 	/* bit 0 - ??
 	   bit 1 - IRQ from WD1772
@@ -404,10 +404,10 @@ public class enterp
 	*/
 	
 	
-	static READ_HANDLER ( exdos_card_r )
+	public static ReadHandlerPtr exdos_card_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		return EXDOS_CARD_R;
-	}
+	} };
 	
 	static IOReadPort readport_enterprise[] =
 	{

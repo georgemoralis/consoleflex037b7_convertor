@@ -870,7 +870,7 @@ public class vc1541
 	  5,6: output frequency select
 	  7: input byte ready
 	 */
-	static WRITE_HANDLER ( c1551_port_w )
+	public static WriteHandlerPtr c1551_port_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		static int old=0;
 		if (offset != 0) {
@@ -925,9 +925,9 @@ public class vc1541
 			vc1541.drive.c1551.cpu_ddr=data;
 			DBG_LOG(1, "c1551 ddr",("write %.2x\n",data));
 		}
-	}
+	} };
 	
-	static READ_HANDLER ( c1551_port_r )
+	public static ReadHandlerPtr c1551_port_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		int data;
 	
@@ -949,7 +949,7 @@ public class vc1541
 			DBG_LOG(3, "c1551 ddr",("read %.2x\n", data));
 		}
 		return data;
-	}
+	} };
 	
 	/*
 	   tia6523

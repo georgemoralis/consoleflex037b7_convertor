@@ -26,22 +26,22 @@ public class cpschngr
 	
 	
 	
-	static READ_HANDLER ( cps1_input2_r )
+	public static ReadHandlerPtr cps1_input2_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		int buttons=readinputport(6);
 		return buttons << 8 | buttons;
-	}
+	} };
 	
-	static READ_HANDLER ( cps1_input3_r )
+	public static ReadHandlerPtr cps1_input3_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 	    int buttons=readinputport(7);
 		return buttons << 8 | buttons;
-	}
+	} };
 	
 	
 	static int cps1_sound_fade_timer;
 	
-	static WRITE_HANDLER ( cps1_snd_bankswitch_w )
+	public static WriteHandlerPtr cps1_snd_bankswitch_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		UBytePtr RAM = memory_region(REGION_CPU2);
 		int length = memory_region_length(REGION_CPU2) - 0x10000;
@@ -51,52 +51,52 @@ public class cpschngr
 		cpu_setbank(1,&RAM[0x10000 + bankaddr]);
 	
 	if ((data & 0xfe)) logerror("%04x: write %02x to f004\n",cpu_get_pc(),data);
-	}
+	} };
 	
-	static WRITE_HANDLER ( cps1_sound_fade_w )
+	public static WriteHandlerPtr cps1_sound_fade_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		cps1_sound_fade_timer=data;
-	}
+	} };
 	
-	static READ_HANDLER ( cps1_snd_fade_timer_r )
+	public static ReadHandlerPtr cps1_snd_fade_timer_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		return cps1_sound_fade_timer;
-	}
+	} };
 	
-	static READ_HANDLER ( cps1_input_r )
+	public static ReadHandlerPtr cps1_input_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		int control=readinputport (offset/2);
 		return (control<<8) | control;
-	}
+	} };
 	
-	static READ_HANDLER ( cps1_player_input_r )
+	public static ReadHandlerPtr cps1_player_input_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		return (readinputport(offset + 4) + (readinputport(offset+1 + 4)<<8));
-	}
+	} };
 	
 	static int dial[2];
 	
-	static READ_HANDLER ( forgottn_dial_0_r )
+	public static ReadHandlerPtr forgottn_dial_0_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		return ((readinputport(6) - dial[0]) >> (4*offset)) & 0xff;
-	}
+	} };
 	
-	static READ_HANDLER ( forgottn_dial_1_r )
+	public static ReadHandlerPtr forgottn_dial_1_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		return ((readinputport(7) - dial[1]) >> (4*offset)) & 0xff;
-	}
+	} };
 	
-	static WRITE_HANDLER ( forgottn_dial_0_reset_w )
+	public static WriteHandlerPtr forgottn_dial_0_reset_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		dial[0] = readinputport(6);
-	}
+	} };
 	
-	static WRITE_HANDLER ( forgottn_dial_1_reset_w )
+	public static WriteHandlerPtr forgottn_dial_1_reset_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		dial[1] = readinputport(7);
-	}
+	} };
 	
-	static WRITE_HANDLER ( cps1_coinctrl_w )
+	public static WriteHandlerPtr cps1_coinctrl_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		if ((data & 0xff000000) == 0)
 		{
@@ -107,12 +107,12 @@ public class cpschngr
 	    usrintf_showmessage(baf);
 	}
 	*/
-			coin_lockout_w(0,~data & 0x0400);
-			coin_lockout_w(1,~data & 0x0800);
-			coin_counter_w(0,data & 0x0100);
-			coin_counter_w(1,data & 0x0200);
+			coin_lockout_w.handler(0,~data & 0x0400);
+			coin_lockout_w.handler(1,~data & 0x0800);
+			coin_counter_w.handler(0,data & 0x0100);
+			coin_counter_w.handler(1,data & 0x0200);
 		}
-	}
+	} };
 	
 	WRITE_HANDLER ( cpsq_coinctrl2_w )
 	{
@@ -199,17 +199,17 @@ public class cpschngr
 		return 2;
 	} };
 	
-	static READ_HANDLER ( qsound_sharedram_r )
+	public static ReadHandlerPtr qsound_sharedram_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		return qsound_sharedram[offset / 2] | 0xff00;
-	}
+	} };
 	
-	static WRITE_HANDLER ( qsound_sharedram1_w )
+	public static WriteHandlerPtr qsound_sharedram1_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		qsound_sharedram[offset / 2] = data;
-	}
+	} };
 	
-	static WRITE_HANDLER ( qsound_banksw_w )
+	public static WriteHandlerPtr qsound_banksw_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		/*
 		Z80 bank register for music note data. It's odd that it isn't encrypted
@@ -226,7 +226,7 @@ public class cpschngr
 			bankaddress=0x10000;
 		}
 		cpu_setbank(1, &RAM[bankaddress]);
-	}
+	} };
 	
 	
 	/********************************************************************

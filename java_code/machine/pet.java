@@ -40,19 +40,19 @@ public class pet
 	  cb1 video sync in
 	  cb2 cassette 1 motor out
 	*/
-	static READ_HANDLER ( pet_pia0_port_a_read )
+	public static ReadHandlerPtr pet_pia0_port_a_read  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		int data=0xff;
 		if (!cbm_ieee_eoi_r()) data&=~0x40;
 		return data;
-	}
+	} };
 	
-	static WRITE_HANDLER ( pet_pia0_port_a_write )
+	public static WriteHandlerPtr pet_pia0_port_a_write = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		pet_keyline_select=data;  /*data is actually line here! */
-	}
+	} };
 	
-	static READ_HANDLER ( pet_pia0_port_b_read )
+	public static ReadHandlerPtr pet_pia0_port_b_read  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		int data=0;
 		switch(pet_keyline_select) {
@@ -68,7 +68,7 @@ public class pet
 		case 9: data|=pet_keyline[9];break;
 		}
 		return data^0xff;
-	}
+	} };
 	
 	public static WriteHandlerPtr pet_pia0_ca2_out = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
@@ -97,35 +97,35 @@ public class pet
 	  cb1 srq in
 	  cb2 dav out
 	 */
-	static READ_HANDLER ( pet_pia1_port_a_read )
+	public static ReadHandlerPtr pet_pia1_port_a_read  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		return cbm_ieee_data_r();
-	}
+	} };
 	
-	static WRITE_HANDLER ( pet_pia1_port_b_write )
+	public static WriteHandlerPtr pet_pia1_port_b_write = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		cbm_ieee_data_w(0, data);
-	}
+	} };
 	
-	static READ_HANDLER ( pet_pia1_ca1_read )
+	public static ReadHandlerPtr pet_pia1_ca1_read  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		return cbm_ieee_atn_r();
-	}
+	} };
 	
-	static WRITE_HANDLER ( pet_pia1_ca2_write )
+	public static WriteHandlerPtr pet_pia1_ca2_write = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		cbm_ieee_ndac_w(0,data);
-	}
+	} };
 	
-	static WRITE_HANDLER ( pet_pia1_cb2_write )
+	public static WriteHandlerPtr pet_pia1_cb2_write = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		cbm_ieee_dav_w(0,data);
-	}
+	} };
 	
-	static READ_HANDLER ( pet_pia1_cb1_read )
+	public static ReadHandlerPtr pet_pia1_cb1_read  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		return cbm_ieee_srq_r();
-	}
+	} };
 	
 	static struct pia6821_interface pet_pia0={
 	#if 0

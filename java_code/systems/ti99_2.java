@@ -292,7 +292,7 @@ public class ti99_2
 	static int KeyRow = 0;
 	
 	/* write the current keyboard row */
-	static WRITE_HANDLER ( ti99_2_write_kbd )
+	public static WriteHandlerPtr ti99_2_write_kbd = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		offset &= 0x7;  /* other address lines are not decoded */
 	
@@ -309,9 +309,9 @@ public class ti99_2
 		{	/* if we have paged ROMs, page according to S0 keyboard interface line */
 			cpu_setbank(1, (KeyRow == 0) ? TI99_2_32_ROMPAGE1 : TI99_2_32_ROMPAGE0);
 		}
-	}
+	} };
 	
-	static WRITE_HANDLER ( ti99_2_write_misc_cru )
+	public static WriteHandlerPtr ti99_2_write_misc_cru = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		offset &= 0x7;  /* other address lines are not decoded */
 	
@@ -336,7 +336,7 @@ public class ti99_2
 			/* video enable */
 			break;
 		}
-	}
+	} };
 	
 	static IOWritePort ti99_2_writeport[] =
 	{
@@ -346,15 +346,15 @@ public class ti99_2
 	};
 	
 	/* read keys in the current row */
-	static READ_HANDLER ( ti99_2_read_kbd )
+	public static ReadHandlerPtr ti99_2_read_kbd  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		return readinputport(KeyRow);
-	}
+	} };
 	
-	static READ_HANDLER ( ti99_2_read_misc_cru )
+	public static ReadHandlerPtr ti99_2_read_misc_cru  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		return 0;
-	}
+	} };
 	
 	static IOReadPort ti99_2_readport[] =
 	{

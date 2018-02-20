@@ -63,19 +63,19 @@ public class vtech2
 	static void mwa_bank(int bank, int offs, int data);
 	
 	/* wrappers for bank #1 to #4 */
-	static WRITE_HANDLER ( mwa_bank1 ) { mwa_bank(0,offset,data); }
-	static WRITE_HANDLER ( mwa_bank2 ) { mwa_bank(1,offset,data); }
-	static WRITE_HANDLER ( mwa_bank3 ) { mwa_bank(2,offset,data); }
-	static WRITE_HANDLER ( mwa_bank4 ) { mwa_bank(3,offset,data); }
+	public static WriteHandlerPtr mwa_bank1 = new WriteHandlerPtr() {public void handler(int offset, int data) { mwa_bank(0,offset,data); } };
+	public static WriteHandlerPtr mwa_bank2 = new WriteHandlerPtr() {public void handler(int offset, int data) { mwa_bank(1,offset,data); } };
+	public static WriteHandlerPtr mwa_bank3 = new WriteHandlerPtr() {public void handler(int offset, int data) { mwa_bank(2,offset,data); } };
+	public static WriteHandlerPtr mwa_bank4 = new WriteHandlerPtr() {public void handler(int offset, int data) { mwa_bank(3,offset,data); } };
 	
 	/* read from banked memory (handle memory mapped i/o) */
 	static int mra_bank(int bank, int offs);
 	
 	/* wrappers for bank #1 to #4 */
-	static READ_HANDLER ( mra_bank1) { return mra_bank(0,offset); }
-	static READ_HANDLER ( mra_bank2) { return mra_bank(1,offset); }
-	static READ_HANDLER ( mra_bank3) { return mra_bank(2,offset); }
-	static READ_HANDLER ( mra_bank4) { return mra_bank(3,offset); }
+	public static ReadHandlerPtr mra_bank1  = new ReadHandlerPtr() { public int handler(int offset) { return mra_bank(0,offset); } };
+	public static ReadHandlerPtr mra_bank2  = new ReadHandlerPtr() { public int handler(int offset) { return mra_bank(1,offset); } };
+	public static ReadHandlerPtr mra_bank3  = new ReadHandlerPtr() { public int handler(int offset) { return mra_bank(2,offset); } };
+	public static ReadHandlerPtr mra_bank4  = new ReadHandlerPtr() { public int handler(int offset) { return mra_bank(3,offset); } };
 	
 	/* read banked memory (handle memory mapped i/o) */
 	static UINT32 (*mra_bank_soft[4])(UINT32) =
@@ -162,15 +162,15 @@ public class vtech2
 	    }
 	}
 	
-	static WRITE_HANDLER ( mwa_empty )
+	public static WriteHandlerPtr mwa_empty = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		/* empty */
-	}
+	} };
 	
-	static READ_HANDLER ( mra_empty )
+	public static ReadHandlerPtr mra_empty  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		return 0xff;
-	}
+	} };
 	
 	void laser_bank_select_w(int offs, int data)
 	{

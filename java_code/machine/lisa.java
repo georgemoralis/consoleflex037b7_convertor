@@ -168,8 +168,6 @@ public class lisa
 		protos
 	*/
 	
-	static READ_HANDLER ( lisa_IO_r );
-	static WRITE_HANDLER ( lisa_IO_w );
 	
 	
 	/*
@@ -1573,7 +1571,7 @@ public class lisa
 	*                                                                                      *
 	\**************************************************************************************/
 	
-	static READ_HANDLER ( lisa_IO_r )
+	public static ReadHandlerPtr lisa_IO_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		int answer=0;
 	
@@ -1714,9 +1712,9 @@ public class lisa
 		}
 	
 		return answer;
-	}
+	} };
 	
-	static WRITE_HANDLER ( lisa_IO_w )
+	public static WriteHandlerPtr lisa_IO_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		switch ((offset & 0xe000) >> 13)
 		{
@@ -1838,7 +1836,7 @@ public class lisa
 			}
 			break;
 		}
-	}
+	} };
 	
 	
 }

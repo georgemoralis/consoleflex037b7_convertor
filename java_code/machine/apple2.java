@@ -40,8 +40,6 @@ public class apple2
 	
 	static int mockingboard_r (int offset);
 	static void mockingboard_w (int offset, int data);
-	static WRITE_HANDLER ( apple2_mainram_w );
-	static WRITE_HANDLER ( apple2_auxram_w );
 	
 	/***************************************************************************
 	  apple2_init_machine

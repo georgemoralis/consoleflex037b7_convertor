@@ -512,7 +512,7 @@ public class c65
 		}
 	}
 	
-	static READ_HANDLER ( c65_read_io )
+	public static ReadHandlerPtr c65_read_io  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		switch(offset&0xf00) {
 		case 0x000:
@@ -545,9 +545,9 @@ public class c65
 			return c65_dma_port_r(offset&0xff);
 		}
 		return 0xff;
-	}
+	} };
 	
-	static READ_HANDLER ( c65_read_io_dc00 )
+	public static ReadHandlerPtr c65_read_io_dc00  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		switch(offset&0x300) {
 		case 0x000:
@@ -560,7 +560,7 @@ public class c65
 			break;
 		}
 		return 0xff;
-	}
+	} };
 	
 	
 	/*

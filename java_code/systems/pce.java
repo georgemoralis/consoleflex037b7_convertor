@@ -67,32 +67,32 @@ public class pce
 	
 	/* stubs for the irq/psg/timer code */
 	
-	static WRITE_HANDLER ( pce_irq_w)
+	public static WriteHandlerPtr pce_irq_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
-	}
+	} };
 	
-	static READ_HANDLER ( pce_irq_r )
+	public static ReadHandlerPtr pce_irq_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 	    return 0x00;
-	}
+	} };
 	
-	static WRITE_HANDLER ( pce_timer_w )
+	public static WriteHandlerPtr pce_timer_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
-	}
+	} };
 	
-	static READ_HANDLER ( pce_timer_r )
-	{
-	    return 0x00;
-	}
-	
-	static WRITE_HANDLER ( pce_psg_w )
-	{
-	}
-	
-	static READ_HANDLER ( pce_psg_r )
+	public static ReadHandlerPtr pce_timer_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 	    return 0x00;
-	}
+	} };
+	
+	public static WriteHandlerPtr pce_psg_w = new WriteHandlerPtr() {public void handler(int offset, int data)
+	{
+	} };
+	
+	public static ReadHandlerPtr pce_psg_r  = new ReadHandlerPtr() { public int handler(int offset)
+	{
+	    return 0x00;
+	} };
 	
 	static MemoryReadAddress pce_readmem[] =
 	{

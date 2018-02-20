@@ -568,7 +568,7 @@ public class convertMame {
 
                             }
 
-                        } else if (sUtil.getToken("READ_HANDLER(")) {
+                        } else if (sUtil.getToken("READ_HANDLER(") || (sUtil.getToken("READ_HANDLER ("))) {
                             sUtil.skipSpace();
                             Convertor.token[0] = sUtil.parseToken();
                             sUtil.skipSpace();
@@ -583,7 +583,7 @@ public class convertMame {
                                 Convertor.inpos += 1;
                                 continue;
                             }
-                        } else if (sUtil.getToken("WRITE_HANDLER(")) {
+                        } else if (sUtil.getToken("WRITE_HANDLER(") || (sUtil.getToken("WRITE_HANDLER ("))) {
                             sUtil.skipSpace();
                             Convertor.token[0] = sUtil.parseToken();
                             sUtil.skipSpace();

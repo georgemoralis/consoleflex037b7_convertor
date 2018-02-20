@@ -80,18 +80,18 @@ public class dragon
 	static int d_dac;
 	static int d_sam_memory_size;
 	
-	static WRITE_HANDLER ( d_pia1_pb_w );
-	static WRITE_HANDLER ( coco3_pia1_pb_w );
-	static WRITE_HANDLER ( d_pia1_pa_w );
-	static READ_HANDLER (  d_pia1_cb1_r );
-	static READ_HANDLER (  d_pia0_ca1_r );
-	static READ_HANDLER (  d_pia0_pa_r );
-	static READ_HANDLER (  d_pia1_pa_r );
-	static WRITE_HANDLER ( d_pia0_pb_w );
-	static WRITE_HANDLER ( d_pia1_cb2_w);
+	public static WriteHandlerPtr d_pia1_cb2_w = new WriteHandlerPtr() {public void handler(int offset, int data);
 	static WRITE_HANDLER ( d_pia0_cb2_w);
 	static WRITE_HANDLER ( d_pia1_ca2_w);
 	static WRITE_HANDLER ( d_pia0_ca2_w);
+	static void d_pia0_irq_a(int state);
+	static void d_pia0_irq_b(int state);
+	static void d_pia1_firq_a(int state);
+	static void d_pia1_firq_b(int state);
+	static void coco3_pia0_irq_a(int state);
+	static void coco3_pia0_irq_b(int state);
+	static void coco3_pia1_firq_a(int state);
+	static void coco3_pia1_firq_b(int state);
 	
 	#define LOG_PAK			0
 	#define LOG_WAVE		0
@@ -125,7 +125,7 @@ public class dragon
 			/*outputs: A/B,CA/B2	   */ d_pia1_pa_w, d_pia1_pb_w, d_pia1_ca2_w, d_pia1_cb2_w,
 			/*irqs	 : A/B			   */ d_pia1_firq_a, d_pia1_firq_b
 		}
-	};
+	} };;
 	
 	static struct pia6821_interface coco3_pia_intf[] =
 	{
@@ -577,17 +577,17 @@ public class dragon
 		return ignore_interrupt();
 	} };
 	
-	static READ_HANDLER ( d_pia0_ca1_r )
+	public static ReadHandlerPtr d_pia0_ca1_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		return 0;
-	}
+	} };
 	
-	static READ_HANDLER ( d_pia1_cb1_r )
+	public static ReadHandlerPtr d_pia1_cb1_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		return cart_inserted;
-	}
+	} };
 	
-	static WRITE_HANDLER ( d_pia1_cb2_w )
+	public static WriteHandlerPtr d_pia1_cb2_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		int status;
 	
@@ -602,9 +602,9 @@ public class dragon
 		device_status(IO_CASSETTE, 0, status);
 	
 		sound_mux = data;
-	}
+	} };
 	
-	static WRITE_HANDLER ( d_pia1_pa_w )
+	public static WriteHandlerPtr d_pia1_pa_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		/*
 		 *	This port appears at $FF20
@@ -619,7 +619,7 @@ public class dragon
 		else
 			device_output(IO_CASSETTE, 0, ((int) d_dac - 0x80) * 0x102);
 	
-	}
+	} };
 	
 	/*
 	 * This port appears at $FF23
@@ -639,12 +639,12 @@ public class dragon
 		m6847_set_mode(data >> 3);
 	} };
 	
-	static WRITE_HANDLER ( d_pia0_cb2_w )
+	public static WriteHandlerPtr d_pia0_cb2_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		joystick = data;
-	}
+	} };
 	
-	static WRITE_HANDLER ( d_pia1_ca2_w )
+	public static WriteHandlerPtr d_pia1_ca2_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		int status;
 	
@@ -657,12 +657,12 @@ public class dragon
 			device_status(IO_CASSETTE, 0, status);
 			tape_motor = data;
 		}
-	}
+	} };
 	
-	static WRITE_HANDLER ( d_pia0_ca2_w )
+	public static WriteHandlerPtr d_pia0_ca2_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		joystick_axis = data;
-	}
+	} };
 	
 	static int keyboard_r(void)
 	{
@@ -682,10 +682,10 @@ public class dragon
 		return porta;
 	}
 	
-	static READ_HANDLER ( d_pia0_pa_r )
+	public static ReadHandlerPtr d_pia0_pa_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		return keyboard_r();
-	}
+	} };
 	
 	static void coco3_poll_keyboard(int dummy)
 	{
@@ -704,15 +704,15 @@ public class dragon
 		}
 	}
 	
-	static READ_HANDLER ( d_pia1_pa_r )
+	public static ReadHandlerPtr d_pia1_pa_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		return (device_input(IO_CASSETTE, 0) >= 0) ? 1 : 0;
-	}
+	} };
 	
-	static WRITE_HANDLER ( d_pia0_pb_w )
+	public static WriteHandlerPtr d_pia0_pb_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		pia0_pb = data;
-	}
+	} };
 	
 	/***************************************************************************
 	  Misc

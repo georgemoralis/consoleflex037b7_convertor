@@ -38,38 +38,38 @@ public class mtx
 		new int[] { 100 }
 	);
 	
-	static READ_HANDLER ( mtx_psg_r )
+	public static ReadHandlerPtr mtx_psg_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		return 0xff;
-	}
+	} };
 	
-	static WRITE_HANDLER ( mtx_psg_w )
+	public static WriteHandlerPtr mtx_psg_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 	        SN76496_0_w(offset,data);
-	}
+	} };
 	
-	static READ_HANDLER ( mtx_vdp_r )
+	public static ReadHandlerPtr mtx_vdp_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		if ((offset & 0x01) != 0)
 			return TMS9928A_register_r();
 		else
 			return TMS9928A_vram_r();
-	}
+	} };
 	
-	static WRITE_HANDLER ( mtx_vdp_w )
+	public static WriteHandlerPtr mtx_vdp_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		if ((offset & 0x01) != 0)
 			TMS9928A_register_w(data);
 		else
 			TMS9928A_vram_w(data);
-	}
+	} };
 	
-	static WRITE_HANDLER ( mtx_sense_w )
+	public static WriteHandlerPtr mtx_sense_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		key_sense = data;
-	}
+	} };
 	
-	static READ_HANDLER ( mtx_key_lo_r )
+	public static ReadHandlerPtr mtx_key_lo_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		unsigned char rtn = 0;
 	
@@ -98,9 +98,9 @@ public class mtx
 			rtn = readinputport(7);
 	
 		return(rtn);
-	}
+	} };
 	
-	static READ_HANDLER ( mtx_key_hi_r )
+	public static ReadHandlerPtr mtx_key_hi_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		unsigned char rtn = 0;
 	
@@ -133,7 +133,7 @@ public class mtx
 			rtn = ((readinputport(9) >> 6) & 0x03) | tmp;
 	
 		return(rtn);
-	}
+	} };
 	
 	static void mtx_ctc_interrupt(int state)
 	{
@@ -143,17 +143,17 @@ public class mtx
 	         cpu_cause_interrupt(0, Z80_VECTOR(0, state));
 	}
 	
-	static READ_HANDLER ( mtx_ctc_r )
+	public static ReadHandlerPtr mtx_ctc_r  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		return z80ctc_0_r(offset);
-	}
+	} };
 	
-	static WRITE_HANDLER ( mtx_ctc_w )
+	public static WriteHandlerPtr mtx_ctc_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 	        //logerror("CTC W: %02x\r\n",data);
 	
 	        z80ctc_0_w(offset,data);
-	}
+	} };
 	
 	static z80ctc_interface	mtx_ctc_intf =
 	{
@@ -166,7 +166,7 @@ public class mtx
 	    {0}
 	};
 	
-	static WRITE_HANDLER ( mtx_bankswitch_w )
+	public static WriteHandlerPtr mtx_bankswitch_w = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 	
 		UBytePtr romoffset;
@@ -333,7 +333,7 @@ public class mtx
 		cpu_setbank(6, mtx_ram + bank6);
 		cpu_setbank(14, mtx_ram + bank6);
 	
-	}
+	} };
 	
 	unsigned char mtx_peek(int address)
 	{
@@ -499,7 +499,7 @@ public class mtx
 	
 	}
 	
-	static WRITE_HANDLER ( mtx_trap_write )
+	public static WriteHandlerPtr mtx_trap_write = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
 		int pc;
 	
@@ -621,7 +621,7 @@ public class mtx
 							}
 					}
 			}
-	}
+	} };
 	
 	
 	public static InitMachinePtr mtx_init_machine = new InitMachinePtr() { public void handler() 

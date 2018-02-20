@@ -94,17 +94,17 @@ public class ti990_4
 	
 	*/
 	
-	static READ_HANDLER ( ti990_4_panel_read )
+	public static ReadHandlerPtr ti990_4_panel_read  = new ReadHandlerPtr() { public int handler(int offset)
 	{
 		if (offset == 1)
 			return 0x08;
 	
 		return 0;
-	}
+	} };
 	
-	static WRITE_HANDLER ( ti990_4_panel_write )
+	public static WriteHandlerPtr ti990_4_panel_write = new WriteHandlerPtr() {public void handler(int offset, int data)
 	{
-	}
+	} };
 	
 	/*
 	  TI990/4 video emulation.
